@@ -7,7 +7,7 @@ AnimDockWidget::AnimDockWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     p_myWindow = std::make_unique<myOpglWidget>(new myOpglWidget);
-    ui->gridLayout->addWidget(p_myWindow.get());
+    ui->gridLayout->addWidget(p_myWindow.get(), 1, 0, 1, 1);
 }
 
 AnimDockWidget::~AnimDockWidget()
@@ -18,6 +18,5 @@ AnimDockWidget::~AnimDockWidget()
 void AnimDockWidget::on_pushButton_clicked()
 {
     ((myOpglWidget*)p_myWindow.get())->black = !((myOpglWidget*)p_myWindow.get())->black;
-    qDebug() << ((myOpglWidget*)p_myWindow.get())->black;
 }
 

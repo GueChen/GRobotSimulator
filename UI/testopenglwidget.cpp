@@ -3,7 +3,7 @@
 #include <QOpenGLContext>
 #include <QOpenGLExtraFunctions>
 #include "testopenglwidget.h"
-#include <Component/GLTooler.hpp>
+#include <Component/MyGL.hpp>
 #include <QDebug>
 
 static const float posData[] = {

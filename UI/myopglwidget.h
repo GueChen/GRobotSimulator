@@ -3,24 +3,20 @@
 #define MyGlad
 #include <glm/glm.hpp>
 #include <memory>
-#include <QWindow>
 #include <QTimer>
 #include <QtOpenGLWidgets/QOpenGLWidget>
 
-#ifndef MyGlad
-#include <QOpenGLFunctions_4_2_Core>
-#else
-#include "Component/GLTooler.hpp"
-#endif
+#include "Component/MyGL.hpp"
 #include "Component/Camera.hpp"
 #include "Component/GStruct.hpp"
 
 class QOpenGLShaderProgram;
 class Camera;
+namespace GComponent {
+    class Mesh;
+}
+
 class myOpglWidget : public QOpenGLWidget
-#ifndef MyGlad
-        , public QOpenGLFunctions_4_2_Core
-#endif
 {
     Q_OBJECT
 public:
@@ -36,16 +32,17 @@ protected:
 
 private:
     QTimer * m_timer;
-
     unsigned VAO, VBO, EBO, uMBO;
 
+    GComponent::Mesh * mesh;
 #ifdef MyGlad
     std::shared_ptr<GComponent::MyGL> gl;
 #endif
-
     QOpenGLShaderProgram * m_program = nullptr;
-
+    QOpenGLShaderProgram * phoneProgram = nullptr;
+    int count = 0;
     std::vector<glm::vec3> debugP;
+    bool GLInit = false;
 
     GComponent::Camera myCamera;
     bool MOVE = false;
@@ -57,9 +54,14 @@ private:
     std::vector<GComponent::Line> genTie(int num);
 
     void CheckPoint(glm::mat4 view, glm::mat4 pro);
+    void cleanup();
+
+    void wheelEvent(QWheelEvent * event) override;
     void mouseMoveEvent(QMouseEvent * evnet) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent * event) override;
+    void dropEvent(QDropEvent * evnt) override;
 };
 
 #endif // MYOPGLWIDGET_H

@@ -48,7 +48,7 @@ public:
     float Zoom;
 
     /// 构造函数 Constructors
-    Camera(vec3 position = vec3(0.0f, 2.0f, 10.0f), vec3 up = vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH):
+    Camera(vec3 position = vec3(0.0f, 0.5f, 8.0f), vec3 up = vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH):
         Front(glm::vec3(0.0f, 0.0f, -1.0f)),
             MovementSpeed(SPEED),
             MouseSensitivity(SENSITIVITY),
@@ -85,25 +85,29 @@ public:
     }
     void Move(float x, float y, float z)
     {
-        Position += vec3{x, y, z};
+        Position += Front * z;
+        Position += Right * x;
+        Position += Up * y;
     }
 
     void Rotation(float yaw, float pitch, bool constrainPitch = true)
     {
+        vec3 oriPos = Position + Front * 5.0f;
         Yaw += yaw;
         Pitch += pitch;
         if(constrainPitch)
         {
             if(Pitch > 89.0f)
             {
-                pitch = 89.0f;
+                Pitch = 89.0f;
             }
             if(Pitch < -89.0f)
             {
-                pitch = -89.0f;
+                Pitch = -89.0f;
             }
         }
         updateCameraVectors();
+        Position = oriPos - Front * 5.0f;
     }
 private:
     /**

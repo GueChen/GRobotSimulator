@@ -6,6 +6,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <QMouseEvent>
 #include <Component/Geometry/mesh.h>
+#include <Component/Geometry/modelloader.h>
+#include <QMimeData>
 #include "myopglwidget.h"
 
 using glm::vec3;
@@ -22,43 +24,68 @@ myOpglWidget::myOpglWidget(QWidget *parent) :
     QObject::connect(m_timer, &QTimer::timeout, [this](){this->update();});
     m_timer->start(30);
     qDebug()<<"Constructor Over";
+    this->setAcceptDrops(true);
 
 }
 
 myOpglWidget::~myOpglWidget()
 {
     makeCurrent();
-    gl->glDeleteProgram(m_program->programId());
+    cleanup();
     gl->glDeleteBuffers(1, &VBO);
     gl->glDeleteBuffers(1, &EBO);
     gl->glDeleteVertexArrays(1, &VAO);
     m_timer->stop();
     qDebug() << "Destructor Over";
+    doneCurrent();
+}
+
+void myOpglWidget::cleanup()
+{
+    delete m_program;
+    delete phoneProgram;
+    m_program = nullptr;
+    phoneProgram = nullptr;
 }
 // TODO: 写初始化
 void myOpglWidget::initializeGL()
 {
-#ifdef MyGlad
+
+
     gl->initializeOpenGLFunctions();
-#else
-    initializeOpenGLFunctions();
-#endif
+
+    if(!GLInit)
+    {
+        auto && [Vs, Is] = ModelLoader::readPlyFile("E:/Personal/RobotArm/Graduate/Qt/FinalProj/Object/bunny/reconstruction/bun_zipper.ply");
+        mesh = new Mesh(Vs, Is, {});
+    }
+
 
     m_program = new QOpenGLShaderProgram(this);
-    m_program->addShaderFromSourceFile(
-                QOpenGLShader::Vertex, PathVert(Base));
-    m_program->addShaderFromSourceFile(
-                QOpenGLShader::Fragment, PathFrag(Base));
+    m_program->addShaderFromSourceFile(QOpenGLShader::Vertex,   PathVert(Base));
+    m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, PathFrag(Base));
+
+    phoneProgram = new QOpenGLShaderProgram(this);
+    phoneProgram->addShaderFromSourceFile(QOpenGLShader::Vertex,   PathVert(Phone));
+    phoneProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, PathFrag(Phone));
 
     m_program->link();
-    m_program->bind();
+    phoneProgram->link();
 
+    m_program->bind();
+    phoneProgram->bind();
+
+    qDebug() << "Shader ID: " << phoneProgram->programId();
+    mesh->setGL(gl);
     qDebug() << "Shader Constructor Over!";
-    initializeGeometry(10, 0.5f);
+    initializeGeometry(40, 0.05f);
     qDebug() << "Initialize Over";
+
+
+    GLInit = true;
+    connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &myOpglWidget::cleanup);
 }
 
-// TODO: 重写调尺寸
 void myOpglWidget::resizeGL(int w, int h)
 {
 
@@ -68,21 +95,18 @@ void myOpglWidget::resizeGL(int w, int h)
 // TODO: 重写绘制函数
 void myOpglWidget::paintGL()
 {
+    QOpenGLShaderProgram* pShader;
+    makeCurrent();
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-    Mesh m({{glm::vec3(0.0f),glm::vec3{},glm::vec2{}}},{0},{});
-    m.setGL(gl);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     if(black)
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        pShader = m_program;
     else
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        pShader = phoneProgram;
 
+    pShader->bind();
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-
-    // 绑定 Shader
-
-    m_program->bind();
-    gl->setBool(m_program->programId(), "colorReverse", !black);
 
     // 传递 Uniform 变量
     mat4 view = myCamera.GetViewMatrix();
@@ -96,24 +120,23 @@ void myOpglWidget::paintGL()
     CheckPoint(view, projection);
 #endif
 
-#ifdef MyGlad
     gl->setMatrices(uMBO, projection, view);
-#else
-    glBindBuffer(GL_UNIFORM_BUFFER, uMBO);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0,            sizeof(mat4), glm::value_ptr(projection));
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4), sizeof(mat4), glm::value_ptr(view));
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-#endif
 
     mat4 model = glm::identity<mat4>();
-    gl->setMat4(m_program->programId(), "model", model);
-
+    gl->setMat4(pShader->programId(), "model", model);
     gl->glBindVertexArray(VAO);
     gl->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    // gl.glDrawElements(GL_LINES, 20, GL_UNSIGNED_INT, 0);
-    gl->glDrawArrays(GL_LINES, 0, 40);
+    gl->glDrawElements(GL_LINES, 160, GL_UNSIGNED_INT, 0);
+    // gl->glDrawArrays(GL_LINES, 0, 40);
+    model = glm::scale(model, vec3(4.0f));
+    gl->setMat4(pShader->programId(), "model", model);
+    gl->setVec3(pShader->programId(), "viewPos", myCamera.Position);
+    gl->setVec3(pShader->programId(), "light.dir", vec3(0.0f, -1.0f, 0.0f));
+    gl->setVec3(pShader->programId(), "light.color", vec3(1.0f, 1.0f, 0.8f));
 
-    m_program->release();
+    mesh->Draw();
+
+    pShader->release();
 
 
 }
@@ -123,51 +146,12 @@ void myOpglWidget::initializeGeometry(int num, float gSize)
 
     auto locs = genPos(num, gSize);
     auto lines = genTie(num);
-    qDebug() << "Begin Gen VABO: locs size = " << locs.size();
-#ifdef MyGlad
+
     std::tie(VAO, VBO) = gl->genVABO(&locs[0], sizeof(vec3) * locs.size());
     gl->EnableVertexAttribArrays_continus(locs);
-    EBO = gl->genEBO(genTie(num));
+    EBO = gl->genEBO(lines);
     uMBO = gl->genMatrices();
-#else
-    // 等价于之前的 GenVABO
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)* locs.size(), &locs[0], GL_STATIC_DRAW);
 
-    // 等价于之前的 EnableVertexAttribArrays
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
-                             reinterpret_cast<void * >(3 * sizeof(float)));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
-                             reinterpret_cast<void * >(2 * sizeof(float)));
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // 等价于之前的 genEBO
-    glGenBuffers(1, &EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Line) * lines.size(), &lines[0], GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    // 等价于 genMatrices
-    glGenBuffers(1, &uMBO);
-    glBindBuffer(GL_UNIFORM_BUFFER, uMBO);
-    glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(mat4), nullptr, GL_STATIC_DRAW);
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, uMBO);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-#endif
-#ifdef _DEBUG_CONSOLE
-    for(auto it = locs.begin(); it != locs.end(); ++it)
-    {
-        debugP.push_back(*it);
-    }
-#endif
 }
 
 vector<vec3> myOpglWidget::genPos(int num, float gSize)
@@ -241,6 +225,19 @@ void myOpglWidget::CheckPoint(mat4 view, mat4 pro)
  * 事件系统定义
  *
  * */
+void myOpglWidget::wheelEvent(QWheelEvent *event)
+{
+    QPoint numDegrees = event->angleDelta();
+
+    if (!numDegrees.isNull()) {
+
+        qDebug() << "Degree: " << numDegrees.x() << "," << numDegrees.y();
+        myCamera.Move(0.0, 0.0f, numDegrees.y()/500.0f);
+    }
+
+    event->accept();
+
+}
 
 void myOpglWidget::mousePressEvent(QMouseEvent *event)
 {
@@ -296,17 +293,36 @@ void myOpglWidget::mouseMoveEvent(QMouseEvent *event)
     auto delta =0.015f * (curPos - lastPos);
     if(MOVE)
     {
-        myCamera.Position += vec3(delta.x(), delta.y(), 0.0);
+        myCamera.Move(delta.x(), delta.y(), 0.0f); // += vec3(delta.x(), delta.y(), 0.0);
     }
     if(FORWARD)
     {
-
-        myCamera.Position += vec3(0.0, 0.0, delta.y());
+        myCamera.Move(0.0, 0.0, delta.y()); // myCamera.Position += vec3(0.0, 0.0, delta.y());
     }
     if(ROTATION)
     {
-        delta *= 5.0f;
+        delta *= 10.0f;
         myCamera.Rotation(delta.x(), delta.y());
     }
     lastPos = curPos;
 }
+
+void myOpglWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+    event->acceptProposedAction();
+}
+
+void myOpglWidget::dropEvent(QDropEvent *event)
+{
+    QString name = event->mimeData()->urls().first().toLocalFile();
+    qDebug("The File:\n%s\nDrag into the Area", name.toStdString().c_str());
+
+    auto && [Vs, Is] = ModelLoader::readFile(name.toStdString());
+    m_timer->stop();
+    makeCurrent();
+    mesh->~Mesh();
+    mesh = new Mesh(Vs, Is, {});
+    mesh->setGL(gl);
+    m_timer->start();
+}
+

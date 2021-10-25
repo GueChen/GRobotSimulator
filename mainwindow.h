@@ -21,6 +21,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void on_modelViewShow_triggered(bool checked);
+
 private:
     Ui::MainWindow *ui;
     vector<UPD> dockWidgets;

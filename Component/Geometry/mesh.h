@@ -18,11 +18,13 @@ namespace GComponent {
 
         private:
             unsigned VAO, VBO, EBO;
+            bool HaveSetup = false;
 
         public:
             Mesh(std::vector<Vertex> vertices,
                  std::vector<unsigned> indices,
                  std::vector<Texture> textures);
+            ~Mesh();
 
             void PreProcess(){};
             void Draw();

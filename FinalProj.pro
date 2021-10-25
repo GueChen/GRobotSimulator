@@ -29,29 +29,45 @@ message(Project Location:  $$PWD)
 
 SOURCES += \
     Component/Geometry/mesh.cpp \
+    Component/Geometry/modelloader.cpp \
+    Component/Object/basegrid.cpp \
+    Component/Object/model.cpp \
+    Component/Struct/Tree/stringtree.cpp \
+    Component/Struct/Tree/treeitem.cpp \
     Component/myshader.cpp \
+    UI/Item/modelmanagerview.cpp \
+    UI/OpenGLWidget/modelview.cpp \
     UI/animdockwidget.cpp \
+    UI/modelviewdockwidget.cpp \
     UI/myopglwidget.cpp \
     UI/testopenglwidget.cpp \
     main.cpp \
-    mainwindow.cpp \
-    $$OPGL_INC\myLib\glad.c
+    mainwindow.cpp
 
 HEADERS += \
     Component/Camera.hpp \
-    Component/GLTooler.hpp \
     Component/GStruct.hpp \
     Component/Geometry/Texture.hpp \
     Component/Geometry/Vertex.hpp \
     Component/Geometry/mesh.h \
+    Component/Geometry/modelloader.h \
+    Component/MyGL.hpp \
+    Component/Object/basegrid.h \
+    Component/Object/model.h \
+    Component/Struct/Tree/stringtree.h \
+    Component/Struct/Tree/treeitem.h \
     Component/myshader.h \
+    UI/Item/modelmanagerview.h \
+    UI/OpenGLWidget/modelview.h \
     UI/animdockwidget.h \
+    UI/modelviewdockwidget.h \
     UI/myopglwidget.h \
     UI/testopenglwidget.h \
     mainwindow.h
 
 FORMS += \
     UI/animdockwidget.ui \
+    UI/modelviewdockwidget.ui \
     mainwindow.ui
 
 EVERYTHING = $$SOURCES $$HEADERS
@@ -68,7 +84,11 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES += \
     Shader/Fragment/BaseFrag.frag \
+    Shader/Fragment/ColorFrag.frag \
+    Shader/Fragment/PhoneFrag.frag \
     Shader/Fragment/TriangleFrag.frag \
     Shader/Vertex/BaseVert.vert \
+    Shader/Vertex/ColorVert.vert \
+    Shader/Vertex/PhoneVert.vert \
     Shader/Vertex/TriangleVert.vert
 

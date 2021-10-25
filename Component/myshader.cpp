@@ -1,9 +1,10 @@
-#include "myshader.h"
-#include<QOpenGLFunctions_4_5_Core>
+#include "Component/myshader.h"
+
+using namespace GComponent;
 
 MyShader::MyShader(QObject * parent,
-                   const std::string& vertexPath,
-                   const std::string& fragmentPath,
+                   const std::string & vertexPath,
+                   const std::string & fragmentPath,
                    const std::string & geometryPath):
     QOpenGLShaderProgram(parent)
 {
@@ -14,27 +15,30 @@ MyShader::MyShader(QObject * parent,
         addShaderFromSourceFile(QOpenGLShader::Geometry, geometryPath.c_str());
     }
     link();
-
 }
+
+MyShader::~MyShader() = default;
 
 void MyShader::use() noexcept
 {
     bind();
 }
 
-void MyShader::setGLFunctions(QOpenGLFunctions_4_5_Core * pGL)
+void MyShader::setGL(std::shared_ptr<MyGL> other)
 {
-    gl = pGL;
+    gl = other;
 }
 
 void MyShader::setBool(const std::string & name, bool value) noexcept
 {
     gl->glUniform1i(gl->glGetUniformLocation(programId(), name.c_str()), (int)value);
 }
+
 void MyShader::setInt(const std::string& name, int value) noexcept
 {
     gl->glUniform1i(gl->glGetUniformLocation(programId(), name.c_str()), value);
 }
+
 void MyShader::setFloat(const std::string& name, float value) noexcept
 {
     gl->glUniform1f(gl->glGetUniformLocation(programId(), name.c_str()), value);
@@ -58,6 +62,7 @@ void MyShader::setVec3(const std::string& name, float value[3]) noexcept
 {
     gl->glUniform3fv(gl->glGetUniformLocation(programId(), name.c_str()), 1, value);
 }
+
 void MyShader::setVec3(const std::string& name, glm::vec3 value) noexcept
 {
     gl->glUniform3fv(gl->glGetUniformLocation(programId(), name.c_str()), 1, value_ptr(value));
