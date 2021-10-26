@@ -7,6 +7,7 @@
 class QTimer;
 
 namespace GComponent {
+    using std::vector;
     using std::string;
     using std::unique_ptr;
     using std::shared_ptr;
@@ -17,6 +18,7 @@ namespace GComponent {
     class MyShader;
     class BaseGrid;
     class Mesh;
+    class Model;
 
     class ModelView : public QOpenGLWidget
     {
@@ -47,6 +49,7 @@ namespace GComponent {
         /// 管理素材相关函数
         void deleteMesh(const string & resource);
         void addMesh(const string & resource);
+        void initModel();
 
     /// 数据域 Fields
     private:
@@ -72,6 +75,8 @@ namespace GComponent {
         unique_ptr<BaseGrid> grid;
         /* 网格管理哈希表 */
         unordered_map<string, unique_ptr<Mesh>> mTable;
+
+        vector<std::shared_ptr<Model>> models;
     };
 }
 #endif // MODELVIEW_H

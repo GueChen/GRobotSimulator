@@ -9,13 +9,18 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, std::vec
     Vertices = vertices;
     Indices  = indices;
     Textures = textures;
+    VAO = 0;
 }
 
+// TODO: 需要添加一个引用计数
 Mesh::~Mesh()
 {
-    gl->glDeleteVertexArrays(1, &VAO);
-    gl->glDeleteBuffers(1, &VBO);
-    gl->glDeleteBuffers(1, &EBO);
+    if(VAO != 0)
+    {
+        gl->glDeleteVertexArrays(1, &VAO);
+        gl->glDeleteBuffers(1, &VBO);
+        gl->glDeleteBuffers(1, &EBO);
+    }
 }
 
 

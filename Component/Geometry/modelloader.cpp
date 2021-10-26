@@ -188,6 +188,13 @@ std::tuple<std::vector<Vertex>, std::vector<unsigned>> ModelLoader::readSTLFile(
     return {vertices, ind};
 }
 
+Mesh ModelLoader::getMesh(const std::string &resource)
+{
+    auto && [Vs, Is] = ModelLoader::readFile(resource);
+    Mesh m(Vs, Is, std::vector<Texture>{});
+    return m;
+}
+
 std::string ModelLoader::getFileContent(const std::string& filePath)
 {
     std::string content;
@@ -237,3 +244,4 @@ std::vector<float> ModelLoader::vStringToFloat(const std::vector<std::string> & 
     }
     return rvals;
 }
+

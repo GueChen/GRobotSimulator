@@ -81,7 +81,7 @@ public:
     mat4 GetViewMatrix()
     {
         return MyLookAt(Position, Position + Front, Up);
-        //return glm::lookAt(Position, Position + Front, Up);
+
     }
     void Move(float x, float y, float z)
     {
@@ -92,7 +92,8 @@ public:
 
     void Rotation(float yaw, float pitch, bool constrainPitch = true)
     {
-        vec3 oriPos = Position + Front * 5.0f;
+        vec3 oriPos = vec3(0.0f, 0.2f, 0.0f);
+        float length = glm::length(Position - oriPos);
         Yaw += yaw;
         Pitch += pitch;
         if(constrainPitch)
@@ -107,7 +108,7 @@ public:
             }
         }
         updateCameraVectors();
-        Position = oriPos - Front * 5.0f;
+        Position = oriPos - Front * length;
     }
 private:
     /**

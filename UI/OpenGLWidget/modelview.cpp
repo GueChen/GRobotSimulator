@@ -9,6 +9,8 @@
 #include "Component/Object/basegrid.h"
 #include "Component/Geometry/modelloader.h"
 
+#include "Component/Object/model.h"
+
 using namespace GComponent;
 
 
@@ -46,6 +48,9 @@ void ModelView::initializeGL()
     qDebug() << "curShader: "<< curShader->programId();
     curShader->use();
     connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &ModelView::cleanup);
+
+    /************/
+    initModel();
 }
 
 void ModelView::paintGL()
@@ -72,14 +77,30 @@ void ModelView::paintGL()
     curShader = shaderMap["Color"].get();
     curShader->use();
     curShader->setMat4("model", model);
-    curShader->setVec3("color", vec3(1.0f, 1.0f, 1.0f));
+    curShader->setVec3("color", vec3(0.5f, 0.5f, 0.7f));
     curShader->setVec3("viewPos", camera->Position);
-    curShader->setVec3("light.dir", vec3(0.0f, -1.0f, 0.0f));
-    curShader->setVec3("light.color", vec3(0.8f, 1.0f, 0.9f));
+    curShader->setVec3("light.dir", vec3(-1.0f, -1.0f, -1.0f));
+    curShader->setVec3("light.color", vec3(0.7f, 0.7f, 0.7f));
 
-    for(auto & [name, model]: mTable)
+//    for(auto & [name, model]: mTable)
+//    {
+//        model->Draw();
+//    }
+
+    static float angle = 0.0f;
+    angle+= 0.5f;
+    models[1]->setAxis(vec3(0.0f, 1.0f, 0.0f));
+    models[1]->setRotate(angle);
+    models[2]->setAxis(vec3(0.0f, 0.0f, 1.0f));
+    models[2]->setRotate(angle);
+
+    for(auto & model: models)
     {
-        model->Draw();
+        mat4 m = glm::identity<mat4>();
+        m = model->_parentMatrix * model->_matrixModel * m;
+        curShader->setMat4("model", m);
+        if(model->getMesh() != "")
+            mTable[model->getMesh()]->Draw();
     }
     curShader->release();
 }
@@ -116,11 +137,84 @@ void ModelView::addMesh(const string & resource)
     auto && [Vs, Is] = ModelLoader::readFile(resource);
 
     timer->stop();
+
     makeCurrent();
     auto p_TemplateMesh = std::make_unique<Mesh>(Vs, Is, std::vector<Texture>{});
     p_TemplateMesh->setGL(gl);
     mTable.insert(std::make_pair(name, std::move(p_TemplateMesh)));
     timer->start(20);
+}
+
+// TODO: HARD-CODE
+void ModelView::initModel()
+{
+    static bool hasInit = false;
+    if(!hasInit)
+    {
+    mTable.insert(std::make_pair(
+                      "Base",
+                      std::make_unique<Mesh>(
+                          ModelLoader::getMesh(PathModel(iiwa14_base.STL)))));
+    mTable.insert(std::make_pair(
+                      "Link1",
+                      std::make_unique<Mesh>(
+                          ModelLoader::getMesh(PathModel(iiwa14_link_1.STL)))));
+    mTable.insert(std::make_pair(
+                      "Link2",
+                      std::make_unique<Mesh>(
+                          ModelLoader::getMesh(PathModel(iiwa14_link_2.STL)))));
+    mTable.insert(std::make_pair(
+                      "Link3",
+                      std::make_unique<Mesh>(
+                          ModelLoader::getMesh(PathModel(iiwa14_link_3.STL)))));
+    mTable.insert(std::make_pair(
+                      "Link4",
+                      std::make_unique<Mesh>(
+                          ModelLoader::getMesh(PathModel(iiwa14_link_4.STL)))));
+    mTable.insert(std::make_pair(
+                      "Link5",
+                      std::make_unique<Mesh>(
+                          ModelLoader::getMesh(PathModel(iiwa14_link_5.STL)))));
+    mTable.insert(std::make_pair(
+                      "Link6",
+                      std::make_unique<Mesh>(
+                          ModelLoader::getMesh(PathModel(iiwa14_link_6.STL)))));
+    mTable.insert(std::make_pair(
+                      "Flansch",
+                      std::make_unique<Mesh>(
+                          ModelLoader::getMesh(PathModel(flanschExten.STL)))));
+
+    for(int i = 0; i < 8; ++i)
+    {
+        models.push_back(std::make_shared<Model>());
+    }
+
+    models[0]->setMesh("Base");
+    models[1]->setMesh("Link1");
+    models[2]->setMesh("Link2");
+    models[3]->setMesh("Link3");
+    models[4]->setMesh("Link4");
+    models[5]->setMesh("Link5");
+    models[6]->setMesh("Link6");
+    models[7]->setMesh("Flansch");
+
+    mat4 im = glm::identity<mat4>();
+    models[6]->appendChild(models[7], glm::translate(im, vec3(0.0f, 0.0809f, 0.0607f)));
+    models[5]->appendChild(models[6], glm::translate(im, vec3(0.0f, 0.2155f, -0.0607f)));
+    models[4]->appendChild(models[5], glm::translate(im, vec3(0.0f, 0.1845f, 0.0f)));
+    models[3]->appendChild(models[4], glm::translate(im, vec3(0.0f, 0.2155f, 0.0f)));
+    models[2]->appendChild(models[3], glm::translate(im, vec3(0.0f, 0.2045f, 0.0f)));
+    models[1]->appendChild(models[2], glm::translate(im, vec3(0.0f, 0.2025f, 0.0f)));
+    models[0]->appendChild(models[1], glm::translate(im, vec3(0.0f, 0.1575f, 0.0f)));
+    hasInit = true;
+    }
+
+    makeCurrent();
+    for(auto &[name, pmesh] : mTable)
+    {
+        pmesh->setGL(gl);
+    }
+
 }
 
 /**********************************************/

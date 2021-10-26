@@ -11,9 +11,9 @@ struct DirLight{
   vec3 color;
 };
 
-#define Ambient 0.2
-#define Specular 0.4
-#define Diffuse 0.6
+#define Ambient 0.3
+#define Specular 0.7
+#define Diffuse 0.65
 
 uniform DirLight light;
 uniform vec3 color;
@@ -38,7 +38,7 @@ vec3 CalcLight(DirLight light, vec3 norm, vec3 viewDir)
 
     vec3 ambient    = vec3(Ambient);
     vec3 diffuse    = vec3(Diffuse)  * max( dot( light.dir, norm), 0.0f);
-    vec3 specular   = vec3(Specular) * pow( max( dot( norm, halfWayDir), 0.0f), 1.0f);
+    vec3 specular   = vec3(Specular) * pow( max( dot( norm, halfWayDir), 0.0f), 16.0f);
 
     return (ambient + diffuse + specular) * light.color * color;
 }

@@ -17,6 +17,7 @@ namespace GCONST {
     constexpr size_t INT_SIZE = sizeof(int);
     constexpr size_t MAT4_SIZE = sizeof(glm::mat4);
     constexpr size_t VEC3_SIZE = sizeof(glm::vec3);
+
 }
 
 namespace GComponent{
