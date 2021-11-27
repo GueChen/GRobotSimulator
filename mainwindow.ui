@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1050</width>
+    <height>717</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,9 +15,15 @@
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(50, 50, 50);
-color: rgb(255, 255, 255);</string>
+border-color: rgb(155, 170, 0);
+selection-background-color: rgb(0, 85, 127);
+color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(125, 100, 255, 255), stop:1 rgba(255, 125, 255, 255));
+border-top-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
    <layout class="QGridLayout" name="gridLayout">
     <property name="leftMargin">
      <number>4</number>
@@ -34,8 +40,11 @@ color: rgb(255, 255, 255);</string>
     <property name="spacing">
      <number>2</number>
     </property>
-    <item row="0" column="0">
+    <item row="0" column="1">
      <widget class="TestOpenGLWidget" name="openGLWidget"/>
+    </item>
+    <item row="1" column="1">
+     <widget class="TestOpenGLWidget" name="openGLWidget_2"/>
     </item>
    </layout>
   </widget>
@@ -44,9 +53,15 @@ color: rgb(255, 255, 255);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1050</width>
      <height>23</height>
     </rect>
+   </property>
+   <property name="defaultUp">
+    <bool>false</bool>
+   </property>
+   <property name="nativeMenuBar">
+    <bool>false</bool>
    </property>
    <widget class="QMenu" name="menu">
     <property name="title">
@@ -57,6 +72,123 @@ color: rgb(255, 255, 255);</string>
    <addaction name="menu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QDockWidget" name="DualArmView">
+   <property name="windowTitle">
+    <string>拟人双臂平台</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QGridLayout" name="gridLayout_2">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="DualArmViewWidget" name="ArmWidget" native="true"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_2">
+   <property name="windowTitle">
+    <string>模型观察器</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_2">
+    <layout class="QGridLayout" name="gridLayout_3">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="ModelViewWidget" name="widget_2" native="true"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="Controller">
+   <property name="minimumSize">
+    <size>
+     <width>340</width>
+     <height>500</height>
+    </size>
+   </property>
+   <property name="floating">
+    <bool>false</bool>
+   </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable</set>
+   </property>
+   <property name="windowTitle">
+    <string>关节滑条</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="ControllerLayout">
+    <layout class="QGridLayout" name="gridLayout_5">
+     <item row="0" column="0">
+      <widget class="QGroupBox" name="groupBox">
+       <property name="minimumSize">
+        <size>
+         <width>320</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>320</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="title">
+        <string/>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="0">
+         <widget class="QQuickWidget" name="quickWidget">
+          <property name="resizeMode">
+           <enum>QQuickWidget::SizeViewToRootObject</enum>
+          </property>
+          <property name="source">
+           <url>
+            <string>file:///E:/Personal/RobotArm/Graduate/Qt/FinalProj/UI/QML/SliderControlForm.qml</string>
+           </url>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
   <action name="modelViewShow">
    <property name="checkable">
     <bool>true</bool>
@@ -68,9 +200,26 @@ color: rgb(255, 255, 255);</string>
  </widget>
  <customwidgets>
   <customwidget>
+   <class>QQuickWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">QtQuickWidgets/QQuickWidget</header>
+  </customwidget>
+  <customwidget>
    <class>TestOpenGLWidget</class>
    <extends>QOpenGLWidget</extends>
    <header>UI/testopenglwidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DualArmViewWidget</class>
+   <extends>QWidget</extends>
+   <header>UI/DockWidgetComponent/dualarmviewwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ModelViewWidget</class>
+   <extends>QWidget</extends>
+   <header>UI/DockWidgetComponent/modelviewwidget.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

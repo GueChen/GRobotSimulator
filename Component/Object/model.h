@@ -2,7 +2,6 @@
 #define MODEL_H
 
 // TODO: 单有一个 Mesh 好像也够了
-
 #include <string>
 #include <memory>
 #include <unordered_map>
@@ -10,6 +9,7 @@
 
 namespace GComponent {
     class Model;
+    class MyShader;
 
     using std::vector;
     using std::string;
@@ -24,12 +24,16 @@ namespace GComponent {
     class Model
     {
     public:
-        Model(Model * parent = nullptr);
-        ~Model();
+        Model(Model * parent = nullptr, const string & meshKey = "");
+        virtual ~Model();
 
-        virtual void Draw();
-        string getMesh();
+        virtual void Draw(MyShader * shader);
 
+        string getMesh() const;
+        mat4 getModelMatrix() const;
+        const vector<pair<_pModel, mat4>> & getChildren() const;
+
+        void setModelMatrix(const mat4 & mat);
         void setMesh(const string & mesh);
         void setShader(const string & shader);
         void setParent(Model * parent);
@@ -42,16 +46,25 @@ namespace GComponent {
 
     /// Fields 数据域
     public:
+
+    protected:
         mat4 _parentMatrix = mat4(1.0f);
         mat4 _matrixModel = mat4(1.0f);
-        vec3 _axis = vec3(0.0f, 1.0f, 0.0f);
-        float _angle = 0.0;
+
+        Model * _parent;
+        vector<pair<_pModel, mat4>> _children;
     private:
+        /// Structure 结构相关
         int ID;
         string _mesh;
         string _shader;
-        Model * _parent;
-        vector<pair<_pModel, mat4>> _children;
+
+        /// MoveMent 运动相关
+        vec3 _axis = vec3(0.0f, 1.0f, 0.0f);
+        float _angle = 0.0;
+
+        /// Management 管理相关
+        /// FIXME: 暂时用不上
         static unordered_map<int, _pModel> table;
     };
 

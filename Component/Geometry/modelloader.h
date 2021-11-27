@@ -3,7 +3,8 @@
 #include <string>
 #include <Component/Geometry/mesh.h>
 
-#define PathModel(name) ("E:/Personal/RobotArm/Model/iiwa_STL/modifyCoordinate/"#name)
+#define PathModel(name) ("./modifyCoordinate/"#name)
+#define sPathModel(name) ("./modifyCoordinate/" + name)
 
 namespace GComponent {
     

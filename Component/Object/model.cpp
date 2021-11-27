@@ -1,4 +1,5 @@
 #include "model.h"
+#include "Component/myshader.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include <QDebug>
 
@@ -12,8 +13,8 @@ int Model::generateID()
     return ++_count;
 }
 
-Model::Model(Model * parent):
-    _parent(parent)
+Model::Model(Model * parent, const string & meshKey):
+    _mesh(meshKey), _parent(parent)
 {
     ID = generateID();
 }
@@ -23,9 +24,20 @@ Model::~Model(){
     //table.erase(table.find(ID));
 }
 
-string Model::getMesh()
+string Model::getMesh() const
 {
     return _mesh;
+}
+
+mat4 Model::getModelMatrix() const
+{
+    return _parentMatrix * _matrixModel;
+}
+
+void Model::setModelMatrix(const mat4 &mat)
+{
+    _matrixModel = mat;
+    updateChildrenMatrix();
 }
 
 void Model::setMesh(const string & mesh)
@@ -71,11 +83,15 @@ void Model::updateChildrenMatrix()
     }
 }
 
-void Model::Draw()
+const vector<pair<_pModel, mat4>> & Model::getChildren() const
 {
-    //TODO: 获取 shader 和 mesh
-    //      设置 shader 的 uniform
-    //      调用 mesh 的 Draw
+    return _children;
+}
+
+void Model::Draw(MyShader * shader)
+{
+    shader->setMat4("model", getModelMatrix());
+    /* Draw With Source */
 }
 
 

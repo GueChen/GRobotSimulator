@@ -1,21 +1,19 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "UI/animdockwidget.h"
-#include "UI/modelviewdockwidget.h"
+#include <QQmlEngine>
+#include <QQmlContext>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->menu->setStyleSheet("color: rgb(255, 125, 255)");
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
+    ui->quickWidget->setAttribute(Qt::WA_AlwaysStackOnTop, true);
+    ui->quickWidget->setClearColor(Qt::transparent);
 
-    dockWidgets.push_back(make_unique<AnimDockWidget>());
-    dockWidgets.push_back(make_unique<ModelViewDockWidget>());
-    for (auto & dockWidget: dockWidgets)
-    {
-        addDockWidget(Qt::LeftDockWidgetArea, dockWidget.get());
-    }
-
+    ui->quickWidget->engine()->rootContext()->setContextProperty("robot", ui->ArmWidget);
 }
 
 MainWindow::~MainWindow()
@@ -23,18 +21,8 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
-
-
 void MainWindow::on_modelViewShow_triggered(bool show)
 {
-    if(show)
-    {
-        dockWidgets[1]->show();
-    }
-    else
-    {
-        dockWidgets[1]->hide();
-    }
+
 }
 

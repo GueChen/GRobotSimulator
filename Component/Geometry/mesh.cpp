@@ -20,12 +20,16 @@ Mesh::~Mesh()
         gl->glDeleteVertexArrays(1, &VAO);
         gl->glDeleteBuffers(1, &VBO);
         gl->glDeleteBuffers(1, &EBO);
+        VAO = 0;
     }
+
 }
 
 
 void Mesh::setupMesh()
 {
+    // TODO: 可以加入一个断言或异常
+    if(Vertices.empty()) return;
     std::tie(VAO, VBO) = gl->genVABO(&Vertices[0], Vertices.size() * sizeof(Vertex));
 
     gl->glBindVertexArray(VAO);
@@ -36,13 +40,11 @@ void Mesh::setupMesh()
 
 }
 
-void Mesh::setGL(std::shared_ptr<MyGL> other)
+void Mesh::setGL(const std::shared_ptr<MyGL> & other)
 {
     gl = other;
-
     setupMesh();
     HaveSetup = true;
-
 }
 
 void Mesh::Draw()

@@ -28,8 +28,9 @@ namespace GComponent {
 
             void PreProcess(){};
             void Draw();
-            void setGL(std::shared_ptr<MyGL> other);
+            void setGL(const std::shared_ptr<MyGL> & other);
         private:
+            unsigned NumElements;
             void setupMesh();
             std::shared_ptr<MyGL> gl;
     };

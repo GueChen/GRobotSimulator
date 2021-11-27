@@ -1,4 +1,4 @@
-QT       += core gui opengl openglwidgets
+QT       += core gui opengl openglwidgets quickwidgets quick
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17 no_include_pwd
@@ -30,16 +30,20 @@ message(Project Location:  $$PWD)
 SOURCES += \
     Component/Geometry/mesh.cpp \
     Component/Geometry/modelloader.cpp \
+    Component/Object/Robot/dual_arm_platform.cpp \
+    Component/Object/Robot/joint.cpp \
+    Component/Object/Robot/kuka_iiwa_model.cpp \
+    Component/Object/Robot/robot_body_model.cpp \
     Component/Object/basegrid.cpp \
     Component/Object/model.cpp \
     Component/Struct/Tree/stringtree.cpp \
     Component/Struct/Tree/treeitem.cpp \
     Component/myshader.cpp \
+    UI/DockWidgetComponent/dualarmviewwidget.cpp \
+    UI/DockWidgetComponent/modelviewwidget.cpp \
     UI/Item/modelmanagerview.cpp \
-    UI/OpenGLWidget/modelview.cpp \
-    UI/animdockwidget.cpp \
-    UI/modelviewdockwidget.cpp \
-    UI/myopglwidget.cpp \
+    UI/ModelView.cpp \
+    UI/OpenGLWidget/DualArmView.cpp \
     UI/testopenglwidget.cpp \
     main.cpp \
     mainwindow.cpp
@@ -52,22 +56,26 @@ HEADERS += \
     Component/Geometry/mesh.h \
     Component/Geometry/modelloader.h \
     Component/MyGL.hpp \
+    Component/Object/Robot/dual_arm_platform.h \
+    Component/Object/Robot/joint.h \
+    Component/Object/Robot/kuka_iiwa_model.h \
+    Component/Object/Robot/robot_body_model.h \
     Component/Object/basegrid.h \
     Component/Object/model.h \
     Component/Struct/Tree/stringtree.h \
     Component/Struct/Tree/treeitem.h \
     Component/myshader.h \
+    UI/DockWidgetComponent/dualarmviewwidget.h \
+    UI/DockWidgetComponent/modelviewwidget.h \
     UI/Item/modelmanagerview.h \
-    UI/OpenGLWidget/modelview.h \
-    UI/animdockwidget.h \
-    UI/modelviewdockwidget.h \
-    UI/myopglwidget.h \
+    UI/ModelView.h \
+    UI/OpenGLWidget/DualArmView.h \
     UI/testopenglwidget.h \
     mainwindow.h
 
 FORMS += \
-    UI/animdockwidget.ui \
-    UI/modelviewdockwidget.ui \
+    UI/DockWidgetComponent/dualarmviewwidget.ui \
+    UI/DockWidgetComponent/modelviewwidget.ui \
     mainwindow.ui
 
 EVERYTHING = $$SOURCES $$HEADERS
@@ -90,5 +98,10 @@ DISTFILES += \
     Shader/Vertex/BaseVert.vert \
     Shader/Vertex/ColorVert.vert \
     Shader/Vertex/PhoneVert.vert \
-    Shader/Vertex/TriangleVert.vert
+    Shader/Vertex/TriangleVert.vert \
+    UI/QML/BasicController.qml \
+    UI/QML/CustomSlider.qml \
+    UI/QML/MySlider.qml \
+    UI/QML/SliderControl.qml \
+    UI/QML/SliderControlForm.qml
 

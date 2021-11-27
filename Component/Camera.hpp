@@ -92,7 +92,8 @@ public:
 
     void Rotation(float yaw, float pitch, bool constrainPitch = true)
     {
-        vec3 oriPos = vec3(0.0f, 0.2f, 0.0f);
+        float interY = Position.y - Front.y * Position.x / Front.x;
+        vec3 oriPos = vec3(0.0f, interY, 0.0f);
         float length = glm::length(Position - oriPos);
         Yaw += yaw;
         Pitch += pitch;
