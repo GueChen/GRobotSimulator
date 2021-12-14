@@ -3,10 +3,10 @@
 #define MYGL_H
 
 #include <QOpenGLFunctions_4_5_Core>
-#include<glm/glm.hpp>
-#include<glm/gtc/type_ptr.hpp>
-#include<vector>
-#include<tuple>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <vector>
+#include <tuple>
 #include <QDebug>
 // TODO:考虑是否把该宏移入 MyShader中
 #define PathVert(name) ("./Shader/Vertex/"#name"Vert.vert")

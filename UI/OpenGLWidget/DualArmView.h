@@ -22,6 +22,7 @@ namespace GComponent {
     class Mesh;
     class Model;
     class Joint;
+    class KUKA_IIWA_MODEL;
     class DUAL_ARM_PLATFORM;
 
     using JointsPair = pair<array<Joint*, 7>, array<Joint*, 7>>;
@@ -38,6 +39,9 @@ namespace GComponent {
         ~DualArmView() = default;
        JointsPair getJoints();
 
+       KUKA_IIWA_MODEL* getLeftRobot() const;
+       KUKA_IIWA_MODEL* getRightRobot() const;
+
     protected:
         /// GL 重写函数
         void initializeGL() override;
@@ -52,6 +56,7 @@ namespace GComponent {
         void mouseReleaseEvent(QMouseEvent *event) override;
         void dragEnterEvent(QDragEnterEvent * event) override;
         void dropEvent(QDropEvent * evnt) override;
+
     private:
         /// 模型函数
         void deleteMesh(const string & resource);

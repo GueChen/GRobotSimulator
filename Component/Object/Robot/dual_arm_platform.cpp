@@ -63,3 +63,13 @@ JointsPair DUAL_ARM_PLATFORM::getJoints() const
     }
     return std::make_pair(left,right);
 }
+
+Ptr_KUKA_IIWA_MODEL DUAL_ARM_PLATFORM::getLeftRobot() const
+{
+    return _left.get();
+}
+
+Ptr_KUKA_IIWA_MODEL DUAL_ARM_PLATFORM::getRightRobot() const
+{
+    return _right.get();
+}

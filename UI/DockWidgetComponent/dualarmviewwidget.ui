@@ -30,7 +30,10 @@
     <number>0</number>
    </property>
    <item row="0" column="0">
-    <widget class="QSplitter" name="splitter">
+    <widget class="QSplitter" name="splitView">
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
      <property name="lineWidth">
       <number>1</number>
      </property>
@@ -43,6 +46,9 @@
      <property name="handleWidth">
       <number>2</number>
      </property>
+     <property name="childrenCollapsible">
+      <bool>true</bool>
+     </property>
      <widget class="QTreeView" name="treeView">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
@@ -52,7 +58,7 @@
       </property>
       <property name="maximumSize">
        <size>
-        <width>500</width>
+        <width>400</width>
         <height>16777215</height>
        </size>
       </property>

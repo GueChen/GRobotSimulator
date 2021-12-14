@@ -1,40 +1,55 @@
-QT       += core gui opengl openglwidgets quickwidgets quick
+QT       +=  core gui opengl openglwidgets quickwidgets quick charts
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++17 no_include_pwd
-
+CONFIG += /std::c++latest
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 message(Project Location:  $$PWD)
-!exists(OPGL_INC)
+!exists(OPGL_INC || OPGL_LIB)
 {
     OPGL_INC = $(OPGL_INCLUDE)
-    message(Already Add OPGL_INCUDE_FILES:)
-    message($(OPGL_INCLUDE))
-    INCLUDEPATH = $(OPGL_INCLUDE)\
-        $$PWD
-}
-
-!exists(OPGL_LIB)
-{
     OPGL_LIB = $(OPGL_LIB)
-    message(Already Add OPGL_LIB_FILES:)
-    message($(OPGL_LIB))
-    LIBS += -L$(OPGL_LIB)\
+    INCLUDEPATH =       \
+        $(OPGL_INCLUDE) \
+        $$PWD
+
+    LIBS +=      \
+    -L$(OPGL_LIB)\
        -lopengl32\
        -lglfw3
 }
 
+!exists(GInclude)
+{
+    GInclude = $(MyCppLib)
+    ## $(GInclude) 失效原因未知
+    INCLUDEPATH +=                  \
+        "E:\lib\Cpp\MyLib"          \
+        $(QT_INCLUDE)
+
+}
+
+!exists(EIGEN)
+{
+    EIGEN = $(VCPKG_PACKAGES)\eigen3_x64-windows
+    message($$EIGEN)
+    INCLUDEPATH += $$EIGEN\include \
+}
+
+
+
 SOURCES += \
     Component/Geometry/mesh.cpp \
     Component/Geometry/modelloader.cpp \
+    Component/Object/Motion/ptpmotion.cpp \
     Component/Object/Robot/dual_arm_platform.cpp \
     Component/Object/Robot/joint.cpp \
     Component/Object/Robot/kuka_iiwa_model.cpp \
     Component/Object/Robot/robot_body_model.cpp \
     Component/Object/basegrid.cpp \
+    Component/Object/gmotionbase.cpp \
     Component/Object/model.cpp \
     Component/Struct/Tree/stringtree.cpp \
     Component/Struct/Tree/treeitem.cpp \
@@ -43,12 +58,15 @@ SOURCES += \
     UI/DockWidgetComponent/modelviewwidget.cpp \
     UI/Item/modelmanagerview.cpp \
     UI/ModelView.cpp \
+    UI/NormalWidget/buttongroup.cpp \
+    UI/NormalWidget/datadisplaycanvas.cpp \
+    UI/NormalWidget/slidercontroller.cpp \
     UI/OpenGLWidget/DualArmView.cpp \
     UI/testopenglwidget.cpp \
     main.cpp \
     mainwindow.cpp
 
-HEADERS += \
+HEADERS +=\
     Component/Camera.hpp \
     Component/GStruct.hpp \
     Component/Geometry/Texture.hpp \
@@ -56,11 +74,13 @@ HEADERS += \
     Component/Geometry/mesh.h \
     Component/Geometry/modelloader.h \
     Component/MyGL.hpp \
+    Component/Object/Motion/ptpmotion.h \
     Component/Object/Robot/dual_arm_platform.h \
     Component/Object/Robot/joint.h \
     Component/Object/Robot/kuka_iiwa_model.h \
     Component/Object/Robot/robot_body_model.h \
     Component/Object/basegrid.h \
+    Component/Object/gmotionbase.h \
     Component/Object/model.h \
     Component/Struct/Tree/stringtree.h \
     Component/Struct/Tree/treeitem.h \
@@ -69,6 +89,9 @@ HEADERS += \
     UI/DockWidgetComponent/modelviewwidget.h \
     UI/Item/modelmanagerview.h \
     UI/ModelView.h \
+    UI/NormalWidget/buttongroup.h \
+    UI/NormalWidget/datadisplaycanvas.h \
+    UI/NormalWidget/slidercontroller.h \
     UI/OpenGLWidget/DualArmView.h \
     UI/testopenglwidget.h \
     mainwindow.h
@@ -76,11 +99,14 @@ HEADERS += \
 FORMS += \
     UI/DockWidgetComponent/dualarmviewwidget.ui \
     UI/DockWidgetComponent/modelviewwidget.ui \
+    UI/NormalWidget/buttongroup.ui \
+    UI/NormalWidget/datadisplaycanvas.ui \
+    UI/NormalWidget/slidercontroller.ui \
     mainwindow.ui
 
 EVERYTHING = $$SOURCES $$HEADERS
-message("The Project contains following files:")
-message($$EVERYTHING)
+message("The Project contains following incPath:")
+message($$INCLUDEPATH)
 
 message("The Project contains following libs:")
 message($$LIBS)

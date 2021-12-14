@@ -14,7 +14,7 @@ namespace GComponent {
     using std::shared_ptr;
     using std::array;
     using std::pair;
-
+    using Ptr_KUKA_IIWA_MODEL = KUKA_IIWA_MODEL*;
     using JointsPair = pair<array<Joint*, 7>, array<Joint*, 7>>;
 
     class DUAL_ARM_PLATFORM: public Model
@@ -28,6 +28,8 @@ namespace GComponent {
         void setRightColor(const vec3 & color);
 
         JointsPair getJoints() const;
+        Ptr_KUKA_IIWA_MODEL getLeftRobot() const;
+        Ptr_KUKA_IIWA_MODEL getRightRobot() const;
 
         static void setGL(const shared_ptr<MyGL> & other);
     private:

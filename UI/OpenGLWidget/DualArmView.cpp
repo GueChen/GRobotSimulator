@@ -36,6 +36,16 @@ JointsPair DualArmView::getJoints()
     return robot->getJoints();
 }
 
+KUKA_IIWA_MODEL* DualArmView::getLeftRobot() const
+{
+    return robot->getLeftRobot();
+}
+
+KUKA_IIWA_MODEL* DualArmView::getRightRobot() const
+{
+    return robot->getRightRobot();
+}
+
 //TODO: 补充以下函数
 void DualArmView::initializeGL()
 {
