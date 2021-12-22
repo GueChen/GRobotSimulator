@@ -1,7 +1,7 @@
 QT       +=  core gui opengl openglwidgets quickwidgets quick charts
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += /std::c++latest
+CONFIG += c++latest
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -43,7 +43,13 @@ message(Project Location:  $$PWD)
 SOURCES += \
     Component/Geometry/mesh.cpp \
     Component/Geometry/modelloader.cpp \
+    Component/Object/BasicMesh/Gball.cpp \
+    Component/Object/BasicMesh/gcurves.cpp \
+    Component/Object/BasicMesh/gline.cpp \
+    Component/Object/Motion/circmotion.cpp \
+    Component/Object/Motion/linmotion.cpp \
     Component/Object/Motion/ptpmotion.cpp \
+    Component/Object/Motion/splinemotion.cpp \
     Component/Object/Robot/dual_arm_platform.cpp \
     Component/Object/Robot/joint.cpp \
     Component/Object/Robot/kuka_iiwa_model.cpp \
@@ -74,7 +80,16 @@ HEADERS +=\
     Component/Geometry/mesh.h \
     Component/Geometry/modelloader.h \
     Component/MyGL.hpp \
+    Component/Object/BasicMesh/GBasicMesh \
+    Component/Object/BasicMesh/Gball.h \
+    Component/Object/BasicMesh/SimplexModel.hpp \
+    Component/Object/BasicMesh/gcurves.h \
+    Component/Object/BasicMesh/gline.h \
+    Component/Object/Motion/GMotion \
+    Component/Object/Motion/circmotion.h \
+    Component/Object/Motion/linmotion.h \
     Component/Object/Motion/ptpmotion.h \
+    Component/Object/Motion/splinemotion.h \
     Component/Object/Robot/dual_arm_platform.h \
     Component/Object/Robot/joint.h \
     Component/Object/Robot/kuka_iiwa_model.h \
@@ -119,10 +134,12 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 DISTFILES += \
     Shader/Fragment/BaseFrag.frag \
     Shader/Fragment/ColorFrag.frag \
+    Shader/Fragment/LineColorFrag.frag \
     Shader/Fragment/PhoneFrag.frag \
     Shader/Fragment/TriangleFrag.frag \
     Shader/Vertex/BaseVert.vert \
     Shader/Vertex/ColorVert.vert \
+    Shader/Vertex/LineColorVert.vert \
     Shader/Vertex/PhoneVert.vert \
     Shader/Vertex/TriangleVert.vert \
     UI/QML/BasicController.qml \

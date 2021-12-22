@@ -10,6 +10,7 @@ layout(std140, binding = 0) uniform Matrices{
 };
 
 uniform mat4 model;
+uniform bool NormReverse;
 
 out vec3 FragPos;
 out vec3 Norm;
@@ -19,6 +20,10 @@ void main()
 {
     FragPos = vec3(model * vec4(aPos, 1.0f));
     Norm = transpose(inverse(mat3(model))) * aNorm;
+    if(NormReverse)
+    {
+        Norm = - Norm;
+    }
     TexCoords = aTexCoords;
     gl_Position = projection *                      // P matrix
                   view *                            // V matrix

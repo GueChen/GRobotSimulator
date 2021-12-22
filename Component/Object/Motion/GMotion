@@ -1,0 +1,4 @@
+#include "ptpmotion.h"
+#include "linmotion.h"
+#include "circmotion.h"
+#include "splinemotion.h"

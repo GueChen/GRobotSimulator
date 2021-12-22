@@ -3,16 +3,17 @@
 
 namespace GComponent{
 
-    struct Line{
-        int first;
-        int second;
-    };
+struct Line{
+    int first;
+    int second;
+};
 
-    struct Triangle{
-        int first;
-        int second;
-        int third;
-    };
+struct Triangle{
+    int first;
+    int second;
+    int third;
+};
+
 }
 
 #endif // GSTRUCT_HPP

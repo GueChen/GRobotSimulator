@@ -3,7 +3,6 @@
 #include <ranges>
 #include <iostream>
 #include <eigen3/Eigen/Dense>
-#include <GComponent/GGeometry.hpp>
 
 int main(int argc, char *argv[])
 {

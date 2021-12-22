@@ -7,89 +7,94 @@
 #include "Component/Object/model.h"
 
 namespace GComponent{
-    /// Forward Declarition
-    class MyGL;
-    class Mesh;
-    class Revolute;
-    class MyShader;
 
-    /// STL
-    using std::array;
-    using std::vector;
-    using std::unique_ptr;
-    using std::shared_ptr;
+/// Forward Declarition
+class MyGL;
+class Mesh;
+class Revolute;
+class MyShader;
 
-    /// Type Alias
-    using vec3d         = Vector3d;
-    using IIWAThetas    = array<double, 7>;
-    using IIWAThetav    = Matrix<double, 7, 1>;
-    using IIWATransfoms = array<SE3d, 7>;
-    using IIWAJacobian  = Matrix<double, 6, 7>;
-    using IIWAExpCoords = array<twistd, 7>;
+/// STL
+using std::array;
+using std::vector;
+using std::unique_ptr;
+using std::shared_ptr;
+
+/// Type Alias
+using vec3d         = Vector3d;
+using IIWAThetas    = array<double, 7>;
+using IIWAThetav    = Matrix<double, 7, 1>;
+using IIWATransfoms = array<SE3d, 7>;
+using IIWAJacobian  = Matrix<double, 6, 7>;
+using IIWAExpCoords = array<twistd, 7>;
 
 
-    class KUKA_IIWA_MODEL:public Model
-    {
-    /// 成员函数 Member Functions
-    public:
-    /// 构造函数 Constructors
-        KUKA_IIWA_MODEL(mat4 transform = mat4(1.0f));
-        ~KUKA_IIWA_MODEL() = default;
+class KUKA_IIWA_MODEL:public Model
+{
+/// 成员函数 Member Functions
+public:
+/// 构造函数 Constructors
+    explicit KUKA_IIWA_MODEL(mat4 transform = mat4(1.0f));
+    ~KUKA_IIWA_MODEL() = default;
 
-    /// 绘图函数 Drawing Functions
-        void Draw(MyShader * shader) override;
-        void setColor(const vec3 & color);
-        static void setGL(const shared_ptr<MyGL> & other);
+/// 绘图函数 Drawing Functions
+    void Draw(MyShader * shader) override;
+    void setColor(const vec3 & color);
+    static void setGL(const shared_ptr<MyGL> & other);
 
-    /// 运动学函数 Kinematic Functions
-        SE3d ForwadKinematic();
-        SE3d ForwadKinematic(const IIWAThetas&);
-        SE3d ForwadKinematic(const IIWAThetav&);
+/// 运动学函数 Kinematic Functions
+    SE3d FowardKinematic();
+    SE3d FowardKinematic(const IIWAThetas&);
+    SE3d FowardKinematic(const IIWAThetav&);
 
-        IIWATransfoms GetIIWATransforms();
-        IIWATransfoms GetIIWATransforms(const IIWAThetas&);
-        IIWATransfoms GetIIWATransforms(const IIWAThetav&);
+    IIWATransfoms GetIIWATransforms();
+    IIWATransfoms GetIIWATransforms(const IIWAThetas&);
+    IIWATransfoms GetIIWATransforms(const IIWAThetav&);
 
-        IIWAThetas BackKinematic(const SE3d&);
-        IIWAThetas BackKinematic(const twistd&);
-        IIWAThetas BackKinematic(const vec3d&, const vec3d&);
+    IIWAThetas BackKinematic(const SE3d&);
+    IIWAThetas BackKinematic(const twistd&);
+    IIWAThetas BackKinematic(const vec3d&, const vec3d&);
 
-        IIWAJacobian GetJacobian();
-        IIWAJacobian GetJacobian(const IIWAThetav&);
-        IIWAJacobian GetJacobian(const IIWAThetas&);
+    IIWAJacobian GetJacobian();
+    IIWAJacobian GetJacobian(const IIWAThetav&);
+    IIWAJacobian GetJacobian(const IIWAThetas&);
 
-    /// 设置获取系列 SetAndGet
-        IIWAThetas GetThetas() const;
-        void SetThetas(const IIWAThetas&);
-    private:
-        void Draw(MyShader* shader, Model * next);
+/// 操作控制函数 Controller Functions
+    void Move(const IIWAThetas&);
+    void Move(const IIWAThetav&);
 
-        void InitCoords();
-        void InitializeResource();
+/// 设置获取系列 Setter And Getter
+    IIWAThetas GetThetas() const;
+    inline void SetThetas(const IIWAThetas&);
+private:
+    void Draw(MyShader* shader, Model * next);
 
-        static void InsertMeshResource(const string & key, const string & source);
+    void InitCoords();
+    void InitializeResource();
 
-    /// 数据域 Fields
-    public:
-        vector<shared_ptr<Revolute>> Joints;
+    static void InsertMeshResource(const string & key, const string & source);
 
-    private:
-    // 当前单一颜色着色器下的显示颜色
-        vec3 _color     = vec3(1.0f);
-    // 角度及坐标变换参数
-        IIWAThetas      _thetas;
-        IIWATransfoms   _Ts;
+/// 数据域 Fields
+public:
+    vector<shared_ptr<Revolute>> Joints;
 
-    // FIXME：单一窗口下资源优化的最佳方式，但多窗口下可能会存在隐患
-    /// 资源管理部分 Resource Manager
-        static bool hasInit;
-        static unordered_map<string, unique_ptr<Mesh>> meshResource;
+private:
+// 当前单一颜色着色器下的显示颜色
+    vec3 _color     = vec3(1.0f);
+// 角度及坐标变换参数
+    IIWAThetas      _thetas;
+    IIWATransfoms   _Ts;
 
-    /// 运动学部分 Kinematic Part
-        static SE3d M;
-        static IIWAExpCoords expCoords;
-        constexpr static unsigned JointNum = 7;
-    };
+// FIXME：单一窗口下资源优化的最佳方式，但多窗口下可能会存在隐患
+/// 资源管理部分 Resource Manager
+    static bool hasInit;
+    static unordered_map<string, unique_ptr<Mesh>> meshResource;
+
+/// 运动学部分 Kinematic Part
+    static SE3d M;
+    static IIWAExpCoords expCoords;
+    constexpr static unsigned JointNum = 7;
+};
 
 
 }

@@ -11,6 +11,10 @@
 #include "Component/Geometry/modelloader.h"
 #include "Component/Object/Robot/dual_arm_platform.h"
 
+#include "Component/Object/BasicMesh/SimplexModel.hpp"
+#include "Component/Object/BasicMesh/GBasicMesh"
+
+using std::make_pair;
 using std::make_unique;
 using std::make_shared;
 
@@ -26,7 +30,6 @@ DualArmView::DualArmView(QWidget *parent) :
     robot(make_unique<DUAL_ARM_PLATFORM>())
 {
     connect(timer.get(), &QTimer::timeout,  [this](){this->update();});
-
     timer->start(20);
     this->setAcceptDrops(true);
 }
@@ -46,38 +49,56 @@ KUKA_IIWA_MODEL* DualArmView::getRightRobot() const
     return robot->getRightRobot();
 }
 
+
+//****************************************************************//
+
 //TODO: 补充以下函数
 void DualArmView::initializeGL()
 {
-    gl->initializeOpenGLFunctions();
-    uMBO = gl->genMatrices();
-    makeCurrent();
     grid = std::make_unique<BaseGrid>(20, 0.05);
-    grid->setGL(gl);
+
     shaderMap.insert(genShaderMap(Base));
     shaderMap.insert(genShaderMap(Phone));
     shaderMap.insert(genShaderMap(Color));
+    shaderMap.insert(genShaderMap(LineColor));
 
+    setGL();
+    connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &DualArmView::cleanup);
+
+}
+
+void DualArmView::setGL()
+{
+    /* 初始化 GL 函数并获取 context */
+    gl->initializeOpenGLFunctions();
+    makeCurrent();
+
+    /* 初始化内存矩阵 */
+    uMBO = gl->genMatrices();
+
+    /* 对着色器传递 GL 指针 */
     for(auto &[key, shader]:shaderMap)
     {
         shader->setGL(gl);
         shader->link();
     }
-    curShader = shaderMap["Base"].get();
 
-    curShader->use();
-
-    makeCurrent();
-
-    DUAL_ARM_PLATFORM::setGL(gl);
-
-    for(auto &[name, pmesh] : mTable)
+    /* 对网格资源传递 GL 指针 */
+    for(auto &[name, pmesh] : meshTable)
     {
         pmesh->setGL(gl);
     }
 
-    connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &DualArmView::cleanup);
+    /* 对简单单纯形传递 GL 指针 */
+    for(auto &[name, pModel] : modelTable)
+    {
+        pModel->setGL(gl);
+    }
 
+    /* 未归并统一管理的部分 Model */
+    // FIXME: 重构时将该部分纳入统一管理
+    grid->setGL(gl);
+    DUAL_ARM_PLATFORM::setGL(gl);
 }
 
 void DualArmView::paintGL()
@@ -114,36 +135,75 @@ void DualArmView::paintGL()
 
     robot->setLeftColor(vec3(0.75f, 0.55f, 0.70f));
     robot->setRightColor(vec3(0.55f, 0.75f, 0.70f));
-
+    curShader->setBool("NormReverse", false);
     curShader->setVec3("color", vec3(0.85f, 0.85f, 0.75f));
     robot->Draw(curShader);
+
+//    curShader->setVec3("color", vec3(0.55f, 0.45f, 0.85f));
+    curShader->setBool("NormReverse", true);
+
+    for(auto & [name, model]: modelTable)
+    {
+        if(name.find("Line") != -1){
+            curShader = shaderMap["LineColor"].get();
+            curShader->use();
+            curShader->setMat4("model", glm::identity<mat4>());
+        }
+
+        model->Draw(curShader);
+
+        if(name.find("Line") != -1){
+            curShader = shaderMap["Color"].get();
+            curShader->use();
+        }
+    }
+
     curShader->release();
 }
 
+/// 窗口大小回调
+/// 在窗口大小发生改变时负责调整窗口大小
 void DualArmView::resizeGL(int w, int h)
 {
     gl->glViewport(0, 0, width(), height());
 }
 
+
+//****************************************************************//
+/// <summary>
+///  清理函数
+/// </summary>
+/// 负责在重初始化前清理资源 避免内存泄漏
 void DualArmView::cleanup()
 {
     shaderMap.clear();
-}
-
-void DualArmView::deleteMesh(const string &name)
-{
-    if(mTable.count(name))
+    for(auto & [name, model]: modelTable)
     {
-        mTable.erase(mTable.find(name));
+        model->ClearGL();
     }
 }
 
+
+/// <summary>
+/// Mesh 资源删除函数
+/// </summary>
+void DualArmView::deleteMesh(const string &name)
+{
+    if(meshTable.count(name))
+    {
+        meshTable.erase(meshTable.find(name));
+    }
+}
+
+/// <summary>
+/// Mesh 资源添加函数
+/// </summary>
 void DualArmView::addMesh(const string & resource)
 {
     auto begin  =   resource.find_last_of('/'),
          end    =   resource.find_last_of('.');
     auto name   =   resource.substr(begin + 1, end - begin);
-    if(mTable.count(name))
+    if(meshTable.count(name))
     {
         qDebug() << "模型已存在";
         return;
@@ -154,18 +214,60 @@ void DualArmView::addMesh(const string & resource)
     timer->stop();
 
     makeCurrent();
-    auto p_TemplateMesh = std::make_unique<Mesh>(Vs, Is, std::vector<Texture>{});
+    unique_ptr<Mesh> p_TemplateMesh = make_unique<Mesh>(Vs, Is, std::vector<Texture>{});
     p_TemplateMesh->setGL(gl);
-    mTable.insert(std::make_pair(name, std::move(p_TemplateMesh)));
+    meshTable.insert(make_pair(name, std::move(p_TemplateMesh)));
     timer->start(20);
+
 }
 
+template <class _Derived>
+void DualArmView::addSimplexModel(const string &name, unique_ptr<_Derived>&& pModel)
+{
+    /* 编译时 类型检测 */
+    static_assert (std::is_base_of<SimplexModel, _Derived>::value,
+            "Can't cast _Derived Class From Type");
+
+    /* 为新添加 Mesh 配置 GL Context */
+    makeCurrent();
+    pModel->setGL(gl);
+
+    /* 检测是否有重名并删除 */
+    deleteSimplexModel(name);
+
+    /* 把新对象插入字典中 */
+    modelTable.insert(make_pair(name, std::move(pModel)));
+}
+
+template void
+DualArmView::addSimplexModel(const string&, unique_ptr<GBall>&&);
+template void
+DualArmView::addSimplexModel(const string&, unique_ptr<GCurves>&&);
+template void
+DualArmView::addSimplexModel(const string&, unique_ptr<GLine>&&);
+
+void
+DualArmView::deleteSimplexModel(const string& name)
+{
+    if(modelTable.count(name)){
+       modelTable.erase(name);
+    }
+}
+
+void
+DualArmView::clearSimplexModel()
+{
+    modelTable.clear();
+}
 /**********************************************/
 /**
  *          Widget Event Method
  *              窗体事件函数
  * ******************************************/
 
+/// <summary>
+/// 滚轮回调函数
+/// </summary>
 void DualArmView::wheelEvent(QWheelEvent *event)
 {
     QPoint numDegrees = event->angleDelta();
@@ -178,6 +280,9 @@ void DualArmView::wheelEvent(QWheelEvent *event)
 
 }
 
+/// <summary>
+/// 鼠标按下函数
+/// </summary>
 void DualArmView::mousePressEvent(QMouseEvent *event)
 {
     lastMousePos = event->globalPosition();
@@ -199,6 +304,9 @@ void DualArmView::mousePressEvent(QMouseEvent *event)
 
 }
 
+/// <summary>
+/// 鼠标释放回调函数
+/// </summary>
 void DualArmView::mouseReleaseEvent(QMouseEvent *event)
 {
     if(event->button()== Qt::LeftButton)
@@ -219,6 +327,9 @@ void DualArmView::mouseReleaseEvent(QMouseEvent *event)
     lastMousePos = event->globalPosition();
 }
 
+/// <summary>
+/// 鼠标移动回调回调函数
+/// </summary>
 void DualArmView::mouseMoveEvent(QMouseEvent *event)
 {
 
@@ -240,11 +351,17 @@ void DualArmView::mouseMoveEvent(QMouseEvent *event)
     lastMousePos = curPos;
 }
 
+/// <summary>
+/// 接受拖拽回调函数
+/// </summary>
 void DualArmView::dragEnterEvent(QDragEnterEvent *event)
 {
     event->acceptProposedAction();
 }
 
+/// <summary>
+/// 拖拽释放回调函数
+/// </summary>
 void DualArmView::dropEvent(QDropEvent *event)
 {
     QString filePath = event->mimeData()->urls().first().toLocalFile();

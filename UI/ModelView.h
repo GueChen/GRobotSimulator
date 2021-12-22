@@ -14,6 +14,9 @@ class QOpenGLShaderProgram;
 class Camera;
 namespace GComponent {
     class Mesh;
+    class GLine;
+    class GCurves;
+    class GBall;
 }
 
 class ModelView : public QOpenGLWidget
@@ -40,9 +43,15 @@ private:
 #endif
     QOpenGLShaderProgram * m_program = nullptr;
     QOpenGLShaderProgram * phoneProgram = nullptr;
+    QOpenGLShaderProgram * glineProgram = nullptr;
+
     int count = 0;
     std::vector<glm::vec3> debugP;
     bool GLInit = false;
+
+    GComponent::GLine   * lineObject;
+    GComponent::GCurves * curvesObject;
+    // GComponent::GBall   * ballObject;
 
     GComponent::Camera myCamera;
     bool MOVE = false;

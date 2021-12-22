@@ -7,33 +7,35 @@
 
 namespace GComponent {
 
-    class MyGL;
-    class Mesh
-    {
-        /// 数据域 Fields
-        public:
-            std::vector<Vertex>         Vertices;
-            std::vector<unsigned>       Indices;
-            std::vector<Texture>        Textures;
+class MyGL;
 
-        private:
-            unsigned VAO, VBO, EBO;
-            bool HaveSetup = false;
+class Mesh
+{
+    /// 数据域 Fields
+    public:
+        std::vector<Vertex>         Vertices;
+        std::vector<unsigned>       Indices;
+        std::vector<Texture>        Textures;
 
-        public:
-            Mesh(std::vector<Vertex> vertices,
-                 std::vector<unsigned> indices,
-                 std::vector<Texture> textures);
-            ~Mesh();
+    private:
+        unsigned VAO, VBO, EBO;
+        bool HaveSetup = false;
 
-            void PreProcess(){};
-            void Draw();
-            void setGL(const std::shared_ptr<MyGL> & other);
-        private:
-            unsigned NumElements;
-            void setupMesh();
-            std::shared_ptr<MyGL> gl;
-    };
+    public:
+        Mesh(std::vector<Vertex> vertices,
+             std::vector<unsigned> indices,
+             std::vector<Texture> textures);
+        ~Mesh();
+
+        void Draw();
+        void setGL(const std::shared_ptr<MyGL> & other);
+
+    private:
+        unsigned NumElements;
+        void CheckClearGL();
+        void setupMesh();
+        std::shared_ptr<MyGL> gl;
+};
 
 }
 

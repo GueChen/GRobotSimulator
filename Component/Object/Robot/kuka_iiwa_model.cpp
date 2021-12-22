@@ -3,8 +3,10 @@
 #include "kuka_iiwa_model.h"
 #include "Component/Geometry/mesh.h"
 #include "Component/Geometry/modelloader.h"
-#include "Component/myshader.h"
 #include "Component/Object/Robot/joint.h"
+#include "Component/myshader.h"
+#include <GComponent/GNumerical.hpp>
+#include <ranges>
 #include <iostream>
 
 #define IIWASource(name) ("iiwa14_"#name".STL")
@@ -57,7 +59,7 @@ void KUKA_IIWA_MODEL::InitCoords()
 {
     Eigen::Transform<double, 3, Eigen::Affine> M_Ini;
     M_Ini.setIdentity();
-    M_Ini.pretranslate(Eigen::Vector3d(0.0f, 0.0f, 1332.0f));
+    M_Ini.pretranslate(Eigen::Vector3d(0.0f, 0.0f, 1.3320f));
     M = M_Ini.matrix();
 //  该部分可改为读取参数文件，或界面接口
     expCoords[0] << 0.,  0., 1.,    0., 0., 0.;
@@ -176,17 +178,17 @@ IIWATransfoms KUKA_IIWA_MODEL::GetIIWATransforms(const IIWAThetas& thetas)
 }
 
 /// 机器人正运动学
-SE3d KUKA_IIWA_MODEL::ForwadKinematic()
+SE3d KUKA_IIWA_MODEL::FowardKinematic()
 {
-    return ForwadKinematic(_thetas);
+    return FowardKinematic(_thetas);
 }
-SE3d KUKA_IIWA_MODEL::ForwadKinematic(const IIWAThetav& vthetas)
+SE3d KUKA_IIWA_MODEL::FowardKinematic(const IIWAThetav& vthetas)
 {
-    return ForwadKinematic(IIWAThetas{
+    return FowardKinematic(IIWAThetas{
         vthetas[0], vthetas[1], vthetas[2], vthetas[3],
         vthetas[4], vthetas[5], vthetas[6] });
 }
-SE3d KUKA_IIWA_MODEL::ForwadKinematic(const IIWAThetas& thetas)
+SE3d KUKA_IIWA_MODEL::FowardKinematic(const IIWAThetas& thetas)
 {
     auto Ts = GetIIWATransforms(thetas);
     SE3d T = SE3d::Identity();
@@ -201,15 +203,15 @@ SE3d KUKA_IIWA_MODEL::ForwadKinematic(const IIWAThetas& thetas)
 IIWAThetas KUKA_IIWA_MODEL::BackKinematic(const SE3d& trans_desire)
 {
     IIWAThetav thetav = Eigen::Map<IIWAThetav>(_thetas.data(), 7);
-    SE3d trans_cur  = ForwadKinematic(thetav);
+    SE3d trans_cur  = FowardKinematic(thetav);
     twistd t_delta  = LogMapSE3Tose3(InverseSE3(trans_cur) * trans_desire);
-    double residual = t_delta.squaredNorm();
-
+    double residual = t_delta.norm();
     int iter = 0;
     double decay = 1;
+    double residualDelta = -1e2;
 
-    while (residual > 1e-5) {
-        iter++;
+    while (residual > 1e-5 && iter < 3e2) {
+
         /* Get Precondition */
         auto t_cal = decay * t_delta;
         twistd Vs = Adjoint(trans_cur) * t_cal;
@@ -217,23 +219,47 @@ IIWAThetas KUKA_IIWA_MODEL::BackKinematic(const SE3d& trans_desire)
 
         /* Test new Solution is efficient */
         IIWAThetav thetav_new       = thetav +  svd.solve(Vs);
-        SE3d       trans_new        = ForwadKinematic(thetav_new);
+        SE3d       trans_new        = FowardKinematic(thetav_new);
         twistd     t_delta_new      = LogMapSE3Tose3(InverseSE3(trans_new) * trans_desire);
-        double     residual_new     = t_delta_new.squaredNorm();
+        double     residual_new     = t_delta_new.norm();
 
-        if (residual - residual_new < -1e4)
+        if (residual - residual_new < residualDelta)
         {
             decay *= 0.3f;
             continue;
         }
+
         if(decay < 1.0f)
             decay *= 3.333333333333f;
 
         /* Update Value */
-        thetav = thetav_new;
-        t_delta = t_delta_new;
+        thetav    = thetav_new;
+        t_delta   = t_delta_new;
         trans_cur = trans_new;
-        residual = residual_new;
+        residual  = residual_new;
+
+        if(residual < 10)
+            residualDelta = -1e1;
+        else if(residual < 1)
+            residualDelta = -1;
+
+        iter++;
+    }
+
+    //TODO : 放到 Move
+    if(iter >= 1e3)
+    {
+        std::cout << "Iters:=" << iter << std::endl;
+        std::cout << "cur Pos:=\n" <<  trans_cur.block(0, 3, 3, 1)    << std::endl;
+        std::cout << "goal Pos:\n" <<  trans_desire.block(0, 3, 3, 1) << std::endl;
+        std::cout << "TestGoal:=\n" << trans_desire << "\n\n";
+    }
+    else
+    {
+        for(int i = 0; i < 7;++i)
+        {
+            _thetas[i] = ToStandarAngle(thetav[i]);
+        }
     }
 
     return IIWAThetas{ thetav[0], thetav[1], thetav[2], thetav[3],
@@ -276,13 +302,20 @@ IIWAJacobian KUKA_IIWA_MODEL::GetJacobian()
     return GetJacobian(_thetas);
 }
 
+// TODO: 完善 Move
+/// 操作控制类函数
+void KUKA_IIWA_MODEL::Move(const IIWAThetas & thetas)
+{
+    SetThetas(thetas);
+}
+
 /// 设置获取类
 IIWAThetas KUKA_IIWA_MODEL::GetThetas() const
 {
     return _thetas;
 }
 
-void KUKA_IIWA_MODEL::SetThetas(const IIWAThetas & thetas)
+inline void KUKA_IIWA_MODEL::SetThetas(const IIWAThetas & thetas)
 {
     _thetas = thetas;
 }
