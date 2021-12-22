@@ -1,5 +1,6 @@
 //#define _DEBUG_CONSOLE
 #define MyGlad
+#include <iostream>
 
 #include <QCoreApplication>
 #include <QOpenGLShaderProgram>
@@ -9,6 +10,11 @@
 #include <Component/Geometry/modelloader.h>
 #include <QMimeData>
 #include "ModelView.h"
+
+#include "Component/Object/BasicMesh/gline.h"
+#include "Component/Object/BasicMesh/gcurves.h"
+#include "Component/Object/BasicMesh/Gball.h"
+#include "GComponent/GNumerical.hpp"
 
 using glm::vec3;
 using std::vector;
@@ -26,15 +32,34 @@ ModelView::ModelView(QWidget *parent) :
     qDebug()<<"Constructor Over";
     this->setAcceptDrops(true);
 
+
+    lineObject = new GLine(vec3(2.0f), vec3(-2.0f),
+                           vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 1.0f));
+
+    /* GCurves 测试区域 */
+    const unsigned GenNum = 5;
+    auto nums = GenUniformRandoms<GenNum, 3>(-2.0f, 2.0f);
+    vector<vec3> randomP(GenNum);
+    std::transform(nums.begin(), nums.end(), randomP.begin(), [](auto && num){
+       vec3 tmpVec;
+       tmpVec[0] = num[0];
+       tmpVec[1] = num[1];
+       tmpVec[2] = num[2];
+       return tmpVec;
+    });
+    curvesObject = new GCurves(
+                randomP,
+                vec3(1.0f, 0.5f, 0.0f), vec3(0.5f, 1.0f, 0.5f));
+    /* GCurves 测试区域 */
+
+    /* GBall 测试区域 */
+    // ballObject = new GBall(vec3(0.8f), 0.2f);
 }
 
 ModelView::~ModelView()
 {
     makeCurrent();
     cleanup();
-    gl->glDeleteBuffers(1, &VBO);
-    gl->glDeleteBuffers(1, &EBO);
-    gl->glDeleteVertexArrays(1, &VAO);
     m_timer->stop();
     qDebug() << "Destructor Over";
     doneCurrent();
@@ -44,8 +69,20 @@ void ModelView::cleanup()
 {
     delete m_program;
     delete phoneProgram;
+    delete glineProgram;
     m_program = nullptr;
     phoneProgram = nullptr;
+    glineProgram = nullptr;
+
+    gl->glBindVertexArray(0);
+    gl->glDeleteBuffers(1, &VBO);
+    gl->glDeleteBuffers(1, &EBO);
+    gl->glDeleteBuffers(1, &uMBO);
+    gl->glDeleteVertexArrays(1, &VAO);
+
+    lineObject->ClearGL();
+    curvesObject->ClearGL();
+    // ballObject->ClearGL();
 }
 // TODO: 写初始化
 void ModelView::initializeGL()
@@ -60,7 +97,6 @@ void ModelView::initializeGL()
         mesh = new Mesh(Vs, Is, {});
     }
 
-
     m_program = new QOpenGLShaderProgram(this);
     m_program->addShaderFromSourceFile(QOpenGLShader::Vertex,   PathVert(Base));
     m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, PathFrag(Base));
@@ -69,14 +105,25 @@ void ModelView::initializeGL()
     phoneProgram->addShaderFromSourceFile(QOpenGLShader::Vertex,   PathVert(Phone));
     phoneProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, PathFrag(Phone));
 
+    glineProgram = new QOpenGLShaderProgram(this);
+    glineProgram->addShaderFromSourceFile(QOpenGLShader::Vertex,    PathVert(LineColor));
+    glineProgram->addShaderFromSourceFile(QOpenGLShader::Fragment,  PathFrag(LineColor));
+
     m_program->link();
     phoneProgram->link();
+    glineProgram->link();
 
     m_program->bind();
     phoneProgram->bind();
+    glineProgram->bind();
 
     mesh->setGL(gl);
     initializeGeometry(40, 0.05f);
+
+    lineObject->setGL(gl);
+    curvesObject->setGL(gl);
+
+    // ballObject->setGL(gl);
 
     GLInit = true;
     connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &ModelView::cleanup);
@@ -123,6 +170,7 @@ void ModelView::paintGL()
     gl->glBindVertexArray(VAO);
     gl->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     gl->glDrawElements(GL_LINES, 160, GL_UNSIGNED_INT, 0);
+
     model = glm::scale(model, vec3(4.0f));
     gl->setMat4(pShader->programId(), "model", model);
     gl->setVec3(pShader->programId(), "viewPos", myCamera.Position);
@@ -131,9 +179,20 @@ void ModelView::paintGL()
 
     mesh->Draw();
 
+    //    model = glm::identity<mat4>();
+    //    model = glm::translate(model, ballObject->center);
+    //    gl->setMat4(pShader->programId(), "model", model);
+
+    //    ballObject->Draw();
+
     pShader->release();
+    model = glm::identity<mat4>();
+    glineProgram->bind();
 
-
+    gl->setMat4(glineProgram->programId(), "model", model);
+    lineObject->Draw();
+    curvesObject->Draw();
+    glineProgram->release();
 }
 
 void ModelView::initializeGeometry(int num, float gSize)
@@ -147,6 +206,11 @@ void ModelView::initializeGeometry(int num, float gSize)
     EBO = gl->genEBO(lines);
     uMBO = gl->genMatrices();
 
+    std::cout << "Window MEsh:\n"
+                 "VAO:= " << VAO << ","
+                 "EBO:= " << EBO << ","
+                 "uMBO:= " << uMBO << ","
+                 "VBO:= " << VBO << std::endl;
 }
 
 vector<vec3> ModelView::genPos(int num, float gSize)

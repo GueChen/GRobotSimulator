@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 
 namespace GComponent {
-/// TODO： 替换库时请替换这里
+// TODO： 替换库时请替换这里
     using vec3 = glm::vec3;
     using vec2 = glm::vec2;
 
@@ -11,6 +11,10 @@ namespace GComponent {
         vec3 Position;
         vec3 Normal;
         vec2 TexCoords;
+    };
+
+    struct ColorVertex:public Vertex{
+        vec3 Color;
     };
 }
 

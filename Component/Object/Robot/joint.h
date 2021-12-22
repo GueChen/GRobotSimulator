@@ -4,27 +4,29 @@
 #include <memory>
 
 namespace GComponent {
-    class Model;
 
-    using std::shared_ptr;
-    class Joint
-    {
-    public:
-        Joint(const shared_ptr<Model> & model){_model = model.get();}
-        virtual ~Joint() = 0{}
-    protected:
-        Model * _model;
-    };
+class Model;
 
-    class Revolute:public Joint
-    {
-    public:
-        Revolute() = delete;
-        Revolute(const shared_ptr<Model> & model);
-        ~Revolute() = default;
-        void Rotate(float angle);
-        float getAngle();
-    };
+using std::shared_ptr;
+class Joint
+{
+public:
+    explicit Joint(const shared_ptr<Model> & model){_model = model.get();}
+    virtual ~Joint() = 0{}
+protected:
+    Model * _model;
+};
+
+class Revolute:public Joint
+{
+public:
+    Revolute() = delete;
+    explicit Revolute(const shared_ptr<Model> & model);
+    ~Revolute() = default;
+    void Rotate(float angle);
+    float getAngle();
+};
+
 }
 
 

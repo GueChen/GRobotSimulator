@@ -18,8 +18,8 @@ void BaseGrid::GLBufferInitialize()
     }
     isInit = true;
 
-    auto verts = GetGridVertexLocation(num, gridSize);
-    auto edges = GetGridEdge(num);
+    vector<vec3> verts = GetGridVertexLocation(num, gridSize);
+    vector<Line> edges = GetGridEdge(num);
 
     std::tie(VAO, VBO) = gl->genVABO(&verts[0], GCONST::VEC3_SIZE * verts.size());
     EBO = gl->genEBO(edges);

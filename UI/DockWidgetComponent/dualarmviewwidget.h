@@ -3,6 +3,11 @@
 
 #include <QWidget>
 #include <QVariant>
+#include <functional>
+#include <memory>
+
+using JointPosFunc = std::function<std::vector<double>(double)>;
+using std::unique_ptr;
 
 namespace Ui {
 class DualArmViewWidget;
@@ -24,10 +29,18 @@ public:
     // TODO: 后期考虑是否修改传递量
     GComponent::KUKA_IIWA_MODEL* getLeftRobot() const;
     GComponent::KUKA_IIWA_MODEL* getRightRobot() const;
+
+    template<class _Deriv_Simplex>
+    void addSimplexModel(const std::string& name, unique_ptr<_Deriv_Simplex>&&);
+    void clearSimplexModel();
 private:
     Ui::DualArmViewWidget *ui;
     std::array<GComponent::Joint*, 7> lJoints;
     std::array<GComponent::Joint*, 7> rJoints;
+    QTimer * myTimer;
+
+public slots:
+    void LeftArmMoveSlot(JointPosFunc posfunc, double T_upper, double period = 0.01);
 };
 
 #endif // DUALARMVIEWWIDGET_H

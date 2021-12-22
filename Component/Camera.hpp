@@ -1,10 +1,7 @@
-
-
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
 
 #include <vector>
 namespace GComponent{
@@ -55,9 +52,9 @@ public:
             Zoom(ZOOM)
         {
             Position = position;
-            WorldUp = up;
-            Yaw = yaw;
-            Pitch = pitch;
+            WorldUp  = up;
+            Yaw      = yaw;
+            Pitch    = pitch;
             updateCameraVectors();
         }
     Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) :
@@ -67,9 +64,9 @@ public:
             Zoom(ZOOM)
         {
             Position = glm::vec3(posX, posY, posZ);
-            WorldUp = glm::vec3(upX, upY, upZ);
-            Yaw = yaw;
-            Pitch = pitch;
+            WorldUp  = glm::vec3(upX, upY, upZ);
+            Yaw      = yaw;
+            Pitch    = pitch;
             updateCameraVectors();
         }
 
