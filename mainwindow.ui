@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>机械臂规划仿真软件</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(50, 50, 50);
@@ -299,10 +299,52 @@ alternate-background-color: rgb(65, 65, 65);</string>
     <layout class="QGridLayout" name="gridLayout_7">
      <item row="1" column="0" colspan="2">
       <layout class="QGridLayout" name="PlanningLayout">
+       <item row="2" column="0">
+        <widget class="QPushButton" name="TestZEROMotion">
+         <property name="text">
+          <string>ZEROMotion</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="TestWLNMotion">
+         <property name="text">
+          <string>WLNMotion</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QPushButton" name="TestFreeMotion">
+         <property name="text">
+          <string>FREEMotion</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QPushButton" name="TestOPTMotion">
+         <property name="text">
+          <string>OPTMotion</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QPushButton" name="TestCircMotion">
+         <property name="text">
+          <string>CIRCMotion</string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="0">
         <widget class="QPushButton" name="TestPTPButton">
          <property name="text">
           <string>PTPMotion</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="TestSPLMotion">
+         <property name="text">
+          <string>SPLMotion</string>
          </property>
         </widget>
        </item>
@@ -320,24 +362,24 @@ alternate-background-color: rgb(65, 65, 65);</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="2">
-        <widget class="QPushButton" name="TestCircMotion">
+       <item row="3" column="0">
+        <widget class="QPushButton" name="TestTightCoord">
          <property name="text">
-          <string>CIRCMotion</string>
+          <string>TightCoord</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="2">
-        <widget class="QPushButton" name="TestWLNMotion">
+       <item row="3" column="1">
+        <widget class="QPushButton" name="pushButton_2">
          <property name="text">
-          <string>WLNMotion</string>
+          <string>PushButton</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QPushButton" name="TestSPLMotion">
+       <item row="3" column="2">
+        <widget class="QPushButton" name="pushButton_3">
          <property name="text">
-          <string>SPLMotion</string>
+          <string>PushButton</string>
          </property>
         </widget>
        </item>

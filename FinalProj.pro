@@ -33,14 +33,19 @@ message(Project Location:  $$PWD)
 
 !exists(EIGEN)
 {
-    EIGEN = $(VCPKG_PACKAGES)\eigen3_x64-windows
+    EIGEN = $(VCPKG_INSTALL_x64)\include
+    message("COMPARE:")
     message($$EIGEN)
-    INCLUDEPATH += $$EIGEN\include \
+    message("D:\programming\Tool\vcpkg\vcpkg\installed\x64-windows\include")
+    ##INCLUDEPATH += $$EIGEN
+    INCLUDEPATH += "D:\programming\Tool\vcpkg\vcpkg\installed\x64-windows\include"
 }
 
 
 
 SOURCES += \
+    Base/editortreemodel.cpp \
+    Base/treeitem.cpp \
     Component/Geometry/mesh.cpp \
     Component/Geometry/modelloader.cpp \
     Component/Object/BasicMesh/Gball.cpp \
@@ -50,6 +55,7 @@ SOURCES += \
     Component/Object/Motion/linmotion.cpp \
     Component/Object/Motion/ptpmotion.cpp \
     Component/Object/Motion/splinemotion.cpp \
+    Component/Object/Motion/syncduallinemotion.cpp \
     Component/Object/Robot/dual_arm_platform.cpp \
     Component/Object/Robot/joint.cpp \
     Component/Object/Robot/kuka_iiwa_model.cpp \
@@ -57,9 +63,9 @@ SOURCES += \
     Component/Object/basegrid.cpp \
     Component/Object/gmotionbase.cpp \
     Component/Object/model.cpp \
-    Component/Struct/Tree/stringtree.cpp \
-    Component/Struct/Tree/treeitem.cpp \
     Component/myshader.cpp \
+    Tooler/conversion.cpp \
+    UI/Dialog/PathPlanningSettingDialog.cpp \
     UI/DockWidgetComponent/dualarmviewwidget.cpp \
     UI/DockWidgetComponent/modelviewwidget.cpp \
     UI/Item/modelmanagerview.cpp \
@@ -73,6 +79,8 @@ SOURCES += \
     mainwindow.cpp
 
 HEADERS +=\
+    Base/editortreemodel.h \
+    Base/treeitem.h \
     Component/Camera.hpp \
     Component/GStruct.hpp \
     Component/Geometry/Texture.hpp \
@@ -90,6 +98,7 @@ HEADERS +=\
     Component/Object/Motion/linmotion.h \
     Component/Object/Motion/ptpmotion.h \
     Component/Object/Motion/splinemotion.h \
+    Component/Object/Motion/syncduallinemotion.h \
     Component/Object/Robot/dual_arm_platform.h \
     Component/Object/Robot/joint.h \
     Component/Object/Robot/kuka_iiwa_model.h \
@@ -97,9 +106,9 @@ HEADERS +=\
     Component/Object/basegrid.h \
     Component/Object/gmotionbase.h \
     Component/Object/model.h \
-    Component/Struct/Tree/stringtree.h \
-    Component/Struct/Tree/treeitem.h \
     Component/myshader.h \
+    Tooler/conversion.h \
+    UI/Dialog/PathPlanningSettingDialog.h \
     UI/DockWidgetComponent/dualarmviewwidget.h \
     UI/DockWidgetComponent/modelviewwidget.h \
     UI/Item/modelmanagerview.h \
@@ -112,6 +121,7 @@ HEADERS +=\
     mainwindow.h
 
 FORMS += \
+    UI/Dialog/PathPlanningSettingDialog.ui \
     UI/DockWidgetComponent/dualarmviewwidget.ui \
     UI/DockWidgetComponent/modelviewwidget.ui \
     UI/NormalWidget/buttongroup.ui \
