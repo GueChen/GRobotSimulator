@@ -10,7 +10,7 @@ CircMotion::CircMotion(const SE3d& T, const vec3d& pos):
 JointCruveMsgPkg
 CircMotion::GetCurvesFunction(KUKA_IIWA_MODEL* robot, double Max_Vel_Limit, double Max_Acc_Limit)
 {
-    SE3d  T_ini = robot->FowardKinematic();
+    SE3d  T_ini = robot->ForwardKinematic();
     vec3d p_ini = T_ini.block(0, 3, 3, 1);
     vec3d p_end = T_goal.block(0, 3, 3, 1);
     const size_t JointNum = robot->GetThetas().size();

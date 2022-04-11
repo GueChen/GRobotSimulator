@@ -7,6 +7,7 @@
 #include <memory>
 
 using JointPosFunc = std::function<std::vector<double>(double)>;
+using DualJointsPosFunc = std::function<std::pair<std::vector<double>,std::vector<double>>(double)>;
 using std::unique_ptr;
 
 namespace Ui {
@@ -41,6 +42,7 @@ private:
 
 public slots:
     void LeftArmMoveSlot(JointPosFunc posfunc, double T_upper, double period = 0.01);
+    void DualArmMoveSlot(DualJointsPosFunc posfunc, double T_upper, double period = 0.01);
 };
 
 #endif // DUALARMVIEWWIDGET_H

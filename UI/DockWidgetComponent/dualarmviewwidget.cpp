@@ -5,9 +5,12 @@
 
 #include "UI/OpenGLWidget/DualArmView.h"
 #include "Component/Object/Robot/joint.h"
-
+#include "GComponent/GNumerical.hpp"
 #include "Component/Object/BasicMesh/GBasicMesh"
-
+#include "Tooler/conversion.h"
+//FiXME:测试完后删除耦合
+/// For Test
+#include "Component/Object/Robot/kuka_iiwa_model.h"
 
 DualArmViewWidget::DualArmViewWidget(QWidget *parent) :
     QWidget(parent),
@@ -75,15 +78,27 @@ void DualArmViewWidget::clearSimplexModel()
  * ****************************************/
 void DualArmViewWidget::LeftArmMoveSlot(JointPosFunc posfunc, double T_upper, double period)
 {
-    auto InvokerFunc = [=,t = 0.0, this,&timer = this->myTimer]() mutable{
-
-        for(int Index = 0;
-            auto & theta : posfunc(t))
-        {
-            setLeftArmRotation(Index, theta);
-            ++Index;
+    auto InvokerFunc = [=, func = this,t = 0.0, this,&timer = this->myTimer]() mutable{
+        auto vecPos = posfunc(t);
+        for_each(vecPos.begin(), vecPos.end(), [](auto && theta){
+            theta = GComponent::DegreeToRadius(theta);
+        });
+        GComponent::IIWAThetas thetas{
+            vecPos[0], vecPos[1], vecPos[2], vecPos[3],
+            vecPos[4], vecPos[5], vecPos[6]};
+        getLeftRobot()->Move(thetas);
+        auto ptr = this->getLeftRobot();
+        auto checkers = ptr->GetCollisionPoints(thetas);
+        if(!checkers.empty()){
+            int index = 0;
+            for(auto & check: checkers)
+            {
+                glm::vec3 p = Conversion::Vec3Eigen2Glm(check);
+                glm::mat4 base = ptr->getModelMatrix();
+                p = base * glm::vec4(p, 1.0f);
+                this->addSimplexModel("Checker" + std::to_string(index++), std::make_unique<GComponent::GBall>(p, 0.1, 20));
+            }
         }
-
         t += period;
         if(t > T_upper)
         {
@@ -93,5 +108,36 @@ void DualArmViewWidget::LeftArmMoveSlot(JointPosFunc posfunc, double T_upper, do
     };
 
     connect(myTimer, &QTimer::timeout, this, InvokerFunc);
-    myTimer->start(period * 1000.0);
+    myTimer->start(period * 100.0);
+}
+
+void DualArmViewWidget::DualArmMoveSlot(DualJointsPosFunc posfunc, double T_upper, double period){
+    auto InvokerFunc = [=, func = this, t= 0.0, this, &timer = this->myTimer]()mutable {
+        auto&& [left_pos_vec, right_pos_vec] = posfunc(t);
+
+        for(auto && pos: left_pos_vec){
+            pos = GComponent::DegreeToRadius(pos);
+        }
+        for(auto && pos: right_pos_vec){
+            pos = GComponent::DegreeToRadius(pos);
+        }
+        GComponent::IIWAThetas left_thetas{
+            left_pos_vec[0], left_pos_vec[1], left_pos_vec[2], left_pos_vec[3],
+            left_pos_vec[4], left_pos_vec[5], left_pos_vec[6]},
+                               right_thetas{
+            right_pos_vec[0], right_pos_vec[1], right_pos_vec[2], right_pos_vec[3],
+            right_pos_vec[4], right_pos_vec[5], right_pos_vec[6]};
+
+        getLeftRobot()->Move(left_thetas);
+        getRightRobot()->Move(right_thetas);
+
+        t += period;
+        if(t > T_upper)
+        {
+            timer->stop();
+            myTimer->disconnect(this);
+        }
+    };
+    connect(myTimer, &QTimer::timeout, this, InvokerFunc);
+    myTimer->start(period * 100.0);
 }

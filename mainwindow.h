@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <functional>
 #include <memory>
+#include <UI/Dialog/PathPlanningSettingDialog.h>
 
 using std::unique_ptr;
 using std::vector;
@@ -36,6 +37,14 @@ private slots:
 
     void on_TestSPLMotion_clicked();
 
+    void on_TestGPMMotion_clicked();
+
+    void on_TestZEROMotion_clicked();
+
+    void on_TestWLNMotion_clicked();
+
+    void on_TestTightCoord_clicked();
+
 private:
     Ui::MainWindow *ui;
 
@@ -43,6 +52,6 @@ private:
     Plot(QChart*, double, const std::function<vector<double>(double)>&, const std::string& legend = " ", const std::string& title = "");
     QChartView * m_chart;
     QChartView * m_vel_chart;
-
+    PathPlanningSettingDialog Dialog;
 };
 #endif // MAINWINDOW_H
