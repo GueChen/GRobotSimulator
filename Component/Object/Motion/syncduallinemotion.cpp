@@ -30,7 +30,7 @@ SyncDualLineMotion::GetCurvesFunction(KUKA_IIWA_MODEL* robot_left, KUKA_IIWA_MOD
 
     // FIXME: 未考虑末端轨迹的连续性，仅确保轨迹的正确性
     auto PositionFunction = [robot_left, robot_right, LineFuncLeft, LineFuncRight, tot, last_joint_left, last_joint_right](double t)mutable{
-        double scalered_t = Clampd(t / tot, 0.0, 1.0);
+        double scalered_t = Clamp(t / tot, 0.0, 1.0);
         twistd twist_cur_left = LineFuncLeft(scalered_t),
                twist_cur_right= LineFuncRight(scalered_t);
         IIWAThetav vec_last_jp_left= Eigen::Map<IIWAThetav>(last_joint_left.data(), 7),

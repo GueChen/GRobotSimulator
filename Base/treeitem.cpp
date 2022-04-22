@@ -6,6 +6,8 @@ TreeItem::TreeItem(const vector<QVariant> &datas, _RawPtr parent):
     datas_(datas), parent_(parent)
 {}
 
+TreeItem::~TreeItem() = default;
+
 void TreeItem::ApeendChild(_RawPtr child)
 {
     children_.emplace_back(_Ptr(child));

@@ -103,21 +103,23 @@ void DualArmView::setGL()
 
 void DualArmView::paintGL()
 {
+    using namespace glm;
+
     gl->glEnable( GL_DEPTH_TEST);
     gl->glClearColor( 0.1f, 0.13f, 0.15f, 1.0f);
     gl->glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     curShader = shaderMap["Base"].get();
     curShader->use();
-    mat4 view = camera->GetViewMatrix();
-    mat4 projection = glm::perspective(radians(camera->Zoom),
-                                       (float)width() / height(),
-                                       0.1f,
-                                       1000.0f);
+    mat4 view       = camera->GetViewMatrix();
+    mat4 projection = perspective(radians(camera->Zoom),
+                                  (float)width() / height(),
+                                  0.1f,
+                                  1000.0f);
     gl->setMatrices(uMBO, projection, view);
-    mat4 model = glm::identity<mat4>();
-
+    mat4 model      = identity<mat4>();
     curShader->setMat4("model", model);
+
     makeCurrent();
     grid->Draw();
 
@@ -128,8 +130,7 @@ void DualArmView::paintGL()
     curShader->setVec3("viewPos", camera->Position);
 
     vec3 lightDir = vec3(-0.5f, -1.0f, -1.0f);
-    lightDir = glm::mat3(glm::rotate(model, glm::radians(camera->Yaw + 90.0f), vec3(0.0f, -1.0f, 0.0f)))
-            * lightDir;
+    lightDir      = mat3(rotate(model, radians(camera->Yaw + 90.0f), vec3(0.0f, -1.0f, 0.0f))) * lightDir;
     curShader->setVec3("light.dir", lightDir);
     curShader->setVec3("light.color", vec3(1.0f, 1.0f, 1.0f));
 

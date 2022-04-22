@@ -27,7 +27,7 @@ JointCruveMsgPkg SPlineMotion::GetCurvesFunction(KUKA_IIWA_MODEL * robot, const 
 
     /* 没有任何连续性考虑的测试 */
     auto PositionFunction = [robot, Max_Vel_Limit, SPlineFunc, tot](double t){
-        double scalered_t  = Clampd(t / tot, 0.0, 1.0);
+        double scalered_t  = Clamp(t / tot, 0.0, 1.0);
         twistd twist_cur   = SPlineFunc(scalered_t);
         IIWAThetas ret_Pos = robot->BackKinematic(twist_cur);
         std::for_each(ret_Pos.begin(), ret_Pos.end(),[](auto & num)

@@ -1,3 +1,6 @@
+#define __cpp_lib_concepts
+#define __cpp_lib_format
+
 #include "mainwindow.h"
 #include "Tooler/conversion.h"
 #include <QApplication>

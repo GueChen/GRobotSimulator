@@ -3,6 +3,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++latest
 
+QMAKE_CXXFLAGS += /bigobj
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
@@ -48,6 +49,7 @@ SOURCES += \
     Base/treeitem.cpp \
     Component/Geometry/mesh.cpp \
     Component/Geometry/modelloader.cpp \
+    Component/Manager/modelmanager.cpp \
     Component/Object/BasicMesh/Gball.cpp \
     Component/Object/BasicMesh/gcurves.cpp \
     Component/Object/BasicMesh/gline.cpp \
@@ -80,6 +82,7 @@ SOURCES += \
 
 HEADERS +=\
     Base/editortreemodel.h \
+    Base/singleton.h \
     Base/treeitem.h \
     Component/Camera.hpp \
     Component/GStruct.hpp \
@@ -87,6 +90,7 @@ HEADERS +=\
     Component/Geometry/Vertex.hpp \
     Component/Geometry/mesh.h \
     Component/Geometry/modelloader.h \
+    Component/Manager/modelmanager.h \
     Component/MyGL.hpp \
     Component/Object/BasicMesh/GBasicMesh \
     Component/Object/BasicMesh/Gball.h \
@@ -108,6 +112,7 @@ HEADERS +=\
     Component/Object/model.h \
     Component/myshader.h \
     Tooler/conversion.h \
+    Tooler/stringprocessor.hpp \
     UI/Dialog/PathPlanningSettingDialog.h \
     UI/DockWidgetComponent/dualarmviewwidget.h \
     UI/DockWidgetComponent/modelviewwidget.h \
@@ -142,6 +147,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
+    Resource/tree.ini \
     Shader/Fragment/BaseFrag.frag \
     Shader/Fragment/ColorFrag.frag \
     Shader/Fragment/LineColorFrag.frag \

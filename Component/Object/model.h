@@ -34,11 +34,11 @@ public:
 
     string getMesh() const;
     mat4 getModelMatrix() const;
+
     const vector<pair<_pModel, mat4>> & getChildren() const;
 
     void setModelMatrix(const mat4 & mat);
     void setMesh(const string & mesh);
-    void setShader(const string & shader);
 
     void setParent(Model * parent);
     void appendChild(const _pModel & pchild, mat4 transform = mat4(1.0f));
@@ -67,9 +67,6 @@ private:
     vec3  _axis  = vec3(0.0f, 1.0f, 0.0f);
     float _angle = 0.0;
 
-    /// Management 管理相关
-    /// FIXME: 暂时用不上
-    static unordered_map<int, _pModel> table;
 };
 
 }

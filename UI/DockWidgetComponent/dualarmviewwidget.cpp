@@ -1,13 +1,18 @@
-#include <QTimer>
-#include <iostream>
 #include "dualarmviewwidget.h"
 #include "ui_dualarmviewwidget.h"
 
-#include "UI/OpenGLWidget/DualArmView.h"
-#include "Component/Object/Robot/joint.h"
 #include "GComponent/GNumerical.hpp"
+
+#include "Base/editortreemodel.h"
+#include "Component/Object/Robot/joint.h"
 #include "Component/Object/BasicMesh/GBasicMesh"
+#include "UI/OpenGLWidget/DualArmView.h"
 #include "Tooler/conversion.h"
+
+#include <QTimer>
+#include <QFile>
+#include <iostream>
+
 //FiXME:测试完后删除耦合
 /// For Test
 #include "Component/Object/Robot/kuka_iiwa_model.h"
@@ -19,22 +24,21 @@ DualArmViewWidget::DualArmViewWidget(QWidget *parent) :
     ui->setupUi(this);
     ui->splitView->setStretchFactor(0, 1);
     ui->splitView->setStretchFactor(1, 9);
-    auto [_lJoints, _rJoints] = ui->armView->getJoints();
-    lJoints = _lJoints;
-    rJoints = _rJoints;
+    QFile file("Resource/tree.ini");
+    file.open(QIODevice::ReadOnly);
+    treemodel_ = new TreeModel(file.readAll());
+    ui->treeView->setModel(treemodel_);
 
-    myTimer = new QTimer(this);
+    timer_ = new QTimer(this);
 }
 
 DualArmViewWidget::~DualArmViewWidget()
 {
     delete ui;
-}
-
-void DualArmViewWidget::setLeftArmRotation(QVariant idx, QVariant value)
-{
-    (dynamic_cast<GComponent::Revolute*>
-                (lJoints[idx.toInt()]))->Rotate(value.toDouble());
+    timer_->stop();
+    timer_->disconnect();
+    delete timer_;
+    delete treemodel_;
 }
 
 GComponent::KUKA_IIWA_MODEL* DualArmViewWidget::getLeftRobot() const
@@ -78,7 +82,7 @@ void DualArmViewWidget::clearSimplexModel()
  * ****************************************/
 void DualArmViewWidget::LeftArmMoveSlot(JointPosFunc posfunc, double T_upper, double period)
 {
-    auto InvokerFunc = [=, func = this,t = 0.0, this,&timer = this->myTimer]() mutable{
+    auto InvokerFunc = [=, this, t = 0.0, &timer = this->timer_]() mutable{
         auto vecPos = posfunc(t);
         for_each(vecPos.begin(), vecPos.end(), [](auto && theta){
             theta = GComponent::DegreeToRadius(theta);
@@ -103,16 +107,16 @@ void DualArmViewWidget::LeftArmMoveSlot(JointPosFunc posfunc, double T_upper, do
         if(t > T_upper)
         {
             timer->stop();
-            myTimer->disconnect(this);
+            timer_->disconnect(this);
         }
     };
 
-    connect(myTimer, &QTimer::timeout, this, InvokerFunc);
-    myTimer->start(period * 100.0);
+    connect(timer_, &QTimer::timeout, this, InvokerFunc);
+    timer_->start(period * 100.0);
 }
 
 void DualArmViewWidget::DualArmMoveSlot(DualJointsPosFunc posfunc, double T_upper, double period){
-    auto InvokerFunc = [=, func = this, t= 0.0, this, &timer = this->myTimer]()mutable {
+    auto InvokerFunc = [=, this, t= 0.0, &timer = this->timer_]()mutable {
         auto&& [left_pos_vec, right_pos_vec] = posfunc(t);
 
         for(auto && pos: left_pos_vec){
@@ -135,9 +139,9 @@ void DualArmViewWidget::DualArmMoveSlot(DualJointsPosFunc posfunc, double T_uppe
         if(t > T_upper)
         {
             timer->stop();
-            myTimer->disconnect(this);
+            timer_->disconnect(this);
         }
     };
-    connect(myTimer, &QTimer::timeout, this, InvokerFunc);
-    myTimer->start(period * 100.0);
+    connect(timer_, &QTimer::timeout, this, InvokerFunc);
+    timer_->start(period * 100.0);
 }
