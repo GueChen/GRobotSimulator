@@ -5,8 +5,6 @@
 
 using namespace GComponent;
 
-unordered_map<int, _pModel> Model::table = unordered_map<int, _pModel>();
-
 int Model::generateID()
 {
     static int _count = 0;
@@ -45,10 +43,6 @@ void Model::setMesh(const string & mesh)
     _mesh = mesh;
 }
 
-void Model::setShader(const string & shader)
-{
-    _shader = shader;
-}
 
 void Model::setAxis(vec3 axis)
 {

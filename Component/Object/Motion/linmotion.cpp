@@ -24,7 +24,7 @@ JointCruveMsgPkg LinMotion::GetCurvesFunction(KUKA_IIWA_MODEL * robot, const dou
 
     /* 没有任何连续性考虑的测试 */
     auto PositionFunction = [robot, Max_Vel_Limit, LineFunc, tot, lastJp = lastJoint](double t)mutable{
-        double scalered_t  = Clampd(t / tot, 0.0, 1.0);
+        double scalered_t  = Clamp(t / tot, 0.0, 1.0);
         twistd twist_cur   = LineFunc(scalered_t);
         IIWAThetav lastJpv =Eigen::Map<IIWAThetav>(lastJp.data(), 7);
         IIWAThetas ret_Pos = robot->BackKinematic(twist_cur, lastJpv);
@@ -94,7 +94,7 @@ LinMotion::GetAvoidObstCurvesFunction(KUKA_IIWA_MODEL* robot, double Padding, co
     });
     /* 没有任何连续性考虑的测试 */
     auto PositionFunction = [robot, obsts = obsts, Max_Vel_Limit, LineFunc = AvoidOptLineFunc, tot](double t){
-        double scalered_t  = Clampd(t / tot, 0.0, 1.0);
+        double scalered_t  = Clamp(t / tot, 0.0, 1.0);
         // 该 LinFunction 已是末端单点避障的 line function
         twistd twist_cur   = LineFunc(scalered_t);
         // 求逆解求出目标点关节值
@@ -164,7 +164,7 @@ LinMotion::GetAvoidLimitationCurvesFunction(KUKA_IIWA_MODEL* robot, const double
     double tot = scaler / Max_Vel_Limit;
     /* 没有任何连续性考虑的测试 */
     auto PositionFunction = [robot, Max_Vel_Limit, joint_num = joint_num, LineFunc, tot, last_jp = last_joint, last_gd = last_grad](double t)mutable{
-        double scalered_t  = Clampd(t / tot, 0.0, 1.0);
+        double scalered_t  = Clamp(t / tot, 0.0, 1.0);
         twistd twist_cur   = LineFunc(scalered_t);
         IIWAThetav lastJpv =Eigen::Map<IIWAThetav>(last_jp.data(), joint_num);
         Matrix<double, 7, 1> grad = robot->GetJointsLimitationGrad();

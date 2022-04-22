@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QQmlEngine>
 #include <QQmlContext>
+#include <QTabBar>
 
 #define __TEST__PLANNING
 
@@ -39,6 +40,28 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->ModelObserverDocker->hide();
     ui->DualArmDocker->hide();
+
+    for(auto & ptr_tab: findChildren<QTabBar*>()){
+        qDebug() << ptr_tab->objectName();
+    }
+    connect(this, &MainWindow::tabifiedDockWidgetActivated, this, [=, this](){
+        for(auto & ptr_tabwidget_tab : findChildren<QTabBar*>()){
+            if(ptr_tabwidget_tab->objectName() == ""){
+            ptr_tabwidget_tab->setStyleSheet(
+                        "QTabBar::tab{"
+                        "   min-width: 35px;"
+                        "}"
+                        "QTabBar::tab::selected{"
+                        "   background: rgb(50, 50, 50);"
+                        "   color: qlineargradient(spread:pad, x0: 0, y0: 0, x1: 1, y1: 1, stop: 0 rgb(125, 230, 175), stop: 1 rgb(75, 150, 150));"
+                        "}"
+                        "QTabBar::tab::!selected{"
+                        "   background: rgb(40, 40, 40);"
+                        "}"
+                        );
+            }
+        }
+    });
 
 #ifdef __TEST__PLANNING
     QChart * chart = new QChart();

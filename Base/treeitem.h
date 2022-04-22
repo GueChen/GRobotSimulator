@@ -19,30 +19,30 @@ using _ConstRef = const TreeItem &;
 
 /// Fields      数据域
 private:
-vector<QVariant> datas_;
-vector<_Ptr>     children_;
-_RawPtr          parent_;
+    vector<QVariant> datas_;
+    vector<_Ptr>     children_;
+    _RawPtr          parent_;
 
 /// Constructer 构造函数
 public:
-explicit TreeItem(const vector<QVariant> & datas, _RawPtr parent = nullptr);
-~TreeItem()                 = default;
+    explicit TreeItem(const vector<QVariant> & datas, _RawPtr parent = nullptr);
+    ~TreeItem();
 /// Non Copyable 禁止拷贝
-TreeItem(_ConstRef)         = delete;
-_Ref operator=(_ConstRef)   = delete;
+    TreeItem(_ConstRef)         = delete;
+    _Ref operator=(_ConstRef)   = delete;
 
 /// Methods     成员函数
 public:
-void     ApeendChild(_RawPtr child);
-_RawPtr  GetChild(int idx);
-_RawPtr  GetParent();
-QVariant GetData(int idx)           const;
-int      IndexInParent()            const;
-int      ChildrenSize()             const;
-int      DataSize()                 const;
+    void     ApeendChild(_RawPtr child);
+    _RawPtr  GetChild(int idx);
+    _RawPtr  GetParent();
+    QVariant GetData(int idx)           const;
+    int      IndexInParent()            const;
+    int      ChildrenSize()             const;
+    int      DataSize()                 const;
 
 private:
-int      GetChildIndex(_RawPtr child);
+    int      GetChildIndex(_RawPtr child);
 
 };
 

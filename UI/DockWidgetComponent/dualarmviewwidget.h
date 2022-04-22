@@ -15,18 +15,25 @@ class DualArmViewWidget;
 }
 
 namespace GComponent{
-    class Joint;
     class KUKA_IIWA_MODEL;
+    class EditorTreeModel;
 }
 
 class DualArmViewWidget : public QWidget
 {
-    Q_OBJECT
+using TreeModel = GComponent::EditorTreeModel;
+
+Q_OBJECT
+
+private:
+    Ui::DualArmViewWidget *ui;
+    QTimer          * timer_;
+    TreeModel       * treemodel_;
 
 public:
     explicit DualArmViewWidget(QWidget *parent = nullptr);
     ~DualArmViewWidget();
-    Q_INVOKABLE void setLeftArmRotation(QVariant idx, QVariant value);
+
     // TODO: 后期考虑是否修改传递量
     GComponent::KUKA_IIWA_MODEL* getLeftRobot() const;
     GComponent::KUKA_IIWA_MODEL* getRightRobot() const;
@@ -34,11 +41,6 @@ public:
     template<class _Deriv_Simplex>
     void addSimplexModel(const std::string& name, unique_ptr<_Deriv_Simplex>&&);
     void clearSimplexModel();
-private:
-    Ui::DualArmViewWidget *ui;
-    std::array<GComponent::Joint*, 7> lJoints;
-    std::array<GComponent::Joint*, 7> rJoints;
-    QTimer * myTimer;
 
 public slots:
     void LeftArmMoveSlot(JointPosFunc posfunc, double T_upper, double period = 0.01);

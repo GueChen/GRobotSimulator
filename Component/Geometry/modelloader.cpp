@@ -1,4 +1,7 @@
 #include "modelloader.h"
+
+#include "Tooler/stringprocessor.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -70,7 +73,7 @@ std::tuple<std::vector<Vertex>, std::vector<unsigned>> ModelLoader::readPlyFile(
         auto partCont = content.substr(offset, next - offset);
         offset = ++next;
 
-        auto vals = Split(partCont);
+        auto vals = StringProcessor::Split(partCont);
         Positions.push_back(vec3(std::stof(vals[0]), std::stof(vals[1]), std::stof(vals[2])));
         line++;
     }
@@ -81,7 +84,7 @@ std::tuple<std::vector<Vertex>, std::vector<unsigned>> ModelLoader::readPlyFile(
         auto partCont = content.substr(offset, next - offset);
         offset = ++next;
 
-        auto && vals = Split(partCont);
+        auto && vals = StringProcessor::Split(partCont);
         Indices.push_back(std::stoi(vals[1]));
         Indices.push_back(std::stoi(vals[2]));
         Indices.push_back(std::stoi(vals[3]));
@@ -146,7 +149,7 @@ std::tuple<std::vector<Vertex>, std::vector<unsigned>> ModelLoader::readSTLFile(
             std::getline(f, lineContent);
             if (lineContent.find("facet") != -1)
             {
-                auto vals = Split(lineContent);
+                auto vals = StringProcessor::Split(lineContent);
                 vec3 norm = vec3(std::stof(vals[2]), std::stof(vals[3]), std::stof(vals[4]));
                 
                 // 为 Vertex 法线赋值
@@ -159,7 +162,7 @@ std::tuple<std::vector<Vertex>, std::vector<unsigned>> ModelLoader::readSTLFile(
                     std::getline(f, lineContent);
                     if (lineContent.find("vertex") != -1)
                     {
-                        auto vals = Split(lineContent);
+                        auto vals = StringProcessor::Split(lineContent);
                         pos.push_back(
                             0.001f * vec3(std::stof(vals[1]) , std::stof(vals[2]), std::stof(vals[3]))
                         );
@@ -215,23 +218,6 @@ std::string ModelLoader::getFileContent(const std::string& filePath)
             "The file name is:" << filePath << std::endl;
     }
     return content;
-}
-
-std::vector<std::string> ModelLoader::Split(const std::string& s, char sparse)
-{
-    std::vector<std::string> rval;
-    
-    size_t cur = 0, last = 0;
-    while (s[last++] == ' ');
-    last--;
-    while ((cur = s.find(sparse, last)) != -1)
-    {
-        rval.push_back(s.substr(last, cur - last));
-        last = cur + 1;
-    }
-    rval.push_back(s.substr(last, s.length() - cur));
-
-    return rval;
 }
 
 std::vector<float> ModelLoader::vStringToFloat(const std::vector<std::string> & vs)
