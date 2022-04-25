@@ -1,10 +1,12 @@
 
-#include <QOpenGLShaderProgram>
-#include <QOpenGLContext>
-#include <QOpenGLExtraFunctions>
 #include "testopenglwidget.h"
-#include <Component/MyGL.hpp>
-#include <QDebug>
+
+#include "render/MyGL.hpp"
+
+#include <QtOpenGL/QOpenGLShaderProgram>
+#include <QtGUI/QOpenGLContext>
+#include <QtGUI/QOpenGLExtraFunctions>
+
 
 static const float posData[] = {
     0.0f,   0.5f, 0.0f,

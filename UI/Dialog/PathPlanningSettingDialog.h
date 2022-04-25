@@ -1,7 +1,8 @@
 #ifndef PATHPLANNINGSETTINGDIALOG_H
 #define PATHPLANNINGSETTINGDIALOG_H
 
-#include <QDialog>
+#include <QtWidgets/QDialog>
+
 #include <array>
 #include <tuple>
 

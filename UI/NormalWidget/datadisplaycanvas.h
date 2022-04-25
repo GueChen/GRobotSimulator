@@ -1,7 +1,7 @@
 #ifndef DATADISPLAYCANVAS_H
 #define DATADISPLAYCANVAS_H
 
-#include <QWidget>
+#include <QtWidgets/QWidget>
 
 namespace Ui {
 class DataDisplayCanvas;

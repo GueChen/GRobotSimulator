@@ -302,7 +302,7 @@ IIWAThetas KUKA_IIWA_MODEL::BackKinematicIteration(_LQSolver && solver, const SE
     int iter = 0;
     double decay = 1;
     double residualDelta = -1e2;
-    while (residual > 1e-5 && iter < 3e2) {
+    while (residual > 1e-5 && iter < 1.5e2) {
 
         /* Get Precondition */
         auto t_cal = decay * t_delta;

@@ -1,7 +1,8 @@
 #ifndef DUALARMVIEW_H
 #define DUALARMVIEW_H
 
-#include <QOpenGLWidget>
+#include <QtOpenGLWidgets/QOpenGLWidget>
+
 #include <memory>
 
 class QTimer;

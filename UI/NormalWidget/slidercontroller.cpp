@@ -1,7 +1,9 @@
 #include "slidercontroller.h"
 #include "ui_slidercontroller.h"
-#include <QTabWidget>
-#include <QTabBar>
+
+#include <QtWidgets/QTabWidget>
+#include <QtWidgets/QTabBar>
+
 SliderController::SliderController(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SliderController)

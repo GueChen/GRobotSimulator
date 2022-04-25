@@ -33,7 +33,7 @@ bool ModelManager::DelModel(size_t model_id)
 void ModelManager::tickAll(float delta_time)
 {
     for(auto && [id, model]: models_){
-        // model->tick();
+        model->tick();
     }
 }
 

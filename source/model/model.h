@@ -1,6 +1,8 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+#include "component/component.hpp"
+
 // TODO: 单有一个 Mesh 好像也够了
 #include <string>
 #include <memory>
@@ -46,11 +48,21 @@ public:
     void setRotate(float angle);
 
     void updateChildrenMatrix();
+    
+// TODO: 将原本的体系进行替换完善
+    void tick() {};
 
 /// Fields 数据域
 protected:
+    size_t            id_;
+    string            name_;
+    Model*            parent_;
+    vector<Model*>    children_;
+    vector<Component> components_;
+    vector<string>    components_type_name_;
+
     mat4 _parentMatrix = mat4(1.0f);
-    mat4 _matrixModel = mat4(1.0f);
+    mat4 _matrixModel  = mat4(1.0f);
 
     Model * _parent;
     vector<pair<_pModel, mat4>> _children;

@@ -1,7 +1,7 @@
 #ifndef SLIDERCONTROLLER_H
 #define SLIDERCONTROLLER_H
 
-#include <QWidget>
+#include <QtWidgets/QWidget>
 
 namespace Ui {
 class SliderController;

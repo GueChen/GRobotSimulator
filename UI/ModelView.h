@@ -1,14 +1,17 @@
 #ifndef MODELVIEW_H
 #define MODELVIEW_H
 #define MyGlad
+
+#include "render/MyGL.hpp"
+#include "render/Camera.hpp"
+#include "render/rendering_datastructure.hpp"
+
 #include <glm/glm.hpp>
-#include <memory>
-#include <QTimer>
+
+#include <QtCore/QTimer>
 #include <QtOpenGLWidgets/QOpenGLWidget>
 
-#include "Component/MyGL.hpp"
-#include "Component/Camera.hpp"
-#include "Component/GStruct.hpp"
+#include <memory>
 
 class QOpenGLShaderProgram;
 class Camera;
