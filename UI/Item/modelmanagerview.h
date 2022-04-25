@@ -1,7 +1,7 @@
 #ifndef MODELMANAGERVIEW_H
 #define MODELMANAGERVIEW_H
 
-#include <QTreeView>
+#include <QtWidgets/QtreeView>
 
 class ModelManagerView : public QTreeView
 {

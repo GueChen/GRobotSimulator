@@ -3,19 +3,22 @@
 
 #include "GComponent/GNumerical.hpp"
 
-#include "Base/editortreemodel.h"
-#include "Component/Object/Robot/joint.h"
-#include "Component/Object/BasicMesh/GBasicMesh"
-#include "UI/OpenGLWidget/DualArmView.h"
-#include "Tooler/conversion.h"
+#include "base/editortreemodel.h"
+#include "function/conversion.h"
 
-#include <QTimer>
-#include <QFile>
+#include "model/robot/joint.h"
+#include "simplexmesh/GBasicMesh"
+
+#include "UI/OpenGLWidget/DualArmView.h"
+
+#include <QtCore/QTimer>
+#include <QtCore/QFile>
+
 #include <iostream>
 
 //FiXME:测试完后删除耦合
 /// For Test
-#include "Component/Object/Robot/kuka_iiwa_model.h"
+#include "model/robot/kuka_iiwa_model.h"
 
 DualArmViewWidget::DualArmViewWidget(QWidget *parent) :
     QWidget(parent),

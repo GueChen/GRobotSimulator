@@ -1,8 +1,9 @@
 #ifndef DUALARMVIEWWIDGET_H
 #define DUALARMVIEWWIDGET_H
 
-#include <QWidget>
-#include <QVariant>
+#include <QtWidgets/QWidget>
+#include <QtCore/QVariant>
+
 #include <functional>
 #include <memory>
 

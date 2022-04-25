@@ -1,8 +1,10 @@
 #ifndef TESTOPENGLWIDGET_H
 #define TESTOPENGLWIDGET_H
-#include <QOpenGLFunctions_4_2_Core>
-#include <QOpenGLWidget>
-#include <QTimer>
+
+#include <QtCore/QTimer>
+#include <QtOpenGL/QOpenGLFunctions_4_2_Core>
+#include <QtOpenGLWidgets/QOpenGLWidget>
+
 class QOpenGLShaderProgram;
 
 class TestOpenGLWidget : public QOpenGLWidget

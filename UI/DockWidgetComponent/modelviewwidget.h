@@ -1,7 +1,7 @@
 #ifndef MODELVIEWWIDGET_H
 #define MODELVIEWWIDGET_H
 
-#include <QWidget>
+#include <QtWidgets/QWidget>
 
 namespace Ui {
 class ModelViewWidget;

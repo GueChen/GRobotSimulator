@@ -1,18 +1,19 @@
-#include <QTimer>
-#include <QMouseEvent>
-#include <QDropEvent>
-#include <QMimeData>
-
 #include "DualArmView.h"
-#include "Component/Camera.hpp"
-#include "Component/MyGL.hpp"
-#include "Component/myshader.h"
-#include "Component/Object/basegrid.h"
-#include "Component/Geometry/modelloader.h"
-#include "Component/Object/Robot/dual_arm_platform.h"
 
-#include "Component/Object/BasicMesh/SimplexModel.hpp"
-#include "Component/Object/BasicMesh/GBasicMesh"
+#include "render/Camera.hpp"
+#include "render/myshader.h"
+#include "render/MyGL.hpp"
+#include "simplexmesh/GBasicMesh"
+#include "simplexmesh/SimplexModel.hpp"
+#include "model/basegrid.h"
+
+#include "function/modelloader.h"
+#include "model/robot/dual_arm_platform.h"
+
+#include <QtCore/QTimer>
+#include <QtCore/QMimeData>
+#include <QtGUI/QMouseEvent>
+#include <QtGUI/QDropEvent>
 
 using std::make_pair;
 using std::make_unique;

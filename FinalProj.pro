@@ -50,6 +50,7 @@ SOURCES += \
     Component/Geometry/mesh.cpp \
     Component/Geometry/modelloader.cpp \
     Component/Manager/modelmanager.cpp \
+    Component/Manager/scenemanager.cpp \
     Component/Object/BasicMesh/Gball.cpp \
     Component/Object/BasicMesh/gcurves.cpp \
     Component/Object/BasicMesh/gline.cpp \
@@ -91,6 +92,7 @@ HEADERS +=\
     Component/Geometry/mesh.h \
     Component/Geometry/modelloader.h \
     Component/Manager/modelmanager.h \
+    Component/Manager/scenemanager.h \
     Component/MyGL.hpp \
     Component/Object/BasicMesh/GBasicMesh \
     Component/Object/BasicMesh/Gball.h \

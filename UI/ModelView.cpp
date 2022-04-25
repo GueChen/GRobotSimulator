@@ -1,20 +1,24 @@
 //#define _DEBUG_CONSOLE
 #define MyGlad
-#include <iostream>
 
-#include <QCoreApplication>
-#include <QOpenGLShaderProgram>
-#include <glm/gtc/type_ptr.hpp>
-#include <QMouseEvent>
-#include <Component/Geometry/mesh.h>
-#include <Component/Geometry/modelloader.h>
-#include <QMimeData>
 #include "ModelView.h"
 
-#include "Component/Object/BasicMesh/gline.h"
-#include "Component/Object/BasicMesh/gcurves.h"
-#include "Component/Object/BasicMesh/Gball.h"
+#include "render/mesh.h"
+#include "function/modelloader.h"
+#include "simplexmesh/gline.h"
+#include "simplexmesh/gcurves.h"
+#include "simplexmesh/gball.h"
+
 #include "GComponent/GNumerical.hpp"
+
+#include <glm/gtc/type_ptr.hpp>
+
+#include <QtCore/QMimeData>
+#include <QtCore/QCoreApplication>
+#include <QtOpenGL/QOpenGLShaderProgram>
+#include <QtGUI/QMouseEvent>
+
+#include <iostream>
 
 using glm::vec3;
 using std::vector;

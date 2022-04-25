@@ -2,11 +2,13 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
+#include <QtWidgets/QMainWindow>
+#include <UI/Dialog/PathPlanningSettingDialog.h>
+
 #include <unordered_map>
 #include <functional>
 #include <memory>
-#include <UI/Dialog/PathPlanningSettingDialog.h>
+
 
 using std::unique_ptr;
 using std::vector;

@@ -1,19 +1,18 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QQmlEngine>
-#include <QQmlContext>
-#include <QTabBar>
+
+#include <QtWidgets/QTabBar>
 
 #define __TEST__PLANNING
 
 #ifdef __TEST__PLANNING
 /// Just for Test Include
-#include "Component/Object/Motion/GMotion"
-#include "Component/Object/BasicMesh/GBasicMesh"
+#include "motion/GMotion"
+#include "simplexmesh/GBasicMesh"
 
-#include "Component/Object/Robot/kuka_iiwa_model.h"
+#include "model/robot/kuka_iiwa_model.h"
 
-#include "Tooler/conversion.h"
+#include "function/conversion.h"
 
 #include <QtWidgets/QGridLayout>
 #include <QWidget>

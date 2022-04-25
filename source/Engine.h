@@ -15,16 +15,14 @@
 #include <chrono>
 
 namespace GComponent {
-	namespace sc = std::chrono;
-
+	using namespace std::chrono;
 class Engine : public QRunnable, public SingletonBase<Engine>
 {
 	friend class SingletonBase<Engine>;
-	Q_OBJECT
 	NonCoyable(Engine)
 private:
-	bool need_quit_ = false;
-	sc::steady_clock::time_point last_tick_time_point{ sc::steady_clock::now() };
+	bool					 need_quit_		  = false;
+	steady_clock::time_point last_time_point_ = steady_clock::now();
 
 public:
 	// Í¨¹ý QRunnable ¼Ì³Ð
@@ -32,8 +30,10 @@ public:
 
 protected:
 	Engine() = default;
-signals:
-	void OpenGLWidgetDrawNow();
+	template<class _TimeScale>
+	duration<float, _TimeScale> GetSpanTime();
+	void LogicTick(float delta_time);
+	void RenderTick();
 };
 
 }
