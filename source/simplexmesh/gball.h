@@ -1,7 +1,7 @@
 #ifndef GCOMPONENT_GBALL_H
 #define GCOMPONENT_GBALL_H
 
-#include "render/mesh.h"
+#include "component/mesh_component.h"
 
 #include "simplexmesh/simplexmodel.hpp"
 
@@ -16,7 +16,7 @@ public:
     float   radius;
 
 private:
-    Mesh    mesh;
+    MeshComponent    mesh;
 
 /// 成员函数 Member Functions
 public:
@@ -66,10 +66,10 @@ private:
     void
     setupMesh(int lo, int la);
     /* 填充顶点 */
-    void
+    std::vector<Vertex>
     setupVertex(int la, int lo);
     /* 填充三角面映射 */
-    void
+    std::vector<Triangle>
     setupIndicies(int lo, int la);
 
 };

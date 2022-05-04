@@ -7,7 +7,7 @@
 namespace GComponent {
 
 class MyGL;
-class Mesh;
+class MeshComponent;
 class MyShader;
 
 using std::unique_ptr;
@@ -26,7 +26,7 @@ private:
 
     // FIXME:见KUKA_IIWA_MODEL 以及 10-27 思考整合 Model 部分
     static bool hasInit;
-    static unique_ptr<Mesh> Resource;
+    static unique_ptr<MeshComponent> Resource;
 };
 
 }

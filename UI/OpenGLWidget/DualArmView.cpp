@@ -1,8 +1,10 @@
 #include "DualArmView.h"
 
-#include "render/Camera.hpp"
+#include "manager/scenemanager.h"
+
+#include "render/camera.hpp"
 #include "render/myshader.h"
-#include "render/MyGL.hpp"
+#include "render/mygl.hpp"
 #include "simplexmesh/GBasicMesh"
 #include "simplexmesh/SimplexModel.hpp"
 #include "model/basegrid.h"
@@ -15,23 +17,22 @@
 #include <QtGUI/QMouseEvent>
 #include <QtGUI/QDropEvent>
 
+#include <iostream>
+
 using std::make_pair;
 using std::make_unique;
 using std::make_shared;
 
 using namespace GComponent;
 
-
 DualArmView::DualArmView(QWidget *parent) :
     QOpenGLWidget(parent),
     gl(make_shared<MyGL>()),
     camera(make_unique<Camera>()),
-    timer(make_unique<QTimer>(this)),
     grid(make_unique<BaseGrid>(20, 0.05)),
     robot(make_unique<DUAL_ARM_PLATFORM>())
 {
-    connect(timer.get(), &QTimer::timeout,  [this](){this->update();});
-    timer->start(20);
+    SceneManager::getInstance().RegisteredUIHandle("dualviewwidget", this);
     this->setAcceptDrops(true);
 }
 
@@ -105,6 +106,7 @@ void DualArmView::setGL()
 void DualArmView::paintGL()
 {
     using namespace glm;
+    static std::chrono::time_point time = std::chrono::steady_clock::now();
 
     gl->glEnable( GL_DEPTH_TEST);
     gl->glClearColor( 0.1f, 0.13f, 0.15f, 1.0f);
@@ -161,6 +163,9 @@ void DualArmView::paintGL()
     }
 
     curShader->release();
+    std::chrono::time_point after = std::chrono::steady_clock::now();
+    std::cout << "dual arm view span: " << std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(after - time) << std::endl;
+    time = after;
 }
 
 /// 窗口大小回调
@@ -213,13 +218,10 @@ void DualArmView::addMesh(const string & resource)
 
     auto && [Vs, Is] = ModelLoader::readFile(resource);
 
-    timer->stop();
-
     makeCurrent();
-    unique_ptr<Mesh> p_TemplateMesh = make_unique<Mesh>(Vs, Is, std::vector<Texture>{});
+    unique_ptr<MeshComponent> p_TemplateMesh = make_unique<MeshComponent>(Vs, Is, std::vector<Texture>{});
     p_TemplateMesh->setGL(gl);
     meshTable.insert(make_pair(name, std::move(p_TemplateMesh)));
-    timer->start(20);
 
 }
 

@@ -3,7 +3,7 @@
 
 #include "ModelView.h"
 
-#include "render/mesh.h"
+#include "component/mesh_component.h"
 #include "function/modelloader.h"
 #include "simplexmesh/gline.h"
 #include "simplexmesh/gcurves.h"
@@ -98,7 +98,7 @@ void ModelView::initializeGL()
     if(!GLInit)
     {
         auto && [Vs, Is] = ModelLoader::readPlyFile("./Object/bunny/reconstruction/bun_zipper.ply");
-        mesh = new Mesh(Vs, Is, {});
+        mesh = new MeshComponent(Vs, Is, {});
     }
 
     m_program = new QOpenGLShaderProgram(this);
@@ -383,8 +383,8 @@ void ModelView::dropEvent(QDropEvent *event)
     auto && [Vs, Is] = ModelLoader::readFile(name.toStdString());
     m_timer->stop();
     makeCurrent();
-    mesh->~Mesh();
-    mesh = new Mesh(Vs, Is, {});
+    mesh->~MeshComponent();
+    mesh = new MeshComponent(Vs, Is, {});
     mesh->setGL(gl);
     m_timer->start();
 }

@@ -6,7 +6,6 @@
  *  @date   Apri 22, 2022
  *  @ref    https://github.com/BoomingTech/Pilot/blob/main/engine/source/runtime/core/base/public_singleton.h
  **/
-
 #include <type_traits>
 
 #define NonCoyable(classname) \

@@ -1,6 +1,6 @@
 #include "gline.h"
 
-#include "render/MyGL.hpp"
+#include "render/mygl.hpp"
 
 #include <iostream>
 

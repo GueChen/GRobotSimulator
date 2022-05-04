@@ -14,7 +14,7 @@ using glm::cross;
 using glm::dot;
 
 enum class CameraMoveMent{
-    FOWARD,
+    FORWARD,
     BACKWARD,
     LEFT,
     RIGHT
@@ -85,6 +85,26 @@ public:
         Position += Front * z;
         Position += Right * x;
         Position += Up * y;
+    }
+    void ProcessKeyMovementCommand(CameraMoveMent direction, float delta_time) {
+        float velocity = MovementSpeed * (delta_time < 1e-5 ? 0.05 : delta_time);
+        if (direction == CameraMoveMent::FORWARD)
+        {
+            Position += Front * velocity;
+        }
+        if (direction == CameraMoveMent::BACKWARD)
+        {
+            Position -= Front * velocity;
+        }
+        if (direction == CameraMoveMent::LEFT)
+        {
+            Position -= Right * velocity;
+        }
+        if (direction == CameraMoveMent::RIGHT)
+        {
+            Position += Right * velocity;
+        }
+
     }
 
     void Rotation(float yaw, float pitch, bool constrainPitch = true)

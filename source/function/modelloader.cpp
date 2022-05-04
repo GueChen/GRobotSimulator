@@ -10,7 +10,7 @@
 using namespace GComponent;
 
 
-std::tuple<std::vector<Vertex>, std::vector<unsigned>> ModelLoader::readFile(const std::string & filePath)
+std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::readFile(const std::string & filePath)
 {
     size_t filter = filePath.find_last_of('.');
     auto lenth = filePath.length();
@@ -31,7 +31,7 @@ std::tuple<std::vector<Vertex>, std::vector<unsigned>> ModelLoader::readFile(con
     
 }
 
-std::tuple<std::vector<Vertex>, std::vector<unsigned>> ModelLoader::readPlyFile(const std::string & filePath)
+std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::readPlyFile(const std::string & filePath)
 {
     
     auto content = getFileContent(filePath);
@@ -64,7 +64,7 @@ std::tuple<std::vector<Vertex>, std::vector<unsigned>> ModelLoader::readPlyFile(
         ++line;
     }
     std::vector<vec3> Positions;
-    std::vector<unsigned> Indices;
+    std::vector<Triangle> Indices;
     std::cout << "#Vertex Lines = " << VertexLine << std::endl;
     std::cout << "#Face Lines = " << FaceLine << std::endl;
     line = 0;
@@ -85,11 +85,9 @@ std::tuple<std::vector<Vertex>, std::vector<unsigned>> ModelLoader::readPlyFile(
         offset = ++next;
 
         auto && vals = StringProcessor::Split(partCont);
-        Indices.push_back(std::stoi(vals[1]));
-        Indices.push_back(std::stoi(vals[2]));
-        Indices.push_back(std::stoi(vals[3]));
-    
-        line++;
+        Indices.emplace_back(std::stoi(vals[1]), std::stoi(vals[2]), std::stoi(vals[3]));
+ 
+        ++line;
     }
     
     // 填充顶点
@@ -103,14 +101,14 @@ std::tuple<std::vector<Vertex>, std::vector<unsigned>> ModelLoader::readPlyFile(
     // 填充法向量
     for (int i = 0; i < Indices.size(); i += 3)
     {
-        vec3 _edge1 = vertices[Indices[i + 2]].Position - vertices[Indices[i]].Position;
-        vec3 _edge2 = vertices[Indices[i + 1]].Position - vertices[Indices[i]].Position;
+        vec3 _edge1 = vertices[Indices[i].third].Position  - vertices[Indices[i].first].Position;
+        vec3 _edge2 = vertices[Indices[i].second].Position - vertices[Indices[i].first].Position;
 
         auto norm = glm::normalize(glm::cross(_edge1, _edge2));
 
-        vertices[Indices[i]].Normal += norm;
-        vertices[Indices[i + 1]].Normal += norm;
-        vertices[Indices[i + 2]].Normal += norm;
+        vertices[Indices[i].first].Normal  += norm;
+        vertices[Indices[i].second].Normal += norm;
+        vertices[Indices[i].third].Normal  += norm;
     }
 
 
@@ -124,7 +122,7 @@ std::tuple<std::vector<Vertex>, std::vector<unsigned>> ModelLoader::readPlyFile(
 
 }
 
-std::tuple<std::vector<Vertex>, std::vector<unsigned>> ModelLoader::readSTLFile(const std::string& filePath)
+std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::readSTLFile(const std::string& filePath)
 {
     // auto content = getFileContent(filePath);
     std::ifstream f;
@@ -139,7 +137,7 @@ std::tuple<std::vector<Vertex>, std::vector<unsigned>> ModelLoader::readSTLFile(
     }
     std::vector<vec3> normal;
     std::vector<vec3> pos;
-    std::vector<unsigned int> ind;
+    std::vector<Triangle> ind;
     if (f.is_open())
     {
         std::string lineContent;
@@ -170,9 +168,7 @@ std::tuple<std::vector<Vertex>, std::vector<unsigned>> ModelLoader::readSTLFile(
                 } while (lineContent.find("endfacet") == -1);
             }
             // 为面索引赋值
-            ind.push_back(count);
-            ind.push_back(count + 1);
-            ind.push_back(count + 2);
+            ind.emplace_back(count, count + 1, count + 2);           
 
             count += 3;
             //std::cout << lineContent << std::endl;
@@ -191,10 +187,10 @@ std::tuple<std::vector<Vertex>, std::vector<unsigned>> ModelLoader::readSTLFile(
     return {vertices, ind};
 }
 
-Mesh ModelLoader::getMesh(const std::string &resource)
+MeshComponent ModelLoader::getMesh(const std::string &resource)
 {
     auto && [Vs, Is] = ModelLoader::readFile(resource);
-    Mesh m(Vs, Is, std::vector<Texture>{});
+    MeshComponent m(Vs, Is, std::vector<Texture>{});
     return m;
 }
 

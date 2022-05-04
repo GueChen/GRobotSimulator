@@ -2,8 +2,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "render/MyGL.hpp"
-#include "render/mesh.h"
+#include "render/mygl.hpp"
+#include "component/mesh_component.h"
 #include "render/myshader.h"
 
 #include "model/robot/joint.h"
@@ -20,7 +20,7 @@
 using namespace GComponent;
 
 bool KUKA_IIWA_MODEL::hasInit = false;
-unordered_map<string, unique_ptr<Mesh>> KUKA_IIWA_MODEL::meshResource{};
+unordered_map<string, unique_ptr<MeshComponent>> KUKA_IIWA_MODEL::meshResource{};
 
 SE3d KUKA_IIWA_MODEL::M = SE3d();
 array<twistd, 7> KUKA_IIWA_MODEL::expCoords = {};
@@ -43,7 +43,7 @@ void KUKA_IIWA_MODEL::InsertMeshResource(const string &key, const string &source
 {
     meshResource.insert(std::make_pair(
                             key,
-                            std::make_unique<Mesh>( ModelLoader::getMesh( sPathModel(source)))));
+                            std::make_unique<MeshComponent>( ModelLoader::getMesh( sPathModel(source)))));
 }
 
 
@@ -445,11 +445,11 @@ vec7d KUKA_IIWA_MODEL::GetCollisionGrad(const vector<BallObstacle>& obsts, const
 {
     IIWATransfoms preTs       = GetIIWATransformsPreSum(thetas);                    // 前缀和方便后续计算    Get the T_0_i total
     IIWATransfoms dTSingle    = GetIIWATransformsDiff(thetas);                      // 单个变换矩阵微分形式  Get the dTi
-    vec7d retGrad = vec7d::Zero();                                                  // 避碰函数梯度         Return value
+    vec7d retGrad = vec7d::Zero();                                                  // 避碰函数梯度          Return value
 
     for(auto && [index, points] : _checkPointDict){                                 // 遍历检测点字典
         IIWATransfoms dTs;
-        for(int i = 0; i < JointNum; ++i){                                             // 求取当前关节下的 parital T
+        for(int i = 0; i < JointNum; ++i){                                          // 求取当前关节下的      parital T
             if(i < index){
                 if(i > 0) {
                    dTs[i] = preTs[i-1];
@@ -461,14 +461,14 @@ vec7d KUKA_IIWA_MODEL::GetCollisionGrad(const vector<BallObstacle>& obsts, const
             }
         }
 
-        for(auto && [point, weight]: points){                                       // 对所有点进行求取
-            Matrix<double, 7, 3> pGradMatrix = Matrix<double, 7, 3>::Zero();        // 计算 partial P
+        for(auto && [point, weight]: points){                                        // 对所有点进行求取
+            Matrix<double, 7, 3> pGradMatrix = Matrix<double, 7, 3>::Zero();         // 计算 partial P
             for(int i = 0; i < JointNum; ++i){
                 pGradMatrix.row(i) = affineProduct(dTs[i], point).transpose();
             }
 
             vec3d curPos = affineProduct(preTs[index], point);
-            for(auto && [center, radObst]: obsts){                                  // 对每个碰撞点求当前梯度值
+            for(auto && [center, radObst]: obsts){                                   // 对每个碰撞点求当前梯度值
                 retGrad += weight * pGradMatrix * (curPos - center);
             }
         }

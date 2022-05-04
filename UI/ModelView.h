@@ -2,8 +2,8 @@
 #define MODELVIEW_H
 #define MyGlad
 
-#include "render/MyGL.hpp"
-#include "render/Camera.hpp"
+#include "render/mygl.hpp"
+#include "render/camera.hpp"
 #include "render/rendering_datastructure.hpp"
 
 #include <glm/glm.hpp>
@@ -16,7 +16,7 @@
 class QOpenGLShaderProgram;
 class Camera;
 namespace GComponent {
-    class Mesh;
+    class MeshComponent;
     class GLine;
     class GCurves;
     class GBall;
@@ -40,7 +40,7 @@ private:
     QTimer * m_timer;
     unsigned VAO, VBO, EBO, uMBO;
 
-    GComponent::Mesh * mesh;
+    GComponent::MeshComponent * mesh;
 #ifdef MyGlad
     std::shared_ptr<GComponent::MyGL> gl;
 #endif

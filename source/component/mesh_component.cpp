@@ -1,30 +1,31 @@
-#include "mesh.h"
+#include "component/mesh_component.h"
 
-#include "render/MyGL.hpp"
+#include "render/mygl.hpp"
 
 #include <QtGUI/QOpenGLExtraFunctions>
 
 using namespace GComponent;
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, std::vector<Texture> textures)
+MeshComponent::MeshComponent(std::vector<Vertex> vertices, std::vector<Triangle> indices, std::vector<Texture> textures)
 {
-    Vertices = vertices;
-    Indices  = indices;
-    Textures = textures;
+    mesh_datas_.Vertices = vertices;
+    mesh_datas_.Indices  = indices;
+    mesh_datas_.Textures = textures;
     VAO = 0;
 }
 
 // TODO: 需要添加一个引用计数
-Mesh::~Mesh()
+MeshComponent::~MeshComponent()
 {
     CheckClearGL();
 }
 
-
-void Mesh::setupMesh()
+void MeshComponent::setupMesh()
 {
     if(!HaveSetup) {
-    // TODO: 可以加入一个断言或异常
+    std::vector<Vertex>& Vertices = mesh_datas_.Vertices;
+    std::vector<Triangle>& Indices = mesh_datas_.Indices;
+
     /* 检查 Vertex 数据是否有误/为空 */
     if(Vertices.empty()) return;
 
@@ -43,7 +44,7 @@ void Mesh::setupMesh()
     }
 }
 
-void Mesh::setGL(const std::shared_ptr<MyGL> & other)
+void MeshComponent::setGL(const std::shared_ptr<MyGL> & other)
 {
     /* 为 GL 指针传递 Context */
     gl = other;
@@ -55,7 +56,7 @@ void Mesh::setGL(const std::shared_ptr<MyGL> & other)
     setupMesh();
 }
 
-void Mesh::CheckClearGL()
+void MeshComponent::CheckClearGL()
 {
     if(HaveSetup)  {
     gl->glDeleteBuffers(1, &VBO);
@@ -67,9 +68,9 @@ void Mesh::CheckClearGL()
     }
 }
 
-void Mesh::Draw()
+void MeshComponent::Draw()
 {
     gl->glBindVertexArray(VAO);
-    gl->glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, 0);
+    gl->glDrawElements(GL_TRIANGLES, 3 * mesh_datas_.Indices.size(), GL_UNSIGNED_INT, 0);
     gl->glBindVertexArray(0);
 }

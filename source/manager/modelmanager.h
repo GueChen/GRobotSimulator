@@ -8,38 +8,63 @@
 #ifndef GCOMPONENT_MODELMANAGER_H
 #define GCOMPONENT_MODELMANAGER_H
 
-#include "Base/singleton.h"
+#include "base/singleton.h"
+#include "render/camera.hpp"
+#include "render/mygl.hpp"
 
+#include <Eigen/Dense>
+
+#include <string>
 #include <vector>
 #include <memory>
 #include <unordered_map>
 
 namespace GComponent {
 
+using std::string;
 using std::vector;
 using std::unique_ptr;
+using std::shared_ptr;
 using std::unordered_map;
 
 class Model;
 
-class ModelManager: SingletonBase<ModelManager>
+class ModelManager: public SingletonBase<ModelManager>
 {
+    friend class SingletonBase<ModelManager>;
     NonCoyable(ModelManager)
 public:
     virtual ~ModelManager();
 
-    bool AddModel(Model* ptr_model);
+    bool        RegisteredModel(string name, Model* ptr_model);
+    bool        DeregisteredModel(size_t handle);
+    Model*      GetModelByHandle(size_t handle) const;
+    Model*      GetModelByName(string name)     const;
+    [[no_discard]]
+    size_t      RegisteredCamera(glm::vec3 pos = glm::vec3(0.0f, 0.5f, 8.0f));
+    void        DeregisterdCamera(size_t handle);
+    Camera*     GetCameraByHandle(size_t handle) const;
 
-    bool DelModel(size_t handle);
+    void SetProjectViewMatrices(glm::mat4 proj, glm::mat4 view);
+
+    void SetGL(const shared_ptr<MyGL>& gl);
 
     void tickAll(float delta_time);
+
 protected:
-    ModelManager() = default;
+    ModelManager();
 
-private:
-    size_t                                    next_model_id_ = 0;
-    unordered_map<size_t, unique_ptr<Model>>  models_;
+private:    
+    /* Model Realated Terms 实例管理相关项 */
+    size_t                                    next_model_id_              = 0;
+    unordered_map<size_t, unique_ptr<Model>>  models_                     = {};
+    unordered_map<string, size_t>             model_name_to_handle_table_ = {};
+    unordered_map<size_t, string>             model_handle_to_name_table_ = {};
 
+    vector<unique_ptr<Camera>>                cameras_                    = {};
+
+    size_t                                    matrices_UBO_               = 0;
+    shared_ptr<MyGL>                          gl_                         = nullptr;
 };
 
 } // namespace GComponent
