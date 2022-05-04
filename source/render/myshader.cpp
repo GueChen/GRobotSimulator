@@ -1,5 +1,7 @@
 #include "render/myshader.h"
 
+#include "render/mygl.hpp"
+
 using namespace GComponent;
 
 MyShader::MyShader(QObject * parent,
@@ -8,7 +10,7 @@ MyShader::MyShader(QObject * parent,
                    const std::string & geometryPath):
     QOpenGLShaderProgram(parent)
 {
-    addShaderFromSourceFile(QOpenGLShader::Vertex, vertexPath.c_str());
+    addShaderFromSourceFile(QOpenGLShader::Vertex,   vertexPath.c_str());
     addShaderFromSourceFile(QOpenGLShader::Fragment, fragmentPath.c_str());
     if(geometryPath != "")
     {
@@ -37,6 +39,11 @@ void MyShader::setBool(const std::string & name, bool value) noexcept
 void MyShader::setInt(const std::string& name, int value) noexcept
 {
     gl->glUniform1i(gl->glGetUniformLocation(programId(), name.c_str()), value);
+}
+
+void GComponent::MyShader::setUint(const std::string& name, unsigned value) noexcept
+{
+    gl->glUniform1ui(gl->glGetUniformLocation(programId(), name.c_str()), value);
 }
 
 void MyShader::setFloat(const std::string& name, float value) noexcept

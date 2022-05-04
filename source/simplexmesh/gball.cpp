@@ -60,17 +60,16 @@ void GBall::Draw(MyShader *shader)
 
 void GBall::setupMesh(int la, int lo)
 {
-    setupVertex(la, lo);
-    setupIndicies(la, lo);
+    mesh = MeshComponent(setupVertex(la, lo), setupIndicies(la, lo), {});
 }
 
-void GBall::setupVertex(int la, int lo)
+std::vector<Vertex> GBall::setupVertex(int la, int lo)
 {
     const float dLatitude   = glm::pi<float>() / la;
     const float dLongitude  = 2.0* glm::pi<float>() / lo;
     float deltaV = 1.0f / la;
     float deltaU = 1.0f / (lo - 1);
-
+    std::vector<Vertex> Vertices;
     for(int i = 0; i <= la; ++i)
     {
         /* 计算经度角 */
@@ -95,14 +94,15 @@ void GBall::setupVertex(int la, int lo)
 
             /* 填充网格顶点 */
             Vertex vertex = Vertex{radius * dir, dir, {U, V}};
-            mesh.Vertices.push_back(vertex);
+            Vertices.push_back(vertex);
         }
-
     }
+    return Vertices;
 }
 
-void GBall::setupIndicies(int la, int lo)
+std::vector<Triangle> GBall::setupIndicies(int la, int lo)
 {
+    std::vector<Triangle> Indices;
     // 填充球面
     for (int i = 0; i <= la; ++i)
     {
@@ -116,14 +116,10 @@ void GBall::setupIndicies(int la, int lo)
             int fourth = third - 1;
 
             // 填充第一块三角形
-            mesh.Indices.push_back(first);
-            mesh.Indices.push_back(second);
-            mesh.Indices.push_back(fourth);
+            Indices.emplace_back(first, second, fourth);       
 
             // 填充第二块三角形
-            mesh.Indices.push_back(second);
-            mesh.Indices.push_back(third);
-            mesh.Indices.push_back(fourth);
+            Indices.emplace_back(second, third, fourth);         
         }
     }
 
@@ -137,15 +133,13 @@ void GBall::setupIndicies(int la, int lo)
         int fourth = first + lo;
 
         // 填充第一块三角形
-        mesh.Indices.push_back(first);
-        mesh.Indices.push_back(second);
-        mesh.Indices.push_back(fourth);
+        Indices.emplace_back(first, second, fourth);     
 
         // 填充第二块三角形
-        mesh.Indices.push_back(second);
-        mesh.Indices.push_back(third);
-        mesh.Indices.push_back(fourth);
+        Indices.emplace_back(second, third, fourth);
+   
     }
+    return Indices;
 }
 
 } // namespace GComponent

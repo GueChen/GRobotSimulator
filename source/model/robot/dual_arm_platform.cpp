@@ -1,6 +1,6 @@
 #include "dual_arm_platform.h"
 
-#include "render/MyGL.hpp"
+#include "render/mygl.hpp"
 #include "model/robot/kuka_iiwa_model.h"
 #include "model/robot/robot_body_model.h"
 

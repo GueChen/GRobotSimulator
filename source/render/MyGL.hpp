@@ -1,6 +1,6 @@
 //TODO: 补充工具函数注释或文档
-#ifndef MYGL_H
-#define MYGL_H
+#ifndef _MYGL_H
+#define _MYGL_H
 
 #include <QtOpenGL/QOpenGLFunctions_4_5_Core>
 

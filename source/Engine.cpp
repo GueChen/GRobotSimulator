@@ -11,7 +11,7 @@ void GComponent::Engine::run()
 	while (!need_quit_) {
 		auto time_span = GetSpanTime<std::milli>();
 		LogicTick(time_span.count());
-		RenderTick();
+		RenderTick(time_span.count());
 	}
 }
 
@@ -24,12 +24,12 @@ std::chrono::duration<float, _TimeScale> GComponent::Engine::GetSpanTime() {
 	return time_span;
 }
 
-void GComponent::Engine::LogicTick(float delta_time)
+void GComponent::Engine::LogicTick(float delta_time_ms)
 {
 
 }
 
-void GComponent::Engine::RenderTick()
+void GComponent::Engine::RenderTick(float delta_time_ms)
 {
-
+	SceneManager::getInstance().tick(delta_time_ms);
 }

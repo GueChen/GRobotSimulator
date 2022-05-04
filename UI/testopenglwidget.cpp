@@ -1,12 +1,16 @@
 
 #include "testopenglwidget.h"
 
-#include "render/MyGL.hpp"
+#include "render/mygl.hpp"
+
+#include <glm/glm.hpp>
 
 #include <QtOpenGL/QOpenGLShaderProgram>
 #include <QtGUI/QOpenGLContext>
 #include <QtGUI/QOpenGLExtraFunctions>
 
+#include <iostream>
+#include <chrono>
 
 static const float posData[] = {
     0.0f,   0.5f, 0.0f,
@@ -21,29 +25,32 @@ static const float color[] = {
 };
 
 TestOpenGLWidget::TestOpenGLWidget(QWidget *parent) :
-    QOpenGLWidget(parent)
+    QOpenGLWidget(parent), gl(std::make_shared<GComponent::MyGL>())
 {
     m_timer = new QTimer(this);
-    QObject::connect(m_timer, &QTimer::timeout, [this](){this->update();});
+    GComponent::SceneManager::getInstance().RegisteredUIHandle("testwidget", this);
+    /*QObject::connect(m_timer, &QTimer::timeout, [this](){this->update();});
     QObject::connect(this, &QObject::destroyed, m_timer, &QTimer::deleteLater);
-    m_timer->start(10);
-    qDebug()<< "Test Widget Construct!";
+    m_timer->start(20);*/
 }
 
 TestOpenGLWidget::~TestOpenGLWidget()
 {
     makeCurrent();
-    fCore.glDeleteBuffers(1, &VBO);
-    fCore.glDeleteVertexArrays(1, &VAO);
-    m_timer->stop();
-    qDebug() << "Test Widget Destruct!";
+    
+    gl->glDeleteBuffers(1, &VBO);
+    gl->glDeleteVertexArrays(1, &VAO);
+    //glDeleteBuffers(1, &VBO);
+    //glDeleteVertexArrays(1, &VAO);
+
+   // m_timer->stop();
+  
 }
 
 void TestOpenGLWidget::initializeGL()
 {
-
+    gl->initializeOpenGLFunctions();
     makeCurrent();
-    fCore.initializeOpenGLFunctions();
 #ifndef MyGlad
     m_program = new QOpenGLShaderProgram(this);
     m_program->addCacheableShaderFromSourceFile(
@@ -54,37 +61,46 @@ void TestOpenGLWidget::initializeGL()
     m_program->bind();
 
 #endif
+    shader = new GComponent::MyShader(this, PathVert(Triangle), PathFrag(Triangle));
+    shader->setGL(gl);
+    shader->link();
 
-    fCore.glGenVertexArrays(1, &VAO);
-    fCore.glBindVertexArray(VAO);
+    std::tie(VAO, VBO) = gl->genVABO(nullptr, sizeof(posData) + sizeof(color));
+     
+    gl->glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(posData), posData);
+    gl->glBufferSubData(GL_ARRAY_BUFFER, sizeof(posData), sizeof(color), color);
 
-    fCore.glGenBuffers(1, &VBO);
-    fCore.glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    fCore.glBufferData(GL_ARRAY_BUFFER, sizeof(posData) + sizeof(color), nullptr, GL_STATIC_DRAW);
-    fCore.glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(posData), posData);
-    fCore.glBufferSubData(GL_ARRAY_BUFFER, sizeof(posData), sizeof(color), color);
-
-    fCore.glEnableVertexAttribArray(0);
-    fCore.glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3* sizeof(float), (void*)0);
-    fCore.glEnableVertexAttribArray(1);
-    fCore.glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float),(void*)sizeof(posData));
+    gl->glEnableVertexAttribArray(0);
+    gl->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3* sizeof(float), (void*)0);
+    gl->glEnableVertexAttribArray(1);
+    gl->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float),(void*)sizeof(posData));
 }
 
 void TestOpenGLWidget::resizeGL(int w, int h)
 {
-    fCore.glViewport(0.0f, 0.0f, w, h);
+    gl->glViewport(0.0f, 0.0f, w, h);
 
 }
 
 void TestOpenGLWidget::paintGL()
 {
+    static std::chrono::time_point  last_point = std::chrono::steady_clock::now();
+    static float rotation = 0.0f;
+    gl->glEnable(GL_DEPTH_TEST);
+    gl->glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
+    gl->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    shader->use();
+    glm::mat4 model(1.0f);
+    model = glm::rotate(model, rotation, glm::vec3(0.0, 0.0, 1.0f));
+    shader->setMat4("model", model);
 
-    fCore.glEnable(GL_DEPTH_TEST);
-    fCore.glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
-    fCore.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-    m_program->bind();
-    fCore.glBindVertexArray(VAO);
-    fCore.glDrawArrays(GL_TRIANGLES, 0, 3);
-
+    //gl->glBindVertexArray(VAO);
+    //gl->glDrawArrays(GL_TRIANGLES, 0, 3);
+    rotation += 0.1f;
+    if (rotation > 3.14f)
+        rotation = -3.2f;
+    std::chrono::time_point now = std::chrono::steady_clock::now();
+    //std::cout << "the rotation angle: " << rotation << std::endl;
+    std::cout << "triangle span     :" << std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(now - last_point) << std::endl;
+    last_point = now;
 }

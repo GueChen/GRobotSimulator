@@ -33,7 +33,7 @@ protected:
 	template<class _TimeScale>
 	duration<float, _TimeScale> GetSpanTime();
 	void LogicTick(float delta_time);
-	void RenderTick();
+	void RenderTick(float delta_time);
 };
 
 }

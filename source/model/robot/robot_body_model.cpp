@@ -1,15 +1,15 @@
 #include "robot_body_model.h"
 #include "function/modelloader.h"
 
-#include "render/mesh.h"
-#include "render/MyGL.hpp"
+#include "component/mesh_component.h"
+#include "render/mygl.hpp"
 #include "render/myshader.h"
 
 
 using namespace GComponent;
 
 bool             ROBOT_BODY_MODEL::hasInit  = false;
-unique_ptr<Mesh> ROBOT_BODY_MODEL::Resource = nullptr;
+unique_ptr<MeshComponent> ROBOT_BODY_MODEL::Resource = nullptr;
 
 void ROBOT_BODY_MODEL::setGL(const shared_ptr<MyGL> &other)
 {
@@ -25,7 +25,7 @@ ROBOT_BODY_MODEL::ROBOT_BODY_MODEL(mat4 transform)
 void ROBOT_BODY_MODEL::InitializeResource()
 {
     if(hasInit) return;
-    Resource = std::make_unique<Mesh>(
+    Resource = std::make_unique<MeshComponent>(
                 ModelLoader::getMesh(sPathModel(string("body.STL"))));
     hasInit = true;
 }

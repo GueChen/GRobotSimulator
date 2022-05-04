@@ -1,17 +1,20 @@
 #ifndef KUKA_IIWA_MODEL_H
 #define KUKA_IIWA_MODEL_H
+
+#include "GComponent/GTransform.hpp"
+#include "model/model.h"
+
+#include <eigen3/Eigen/Dense>
+
 #include <memory>
 #include <array>
 #include <map>
-#include <eigen3/Eigen/Dense>
-#include "GComponent/GTransform.hpp"
-#include "model/model.h"
 
 namespace GComponent{
 
 /// Forward Declaration
 class MyGL;
-class Mesh;
+class MeshComponent;
 class Revolute;
 class MyShader;
 
@@ -158,7 +161,7 @@ private:
 // FIXME：单一窗口下资源优化的最佳方式，但多窗口下可能会存在隐患
 /// 资源管理部分 Resource Manager
     static bool hasInit;
-    static unordered_map<string, unique_ptr<Mesh>> meshResource;
+    static unordered_map<string, unique_ptr<MeshComponent>> meshResource;
 
 /// 运动学部分 Kinematic Part
     static SE3d M;

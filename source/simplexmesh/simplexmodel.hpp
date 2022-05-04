@@ -3,7 +3,7 @@
 
 #include "model/model.h"
 
-#include "render/MyGL.hpp"
+#include "render/mygl.hpp"
 
 namespace GComponent{
 

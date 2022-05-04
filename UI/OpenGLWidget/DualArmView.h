@@ -18,7 +18,7 @@ using std::shared_ptr;
 using std::unordered_map;
 
 class MyGL;
-class Mesh;
+class MeshComponent;
 class Model;
 class SimplexModel;
 class Joint;
@@ -101,13 +101,11 @@ private:
     /* 网格组件 */
     unique_ptr<BaseGrid> grid;
     /* Mesh 哈希表 */
-    unordered_map<string, unique_ptr<Mesh>> meshTable;
+    unordered_map<string, unique_ptr<MeshComponent>> meshTable;
     /* 机器人模型 */
     unique_ptr<DUAL_ARM_PLATFORM> robot;
     /* 绘图模型 */
     unordered_map<string, unique_ptr<SimplexModel>> modelTable;
-    /* 计时器 */
-    unique_ptr<QTimer> timer;
 
 };
 

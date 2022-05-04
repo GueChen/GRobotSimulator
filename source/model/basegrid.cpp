@@ -1,6 +1,6 @@
 #include "basegrid.h"
 
-#include "render/MyGL.hpp"
+#include "render/mygl.hpp"
 
 using namespace GComponent;
 
@@ -54,7 +54,6 @@ vector<vec3> BaseGrid::GetGridVertexLocation(int num, float size)
         float locationX = corner;
         for(int i = 0; i < num; ++i)
         {
-
             (*it++) = vec3(locationX, 0.0, corner);
             (*it++) = vec3(locationX, 0.0, counter);
             locationX += size;
