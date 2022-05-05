@@ -194,6 +194,12 @@ MeshComponent ModelLoader::getMesh(const std::string &resource)
     return m;
 }
 
+MeshComponent* GComponent::ModelLoader::getMeshPtr(const std::string& resource)
+{
+    auto&& [Vs, Is] = ModelLoader::readFile(resource);
+    return new MeshComponent(Vs, Is, std::vector<Texture>{});
+}
+
 std::string ModelLoader::getFileContent(const std::string& filePath)
 {
     std::string content;

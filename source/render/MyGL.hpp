@@ -133,49 +133,49 @@ public:
 
     }
 
-    void setBool(unsigned ID, const std::string & name, bool value) noexcept
+    void setBool(unsigned model_id_, const std::string & name, bool value) noexcept
     {
-        glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
+        glUniform1i(glGetUniformLocation(model_id_, name.c_str()), (int)value);
     }
 
-    void setInt(unsigned ID, const std::string & name, int value) noexcept
+    void setInt(unsigned model_id_, const std::string & name, int value) noexcept
     {
-        glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+        glUniform1i(glGetUniformLocation(model_id_, name.c_str()), value);
     }
 
-    void setFloat(unsigned ID, const std::string& name, float value) noexcept
+    void setFloat(unsigned model_id_, const std::string& name, float value) noexcept
     {
-        glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+        glUniform1f(glGetUniformLocation(model_id_, name.c_str()), value);
     }
 
-    void setVec2(unsigned ID, const std::string& name, float value[2]) noexcept
+    void setVec2(unsigned model_id_, const std::string& name, float value[2]) noexcept
     {
-        glUniform2fv(glGetUniformLocation(ID, name.c_str()), 1, value);
+        glUniform2fv(glGetUniformLocation(model_id_, name.c_str()), 1, value);
     }
 
-    void setVec2(unsigned ID, const std::string& name, glm::vec2 value) noexcept
+    void setVec2(unsigned model_id_, const std::string& name, glm::vec2 value) noexcept
     {
-        glUniform2fv(glGetUniformLocation(ID, name.c_str()), 1, value_ptr(value));
+        glUniform2fv(glGetUniformLocation(model_id_, name.c_str()), 1, value_ptr(value));
     }
 
-    void setVec4(unsigned ID, const std::string& name, float value[4]) noexcept
+    void setVec4(unsigned model_id_, const std::string& name, float value[4]) noexcept
     {
-        glUniform4f(glGetUniformLocation(ID, name.c_str()), value[0], value[1], value[2], value[3]);
+        glUniform4f(glGetUniformLocation(model_id_, name.c_str()), value[0], value[1], value[2], value[3]);
     }
 
-    void setVec3(unsigned ID, const std::string& name, float value[3]) noexcept
+    void setVec3(unsigned model_id_, const std::string& name, float value[3]) noexcept
     {
-        glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, value);
+        glUniform3fv(glGetUniformLocation(model_id_, name.c_str()), 1, value);
     }
 
-    void setVec3(unsigned ID, const std::string& name, glm::vec3 value) noexcept
+    void setVec3(unsigned model_id_, const std::string& name, glm::vec3 value) noexcept
     {
-        glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, value_ptr(value));
+        glUniform3fv(glGetUniformLocation(model_id_, name.c_str()), 1, value_ptr(value));
     }
 
-    void setMat4(unsigned ID, const std::string& name, glm::mat4 mat) noexcept
+    void setMat4(unsigned model_id_, const std::string& name, glm::mat4 mat) noexcept
     {
-        glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
+        glUniformMatrix4fv(glGetUniformLocation(model_id_, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
     }
 };
 

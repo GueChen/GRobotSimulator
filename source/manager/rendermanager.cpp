@@ -28,17 +28,17 @@ void RenderManager::SetGL(const shared_ptr<MyGL>& gl)
 void RenderManager::tick()
 {
 	
-	ClearGL();
+	//ClearGL();
 
 	PickingPass();
 
-	ClearGL();
+	//ClearGL();
 
 	RenderingPass();
 
 	AuxiliaryPass();
 
-	ClearGL();
+	//ClearGL();
 
 	PostProcessPass();
 }
@@ -63,13 +63,14 @@ void RenderManager::RenderingPass()
 	ModelManager& model_manager = ModelManager::getInstance();
 	for (auto& [obj_name, shader_name, mesh_name, uniform_name] : render_list_) {
 
-		MyShader&	    shader	= *scene_manager.GetShaderByName(shader_name);
-		Model&			obj		= *model_manager.GetModelByName(obj_name);
-		MeshComponent&	mesh	= *scene_manager.GetMeshByName(obj_name);
+		MyShader*	    shader	= scene_manager.GetShaderByName(shader_name);
+		Model*			obj		= model_manager.GetModelByName(obj_name);
+		MeshComponent*	mesh	= scene_manager.GetMeshByName(mesh_name);
 		
-		shader.use();
-		shader.setMat4("model", obj.getModelMatrix());
-		mesh.Draw();
+		shader->use();
+		shader->setMat4("model", obj->getModelMatrix());
+		obj->setShaderProperty(*shader);
+		if(mesh) mesh->Draw();
 		// TODO: For other Shader Bind Value Pass
 	}
 	render_list_.clear();

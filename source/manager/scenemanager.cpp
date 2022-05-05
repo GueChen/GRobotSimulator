@@ -15,7 +15,7 @@ namespace GComponent {
 
 	void SceneManager::RegisteredMesh(const string& name, MeshComponent* raw_ptr_mesh) {
 		DeregisteredMesh(name);
-		mesh_map_.emplace(name, move(unique_ptr<MeshComponent>(raw_ptr_mesh)));
+		mesh_map_.emplace(name, unique_ptr<MeshComponent>(raw_ptr_mesh));
 	}
 
 	void SceneManager::DeregisteredMesh(const string& name)
@@ -57,7 +57,8 @@ namespace GComponent {
 	}
 	void SceneManager::RegisteredUIHandle(const string& name, QOpenGLWidget* ui_handle)
 	{
-		
+		DeregisteredUIHandle(name);
+
 		draw_ui_map_.emplace(name, ui_handle);
 
 		QTimer* timer = new QTimer(ui_handle);
@@ -75,6 +76,7 @@ namespace GComponent {
 			ui_update_timer_map_.erase(name);
 		}
 	}
+
 	QOpenGLWidget* SceneManager::GetUISurfaceByName(const string& name)
 	{
 		auto iter = draw_ui_map_.find(name);
@@ -83,7 +85,7 @@ namespace GComponent {
 		}
 		return nullptr;
 	}
-	// TODO: ÊµÏÖ´«µÝ gL
+
 	void SceneManager::SetGL(const shared_ptr<MyGL>& gl)
 	{
 		for (auto& [name, mesh] : mesh_map_) {

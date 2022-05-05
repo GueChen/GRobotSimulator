@@ -1,10 +1,11 @@
 #include "kuka_iiwa_model.h"
 
-#include <glm/gtc/matrix_transform.hpp>
-
+#include "manager/modelmanager.h"
+#include "manager/scenemanager.h"
+#include "manager/rendermanager.h"
 #include "render/mygl.hpp"
-#include "component/mesh_component.h"
 #include "render/myshader.h"
+#include "component/mesh_component.h"
 
 #include "model/robot/joint.h"
 #include "function/modelloader.h"
@@ -12,40 +13,21 @@
 #include <GComponent/GNumerical.hpp>
 #include <LSSolver/LinearSystemSolver.hpp>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 #include <iostream>
 #include <ranges>
 
-#define IIWASource(name) ("iiwa14_"#name".STL")
+#define IIWASource(name) "iiwa14_"#name".STL"
 
 using namespace GComponent;
 
 bool KUKA_IIWA_MODEL::hasInit = false;
-unordered_map<string, unique_ptr<MeshComponent>> KUKA_IIWA_MODEL::meshResource{};
-
+int KUKA_IIWA_MODEL::count    = 0;
 SE3d KUKA_IIWA_MODEL::M = SE3d();
 array<twistd, 7> KUKA_IIWA_MODEL::expCoords = {};
+
 //vector<vec3d> KUKA_IIWA_MODEL::CollisionCheckPoints = {};
-
-/**
- *      Static Member Functions
- *            静态成员函数
- ************************************/
-
-void KUKA_IIWA_MODEL::setGL(const shared_ptr<MyGL> &other)
-{
-    for(auto & [_, mesh]: meshResource)
-    {
-        mesh->setGL(other);
-    }
-}
-
-void KUKA_IIWA_MODEL::InsertMeshResource(const string &key, const string &source)
-{
-    meshResource.insert(std::make_pair(
-                            key,
-                            std::make_unique<MeshComponent>( ModelLoader::getMesh( sPathModel(source)))));
-}
-
 
 /**
  *      Normal Member Functions
@@ -56,10 +38,11 @@ void KUKA_IIWA_MODEL::InsertMeshResource(const string &key, const string &source
 KUKA_IIWA_MODEL::KUKA_IIWA_MODEL(mat4 transform):
     _thetas({0}), _Ts()
 {
-    _matrixModel = transform;
+    model_mat_ = transform;
     InitializeResource();
     InitializeLimitation();
-
+    InitializeKinematicsParameters();
+    ++count;
 }
 
 void KUKA_IIWA_MODEL::InitializeLimitation(){
@@ -71,7 +54,7 @@ void KUKA_IIWA_MODEL::InitializeLimitation(){
     }
 }
 
-void KUKA_IIWA_MODEL::InitCoords()
+void KUKA_IIWA_MODEL::InitializeKinematicsParameters()
 {
     Eigen::Transform<double, 3, Eigen::Affine> M_Ini;
     M_Ini.setIdentity();
@@ -89,79 +72,141 @@ void KUKA_IIWA_MODEL::InitCoords()
 
 void KUKA_IIWA_MODEL::InitializeResource()
 {
-
+    SceneManager& scene_manager = SceneManager::getInstance();
+    ModelManager& model_manager = ModelManager::getInstance();
     if(!hasInit)
     {
-        InsertMeshResource("Base",  IIWASource(base));
-        InsertMeshResource("Link1", IIWASource(link_1));
-        InsertMeshResource("Link2", IIWASource(link_2));
-        InsertMeshResource("Link3", IIWASource(link_3));
-        InsertMeshResource("Link4", IIWASource(link_4));
-        InsertMeshResource("Link5", IIWASource(link_5));
-        InsertMeshResource("Link6", IIWASource(link_6));
-        InsertMeshResource("Flansch", "flanschExten.STL");
-        InitCoords();
+       
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_base",    ModelLoader::getMeshPtr(cPathModel(IIWASource(base))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_1",  ModelLoader::getMeshPtr(cPathModel(IIWASource(link_1))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_2",  ModelLoader::getMeshPtr(cPathModel(IIWASource(link_2))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_3",  ModelLoader::getMeshPtr(cPathModel(IIWASource(link_3))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_4",  ModelLoader::getMeshPtr(cPathModel(IIWASource(link_4))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_5",  ModelLoader::getMeshPtr(cPathModel(IIWASource(link_5))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_6",  ModelLoader::getMeshPtr(cPathModel(IIWASource(link_6))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_flansch", ModelLoader::getMeshPtr(cPathModel("flanschExten.STL")));
     }
 
-    vector<shared_ptr<Model>> models(7);
-    for(int i = 0; i < 7; ++i)
+    array<Model*, 8> models;
+    for(int i = 0; i < 8; ++i)
     {
-        models[i] = std::make_shared<Model>();
+        models[i] = new Model;
     }
+    string count_str = std::to_string(count);
+    model_manager.RegisteredModel("kuka_iiwa_robot_"         + count_str, this);
+    model_manager.RegisteredModel("kuka_iiwa_robot_base_"    + count_str, models[0]);
+    model_manager.RegisteredModel("kuka_iiwa_robot_link1_"   + count_str, models[1]);
+    model_manager.RegisteredModel("kuka_iiwa_robot_link2_"   + count_str, models[2]);
+    model_manager.RegisteredModel("kuka_iiwa_robot_link3_"   + count_str, models[3]);
+    model_manager.RegisteredModel("kuka_iiwa_robot_link4_"   + count_str, models[4]);
+    model_manager.RegisteredModel("kuka_iiwa_robot_link5_"   + count_str, models[5]);
+    model_manager.RegisteredModel("kuka_iiwa_robot_link6_"   + count_str, models[6]);
+    model_manager.RegisteredModel("kuka_iiwa_robot_flansch_" + count_str, models[7]);
 
-    setMesh("Base");
-    models[0]->setMesh("Link1");
-    models[1]->setMesh("Link2");
-    models[2]->setMesh("Link3");
-    models[3]->setMesh("Link4");
-    models[4]->setMesh("Link5");
-    models[5]->setMesh("Link6");
-    models[6]->setMesh("Flansch");
+    models[0]->setMesh("kuka_iiwa_robot_base");
+    models[1]->setMesh("kuka_iiwa_robot_link_1");
+    models[2]->setMesh("kuka_iiwa_robot_link_2");
+    models[3]->setMesh("kuka_iiwa_robot_link_3");
+    models[4]->setMesh("kuka_iiwa_robot_link_4");
+    models[5]->setMesh("kuka_iiwa_robot_link_5");
+    models[6]->setMesh("kuka_iiwa_robot_link_6");
+    models[7]->setMesh("kuka_iiwa_robot_flansch");
 
-    models[0]->setAxis(vec3(0.0f, 1.0f, 0.0f));
-    models[1]->setAxis(vec3(0.0f, 0.0f, 1.0f));
-    models[2]->setAxis(vec3(0.0f, 1.0f, 0.0f));
-    models[3]->setAxis(vec3(0.0f, 0.0f, -1.0f));
-    models[4]->setAxis(vec3(0.0f, 1.0f, 0.0f));
-    models[5]->setAxis(vec3(0.0f, 0.0f, 1.0f));
-    models[6]->setAxis(vec3(0.0f, 1.0f, 0.0f));
+    setShader("color");
+    models[0]->setShader("color");
+    models[1]->setShader("color");
+    models[2]->setShader("color");
+    models[3]->setShader("color");
+    models[4]->setShader("color");
+    models[5]->setShader("color");
+    models[6]->setShader("color");
+    models[7]->setShader("color");
+
+    models[1]->setAxis(vec3(0.0f, 1.0f, 0.0f));
+    models[2]->setAxis(vec3(0.0f, 0.0f, 1.0f));
+    models[3]->setAxis(vec3(0.0f, 1.0f, 0.0f));
+    models[4]->setAxis(vec3(0.0f, 0.0f, -1.0f));
+    models[5]->setAxis(vec3(0.0f, 1.0f, 0.0f));
+    models[6]->setAxis(vec3(0.0f, 0.0f, 1.0f));
+    models[7]->setAxis(vec3(0.0f, 1.0f, 0.0f));
 
     mat4 im = glm::identity<mat4>();
 
-    models[5]->appendChild(models[6], glm::translate(im, vec3(0.0f, 0.0809f, 0.0607f)));
-    models[4]->appendChild(models[5], glm::translate(im, vec3(0.0f, 0.2155f, -0.0607f)));
-    models[3]->appendChild(models[4], glm::translate(im, vec3(0.0f, 0.1845f, 0.0f)));
-    models[2]->appendChild(models[3], glm::translate(im, vec3(0.0f, 0.2155f, 0.0f)));
-    models[1]->appendChild(models[2], glm::translate(im, vec3(0.0f, 0.2045f, 0.0f)));
-    models[0]->appendChild(models[1], glm::translate(im, vec3(0.0f, 0.2025f, 0.0f)));
-    appendChild(models[0], glm::translate(im, vec3(0.0f, 0.1575f, 0.0f)));
-
+    models[6]->appendChild(models[7], glm::translate(im, vec3(0.0f, 0.0809f, 0.0607f)));
+    models[5]->appendChild(models[6], glm::translate(im, vec3(0.0f, 0.2155f, -0.0607f)));
+    models[4]->appendChild(models[5], glm::translate(im, vec3(0.0f, 0.1845f, 0.0f)));
+    models[3]->appendChild(models[4], glm::translate(im, vec3(0.0f, 0.2155f, 0.0f)));
+    models[2]->appendChild(models[3], glm::translate(im, vec3(0.0f, 0.2045f, 0.0f)));
+    models[1]->appendChild(models[2], glm::translate(im, vec3(0.0f, 0.2025f, 0.0f)));
+    models[0]->appendChild(models[1], glm::translate(im, vec3(0.0f, 0.1575f, 0.0f)));
+    appendChild(models[0], im);
 
     Joints.resize(7);
-    Joints[0] = std::make_shared<Revolute>(models[0]);
-    Joints[1] = std::make_shared<Revolute>(models[1]);
-    Joints[2] = std::make_shared<Revolute>(models[2]);
-    Joints[3] = std::make_shared<Revolute>(models[3]);
-    Joints[4] = std::make_shared<Revolute>(models[4]);
-    Joints[5] = std::make_shared<Revolute>(models[5]);
-    Joints[6] = std::make_shared<Revolute>(models[6]);
+    Joints[0] = new Revolute(models[1]);
+    Joints[1] = new Revolute(models[2]);
+    Joints[2] = new Revolute(models[3]);
+    Joints[3] = new Revolute(models[4]);
+    Joints[4] = new Revolute(models[5]);
+    Joints[5] = new Revolute(models[6]);
+    Joints[6] = new Revolute(models[7]);
 
     hasInit = true;
+}
+
+// TODO: 完善 Move
+/// 操作控制类函数
+void KUKA_IIWA_MODEL::Move(const IIWAThetas& thetas)
+{
+    SetThetas(thetas);
+    for (int index = 0; auto && joint : Joints)
+    {
+        joint->Rotate(RadiusToDegree(thetas[index++]));
+    }
+}
+void KUKA_IIWA_MODEL::Move(const IIWAThetav& vthetas)
+{
+    SetThetas(IIWAThetas{
+                  vthetas[0], vthetas[1], vthetas[2], vthetas[3],
+                  vthetas[4], vthetas[5], vthetas[6] });
+}
+
+/// 设置获取类
+IIWAThetas KUKA_IIWA_MODEL::GetThetas() const
+{
+    return _thetas;
+}
+
+void KUKA_IIWA_MODEL::SetThetas(const IIWAThetas& thetas)
+{
+    _thetas = thetas;
+}
+
+void GComponent::KUKA_IIWA_MODEL::setShaderProperty(MyShader & shader)
+{
+    shader.setVec3("color", _color);
+}
+
+void GComponent::KUKA_IIWA_MODEL::tick()
+{
+    RenderManager::getInstance().EmplaceRenderCommand(name_, shader_, mesh_, "color");
 }
 
 /// 图片绘制部分
 void KUKA_IIWA_MODEL::Draw(MyShader * shader)
 {
     shader->setVec3("color", _color);
-    Draw(shader, this);
+    for (auto& [child, _] : children_)
+    {
+        Draw(shader, child);
+    }
 }
 void KUKA_IIWA_MODEL::Draw(MyShader * shader, Model * next)
 {
     shader->setMat4("model", next->getModelMatrix());
-    meshResource[next->getMesh()]->Draw();
+    SceneManager::getInstance().GetMeshByName(next->getMesh())->Draw();
     for(auto & [child, _]: next->getChildren())
     {
-        Draw(shader, child.get());
+        Draw(shader, child);
     }
 }
 
@@ -445,7 +490,7 @@ vec7d KUKA_IIWA_MODEL::GetCollisionGrad(const vector<BallObstacle>& obsts, const
 {
     IIWATransfoms preTs       = GetIIWATransformsPreSum(thetas);                    // 前缀和方便后续计算    Get the T_0_i total
     IIWATransfoms dTSingle    = GetIIWATransformsDiff(thetas);                      // 单个变换矩阵微分形式  Get the dTi
-    vec7d retGrad = vec7d::Zero();                                                  // 避碰函数梯度          Return value
+    vec7d retGrad             = vec7d::Zero();                                      // 避碰函数梯度          Return value
 
     for(auto && [index, points] : _checkPointDict){                                 // 遍历检测点字典
         IIWATransfoms dTs;
@@ -559,35 +604,9 @@ vec7d KUKA_IIWA_MODEL::GetJointsLimitationGrad(const IIWAThetas & thetas)
     return grad;
 }
 
-// TODO: 完善 Move
-/// 操作控制类函数
-void KUKA_IIWA_MODEL::Move(const IIWAThetas & thetas)
-{
-    SetThetas(thetas);
-    for(int index = 0; auto && joint : Joints)
-    {
-        joint->Rotate(RadiusToDegree(thetas[index++]));
-    }
-}
-void KUKA_IIWA_MODEL::Move(const IIWAThetav& vthetas)
-{
-    SetThetas(IIWAThetas{
-                  vthetas[0], vthetas[1], vthetas[2], vthetas[3],
-                  vthetas[4], vthetas[5], vthetas[6]});
-}
-
-/// 设置获取类
-IIWAThetas KUKA_IIWA_MODEL::GetThetas() const
-{
-    return _thetas;
-}
-
-void KUKA_IIWA_MODEL::SetThetas(const IIWAThetas & thetas)
-{
-    _thetas = thetas;
-}
-
 void KUKA_IIWA_MODEL::AddCheckPoint(int idx, const WeightedCheckPoint &p)
 {
     _checkPointDict[idx].emplace_back(p);
 }
+
+

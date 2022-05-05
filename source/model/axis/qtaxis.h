@@ -4,6 +4,12 @@
 #include  "model/model.h"
 #include  "component/mesh_component.h"
 
+enum class AxisMode {
+	Translation = 0,
+	Rotation    = 1,
+	Scale		= 2
+};
+
 enum class AxisSelected {
 	xAxis = 0,
 	yAxis = 1,

@@ -11,7 +11,6 @@ using namespace GComponent;
 
 void DUAL_ARM_PLATFORM::setGL(const shared_ptr<MyGL> &other)
 {
-    KUKA_IIWA_MODEL::setGL(other);
     ROBOT_BODY_MODEL::setGL(other);
 }
 
@@ -20,7 +19,7 @@ DUAL_ARM_PLATFORM::DUAL_ARM_PLATFORM(mat4 transform):
     _right(make_shared<KUKA_IIWA_MODEL>()),
     _body(make_shared<ROBOT_BODY_MODEL>())
 {
-    _matrixModel = transform;
+    model_mat_ = transform;
     InitializeModel();
 }
 
@@ -30,13 +29,13 @@ void DUAL_ARM_PLATFORM::InitializeModel()
     im = glm::translate(im, vec3(0.193f, 1.217f, 0.0f));
     im = glm::rotate(im, glm::radians(-30.0f), vec3(0.0f, 0.0f, 1.0f));
     im = glm::rotate(im, glm::radians(135.0f), vec3(0.0f, 1.0f, 0.0f));
-    _body->appendChild(_left, im);
+    _body->appendChild(_left.get(), im);
 
     im = mat4(1.0f);
     im = glm::translate(im, vec3(-0.193f, 1.217f, 0.0f));
     im = glm::rotate(im, glm::radians(30.0f), vec3(0.0f, 0.0f, 1.0f));
     im = glm::rotate(im, glm::radians(45.0f), vec3(0.0f, 1.0f, 0.0f));
-    _body->appendChild(_right, im);
+    _body->appendChild(_right.get(), im);
 }
 
 void DUAL_ARM_PLATFORM::Draw(MyShader * shader)
@@ -59,8 +58,8 @@ JointsPair DUAL_ARM_PLATFORM::getJoints() const
     array<Joint*, 7> left, right;
     for(int i = 0; i < 7; ++i)
     {
-        left[i]  = reinterpret_cast<Joint*>(_left->Joints[i].get());
-        right[i] = reinterpret_cast<Joint*>(_right->Joints[i].get());
+        left[i]  = reinterpret_cast<Joint*>(_left->Joints[i]);
+        right[i] = reinterpret_cast<Joint*>(_right->Joints[i]);
     }
     return std::make_pair(left,right);
 }

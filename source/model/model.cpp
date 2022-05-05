@@ -1,80 +1,71 @@
 #include "model.h"
 
+#include "manager/rendermanager.h"
 #include "render/myshader.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <QDebug>
+#include <iostream>
+#include <format>
+
+#define _DEBUG
 
 using namespace GComponent;
 
 Model::Model(Model * parent, const string & meshKey):
-    _mesh(meshKey), _parent(parent)
+    mesh_(meshKey), parent_(parent)
 {}
 
-// FIXME: 可能会出错，需要工厂函数包一下感觉
-Model::~Model(){
-
-}
-
-string Model::getMesh() const
-{
-    return _mesh;
-}
-
-mat4 Model::getModelMatrix() const
-{
-    return _parentMatrix * _matrixModel;
-}
+Model::~Model() = default;
 
 void Model::setModelMatrix(const mat4 &mat)
 {
-    _matrixModel = mat;
+    model_mat_ = mat;
     updateChildrenMatrix();
 }
 
-void Model::setMesh(const string & mesh)
-{
-    _mesh = mesh;
-}
-
-
 void Model::setAxis(vec3 axis)
 {
-    _axis = axis;
+    axis_ = axis;
 }
 
 void Model::setRotate(float angle)
 {
-    mat4 _mat = glm::identity<mat4>();
-    _matrixModel = glm::rotate(_mat, glm::radians(angle), _axis);
+    mat4 mat = glm::identity<mat4>();
+    model_mat_ = glm::rotate(mat, glm::radians(angle), axis_);
     updateChildrenMatrix();
-}
-
-void Model::setParent(Model *parent)
-{
-    _parent = parent;
 }
 
 void Model::appendChild(const _pModel &pchild, mat4 transform)
 {
     pchild->setParent(this);
-    _children.emplace_back(std::make_pair(pchild, transform));
+    children_.emplace_back(std::make_pair(pchild, transform));
     updateChildrenMatrix();
+}
+
+const vector<pair<_pModel, mat4>>& Model::getChildren() const
+{
+    return children_;
 }
 
 void Model::updateChildrenMatrix()
 {
-    for(auto & [child, transf]: _children)
+    for(auto & [child, transf]: children_)
     {
-        child->_parentMatrix = _parentMatrix * _matrixModel * transf;
+        child->parent_model_mat_ = parent_model_mat_ * model_mat_ * transf;
         child->updateChildrenMatrix();
     }
 }
 
-const vector<pair<_pModel, mat4>> & Model::getChildren() const
+void GComponent::Model::tick()
 {
-    return _children;
+    //if (!parent_) {
+        RenderManager::getInstance().EmplaceRenderCommand(name_, shader_, mesh_);
+    //}
+#ifdef _DEBUG
+        std::cout << std::format("OBJ:[{: <25}] | SHADER:[{: <5}] | MESH:[{}]\n", name_, shader_, mesh_);
+#endif
+   
 }
 
 void Model::Draw(MyShader * shader)
