@@ -13,7 +13,6 @@
 namespace GComponent{
 
 /// Forward Declaration
-class MyGL;
 class MeshComponent;
 class Revolute;
 class MyShader;
@@ -51,10 +50,12 @@ public:
     explicit KUKA_IIWA_MODEL(mat4 transform = mat4(1.0f));
     ~KUKA_IIWA_MODEL() = default;
 
+/// Tick Functions
+    void tick() override;
+
 /// 绘图函数 Drawing Functions
     void Draw(MyShader * shader) override;
     void setColor(const vec3 & color);
-    static void setGL(const shared_ptr<MyGL> & other);
 
 /// 运动学函数 Kinematic Functions
     SE3d ForwardKinematic();
@@ -129,20 +130,21 @@ public:
     // 添加检测点辅助函数
     void AddCheckPoint(int idx, const WeightedCheckPoint & p);
 
+protected:
+    void     setShaderProperty(MyShader & shader) override;
+   
 private:
     void Draw(MyShader* shader, Model * next);
 
-    void InitCoords();
+    void InitializeKinematicsParameters();
     void InitializeResource();
     void InitializeLimitation();
-
-    static void InsertMeshResource(const string & key, const string & source);
 
     template<class _LQSolver>
     IIWAThetas BackKinematicIteration(_LQSolver&& solver, const SE3d& trans_desire, const IIWAThetav& initialGuess);
 /// 数据域 Fields
 public:
-    vector<shared_ptr<Revolute>> Joints;
+    vector<Revolute*> Joints;
 
 private:
 // 当前单一颜色着色器下的显示颜色
@@ -161,13 +163,11 @@ private:
 // FIXME：单一窗口下资源优化的最佳方式，但多窗口下可能会存在隐患
 /// 资源管理部分 Resource Manager
     static bool hasInit;
-    static unordered_map<string, unique_ptr<MeshComponent>> meshResource;
-
+    static int  count;
 /// 运动学部分 Kinematic Part
     static SE3d M;
     static IIWAExpCoords expCoords;
     constexpr static unsigned JointNum = 7;
-
 };
 
 

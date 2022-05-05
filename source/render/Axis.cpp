@@ -24,7 +24,7 @@ void AbstractAxis::Init(int segments, float radius) {
 	SetupVertexData(segments, radius);
 	SetupIndexData(segments);
 
-	std::tie(ID, VBO) = GMeshObject::genVABO(&vertices_[0], sizeof(Vertex) * vertices_.size());
+	std::tie(model_id_, VBO) = GMeshObject::genVABO(&vertices_[0], sizeof(Vertex) * vertices_.size());
 	GMeshObject::EnableVertexAttrbArrays(3, 3, 2);
 	EBO = GMeshObject::genEBO(indicies_);
 }
@@ -36,7 +36,7 @@ void AbstractAxis::Init(int segments, float radius) {
 /// <returns></returns>
 void AbstractAxis::Draw(MyShader& shader) const noexcept {
 	shader.use();
-	glBindVertexArray(ID);
+	glBindVertexArray(model_id_);
 	glDrawElements(GL_TRIANGLES, 3 * indicies_.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }

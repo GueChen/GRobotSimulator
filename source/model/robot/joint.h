@@ -11,7 +11,7 @@ using std::shared_ptr;
 class Joint
 {
 public:
-    explicit Joint(const shared_ptr<Model> & model){_model = model.get();}
+    explicit Joint(Model* model) :_model(model) {}
     virtual ~Joint() = 0{}
 protected:
     Model * _model;
@@ -21,7 +21,7 @@ class Revolute:public Joint
 {
 public:
     Revolute() = delete;
-    explicit Revolute(const shared_ptr<Model> & model);
+    explicit Revolute(Model* model);
     ~Revolute() = default;
     void Rotate(float angle);
     float getAngle();

@@ -9,6 +9,11 @@
 
 #include "model/model.h"
 
+#include <iostream>
+#include <format>
+
+#define _DEBUG
+
 namespace GComponent {
 using std::move;
 
@@ -17,13 +22,15 @@ ModelManager::ModelManager() = default;
 ModelManager::~ModelManager() = default;
 
 bool ModelManager::RegisteredModel(string name, Model *ptr_model)
-{
+{   
 
-    
-    ptr_model->ID = next_model_id_;
+    ptr_model->model_id_ = next_model_id_;
+    ptr_model->name_     = name;
+
     model_name_to_handle_table_.emplace(name, next_model_id_);
     model_handle_to_name_table_.emplace(next_model_id_, name);
     models_.emplace(next_model_id_, unique_ptr<Model>(ptr_model));
+
     ++next_model_id_;
     return true;
 }
@@ -50,13 +57,18 @@ Model* ModelManager::GetModelByHandle(size_t model_id) const
 
 Model* ModelManager::GetModelByName(string name) const
 {
-    return nullptr;
+    auto iter = model_name_to_handle_table_.find(name);
+    if (iter == model_name_to_handle_table_.end()) return nullptr;
+    return GetModelByHandle(iter->second);
 }
 
 void ModelManager::tickAll(float delta_time)
 {
     for(auto && [id, model]: models_){
-        //model->tick();
+        model->tick();
+#ifdef _DEBUG
+        std::cout << std::format("model tick from manager:{: <25}\n", model_handle_to_name_table_[id]);
+#endif // _DEBUG
     }
 }
 

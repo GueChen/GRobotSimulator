@@ -62,10 +62,12 @@ protected:
 
 private:
     
+
     unordered_map <string, unique_ptr<QTimer>>              ui_update_timer_map_ = {};
     unordered_map <string, QOpenGLWidget*>                  draw_ui_map_         = {};
     unordered_map <string, unique_ptr<MeshComponent>>       mesh_map_            = {};
     unordered_map <string, unique_ptr<MyShader>>            shader_map_          = {};
+
 
 };
 

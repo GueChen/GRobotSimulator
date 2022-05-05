@@ -49,8 +49,12 @@ namespace GComponent {
         void setVec3(const std::string& name, float value[3]) noexcept;
         void setVec3(const std::string& name, glm::vec3 value) noexcept;
         void setMat4(const std::string& name, glm::mat4 mat) noexcept;
-
+        
+        template<class _Type>
+        void setUniform(const std::string& name, _Type value) noexcept;
     };
+
+
 }
 
 

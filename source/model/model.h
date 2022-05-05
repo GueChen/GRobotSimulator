@@ -3,11 +3,14 @@
 
 #include "component/component.hpp"
 #include "manager/modelmanager.h"
+#include "manager/rendermanager.h"
+
+#include <glm/glm.hpp>
 
 #include <string>
 #include <memory>
 #include <unordered_map>
-#include <glm/glm.hpp>
+
 
 namespace GComponent {
 
@@ -23,50 +26,65 @@ using vec3 = glm::vec3;
 using mat4 = glm::mat4;
 using std::unordered_map;
 
-using _pModel = shared_ptr<Model>;
+using _pModel = Model*;
 
 class Model
 {
     friend class ModelManager;
+    friend class RenderManager;
 public:
     explicit Model(Model * parent = nullptr, const string & meshKey = "");
     virtual 
     ~Model();
 
+    virtual
+    void    tick();
+
     virtual 
     void    Draw(MyShader * shader);
 
-    void    setModelMatrix(const mat4 & mat);
-    mat4    getModelMatrix() const;
+    void    appendChild(const _pModel& pchild, mat4 transform = mat4(1.0f));
+    const   vector<pair<_pModel, mat4>>& getChildren() const;
 
-    void    setMesh(const string & mesh);
-    string  getMesh() const;
+    void           setModelMatrix(const mat4 & mat);
+    inline mat4    getModelMatrix() const               { return parent_model_mat_ * model_mat_; }
 
-    void    setParent(Model * parent);
-    void    appendChild(const _pModel & pchild, mat4 transform = mat4(1.0f));
-    const vector<pair<_pModel, mat4>> & getChildren() const;
+    inline void    setMesh(const string & mesh_name)    { mesh_ = mesh_name;}
+    inline string  getMesh()        const               { return mesh_;}
+
+    inline void    setName(const string & name)         { name_ = name;}
+    inline string  getName()        const               { return name_;}
+
+    inline void    setShader(const string& shader_name) { shader_ = shader_name;}
+    inline string  getShader()      const               { return shader_;}
+
+    inline void    setParent(Model * parent)            { parent_ = parent;}
+    inline Model*  getParent()      const               { return parent_;}
 
     void    setAxis(vec3 axis);
     void    setRotate(float angle);
 
+protected:
     void    updateChildrenMatrix();
-    
+    virtual void setShaderProperty(MyShader & shader) {}
+
 protected:
     /// Fields 数据域
-    mat4 _parentMatrix = mat4(1.0f);
-    mat4 _matrixModel  = mat4(1.0f);
+    mat4 parent_model_mat_ = mat4(1.0f);
+    mat4 model_mat_  = mat4(1.0f);
 
-    Model * _parent;
-    vector<pair<_pModel, mat4>> _children;
-private:
+    Model * parent_;
+    vector<pair<_pModel, mat4>> children_;
+
     /// Structure 结构相关
-    int ID;
-    string _mesh;
-    string _shader;
+    int     model_id_;
+    string  name_;
+    string  mesh_;
+    string  shader_;
 
     /// MoveMent 运动相关
-    vec3  _axis  = vec3(0.0f, 1.0f, 0.0f);
-    float _angle = 0.0;
+    vec3  axis_  = vec3(0.0f, 1.0f, 0.0f);
+    float angle_ = 0.0;
 
     // TODO : 将原本的体系进行替换完善
     /*void tick() {};

@@ -3,6 +3,7 @@
 #include <string>
 #include "component/mesh_component.h"
 
+#define cPathModel(name)("./modifyCoordinate/" name)
 #define PathModel(name) ("./modifyCoordinate/"#name)
 #define sPathModel(name) ("./modifyCoordinate/" + name)
 
@@ -19,6 +20,7 @@ public:
 
     static std::vector<float> vStringToFloat(const std::vector<std::string> & vs);
     static MeshComponent getMesh(const std::string & resource);
+    static MeshComponent* getMeshPtr(const std::string& resource);
 };
 
 }

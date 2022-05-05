@@ -101,6 +101,8 @@ void DualArmView::setGL()
     // FIXME: 重构时将该部分纳入统一管理
     grid->setGL(gl);
     DUAL_ARM_PLATFORM::setGL(gl);
+
+    SceneManager::getInstance().SetGL(gl);
 }
 
 void DualArmView::paintGL()
@@ -163,8 +165,11 @@ void DualArmView::paintGL()
     }
 
     curShader->release();
+
     std::chrono::time_point after = std::chrono::steady_clock::now();
+#ifdef _DEBUG
     std::cout << "dual arm view span: " << std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(after - time) << std::endl;
+#endif // _DEBUG
     time = after;
 }
 

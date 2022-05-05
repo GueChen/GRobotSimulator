@@ -18,7 +18,7 @@ void ROBOT_BODY_MODEL::setGL(const shared_ptr<MyGL> &other)
 
 ROBOT_BODY_MODEL::ROBOT_BODY_MODEL(mat4 transform)
 {
-    _matrixModel = transform;
+    model_mat_ = transform;
     InitializeResource();
 }
 
@@ -34,7 +34,7 @@ void ROBOT_BODY_MODEL::Draw(MyShader *shader)
 {
     shader->setMat4("model", getModelMatrix());
     Resource->Draw();
-    for(auto & [_child, _] : _children)
+    for(auto & [_child, _] : children_)
     {
         _child->Draw(shader);
     }

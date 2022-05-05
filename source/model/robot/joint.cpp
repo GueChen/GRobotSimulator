@@ -4,7 +4,7 @@
 
 using namespace GComponent;
 
-Revolute::Revolute(const shared_ptr<Model> & model):
+Revolute::Revolute(Model*  model):
     Joint(model)
 {}
 
