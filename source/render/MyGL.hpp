@@ -1,4 +1,3 @@
-//TODO: 补充工具函数注释或文档
 #ifndef _MYGL_H
 #define _MYGL_H
 
@@ -10,16 +9,13 @@
 #include <vector>
 #include <tuple>
 
-// TODO:考虑是否把该宏移入 MyShader中
-#define PathVert(name) ("./Shader/Vertex/"#name"Vert.vert")
-#define PathFrag(name) ("./Shader/Fragment/"#name"Frag.frag")
-
 namespace GCONST {
     constexpr size_t FLOAT_SIZE = sizeof(float);
-    constexpr size_t INT_SIZE = sizeof(int);
+    constexpr size_t INT_SIZE  = sizeof(int);
     constexpr size_t MAT4_SIZE = sizeof(glm::mat4);
+    constexpr size_t VEC4_SIZE = sizeof(glm::vec4);
     constexpr size_t VEC3_SIZE = sizeof(glm::vec3);
-    constexpr size_t VEC2_SIZE = sizeof(glm::vec2);
+    constexpr size_t VEC2_SIZE = sizeof(glm::vec2); 
 }
 
 namespace GComponent{
@@ -58,6 +54,32 @@ public:
                         GCONST::MAT4_SIZE, GCONST::MAT4_SIZE,
                         glm::value_ptr(view));
 
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
+
+    unsigned
+    genDirLightViewPos()
+    {
+        unsigned uboGlobalParameter;
+        
+        glGenBuffers(1, &uboGlobalParameter);
+
+        glBindBuffer(GL_UNIFORM_BUFFER, uboGlobalParameter);
+        glBufferData(GL_UNIFORM_BUFFER, 3 * GCONST::VEC4_SIZE, NULL, GL_STATIC_DRAW);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboGlobalParameter);
+
+        return uboGlobalParameter;
+    }
+
+    void
+    setDirLightViewPos(unsigned ubo, glm::vec3 light_dir, glm::vec3 light_color, glm::vec3 view_pos)
+    {
+        glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+
+        glBufferSubData(GL_UNIFORM_BUFFER, 0 * GCONST::VEC4_SIZE, GCONST::VEC3_SIZE, glm::value_ptr(light_dir));
+        glBufferSubData(GL_UNIFORM_BUFFER, 1 * GCONST::VEC4_SIZE, GCONST::VEC3_SIZE, glm::value_ptr(light_color));
+        glBufferSubData(GL_UNIFORM_BUFFER, 2 * GCONST::VEC4_SIZE, GCONST::VEC3_SIZE, glm::value_ptr(view_pos));
+       
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 

@@ -8,6 +8,8 @@
 
 #include <memory>
 
+#define PathVert(name) ("./Shader/Vertex/"#name"Vert.vert")
+#define PathFrag(name) ("./Shader/Fragment/"#name"Frag.frag")
 
 #define genShaderMap(name)                  \
 std::make_pair((#name),                     \
@@ -50,8 +52,6 @@ namespace GComponent {
         void setVec3(const std::string& name, glm::vec3 value) noexcept;
         void setMat4(const std::string& name, glm::mat4 mat) noexcept;
         
-        template<class _Type>
-        void setUniform(const std::string& name, _Type value) noexcept;
     };
 
 

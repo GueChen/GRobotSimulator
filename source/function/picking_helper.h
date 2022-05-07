@@ -12,6 +12,9 @@
 #include <memory>
 
 namespace GComponent {
+
+class PickingController;
+
 using std::shared_ptr;
 /*
 * @brief Í¼Æ¬Ë÷ÒýµÄ id
@@ -23,13 +26,23 @@ struct PickingPixelInfo {
 	float primitiveID	= 0.0f;	
 };
 
-class PickingHelper
+
+
+class PickingGuard {
+public:
+	PickingGuard(PickingController & controller);
+	~PickingGuard();
+private:
+	PickingController& controller_;
+};
+
+class PickingController
 {
 public:
-	PickingHelper();
-	~PickingHelper();
+	PickingController();
+	~PickingController();
 
-	void SetGL(const shared_ptr<MyGL> other);
+	void SetGL(const shared_ptr<MyGL>& other);
 
 	bool Init(unsigned width, unsigned height);
 	void EnablePickingMode(unsigned default_FBO);

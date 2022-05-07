@@ -183,7 +183,9 @@ void KUKA_IIWA_MODEL::SetThetas(const IIWAThetas& thetas)
 
 void GComponent::KUKA_IIWA_MODEL::setShaderProperty(MyShader & shader)
 {
+    shader.setMat4("model", getModelMatrix());
     shader.setVec3("color", _color);
+    shader.setBool("NormReverse", false);
 }
 
 void GComponent::KUKA_IIWA_MODEL::tick()

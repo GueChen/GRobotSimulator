@@ -1,13 +1,20 @@
+/**
+ *  @file  	rendermanager.cpp
+ *  @brief 	The Render Pass Implementations.
+ *  @author Gue Chen<guechen@buaa.edu.cn>
+ *  @date 	May 7, 2022
+ **/
 #include "manager/rendermanager.h"
 
 #include "manager/scenemanager.h"
 #include "manager/modelmanager.h"
 #include "model/model.h"
 
+#include <iostream>
 
 namespace GComponent {
-RenderManager::RenderManager() = default;
 
+/*__________________________PUBLIC METHODS____________________________________*/
 RenderManager::~RenderManager() = default;
 
 void RenderManager::PushRenderCommand(const RenderCommand & command)
@@ -20,6 +27,21 @@ void RenderManager::EmplaceRenderCommand(string obj_name, string shader_name, st
 	render_list_.emplace_back(obj_name, shader_name, mesh_name, uniform_name);
 }
 
+void RenderManager::PushAuxiRenderCommand(const RenderCommand& command)
+{
+	axui_render_list_.push_back(command);
+}
+
+void RenderManager::EmplaceAuxiRenderCommand(string obj_name, string shader_name, string mesh_name, string uniform_name)
+{
+	axui_render_list_.emplace_back(obj_name, shader_name, mesh_name, uniform_name);
+}
+
+void RenderManager::SetPickingController(PickingController& controller)
+{
+	picking_controller_handle_ = controller;
+}
+
 void RenderManager::SetGL(const shared_ptr<MyGL>& gl)
 {
 	gl_ = gl;
@@ -28,58 +50,111 @@ void RenderManager::SetGL(const shared_ptr<MyGL>& gl)
 void RenderManager::tick()
 {
 	
-	//ClearGL();
-
 	PickingPass();
 
-	//ClearGL();
+	ClearGLScreenBuffer(0.0f, 0.0f, 0.2f, 1.0f);
 
 	RenderingPass();
 
 	AuxiliaryPass();
 
-	//ClearGL();
-
 	PostProcessPass();
+
+	Clear();
 }
 
+/*_____________________________PROTECTED METHODS__________________________________________*/
+RenderManager::RenderManager() = default;
 
-void RenderManager::ClearGL()
+
+/*_____________________________PRIVATE METHODS____________________________________________*/
+void RenderManager::Clear()
+{
+	ClearList();
+	if (picking_controller_handle_) picking_controller_handle_ = std::nullopt;
+}
+
+void RenderManager::ClearGLScreenBuffer(float r, float g, float b, float a)
 {
 	gl_->glEnable(GL_DEPTH_TEST);
-	gl_->glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
+	gl_->glClearColor(r, g, b, a);
 	gl_->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void RenderManager::ClearList()
+{
+	render_list_.clear();
+	axui_render_list_.clear();
 }
 
 void RenderManager::PickingPass()
 {
+	if (!picking_controller_handle_) return;
 	SceneManager& scene_manager = SceneManager::getInstance();
 	ModelManager& model_manager = ModelManager::getInstance();
+
+	PickingGuard picking_guard(picking_controller_handle_.value());
+	ClearGLScreenBuffer(0.0f, 0.0f, 0.0f, 1.0f);
+
+	auto dir_light_pass_obj_getor = [](const std::string& name) {
+		return ModelManager::getInstance().GetModelByName(name);
+	};
+	PassSpecifiedListPicking(PassType::DirLightPass, render_list_, dir_light_pass_obj_getor);
+
+	auto auxi_obj_getor = [](const std::string& name) {
+		return ModelManager::getInstance().GetAuxiModelByName(name);
+	};
+	DisableGuard guard(gl_.get(), GL_DEPTH_TEST);
+	PassSpecifiedListPicking(PassType::AuxiliaryPass, axui_render_list_, auxi_obj_getor);
+}
+
+void RenderManager::PassSpecifiedListPicking(PassType draw_index_type, list<RenderCommand>& list, function<Model* (const std::string&)> ObjGetter)
+{
+	SceneManager& scene_manager = SceneManager::getInstance();
+	ModelManager& model_manager = ModelManager::getInstance();
+	for (auto& [obj_name, shader_name, mesh_name, uniform_name] : list) {
+		MyShader*		picking_shader	= scene_manager.GetShaderByName("picking");
+		MeshComponent*	mesh			= scene_manager.GetMeshByName(mesh_name);
+		Model*			obj				= ObjGetter(obj_name);
+
+		picking_shader->use();
+		picking_shader->setUint("gDrawIndex",  static_cast<unsigned>(draw_index_type));
+		picking_shader->setUint("gModelIndex", obj->model_id_);
+		obj->setShaderProperty(*picking_shader);
+		if (mesh) mesh->Draw();
+	}
+}
+
+void RenderManager::PassSpecifiedListNormal(std::list<RenderCommand>& list, std::function<Model* (const std::string&)> ObjGetter)
+{
+	SceneManager& scene_manager = SceneManager::getInstance();
+	ModelManager& model_manager = ModelManager::getInstance();
+	for (auto& [obj_name, shader_name, mesh_name, uniform_name] : list) {
+
+		MyShader*      shader	= scene_manager.GetShaderByName(shader_name);	
+		MeshComponent* mesh		= scene_manager.GetMeshByName(mesh_name);
+		Model*         obj		= ObjGetter(obj_name);
+
+		shader->use();
+		obj->setShaderProperty(*shader);
+		if (mesh) mesh->Draw();
+	}
 }
 
 void RenderManager::RenderingPass()
 {
-	SceneManager& scene_manager = SceneManager::getInstance();
-	ModelManager& model_manager = ModelManager::getInstance();
-	for (auto& [obj_name, shader_name, mesh_name, uniform_name] : render_list_) {
-
-		MyShader*	    shader	= scene_manager.GetShaderByName(shader_name);
-		Model*			obj		= model_manager.GetModelByName(obj_name);
-		MeshComponent*	mesh	= scene_manager.GetMeshByName(mesh_name);
-		
-		shader->use();
-		shader->setMat4("model", obj->getModelMatrix());
-		obj->setShaderProperty(*shader);
-		if(mesh) mesh->Draw();
-		// TODO: For other Shader Bind Value Pass
-	}
-	render_list_.clear();
+	auto obj_getor = [](const std::string& name) { 
+		return ModelManager::getInstance().GetModelByName(name); 
+	};
+	PassSpecifiedListNormal(render_list_, obj_getor);
 }
 void RenderManager::AuxiliaryPass()
 {
-	// TODO: draw Auxiliary render obj
-	// 1. draw axis
-	// 2. draw simplex mesh
+	auto obj_getor = [](const std::string& name) {
+		return ModelManager::getInstance().GetAuxiModelByName(name);
+	};
+	DisableGuard guard(gl_.get(), GL_DEPTH_TEST);
+	PassSpecifiedListNormal(axui_render_list_, obj_getor);
 }
 
 void RenderManager::PostProcessPass()

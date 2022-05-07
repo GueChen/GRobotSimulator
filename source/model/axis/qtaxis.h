@@ -1,8 +1,14 @@
 #ifndef _QTAXIS_H
 #define _QTAXIS_H
 
-#include  "model/model.h"
 #include  "component/mesh_component.h"
+#include  "render/myshader.h"
+#include  "model/model.h"
+
+#include <GComponent/GNumerical.hpp>
+
+#include <memory>
+#include <vector>
 
 enum class AxisMode {
 	Translation = 0,
@@ -18,19 +24,25 @@ enum class AxisSelected {
 };
 
 namespace GComponent {
+using std::shared_ptr;
+using std::vector;
+
 class QtGLAbstractAxis : public Model {
-protected:
-	MeshComponent mesh_component_;
 public:
-	QtGLAbstractAxis()	= default;
-	virtual ~QtGLAbstractAxis() override {}
-	inline unsigned GetStridedSize() { return mesh_component_.getElementSize() / 3; }
+	QtGLAbstractAxis() { shader_ = "axis"; };
+	virtual ~QtGLAbstractAxis() {}
+	unsigned		    GetStridedSize();
+
+	inline void			SetAxisSelected(AxisSelected which) { selected_which_ = which; }
+	inline AxisSelected GetAxisSelected() const				{ return selected_which_; }
 
 	void Init(int segments, float radius);
-	void setGL(const shared_ptr<MyGL>& other);
-	virtual void tick();
-
+	void tick() override;
+	[[deprecated]]
+	void Draw();
 protected:
+	void setShaderProperty(MyShader& shader) override;
+
 	void SetupXaxisCircle(int segments, float radius, float fixed_x, vector<Vertex>&);
 	void SetupYaxisVertex(const int count, vector<Vertex>&);
 	void SetupZaxisVertex(const int count, vector<Vertex>&);
@@ -38,37 +50,49 @@ protected:
 	void LinkTriangle(int strided, int base, int i1, int i2, int i3, vector<Triangle>&);
 	void LinkSquare(int strided, int base, int i1, int i2, int i3, int i4, vector<Triangle>&);
 
-	virtual std::vector<Vertex> SetupVertexData(int, float) = 0 {}
-	virtual std::vector<Triangle> SetupIndexData(int) = 0 {}
+	virtual vector<Vertex>   SetupVertexData(int, float) = 0 {}
+	virtual vector<Triangle> SetupIndexData(int)	     = 0 {}
+
+protected:
+	AxisSelected  selected_which_ = AxisSelected::None;
 };
 
 class QtGLTranslationAxis : public QtGLAbstractAxis {
 public:
-	QtGLTranslationAxis() = default;
+	QtGLTranslationAxis();
 	~QtGLTranslationAxis() = default;
 protected:
-	std::vector<Vertex>   SetupVertexData(int, float) override;
-	std::vector<Triangle> SetupIndexData(int)		  override;
+	vector<Vertex>   SetupVertexData(int, float)  override;
+	vector<Triangle> SetupIndexData(int)		  override;
+private:
+	static size_t count;
 };
+
 
 class QtGLRotationAxis : public QtGLAbstractAxis {
 public:
-	QtGLRotationAxis() = default;
+	QtGLRotationAxis();
 	~QtGLRotationAxis() = default;
 protected:
-	std::vector<Vertex>   SetupVertexData(int, float) override;
-	std::vector<Triangle> SetupIndexData(int)		  override;
+	vector<Vertex>   SetupVertexData(int, float)  override;
+	vector<Triangle> SetupIndexData(int)		  override;
+private:
+	static size_t count;
 };
 
 class QtGLScaleAxis : public QtGLAbstractAxis {
 public:
-	QtGLScaleAxis() = default;
+	QtGLScaleAxis();
 	~QtGLScaleAxis() = default;
 protected:
-	std::vector<Vertex>   SetupVertexData(int, float) override;
-	std::vector<Triangle> SetupIndexData(int)		  override;
+	vector<Vertex>   SetupVertexData(int, float)  override;
+	vector<Triangle> SetupIndexData(int)		  override;
+private:
+	static size_t count;
 };
+
 
 }
 
 #endif // !_QTAXIS_H
+

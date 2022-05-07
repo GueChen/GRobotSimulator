@@ -2,8 +2,6 @@
 #define MODEL_H
 
 #include "component/component.hpp"
-#include "manager/modelmanager.h"
-#include "manager/rendermanager.h"
 
 #include <glm/glm.hpp>
 
@@ -66,12 +64,12 @@ public:
 
 protected:
     void    updateChildrenMatrix();
-    virtual void setShaderProperty(MyShader & shader) {}
+    virtual void setShaderProperty(MyShader& shader);
 
 protected:
     /// Fields 数据域
     mat4 parent_model_mat_ = mat4(1.0f);
-    mat4 model_mat_  = mat4(1.0f);
+    mat4 model_mat_        = mat4(1.0f);
 
     Model * parent_;
     vector<pair<_pModel, mat4>> children_;

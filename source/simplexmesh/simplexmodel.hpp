@@ -30,7 +30,7 @@ public:
     /* 构造和析构 */
     SimplexModel() = default;
     virtual
-    ~SimplexModel() = 0 { ClearGL();};
+    ~SimplexModel() = 0 { ClearGLScreenBuffer();};
 
     /* 删除拷贝构造与赋值函数 */
     SimplexModel(const SimplexModel &) = delete;
@@ -83,13 +83,13 @@ public:
     setGL(const shared_ptr<MyGL> & other)
     {
         gl = other;
-        ClearGL();
+        ClearGLScreenBuffer();
         GLBufferInitialize();
         isInit = true;
     }
 
     void
-    ClearGL()
+    ClearGLScreenBuffer()
     {
         if(isInit)
         {

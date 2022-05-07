@@ -1,10 +1,9 @@
 /**
  *  @file  	scenemanager.h
- *  @brief 	The Resource Manager by this Class include shader¡¢mesh.
+ *  @brief 	The Resource Manager by this Class include shader, mesh Resources.
  *  @author Gue Chen<guechen@buaa.edu.cn>
  *  @date 	Apri 25, 2022
  **/
-
 #ifndef SCENEMANAGER_H
 #define SCENEMANAGER_H
 
@@ -42,6 +41,8 @@ class SceneManager : public SingletonBase<SceneManager>, public QObject
 public:
     ~SceneManager();
 
+    void EnablePickingMode();
+
     void RegisteredMesh(const string& name, MeshComponent* raw_ptr_mesh);
     void DeregisteredMesh(const string& name);
     MeshComponent* GetMeshByName(const string& name);
@@ -61,14 +62,10 @@ protected:
     SceneManager();
 
 private:
-    
-
     unordered_map <string, unique_ptr<QTimer>>              ui_update_timer_map_ = {};
     unordered_map <string, QOpenGLWidget*>                  draw_ui_map_         = {};
     unordered_map <string, unique_ptr<MeshComponent>>       mesh_map_            = {};
     unordered_map <string, unique_ptr<MyShader>>            shader_map_          = {};
-
-
 };
 
 }

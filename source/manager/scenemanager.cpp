@@ -13,7 +13,13 @@ namespace GComponent {
 
 	SceneManager::~SceneManager() = default;
 
-	void SceneManager::RegisteredMesh(const string& name, MeshComponent* raw_ptr_mesh) {
+	void SceneManager::EnablePickingMode()
+	{
+		shader_map_.emplace("picking", std::make_unique<MyShader>(this, PathVert(picking), PathFrag(picking)));
+	}
+
+	void SceneManager::RegisteredMesh(const string& name, MeshComponent* raw_ptr_mesh) 
+	{
 		DeregisteredMesh(name);
 		mesh_map_.emplace(name, unique_ptr<MeshComponent>(raw_ptr_mesh));
 	}

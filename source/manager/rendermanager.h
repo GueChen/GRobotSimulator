@@ -1,3 +1,9 @@
+/**
+ *  @file  	rendermanager.h
+ *  @brief 	This Class is responsible for all draw call and shader properties settings.
+ *  @author Gue Chen<guechen@buaa.edu.cn>
+ *  @date 	May 7, 2022
+ **/
 #ifndef _RENDERMANAGER_H
 #define _RENDERMANAGER_H
 
@@ -5,22 +11,30 @@
 
 #include "render/myshader.h"
 #include "render/mygl.hpp"
+#include "function/picking_helper.h"
 #include "component/mesh_component.h"
 
 #include <QtCore/QObject>
 
+#include <functional>
+#include <optional>
 #include <memory>
 #include <string>
-#include <variant>
-
 
 namespace GComponent {
 
-using std::string;
-using std::shared_ptr;
+class Model;
+class PickingController;
 
-struct ShaderBind {
-	std::list<std::pair<std::string, std::variant<bool, unsigned, int, float, double>>> m_bind_list;
+using std::list;
+using std::string;
+using std::function;
+using std::shared_ptr;
+using std::optional;
+
+enum class PassType {
+	DirLightPass  = 1,
+	AuxiliaryPass = 2
 };
 
 struct RenderCommand {
@@ -41,24 +55,48 @@ public:
 	void EmplaceRenderCommand(string obj_name, string shader_name, 
 							  string mesh_name, string uniform_name = "");
 	
+	void PushAuxiRenderCommand(const RenderCommand& command);
+	void EmplaceAuxiRenderCommand(
+							  string obj_name,  string shader_name,
+							  string mesh_name, string uniform_name = "");
+
+	void SetPickingController(PickingController& controller);
+
 	void SetGL(const shared_ptr<MyGL>& gl);
 	void tick();
 protected:
 	RenderManager();
 
 private:
-	void ClearGL();
-
+	void Clear();
+	void ClearGLScreenBuffer(float r, float g, float b, float a);
+	void ClearList();
+	
 	void PickingPass();
 	void RenderingPass();
 	void AuxiliaryPass();
 	void PostProcessPass();
 
+	void PassSpecifiedListPicking(PassType draw_index_type, list<RenderCommand>&, function<Model* (const std::string&)>ObjGetter);
+	void PassSpecifiedListNormal(list<RenderCommand>&,  function<Model*(const std::string&)>ObjGetter);
 
 private:
-	std::list<RenderCommand> render_list_;
+	list<RenderCommand>				axui_render_list_;
+	list<RenderCommand>				render_list_;
+	optional<PickingController>		picking_controller_handle_;
+	shared_ptr<MyGL>				gl_;
 
-	shared_ptr<MyGL>		 gl_;
+private:
+class DisableGuard {
+	public:
+		DisableGuard(MyGL * gl, unsigned short command): gl_(gl), command_(command) 
+		{ gl_->glDisable(command_); }
+		~DisableGuard()
+		{ gl_->glEnable(command_);  }
+	private:
+		MyGL* gl_;
+		unsigned short command_;
+	};
 };
 }
 

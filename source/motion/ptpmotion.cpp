@@ -59,10 +59,10 @@ JointCruveMsgPkg PTPMotion::GetCurvesFunction(KUKA_IIWA_MODEL * robot, const dou
     std::transform(thetas_delta.begin(),
                    thetas_delta.end(),
                    msg_list.begin(),
-                   [&A = Max_Acc_Limit, B = -Max_Acc_Limit*time_total](auto & C){
+                   [&GetThis = Max_Acc_Limit, B = -Max_Acc_Limit*time_total](auto & C){
                         return std::make_tuple(
                                     C < 0? -1:1,
-                                    (-B-std::sqrt(std::pow(B, 2) - 4 * A * std::abs(C))) / (2 * A),
+                                    (-B-std::sqrt(std::pow(B, 2) - 4 * GetThis * std::abs(C))) / (2 * GetThis),
                                     C);
                    }
     );

@@ -6,7 +6,12 @@
  **/
 #include "model/axis/qtaxis.h"
 
-#include "GComponent/GNumerical.hpp"
+#include "manager/rendermanager.h"
+#include "manager/scenemanager.h"
+
+size_t GComponent::QtGLTranslationAxis::count = 0;
+size_t GComponent::QtGLRotationAxis::count	  = 0;
+size_t GComponent::QtGLScaleAxis::count		  = 0;
 
 /*__________________ Abstract Axis ____________________*/
 /// <summary>
@@ -16,17 +21,28 @@
 /// <param name="radius">  {float} the Radius of Cone </param>
 void GComponent::QtGLAbstractAxis::Init(int segments, float radius)
 {
-	mesh_component_ = MeshComponent(SetupVertexData(segments, radius), SetupIndexData(segments), {});
+	SceneManager::getInstance().RegisteredMesh(mesh_, new MeshComponent(SetupVertexData(segments, radius), SetupIndexData(segments), {}));
 }
 
-
-void GComponent::QtGLAbstractAxis::setGL(const shared_ptr<MyGL>& other) {
-	mesh_component_.setGL(other);
+unsigned GComponent::QtGLAbstractAxis::GetStridedSize()
+{
+	return SceneManager::getInstance().GetMeshByName(mesh_)->getElementSize() / 3;
 }
 
 void GComponent::QtGLAbstractAxis::tick()
 {
-	mesh_component_.Draw();
+	RenderManager::getInstance().EmplaceAuxiRenderCommand(name_, shader_, mesh_);
+}
+
+void GComponent::QtGLAbstractAxis::Draw()
+{
+	SceneManager::getInstance().GetMeshByName(mesh_)->Draw();
+}
+
+void GComponent::QtGLAbstractAxis::setShaderProperty(MyShader& shader)
+{
+	shader.setMat4("model",	getModelMatrix());
+	shader.setInt( "selected", static_cast<int>(selected_which_));
 }
 
 void GComponent::QtGLAbstractAxis::SetupXaxisCircle(int segments, float radius, float fixed_x, vector<Vertex> & vertices)
@@ -112,6 +128,13 @@ void GComponent::QtGLAbstractAxis::LinkSquare(int strided, int base, int i1, int
 }
 
 /*__________________ Translation Axis ____________________*/
+GComponent::QtGLTranslationAxis::QtGLTranslationAxis()
+{
+	name_ = "trans_axis_" + std::to_string(count);
+	mesh_ = "trans_axis";
+	++count;
+}
+
 std::vector<GComponent::Vertex> GComponent::QtGLTranslationAxis::SetupVertexData(int segments, float radius)
 {
 	std::vector<Vertex> vertices;
@@ -128,7 +151,7 @@ std::vector<GComponent::Vertex> GComponent::QtGLTranslationAxis::SetupVertexData
 				 &	norm	= temp.Normal;
 		glm::vec2&	coord	= temp.TexCoords;
 
-		pos.x = -1.65f;
+		pos.x = -1.5f - 10.0f * radius;
 		pos.y = pos.z = 0.0f;
 
 		norm.x = -1.0f;
@@ -175,6 +198,13 @@ std::vector<GComponent::Triangle> GComponent::QtGLTranslationAxis::SetupIndexDat
 }
 
 /*__________________ Rotation Axis ____________________*/
+GComponent::QtGLRotationAxis::QtGLRotationAxis()
+{
+	name_ = "rotate_axis_" + std::to_string(count);
+	mesh_ = "rotate_axis"; 
+	++count;
+}
+
 std::vector<GComponent::Vertex> GComponent::QtGLRotationAxis::SetupVertexData(int segments, float radius)
 {
 	vector<Vertex> vertices;
@@ -204,6 +234,13 @@ std::vector<GComponent::Triangle> GComponent::QtGLRotationAxis::SetupIndexData(i
 }
 
 /*__________________ Scale Axis ____________________*/
+GComponent::QtGLScaleAxis::QtGLScaleAxis()
+{
+	name_ = "scale_axis_" + std::to_string(count);
+	mesh_ = "scale_axis"; 
+	++count;
+}
+
 std::vector<GComponent::Vertex> GComponent::QtGLScaleAxis::SetupVertexData(int segments, float radius)
 {
 	vector<Vertex> vertices;
