@@ -1,6 +1,8 @@
 #include "model.h"
 
+#include "manager/modelmanager.h"
 #include "manager/rendermanager.h"
+
 #include "render/myshader.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -8,7 +10,7 @@
 #include <iostream>
 #include <format>
 
-#define _DEBUG
+//#define _DEBUG
 
 using namespace GComponent;
 
@@ -57,12 +59,17 @@ void Model::updateChildrenMatrix()
     }
 }
 
+void GComponent::Model::setShaderProperty(MyShader& shader)
+{
+    shader.setMat4("model", getModelMatrix());
+}
+
 void GComponent::Model::tick()
 {
     //if (!parent_) {
         RenderManager::getInstance().EmplaceRenderCommand(name_, shader_, mesh_);
     //}
-#ifdef _DEBUG
+#ifdef _DEBUGGing
         std::cout << std::format("OBJ:[{: <25}] | SHADER:[{: <5}] | MESH:[{}]\n", name_, shader_, mesh_);
 #endif
    

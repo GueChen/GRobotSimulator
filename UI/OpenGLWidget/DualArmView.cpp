@@ -191,7 +191,7 @@ void DualArmView::cleanup()
     shaderMap.clear();
     for(auto & [name, model]: modelTable)
     {
-        model->ClearGL();
+        model->ClearGLScreenBuffer();
     }
 }
 

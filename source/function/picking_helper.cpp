@@ -2,16 +2,18 @@
 
 #include <iostream>
 
-GComponent::PickingHelper::PickingHelper() = default;
+#include <QtGui/QOpenGLContext>
 
-GComponent::PickingHelper::~PickingHelper() = default;
+GComponent::PickingController::PickingController() = default;
 
-void GComponent::PickingHelper::SetGL(const shared_ptr<MyGL> other)
+GComponent::PickingController::~PickingController() = default;
+
+void GComponent::PickingController::SetGL(const shared_ptr<MyGL>& other)
 {
 	gl_ = other;
 }
 
-bool GComponent::PickingHelper::Init(unsigned width, unsigned height)
+bool GComponent::PickingController::Init(unsigned width, unsigned height)
 {
 	CheckHaveInit();
 
@@ -46,18 +48,18 @@ bool GComponent::PickingHelper::Init(unsigned width, unsigned height)
 	return true;
 }
 
-void GComponent::PickingHelper::EnablePickingMode(unsigned default_FBO)
+void GComponent::PickingController::EnablePickingMode(unsigned default_FBO)
 {
 	gl_->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO_);
 	default_FBO_ = default_FBO;
 }
 
-void GComponent::PickingHelper::DisablePickintMode()
+void GComponent::PickingController::DisablePickintMode()
 {
 	gl_->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, default_FBO_);
 }
 
-GComponent::PickingPixelInfo GComponent::PickingHelper::GetPickingPixelInfo(unsigned u, unsigned v)
+GComponent::PickingPixelInfo GComponent::PickingController::GetPickingPixelInfo(unsigned u, unsigned v)
 {
 	gl_->glBindFramebuffer(GL_READ_FRAMEBUFFER, FBO_);
 	gl_->glReadBuffer(GL_COLOR_ATTACHMENT0);
@@ -71,7 +73,7 @@ GComponent::PickingPixelInfo GComponent::PickingHelper::GetPickingPixelInfo(unsi
 	return info;
 }
 
-void GComponent::PickingHelper::CheckHaveInit()
+void GComponent::PickingController::CheckHaveInit()
 {
 	if (have_init_) {
 		gl_->glDeleteFramebuffers(1, &FBO_);
@@ -81,4 +83,15 @@ void GComponent::PickingHelper::CheckHaveInit()
 		FBO_ = picking_texture_obeject_ = depth_texture_object_ = 0;
 		have_init_ = false;
 	}
+}
+
+GComponent::PickingGuard::PickingGuard(PickingController& controller):
+	controller_(controller)
+{
+	controller_.EnablePickingMode(QOpenGLContext::currentContext()->defaultFramebufferObject());
+}
+
+GComponent::PickingGuard::~PickingGuard()
+{
+	controller_.DisablePickintMode();
 }

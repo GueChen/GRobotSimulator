@@ -84,8 +84,8 @@ void ModelView::cleanup()
     gl->glDeleteBuffers(1, &uMBO);
     gl->glDeleteVertexArrays(1, &VAO);
 
-    lineObject->ClearGL();
-    curvesObject->ClearGL();
+    lineObject->ClearGLScreenBuffer();
+    curvesObject->ClearGLScreenBuffer();
     // ballObject->ClearGL();
 }
 // TODO: 写初始化

@@ -4,6 +4,11 @@
 
 #include <QtGUI/QOpenGLExtraFunctions>
 
+#ifdef _DEBUG
+#include <iostream>
+#include <format>
+#endif // _DEBUG
+
 using namespace GComponent;
 
 MeshComponent::MeshComponent(std::vector<Vertex> vertices, std::vector<Triangle> indices, std::vector<Texture> textures)
@@ -14,7 +19,6 @@ MeshComponent::MeshComponent(std::vector<Vertex> vertices, std::vector<Triangle>
     VAO = 0;
 }
 
-// TODO: 需要添加一个引用计数
 MeshComponent::~MeshComponent()
 {
     CheckClearGL();
@@ -42,6 +46,10 @@ void MeshComponent::setupMesh()
         /* 标志位置true */
         HaveSetup = true;
     }
+#ifdef _DEBUG
+    std::cout << std::format("VAO:[{: >5}]| VBO:[{: >5}]| EBO:[{: >5}]| gl:{}\n", VAO, VBO, EBO, QOpenGLContext::currentContext()->defaultFramebufferObject());
+#endif // _DEBUG
+
 }
 
 void MeshComponent::setGL(const std::shared_ptr<MyGL>& other)
