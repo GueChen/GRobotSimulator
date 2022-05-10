@@ -9,7 +9,6 @@
 #include <memory>
 #include <unordered_map>
 
-
 namespace GComponent {
 
 class Model;
@@ -23,8 +22,8 @@ using std::shared_ptr;
 using vec3 = glm::vec3;
 using mat4 = glm::mat4;
 using std::unordered_map;
-
 using _pModel = Model*;
+using _Child  = pair<_pModel, mat4>;
 
 class Model
 {
@@ -41,28 +40,32 @@ public:
     virtual 
     void    Draw(MyShader * shader);
 
-    void    appendChild(const _pModel& pchild, mat4 transform = mat4(1.0f));
-    const   vector<pair<_pModel, mat4>>& getChildren() const;
+    void            appendChild(const _pModel& pchild, mat4 transform = mat4(1.0f));
+    inline const   
+    vector<_Child>& getChildren() const { return children_; }
 
-    void           setModelMatrix(const mat4 & mat);
-    inline mat4    getModelMatrix() const               { return parent_model_mat_ * model_mat_; }
+    bool            eraseChild(int idx);
 
-    inline void    setMesh(const string & mesh_name)    { mesh_ = mesh_name;}
-    inline string  getMesh()        const               { return mesh_;}
+    void            setModelMatrix(const mat4 & mat);
+    inline mat4     getModelMatrix() const               { return parent_model_mat_ * model_mat_; }
 
-    inline void    setName(const string & name)         { name_ = name;}
-    inline string  getName()        const               { return name_;}
+    inline void     setMesh(const string & mesh_name)    { mesh_ = mesh_name;}
+    inline string   getMesh()        const               { return mesh_;}
 
-    inline void    setShader(const string& shader_name) { shader_ = shader_name;}
-    inline string  getShader()      const               { return shader_;}
+    inline void     setName(const string & name)         { name_ = name;}
+    inline string   getName()        const               { return name_;}
 
-    inline void    setParent(Model * parent)            { parent_ = parent;}
-    inline Model*  getParent()      const               { return parent_;}
+    inline void     setShader(const string& shader_name) { shader_ = shader_name;}
+    inline string   getShader()      const               { return shader_;}
 
-    void    setAxis(vec3 axis);
+    inline void     setParent(Model * parent)            { parent_ = parent;}
+    inline Model*   getParent()      const               { return parent_;}
+
+    inline void     setAxis(vec3 axis)                   { axis_ = axis; }
     void    setRotate(float angle);
 
 protected:
+    int     getChildIndex(_pModel ptr);
     void    updateChildrenMatrix();
     virtual void setShaderProperty(MyShader& shader);
 
@@ -71,8 +74,8 @@ protected:
     mat4 parent_model_mat_ = mat4(1.0f);
     mat4 model_mat_        = mat4(1.0f);
 
-    Model * parent_;
-    vector<pair<_pModel, mat4>> children_;
+    _pModel parent_;
+    vector<_Child> children_;
 
     /// Structure 结构相关
     int     model_id_;
@@ -85,7 +88,7 @@ protected:
     float angle_ = 0.0;
 
     // TODO : 将原本的体系进行替换完善
-    /*void tick() {};
+    /*
     void AddComponent(const Component& component);
     void DelComponent(string name);
 

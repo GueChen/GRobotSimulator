@@ -69,7 +69,7 @@ namespace GComponent {
 
 		QTimer* timer = new QTimer(ui_handle);
 		connect(timer, &QTimer::timeout, [ui_handle]() {ui_handle->update(); });
-		timer->start(10);
+		timer->start(5);
 		ui_update_timer_map_.emplace(name, unique_ptr<QTimer>(timer));
 	}
 

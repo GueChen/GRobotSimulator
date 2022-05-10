@@ -4,7 +4,6 @@
  *  @author Gue Chen<guechen@buaa.edu.cn>
  *  @date 	May 6th, 2022
  **/
-
 #ifndef _UISTATE_H
 #define _UISTATE_H
 
@@ -13,6 +12,8 @@
 #include "function/picking_helper.h"
 
 #include <glm/glm.hpp>
+
+#include <QtCore/QObject>
 
 #include <mutex>
 #include <memory>
@@ -31,12 +32,23 @@ enum MouseButton {
 	MiddleButton	= 0x00000004
 };
 
+enum class KeyButtonState: size_t 
+{
+	None			= 0x0,
+	KeyW			= 0x1 << 0,
+	KeyS			= 0x1 << 1,
+	KeyA			= 0x1 << 2,
+	KeyD			= 0x1 << 3,
+	KeyDelete		= 0x1 << 30
+};
+
 enum {
 	NoneSelected = 0
 };
 
-class UIState
+class UIState : public QObject	
 {
+	Q_OBJECT
 public:
 	UIState(unsigned, unsigned);
 	~UIState()	= default;
@@ -51,10 +63,16 @@ public:
 
 	virtual void OnCursorMove(int mouse_pos_x, int mouse_pos_y);
 	virtual void OnMousePress(unsigned button_flags);
-	virtual void OnMouseReleasse(unsigned button_flags);
+	virtual void OnMouseRelease(unsigned button_flags);
 	virtual void OnMouseEnter();
 	virtual void OnMouseLeave();
+	virtual void OnKeyPress(size_t key_state);
+	virtual void OnKeyRelease(size_t key_state);
 	virtual void OnResize(int w, int h);
+
+signals:
+	void DeleteRequest(const string& msg);
+	void SelecteRequest(const string& msg);
 
 protected:
 	int			  m_mouse_pos_x		= -1;
@@ -68,6 +86,7 @@ protected:
 
 	unsigned	  m_width			= 0;
 	unsigned	  m_height			= 0;
+	size_t		  m_key_state		= static_cast<size_t>(KeyButtonState::None);
 	unsigned	  button_state		= MouseButton::NoButton;
 	
 private:

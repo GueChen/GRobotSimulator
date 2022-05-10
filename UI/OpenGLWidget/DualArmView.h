@@ -83,6 +83,7 @@ private:
     /* gl 函数指针*/
     shared_ptr<MyGL> gl;
     unsigned int uMBO;
+    unsigned int uLVBO;
     bool GLHasInit      = false;
     /* 相机模型 */
     unique_ptr<Camera> camera;

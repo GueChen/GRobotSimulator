@@ -1,9 +1,16 @@
+/**
+ *  @file  	treeitem.h
+ *  @brief 	Reference from editabletree item, a basic tree node class.
+ *  @author Gue Chen<guechen@buaa.edu.cn>
+ *  @date 	May 9th, 2022
+ **/
 #ifndef GCOMPONENT_TREEITEM_H
 #define GCOMPONENT_TREEITEM_H
 
 #include <QtCore/QVariant>
 
 #include <vector>
+#include <memory>
 
 namespace GComponent {
 
@@ -22,7 +29,7 @@ using _ConstRef = const TreeItem &;
 private:
     vector<QVariant> datas_;
     vector<_Ptr>     children_;
-    _RawPtr          parent_;
+    _RawPtr          parent_    = nullptr;
 
 /// Constructer 构造函数
 public:
@@ -35,12 +42,22 @@ public:
 /// Methods     成员函数
 public:
     void     ApeendChild(_RawPtr child);
-    _RawPtr  GetChild(int idx);
-    _RawPtr  GetParent();
-    QVariant GetData(int idx)           const;
-    int      IndexInParent()            const;
-    int      ChildrenSize()             const;
-    int      DataSize()                 const;
+    void     EraseChild(int idx);
+    void     ClearChildren();
+    bool     SetData(int idx, const QVariant& value);
+    bool     InsertDataTypes(int type_pos, int type_count);
+    bool     InsertChildren(int child_pos, int child_count, int type_count);
+    bool     RemoveDataTypes(int type_pos, int type_count);
+    bool     RemoveChildren(int child_pos, int child_count);
+
+    _RawPtr  SearchItemByData(const QVariant& data);
+
+    inline _RawPtr  GetChild(int idx)   const { return idx <= children_.size() && idx >= 0? children_[idx].get(): nullptr; }
+    inline _RawPtr  GetParent()         const { return parent_; }
+    inline QVariant GetData(int idx)    const { return idx <= datas_.size() && idx >= 0? datas_[idx]: QVariant(); }
+    inline int      IndexInParent()     const { return parent_ ? parent_->GetChildIndex(const_cast<_RawPtr>(this)) : -1; }
+    inline int      ChildrenSize()      const { return children_.size(); }
+    inline int      DataSize()          const { return datas_.size(); }
 
 private:
     int      GetChildIndex(_RawPtr child);

@@ -1,6 +1,7 @@
 #include "DualArmView.h"
 
 #include "manager/scenemanager.h"
+#include "manager/modelmanager.h"
 
 #include "render/camera.hpp"
 #include "render/myshader.h"
@@ -76,7 +77,8 @@ void DualArmView::setGL()
     makeCurrent();
 
     /* 初始化内存矩阵 */
-    uMBO = gl->genMatrices();
+    uMBO  = gl->genMatrices();
+    uLVBO = gl->genDirLightViewPos();
 
     /* 对着色器传递 GL 指针 */
     for(auto &[key, shader]:shaderMap)
@@ -121,8 +123,12 @@ void DualArmView::paintGL()
                                   (float)width() / height(),
                                   0.1f,
                                   1000.0f);
+    vec3 lightDir = vec3(-0.5f, -1.0f, -1.0f);
+    mat4 model = identity<mat4>();
+    lightDir = mat3(rotate(model, radians(camera->Yaw + 90.0f), vec3(0.0f, -1.0f, 0.0f))) * lightDir;
     gl->setMatrices(uMBO, projection, view);
-    mat4 model      = identity<mat4>();
+    gl->setDirLightViewPos(uLVBO, lightDir, vec3(1.0f), camera->Position);
+    model = mat4(1.0f);
     curShader->setMat4("model", model);
 
     makeCurrent();
@@ -131,13 +137,6 @@ void DualArmView::paintGL()
     curShader->release();
     curShader = shaderMap["Color"].get();
     curShader->use();
-
-    curShader->setVec3("viewPos", camera->Position);
-
-    vec3 lightDir = vec3(-0.5f, -1.0f, -1.0f);
-    lightDir      = mat3(rotate(model, radians(camera->Yaw + 90.0f), vec3(0.0f, -1.0f, 0.0f))) * lightDir;
-    curShader->setVec3("light.dir", lightDir);
-    curShader->setVec3("light.color", vec3(1.0f, 1.0f, 1.0f));
 
     robot->setLeftColor(vec3(0.75f, 0.55f, 0.70f));
     robot->setRightColor(vec3(0.55f, 0.75f, 0.70f));

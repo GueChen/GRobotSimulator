@@ -32,19 +32,12 @@ public:
 
 private slots:
     void on_TestPTPButton_clicked();
-
     void on_TestLINMotion_clicked();
-
     void on_TestCircMotion_clicked();
-
     void on_TestSPLMotion_clicked();
-
     void on_TestGPMMotion_clicked();
-
     void on_TestZEROMotion_clicked();
-
     void on_TestWLNMotion_clicked();
-
     void on_TestTightCoord_clicked();
 
 private:

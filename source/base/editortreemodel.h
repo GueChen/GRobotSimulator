@@ -1,13 +1,22 @@
+/**
+ *  @file  	editortreemodel.h
+ *  @brief 	A Tree Model use TreeItem class.
+ *  @author Gue Chen<guechen@buaa.edu.cn>
+ *  @date 	May 9th, 2022
+ **/
 #ifndef GCOMPONENT_EDITORTREEMODEL_H
 #define GCOMPONENT_EDITORTREEMODEL_H
+
+#include "base/treeitem.h"
 
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QModelIndex>
 #include <QtCore/QObject>
 
-namespace GComponent {
+#include <string>
 
-class TreeItem;
+namespace GComponent {
+using std::string;
 
 class EditorTreeModel : public QAbstractItemModel
 {
@@ -18,11 +27,6 @@ using _Item         = TreeItem;
 using _Ref          = EditorTreeModel &;
 using _ConstRef     = const EditorTreeModel &;
 Q_OBJECT;
-
-/// Fields      数据域
-private:
-_PtrItem root_;
-
 /// Constructor 构造函数
 public:
 explicit EditorTreeModel(const QString& data, QObject *parent = nullptr);
@@ -34,23 +38,59 @@ EditorTreeModel(_Ref)       = delete;
 /// Methods     成员函数
 // QAbstractItemModel interface
 public:
+/// Getter Methods 
 QModelIndex
     index(int idx_child, int idx_data, const QModelIndex &parent) const override;
 QModelIndex
-    parent(const QModelIndex &child)                      const override;
+    parent(const QModelIndex &child)                              const override;
 int
-    rowCount(const QModelIndex &parent)                   const override;
+    rowCount(const QModelIndex &parent)                           const override;
 int
-    columnCount(const QModelIndex &parent)                const override;
+    columnCount(const QModelIndex &parent)                        const override;
 QVariant
-    data(const QModelIndex &index, int role)              const override;
+    data(const QModelIndex &index, int role)                      const override;
 QVariant
     headerData(int section, Qt::Orientation orientation,
-               int role)                                  const override;
+               int role)                                          const override;
+Qt::ItemFlags 
+    flags(const QModelIndex& index)                               const override;
 
-private:
+/// Setter Methods
+bool
+    setData(const QModelIndex & index, const QVariant & value, 
+            int role = Qt::EditRole)                                    override;
+bool
+    setHeaderData(int section, Qt::Orientation orientation,
+                  const QVariant & value, int role = Qt::EditRole)      override;
+bool 
+    insertColumns(int position, int columns, 
+                  const QModelIndex & parent = QModelIndex())           override;
+bool
+    removeColumns(int position, int columns,
+                  const QModelIndex & parent = QModelIndex())           override;
+bool 
+    insertRows(int position, int rows,
+               const QModelIndex & parent = QModelIndex())              override;
+bool
+    removeRows(int position, int rows,
+               const QModelIndex & parent = QModelIndex())              override;
+
+protected:
+_RawPtrItem
+    getItem(const QModelIndex & index) const;
+_RawPtrItem
+    getItemByName(const string& name)  const;
+
 void
     setupModelData(const QString & data);
+
+public slots:
+void 
+    ResponseDeleteRequest(const string& delete_item_name);
+
+/// Fields      数据域
+private:
+    _PtrItem root_;
 };
 
 } // namespace GComponent

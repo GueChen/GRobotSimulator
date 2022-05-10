@@ -4,18 +4,17 @@
  *  @author Gue Chen<guechen@buaa.edu.cn>
  *  @date 	May 7th, 2022
  **/
-
-
 #include "manager/editor/uistatemanager.h"
 
 #include "manager/rendermanager.h"
 #include "manager/modelmanager.h"
 
+#include <exception>
+#ifdef _DEBUG
 #include <iostream>
 #include <format>
-#include <exception>
+#endif // !
 
-// #define _DEBUG
 
 GComponent::UIState::UIState(unsigned w, unsigned h):
 	m_width(w), m_height(h)
@@ -41,6 +40,32 @@ void GComponent::UIState::Init(int segments, float radius)
 
 void GComponent::UIState::tick()
 {
+
+	static bool has_response_delete = false;
+	if (!has_response_delete) 
+	{
+		if (m_key_state & static_cast<size_t>(KeyButtonState::KeyDelete) && selected_id != NoneSelected) 
+		{
+			has_response_delete = true;		
+			Model* obj = ModelManager::getInstance().GetModelByHandle(selected_id);
+			Model* parent_obj = obj->getParent();
+			while (parent_obj && parent_obj->getMesh().empty()) 
+			{
+				obj = parent_obj;
+				parent_obj = obj->getParent();
+			}
+			emit DeleteRequest(obj->getName());	
+			selected_id = NoneSelected;
+		}
+	}
+	else 
+	{
+		if (~m_key_state & static_cast<size_t>(KeyButtonState::KeyDelete)) 
+		{
+			has_response_delete = false;
+		}
+	}
+
 	if (is_enter_area) 
 	{
 		picking_msg_ = GetPickingPixelInfo();
@@ -51,7 +76,8 @@ void GComponent::UIState::tick()
 		picking_msg_ = std::nullopt;
 	}
 
-	if (selected_id != NoneSelected) {
+	if (selected_id != NoneSelected) 
+	{
 		switch (m_axis_mode) 
 		{
 			using enum AxisMode;
@@ -73,6 +99,7 @@ void GComponent::UIState::tick()
 		default:
 			throw std::exception("The AxisMode Not Define!");
 		}
+
 		Model* selected_obj = ModelManager::getInstance().GetModelByHandle(selected_id);
 		m_cur_axis->SetAxisSelected(m_axis_selected);
 		m_cur_axis->setModelMatrix(selected_obj->getModelMatrix() * glm::scale(glm::mat4(1.0f), scale));
@@ -98,7 +125,7 @@ void GComponent::UIState::tick()
 		m_axis_selected = AxisSelected::None;
 	}
 
-#ifdef _DEBUG
+#ifdef _DEBUGGING
 	if (picking_msg_)
 	{
 		auto & msg = picking_msg_.value();
@@ -161,7 +188,7 @@ void GComponent::UIState::OnMousePress(unsigned button_flag)
 	}
 }
 
-void GComponent::UIState::OnMouseReleasse(unsigned button_flag)
+void GComponent::UIState::OnMouseRelease(unsigned button_flag)
 {
 	button_state &= (~button_flag);
 	if (!(button_state & MouseButton::LeftButton))
@@ -178,6 +205,16 @@ void GComponent::UIState::OnMouseEnter()
 void GComponent::UIState::OnMouseLeave()
 {
 	is_enter_area = false;
+}
+
+void GComponent::UIState::OnKeyPress(size_t key_state)
+{
+	m_key_state |= key_state;
+}
+
+void GComponent::UIState::OnKeyRelease(size_t key_state)
+{
+	m_key_state &= ~key_state;
 }
 
 void GComponent::UIState::OnResize(int w, int h)

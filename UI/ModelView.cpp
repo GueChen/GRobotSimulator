@@ -3,6 +3,7 @@
 
 #include "ModelView.h"
 
+#include "render/myshader.h"
 #include "component/mesh_component.h"
 #include "function/modelloader.h"
 #include "simplexmesh/gline.h"
@@ -13,10 +14,10 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include <QtGUI/QMouseEvent>
 #include <QtCore/QMimeData>
 #include <QtCore/QCoreApplication>
 #include <QtOpenGL/QOpenGLShaderProgram>
-#include <QtGUI/QMouseEvent>
 
 #include <iostream>
 

@@ -19,6 +19,12 @@ ModelManager::ModelManager() = default;
 
 ModelManager::~ModelManager() = default;
 
+ModelManager& ModelManager::getInstance() 
+{
+    static ModelManager instance;
+    return instance;
+}
+
 bool ModelManager::RegisteredModel(string name, Model *ptr_model)
 {   
 
@@ -37,12 +43,16 @@ bool ModelManager::DeregisteredModel(size_t model_id)
 {
     auto iter = models_.find(model_id);
     if(iter == models_.end()) return false;
-    string name = model_handle_to_name_table_[model_id];
-    
+    /* Derigister Children */
+    for (auto& [child, _] : iter->second->getChildren()) 
+    {
+        DeregisteredModel(child->model_id_);
+    }
+    /* Derigister Model */
+    string name = model_handle_to_name_table_[model_id];    
     models_.erase(model_id);
     model_handle_to_name_table_.erase(model_id);
     model_name_to_handle_table_.erase(name);
-
     return true;
 }
 
@@ -102,11 +112,16 @@ Model* ModelManager::GetAuxiModelByName(string name) const
 
 void ModelManager::tickAll(float delta_time)
 {
-    for(auto && [id, model]: models_){
+    /* Deleted All Requester Models */
+    while (!deleted_queue_.empty()) 
+    {
+        DeregisteredModel(deleted_queue_.front());
+        deleted_queue_.pop();
+    }
+    /* Tick The Rest Models */
+    for(auto && [id, model]: models_)
+    {
         model->tick();
-#ifdef _DEBUGGing
-        std::cout << std::format("model tick from manager:{: <25}\n", model_handle_to_name_table_[id]);
-#endif // _DEBUG
     }
 }
 
@@ -151,6 +166,12 @@ void ModelManager::SetGL(const shared_ptr<MyGL>& gl)
     }
     matrices_UBO_         = gl_->genMatrices();
     ambient_observer_UBO_ = gl_->genDirLightViewPos();
+}
+
+/*____________________________________Slots Functions_________________________________________*/
+void ModelManager::ResponseDeleteRequest(const string& del_model_name) 
+{
+    deleted_queue_.push(model_name_to_handle_table_[del_model_name]);  
 }
 
 } // namespace GComponent

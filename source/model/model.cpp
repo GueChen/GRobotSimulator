@@ -18,17 +18,27 @@ Model::Model(Model * parent, const string & meshKey):
     mesh_(meshKey), parent_(parent)
 {}
 
-Model::~Model() = default;
+Model::~Model() 
+{
+    if (parent_) 
+    {
+        parent_->eraseChild(parent_->getChildIndex(this));
+    }
+    
+    parent_ = nullptr;
+}
+
+bool GComponent::Model::eraseChild(int idx)
+{
+    if (idx < 0 || idx >= children_.size()) return false;
+    children_.erase(children_.begin() + idx);
+    return true;
+}
 
 void Model::setModelMatrix(const mat4 &mat)
 {
     model_mat_ = mat;
     updateChildrenMatrix();
-}
-
-void Model::setAxis(vec3 axis)
-{
-    axis_ = axis;
 }
 
 void Model::setRotate(float angle)
@@ -42,12 +52,19 @@ void Model::appendChild(const _pModel &pchild, mat4 transform)
 {
     pchild->setParent(this);
     children_.emplace_back(std::make_pair(pchild, transform));
-    updateChildrenMatrix();
+    pchild->parent_model_mat_ = parent_model_mat_ * model_mat_ * transform;
+    pchild->updateChildrenMatrix();
 }
 
-const vector<pair<_pModel, mat4>>& Model::getChildren() const
+int GComponent::Model::getChildIndex(_pModel ptr)
 {
-    return children_;
+    for (int idx = 0; auto & [ptr_child, _] : children_) {
+        if (ptr_child == ptr) {
+            return idx;
+        }
+        ++idx;
+    }
+    return -1;
 }
 
 void Model::updateChildrenMatrix()
@@ -66,13 +83,10 @@ void GComponent::Model::setShaderProperty(MyShader& shader)
 
 void GComponent::Model::tick()
 {
-    //if (!parent_) {
-        RenderManager::getInstance().EmplaceRenderCommand(name_, shader_, mesh_);
-    //}
+    RenderManager::getInstance().EmplaceRenderCommand(name_, shader_, mesh_);
 #ifdef _DEBUGGing
         std::cout << std::format("OBJ:[{: <25}] | SHADER:[{: <5}] | MESH:[{}]\n", name_, shader_, mesh_);
-#endif
-   
+#endif   
 }
 
 void Model::Draw(MyShader * shader)

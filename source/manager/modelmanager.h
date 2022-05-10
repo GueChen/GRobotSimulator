@@ -4,7 +4,6 @@
  *  @author Gue Chen<guechen@buaa.edu.cn>
  *  @date   Apri 21, 2022
  **/
-
 #ifndef GCOMPONENT_MODELMANAGER_H
 #define GCOMPONENT_MODELMANAGER_H
 
@@ -15,8 +14,11 @@
 
 #include <Eigen/Dense>
 
+#include <QtCore/QObject>
+
 #include <string>
 #include <vector>
+#include <queue>
 #include <memory>
 #include <unordered_map>
 
@@ -24,16 +26,20 @@ namespace GComponent {
 
 using std::string;
 using std::vector;
+using std::queue;
 using std::unique_ptr;
 using std::shared_ptr;
 using std::unordered_map;
 
-class ModelManager: public SingletonBase<ModelManager>
+class ModelManager: public QObject
 {
-    friend class SingletonBase<ModelManager>;
+    Q_OBJECT
     NonCoyable(ModelManager)
 public:
-    virtual ~ModelManager();
+    static      
+    ModelManager& getInstance();
+
+    virtual     ~ModelManager();
 
     bool        RegisteredModel(string name, Model* ptr_model);
     bool        DeregisteredModel(size_t handle);
@@ -57,8 +63,14 @@ public:
 
     void tickAll(float delta_time);
 
+    inline const unordered_map<size_t, string>& GetModelsIDWithName() const { return model_handle_to_name_table_; }
+    inline const unordered_map<string, size_t>& GetModelsNameWithID() const { return model_name_to_handle_table_; }
+
 protected:
     ModelManager();
+
+public slots:
+    void ResponseDeleteRequest(const string& del_model_name);
 
 private:    
     /* Model Realated Terms 实例管理相关项 */
@@ -71,6 +83,8 @@ private:
     unordered_map<size_t, unique_ptr<Model>>  auxiliary_models_                     = {};
     unordered_map<string, size_t>             auxiliary_name_to_handle_table_       = {};
     unordered_map<size_t, string>             auxiliary_handle_to_name_table_       = {};
+    
+    queue<size_t>                             deleted_queue_                         = {};
     /* 值得考虑该三项是否移除或给其它对象保管 */
     vector<unique_ptr<Camera>>                cameras_                              = {};
     size_t                                    matrices_UBO_                         = 0;
