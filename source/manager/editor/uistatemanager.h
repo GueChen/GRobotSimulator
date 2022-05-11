@@ -72,22 +72,27 @@ public:
 
 signals:
 	void DeleteRequest(const string& msg);
-	void SelecteRequest(const string& msg);
+	void SelectRequest(const string& msg);
+
+public slots:
+	void ResponseSelectRequest(const string& select_obj_name);
+	void ResponseAxisModeChange(AxisMode mode);
 
 protected:
-	int			  m_mouse_pos_x		= -1;
-	int			  m_mouse_pos_y		= -1;
-	int			  selected_id		= 0;
+	int			  m_mouse_pos_x			= -1;
+	int			  m_mouse_pos_y			= -1;
+	int			  selected_id			= 0;
+	int			  selected_id_buffer	= 0;
 
-	bool		  model_selected    = false;
-	bool		  is_draged			= false;
-	bool		  is_enter_area		= false;
-	bool		  have_init			= false;
+	bool		  model_selected		= false;
+	bool		  is_draged				= false;
+	bool		  is_enter_area			= false;
+	bool		  have_init				= false;
 
-	unsigned	  m_width			= 0;
-	unsigned	  m_height			= 0;
-	size_t		  m_key_state		= static_cast<size_t>(KeyButtonState::None);
-	unsigned	  button_state		= MouseButton::NoButton;
+	unsigned	  m_width				= 0;
+	unsigned	  m_height				= 0;
+	size_t		  m_key_state			= static_cast<size_t>(KeyButtonState::None);
+	unsigned	  button_state			= MouseButton::NoButton;
 	
 private:
 	AxisMode	  m_axis_mode			= AxisMode::Translation;

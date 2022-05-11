@@ -1,10 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QtWidgets/QTabBar>
-
 #define __TEST__PLANNING
-
 #ifdef __TEST__PLANNING
 /// Just for Test Include
 #include "motion/GMotion"
@@ -16,6 +13,7 @@
 
 #include <QtWidgets/QGridLayout>
 #include <QWidget>
+#include <QtWidgets/QTabBar>
 #include <QtCharts/QLegend>
 #include <QtCharts/QValueAxis>
 #include <QtCharts/QChartView>
@@ -234,8 +232,6 @@ void MainWindow::on_TestSPLMotion_clicked()
 void MainWindow::on_TestGPMMotion_clicked()
 {
 #ifdef __TEST__PLANNING
-    Dialog.show();
-    auto && [ini, end] = Dialog.GetThetas();
 
     KUKA_IIWA_MODEL*
                 ptr_left = ui->mainArmView->getLeftRobot();
@@ -283,7 +279,6 @@ void MainWindow::on_TestGPMMotion_clicked()
     ui->mainArmView->addSimplexModel(    "Obst", make_unique<GBall>(pos_obst, 0.2f, 20));
     ui->mainArmView->addSimplexModel(    "Line", make_unique<GCurves>(curves));
 
-    std::for_each(ini.begin(), ini.end(), [](auto&&val){std::cout << " " << val;});
 #endif
 }
 

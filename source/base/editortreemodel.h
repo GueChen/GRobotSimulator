@@ -74,6 +74,10 @@ bool
 bool
     removeRows(int position, int rows,
                const QModelIndex & parent = QModelIndex())              override;
+QModelIndex
+    getIndexByName(const string& name);
+void 
+    removeData(const string& delete_item_name);
 
 protected:
 _RawPtrItem
@@ -84,9 +88,7 @@ _RawPtrItem
 void
     setupModelData(const QString & data);
 
-public slots:
-void 
-    ResponseDeleteRequest(const string& delete_item_name);
+
 
 /// Fields      数据域
 private:

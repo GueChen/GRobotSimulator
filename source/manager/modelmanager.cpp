@@ -70,6 +70,20 @@ Model* ModelManager::GetModelByName(string name) const
     return GetModelByHandle(iter->second);
 }
 
+size_t ModelManager::GetIDByName(const string& name) const
+{
+    auto iter = model_name_to_handle_table_.find(name);
+    if (iter == model_name_to_handle_table_.end()) return 0;
+    return iter->second;
+}
+
+string ModelManager::GetNameByID(size_t handle) const
+{
+    auto iter = model_handle_to_name_table_.find(handle);
+    if (iter == model_handle_to_name_table_.end()) return "";
+    return iter->second;
+}
+
 bool ModelManager::RegisteredAuxiModel(string name, Model* ptr_model)
 {
     ptr_model->model_id_ = next_auxiliary_id_;

@@ -15,7 +15,6 @@
 #include <format>
 #endif // !
 
-
 GComponent::UIState::UIState(unsigned w, unsigned h):
 	m_width(w), m_height(h)
 {
@@ -24,8 +23,8 @@ GComponent::UIState::UIState(unsigned w, unsigned h):
 	m_rotation_axis		= new QtGLRotationAxis;
 
 	ModelManager::getInstance().RegisteredAuxiModel(m_translation_axis->getName(), m_translation_axis);
-	ModelManager::getInstance().RegisteredAuxiModel(m_rotation_axis->getName(),	   m_scale_axis);
-	ModelManager::getInstance().RegisteredAuxiModel(m_scale_axis->getName(),       m_rotation_axis);
+	ModelManager::getInstance().RegisteredAuxiModel(m_rotation_axis->getName(),	   m_rotation_axis);
+	ModelManager::getInstance().RegisteredAuxiModel(m_scale_axis->getName(),       m_scale_axis);
 }
 
 void GComponent::UIState::Init(int segments, float radius)
@@ -40,7 +39,7 @@ void GComponent::UIState::Init(int segments, float radius)
 
 void GComponent::UIState::tick()
 {
-
+	/* Process Delete Action */
 	static bool has_response_delete = false;
 	if (!has_response_delete) 
 	{
@@ -73,6 +72,11 @@ void GComponent::UIState::tick()
 	}
 	else 
 	{
+		if (selected_id_buffer) 
+		{
+			selected_id = selected_id_buffer;
+			selected_id_buffer = NoneSelected;
+		}
 		picking_msg_ = std::nullopt;
 	}
 
@@ -100,10 +104,13 @@ void GComponent::UIState::tick()
 			throw std::exception("The AxisMode Not Define!");
 		}
 
-		Model* selected_obj = ModelManager::getInstance().GetModelByHandle(selected_id);
-		m_cur_axis->SetAxisSelected(m_axis_selected);
-		m_cur_axis->setModelMatrix(selected_obj->getModelMatrix() * glm::scale(glm::mat4(1.0f), scale));
-		m_cur_axis->tick();
+		if (Model* selected_obj = ModelManager::getInstance().GetModelByHandle(selected_id);
+			selected_obj)
+		{
+			m_cur_axis->SetAxisSelected(m_axis_selected);
+			m_cur_axis->setModelMatrix(selected_obj->getModelMatrix() * glm::scale(glm::mat4(1.0f), scale));
+			m_cur_axis->tick();
+		}
 	}
 
 	if(!is_draged)
@@ -142,8 +149,7 @@ void GComponent::UIState::tick()
 void GComponent::UIState::SetGL(const shared_ptr<MyGL>& gl)
 {
 	picking_controller.SetGL(gl);
-	picking_controller.Init(m_width, m_height);
-	
+	picking_controller.Init(m_width, m_height);	
 }
 
 GComponent::PickingPixelInfo GComponent::UIState::GetPickingPixelInfo()
@@ -166,7 +172,7 @@ void GComponent::UIState::OnMousePress(unsigned button_flag)
 		{
 			if (picking_msg_->drawID == static_cast<float>(PassType::DirLightPass)) 
 			{
-				selected_id = picking_msg_->modelID;
+				selected_id = picking_msg_->modelID;			
 			}
 			else if (picking_msg_->drawID == static_cast<float>(PassType::AuxiliaryPass)) 
 			{
@@ -176,7 +182,8 @@ void GComponent::UIState::OnMousePress(unsigned button_flag)
 			{
 				selected_id = 0;
 			}
-		}
+			emit SelectRequest(ModelManager::getInstance().GetNameByID(selected_id));
+		}		
 	}
 	if (button_state & MouseButton::RightButton) 
 	{
@@ -223,3 +230,13 @@ void GComponent::UIState::OnResize(int w, int h)
 	picking_controller.Init(m_width, m_height);
 }
 
+/*_____________________________________SLOT FUNCTIONS________________________________________________*/
+void GComponent::UIState::ResponseSelectRequest(const string& select_obj_name) 
+{
+	selected_id_buffer = ModelManager::getInstance().GetIDByName(select_obj_name);
+}
+
+void GComponent::UIState::ResponseAxisModeChange(AxisMode mode)
+{
+	m_axis_mode = mode;
+}

@@ -34,6 +34,7 @@ using std::unordered_map;
 class ModelManager: public QObject
 {
     Q_OBJECT
+
     NonCoyable(ModelManager)
 public:
     static      
@@ -45,6 +46,8 @@ public:
     bool        DeregisteredModel(size_t handle);
     Model*      GetModelByHandle(size_t handle)     const;
     Model*      GetModelByName(string name)         const;
+    size_t      GetIDByName(const string& name)     const;
+    string      GetNameByID(size_t handle)          const;
 
     bool        RegisteredAuxiModel(string name, Model* ptr_model);
     bool        DeregisteredAuxiModel(size_t handle);

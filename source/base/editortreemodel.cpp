@@ -10,6 +10,7 @@
 #endif // _DEBUG
 
 constexpr size_t DELETED_PTR = 0xdddddddddddddddd;
+constexpr size_t MaxDataSize = 100;
 
 namespace GComponent {
 
@@ -50,7 +51,7 @@ QModelIndex EditorTreeModel::parent(const QModelIndex &child) const
     }
 
     _RawPtrItem ptr_child   = getItem(child);
-    _RawPtrItem ptr_parent  = ptr_child && ptr_child->DataSize() ? 
+    _RawPtrItem ptr_parent  = ptr_child && ptr_child->DataSize() && ptr_child->DataSize() < MaxDataSize ?
                               ptr_child->GetParent() : nullptr;
     if(ptr_parent == root_.get() || !ptr_parent || !ptr_parent->ChildrenSize()){
         return QModelIndex();
@@ -165,6 +166,12 @@ bool EditorTreeModel::removeRows(int position, int rows, const QModelIndex& pare
     return result;
 }
 
+QModelIndex EditorTreeModel::getIndexByName(const string& name)
+{
+    _RawPtrItem ptr_item = getItemByName(name);    
+    return ptr_item? createIndex(ptr_item->IndexInParent(), 0, ptr_item) : QModelIndex();
+}
+
 EditorTreeModel::_RawPtrItem EditorTreeModel::getItem(const QModelIndex& index) const
 {
     if (index.isValid()) 
@@ -180,6 +187,19 @@ EditorTreeModel::_RawPtrItem EditorTreeModel::getItemByName(const string& name) 
 {
     _RawPtrItem ptr_item = root_->SearchItemByData(QVariant(QString::fromStdString(name)));
     return ptr_item;
+}
+
+void EditorTreeModel::removeData(const string& delete_item_name)
+{
+    _RawPtrItem ptr_item = getItemByName(delete_item_name);
+    if (ptr_item)
+    {
+        _RawPtrItem ptr_parent = ptr_item->GetParent();
+        if (ptr_parent)
+        {
+            removeRow(ptr_item->IndexInParent(), createIndex(ptr_parent->IndexInParent(), 0, ptr_parent));
+        }
+    }
 }
 
 void EditorTreeModel::setupModelData(const QString& data)
@@ -210,7 +230,7 @@ void EditorTreeModel::setupModelData(const QString& data)
         _RawPtrItem cur_node  = node_stack.top();        
         QStringList vals      = data_line.mid(pos).trimmed().split('\t', Qt::SkipEmptyParts);
         vector<QVariant> input(vals.begin(), vals.end());
-        TreeItem* new_node = new TreeItem(input, cur_node);
+        TreeItem* new_node    = new TreeItem(input, cur_node);
         cur_node->ApeendChild(new_node);
         node_stack.push(new_node);     
         count_stack.push(pos + 1);     
@@ -221,20 +241,6 @@ void EditorTreeModel::setupModelData(const QString& data)
     }
 }
 
-void EditorTreeModel::ResponseDeleteRequest(const string& delete_item_name)
-{
-    _RawPtrItem ptr_item = getItemByName(delete_item_name);
-    if (ptr_item) 
-    {
-        _RawPtrItem ptr_parent = ptr_item->GetParent();
-        if (ptr_parent)
-        {
-            removeRow(ptr_item->IndexInParent(), createIndex(ptr_parent->IndexInParent(), 0, ptr_parent));
-        }        
-    }
-#ifdef _DEBUG
-    std::cout << "The Tree Model Receive the Delete Request!\n";
-#endif // _DEBUG
-}
+
 
 } // namespace GComponent

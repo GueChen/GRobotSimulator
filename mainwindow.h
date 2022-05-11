@@ -47,6 +47,5 @@ private:
     Plot(QChart*, double, const std::function<vector<double>(double)>&, const std::string& legend = " ", const std::string& title = "");
     QChartView * m_chart;
     QChartView * m_vel_chart;
-    PathPlanningSettingDialog Dialog;
 };
 #endif // MAINWINDOW_H
