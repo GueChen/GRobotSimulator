@@ -3,10 +3,7 @@
 
 #include "simplexmesh/simplexmodel.hpp"
 
-#include "render/Vertex.hpp"
-
 #include <vector>
-
 
 namespace GComponent {
 
@@ -30,7 +27,6 @@ public:
 private:
     /* GL 资源初始化函数 */
     void GLBufferInitialize() override;
-
 };
 
 } // namespace GComponent

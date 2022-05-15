@@ -18,6 +18,10 @@ Model::Model(Model * parent, const string & meshKey):
     mesh_(meshKey), parent_(parent)
 {}
 
+Model::Model(const string & name, const string & mesh, const string & shader,const mat4 & model_mat, Model* parent) :
+    parent_(parent), name_(name), mesh_(mesh), shader_(shader), model_mat_(model_mat)
+{}
+
 Model::~Model() 
 {
     if (parent_) 

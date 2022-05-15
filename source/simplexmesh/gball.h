@@ -5,7 +5,6 @@
 
 #include "simplexmesh/simplexmodel.hpp"
 
-
 namespace GComponent {
 
 class GBall : public GComponent::SimplexModel

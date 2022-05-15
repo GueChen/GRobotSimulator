@@ -2,7 +2,7 @@
 #define SIMPLEXMODEL_HPP
 
 #include "model/model.h"
-
+#include "render/rendering_datastructure.hpp"
 #include "render/mygl.hpp"
 
 namespace GComponent{

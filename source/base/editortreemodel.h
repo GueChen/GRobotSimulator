@@ -71,9 +71,17 @@ bool
 bool 
     insertRows(int position, int rows,
                const QModelIndex & parent = QModelIndex())              override;
+bool 
+    insertRows(const vector<vector<QVariant>>& datas,
+               int position,
+               const QModelIndex & parent = QModelIndex());
+inline bool
+    insertRow(const vector<QVariant>& data, int position,
+              const QModelIndex& parent = QModelIndex()) { return insertRows({data}, position, parent); }
 bool
     removeRows(int position, int rows,
                const QModelIndex & parent = QModelIndex())              override;
+
 QModelIndex
     getIndexByName(const string& name);
 void 

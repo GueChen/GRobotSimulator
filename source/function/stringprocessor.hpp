@@ -11,7 +11,6 @@ using std::string;
 
 class StringProcessor
 {
-
 public:
     StringProcessor() = delete;
     static std::vector<std::string> Split(const std::string& s, char sparse = ' ')
@@ -30,7 +29,6 @@ public:
 
         return rval;
     }
-
 };
 
 } // namespace GComponent

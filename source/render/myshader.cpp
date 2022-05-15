@@ -15,8 +15,7 @@ MyShader::MyShader(QObject * parent,
     if(geometryPath != "")
     {
         addShaderFromSourceFile(QOpenGLShader::Geometry, geometryPath.c_str());
-    }
-    link();
+    }  
 }
 
 MyShader::~MyShader() = default;
@@ -29,6 +28,7 @@ void MyShader::use() noexcept
 void MyShader::setGL(std::shared_ptr<MyGL> other)
 {
     gl = other;
+    link();
 }
 
 void MyShader::setBool(const std::string & name, bool value) noexcept

@@ -17,7 +17,9 @@ enum class CameraMoveMent{
     FORWARD,
     BACKWARD,
     LEFT,
-    RIGHT
+    RIGHT,
+    UP,
+    DOWN
 };
 
 // 默认值设置 Default Settings
@@ -104,7 +106,49 @@ public:
         {
             Position += Right * velocity;
         }
+        if (direction == CameraMoveMent::UP)
+        {
+            Position += Up * velocity;
+        }
+        if (direction == CameraMoveMent::DOWN)
+        {
+            Position -= Up * velocity;
+        }
+    }
 
+    void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true)
+    {
+        xoffset *= MouseSensitivity;
+        yoffset *= MouseSensitivity;
+
+        Yaw += xoffset;
+        Pitch += yoffset;
+
+        if (constrainPitch)
+        {
+            if (Pitch > 89.0f)
+            {
+                Pitch = 89.0f;
+            }
+            if (Pitch < -89.0f)
+            {
+                Pitch = -89.0f;
+            }
+        }
+        updateCameraVectors();
+    }
+
+    void ProcessMouseScroll(float yoffset)
+    {
+        Zoom -= (float)yoffset;
+        if (Zoom < 1.0f)
+        {
+            Zoom = 1.0f;
+        }
+        if (Zoom > 45.0f)
+        {
+            Zoom = 45.0f;
+        }
     }
 
     void Rotation(float yaw, float pitch, bool constrainPitch = true)

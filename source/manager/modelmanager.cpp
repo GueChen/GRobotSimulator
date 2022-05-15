@@ -33,9 +33,9 @@ bool ModelManager::RegisteredModel(string name, Model *ptr_model)
 
     model_name_to_handle_table_.emplace(name, next_model_id_);
     model_handle_to_name_table_.emplace(next_model_id_, name);
-    models_.emplace(next_model_id_, unique_ptr<Model>(ptr_model));
-
+    models_.emplace(next_model_id_, unique_ptr<Model>(ptr_model));    
     ++next_model_id_;
+    emit ModelRegisterNotice(name, ptr_model->parent_ ? ptr_model->parent_->name_ : "");
     return true;
 }
 

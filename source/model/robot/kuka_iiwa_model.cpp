@@ -5,10 +5,9 @@
 #include "manager/rendermanager.h"
 #include "render/mygl.hpp"
 #include "render/myshader.h"
-#include "component/mesh_component.h"
-
 #include "model/robot/joint.h"
-#include "function/modelloader.h"
+#include "component/mesh_component.h"
+#include "function/adapter/modelloader_qgladapter.h"
 
 #include <GComponent/GNumerical.hpp>
 #include <LSSolver/LinearSystemSolver.hpp>
@@ -75,34 +74,27 @@ void KUKA_IIWA_MODEL::InitializeResource()
     SceneManager& scene_manager = SceneManager::getInstance();
     ModelManager& model_manager = ModelManager::getInstance();
     if(!hasInit)
-    {
-       
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_base",    ModelLoader::getMeshPtr(cPathModel(IIWASource(base))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_1",  ModelLoader::getMeshPtr(cPathModel(IIWASource(link_1))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_2",  ModelLoader::getMeshPtr(cPathModel(IIWASource(link_2))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_3",  ModelLoader::getMeshPtr(cPathModel(IIWASource(link_3))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_4",  ModelLoader::getMeshPtr(cPathModel(IIWASource(link_4))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_5",  ModelLoader::getMeshPtr(cPathModel(IIWASource(link_5))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_6",  ModelLoader::getMeshPtr(cPathModel(IIWASource(link_6))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_flansch", ModelLoader::getMeshPtr(cPathModel("flanschExten.STL")));
+    {       
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_base",    QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(base))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_1",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_1))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_2",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_2))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_3",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_3))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_4",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_4))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_5",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_5))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_6",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_6))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_flansch", QGL::ModelLoader::getMeshPtr(cPathModel("flanschExten.STL")));
     }
 
     array<Model*, 8> models;
+    string count_str = "_" + std::to_string(count);
     for(int i = 0; i < 8; ++i)
     {
+        //string mesh_name = "kuka_iiwa_robot_link_" + std::to_string(i);
+        //string name = mesh_name + count_str;
+        //models[i] = new Model(name, mesh_name, "color", );
         models[i] = new Model;
     }
-    string count_str = std::to_string(count);
-    model_manager.RegisteredModel("kuka_iiwa_robot_"         + count_str, this);
-    model_manager.RegisteredModel("kuka_iiwa_robot_base_"    + count_str, models[0]);
-    model_manager.RegisteredModel("kuka_iiwa_robot_link1_"   + count_str, models[1]);
-    model_manager.RegisteredModel("kuka_iiwa_robot_link2_"   + count_str, models[2]);
-    model_manager.RegisteredModel("kuka_iiwa_robot_link3_"   + count_str, models[3]);
-    model_manager.RegisteredModel("kuka_iiwa_robot_link4_"   + count_str, models[4]);
-    model_manager.RegisteredModel("kuka_iiwa_robot_link5_"   + count_str, models[5]);
-    model_manager.RegisteredModel("kuka_iiwa_robot_link6_"   + count_str, models[6]);
-    model_manager.RegisteredModel("kuka_iiwa_robot_flansch_" + count_str, models[7]);
-
+    
     models[0]->setMesh("kuka_iiwa_robot_base");
     models[1]->setMesh("kuka_iiwa_robot_link_1");
     models[2]->setMesh("kuka_iiwa_robot_link_2");
@@ -140,6 +132,17 @@ void KUKA_IIWA_MODEL::InitializeResource()
     models[1]->appendChild(models[2], glm::translate(im, vec3(0.0f, 0.2025f, 0.0f)));
     models[0]->appendChild(models[1], glm::translate(im, vec3(0.0f, 0.1575f, 0.0f)));
     appendChild(models[0], im);
+
+    
+    model_manager.RegisteredModel("kuka_iiwa_robot_" + count_str, this);
+    model_manager.RegisteredModel("kuka_iiwa_robot_base_" + count_str, models[0]);
+    model_manager.RegisteredModel("kuka_iiwa_robot_link1_" + count_str, models[1]);
+    model_manager.RegisteredModel("kuka_iiwa_robot_link2_" + count_str, models[2]);
+    model_manager.RegisteredModel("kuka_iiwa_robot_link3_" + count_str, models[3]);
+    model_manager.RegisteredModel("kuka_iiwa_robot_link4_" + count_str, models[4]);
+    model_manager.RegisteredModel("kuka_iiwa_robot_link5_" + count_str, models[5]);
+    model_manager.RegisteredModel("kuka_iiwa_robot_link6_" + count_str, models[6]);
+    model_manager.RegisteredModel("kuka_iiwa_robot_flansch_" + count_str, models[7]);
 
     Joints.resize(7);
     Joints[0] = new Revolute(models[1]);
@@ -189,7 +192,7 @@ void GComponent::KUKA_IIWA_MODEL::setShaderProperty(MyShader & shader)
 }
 
 void GComponent::KUKA_IIWA_MODEL::tick()
-{
+{   
     RenderManager::getInstance().EmplaceRenderCommand(name_, shader_, mesh_, "color");
 }
 

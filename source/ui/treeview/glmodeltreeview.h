@@ -35,6 +35,7 @@ private:
 public slots:
 	void ResponseSelectRequest(const string& name);
 	void ResponseDeleteRequest(const string& name);
+	void ResponseCreateRequest(const string& name, const string& parent_name);
 
 private slots:
 	void SelectionChangeSlot(const QModelIndex& current, const QModelIndex& previous);

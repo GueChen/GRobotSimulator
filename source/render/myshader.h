@@ -10,6 +10,8 @@
 
 #define PathVert(name) ("./Shader/Vertex/"#name"Vert.vert")
 #define PathFrag(name) ("./Shader/Fragment/"#name"Frag.frag")
+#define PathVertString(name) ("./Shader/Vertex/"+ name +"Vert.vert")
+#define PathFragString(name) ("./Shader/Fragment/" + name +"Frag.frag")
 
 #define genShaderMap(name)                  \
 std::make_pair((#name),                     \

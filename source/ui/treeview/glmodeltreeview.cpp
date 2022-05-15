@@ -17,7 +17,9 @@ GLModelTreeView::GLModelTreeView(QWidget *parent)
     ui->setupUi(this);
     setFocusPolicy(Qt::ClickFocus);
     InitMenuActions();
-        
+    //m_tree_model = new GComponent::EditorTreeModel(GetTreeModelData());
+    m_tree_model = new GComponent::EditorTreeModel("");
+    setModel(m_tree_model);
     /* this << selection */
     connect(selectionModel(), &QItemSelectionModel::currentRowChanged, 
             this,             &GLModelTreeView::SelectionChangeSlot);
@@ -128,14 +130,11 @@ void GLModelTreeView::InitMenuActions()
     m_add_menu.addAction(capsule_create_action_);
     m_add_menu.addAction(plane_create_action_);
 
-    m_tree_model = new GComponent::EditorTreeModel(GetTreeModelData());
-    setModel(m_tree_model);
-
-    connect(cube_create_action_,     &QAction::triggered, [this]() { emit CreateRequest("Cube"); });
-    connect(sphere_create_action_,   &QAction::triggered, [this]() { emit CreateRequest("Sphere"); });
-    connect(cylinder_create_action_, &QAction::triggered, [this]() { emit CreateRequest("Cylinder"); });
-    connect(capsule_create_action_,  &QAction::triggered, [this]() { emit CreateRequest("Capsule"); });
-    connect(plane_create_action_,    &QAction::triggered, [this]() { emit CreateRequest("Plane"); });
+    connect(cube_create_action_,     &QAction::triggered, [this]() { emit CreateRequest("cube"); });
+    connect(sphere_create_action_,   &QAction::triggered, [this]() { emit CreateRequest("sphere"); });
+    connect(cylinder_create_action_, &QAction::triggered, [this]() { emit CreateRequest("cylinder"); });
+    connect(capsule_create_action_,  &QAction::triggered, [this]() { emit CreateRequest("capsule"); });
+    connect(plane_create_action_,    &QAction::triggered, [this]() { emit CreateRequest("plane"); });
     
     copy_action_->setEnabled(false);
     cut_action_->setEnabled(false);
@@ -154,6 +153,13 @@ void GLModelTreeView::ResponseDeleteRequest(const string& name)
 void GLModelTreeView::ResponseSelectRequest(const string& name)
 {
     setCurrentIndex(m_tree_model->getIndexByName(name));
+}
+
+void GLModelTreeView::ResponseCreateRequest(const string& name, const string& parent_name)
+{
+    QModelIndex parent = parent_name.empty()?QModelIndex():m_tree_model->getIndexByName(parent_name);
+    QVariant data = QString::fromStdString(name);
+    m_tree_model->insertRow(vector<QVariant>{data}, 0, parent);
 }
 
 void GLModelTreeView::SelectionChangeSlot(const QModelIndex& current, const QModelIndex& previous)

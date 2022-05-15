@@ -31,6 +31,7 @@ class Model
     friend class RenderManager;
 public:
     explicit Model(Model * parent = nullptr, const string & meshKey = "");
+    Model(const string& name, const string& mesh, const string& shader, const mat4& model_mat = mat4(1.0f), Model* parent =nullptr);
     virtual 
     ~Model();
 
@@ -70,6 +71,11 @@ protected:
     virtual void setShaderProperty(MyShader& shader);
 
 protected:
+    /// Modifies Some Translation
+    vec3 trans_;
+    vec3 rot_;
+    vec3 scale_;
+
     /// Fields 数据域
     mat4 parent_model_mat_ = mat4(1.0f);
     mat4 model_mat_        = mat4(1.0f);

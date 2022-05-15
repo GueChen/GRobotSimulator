@@ -5,8 +5,6 @@
 
 #include "render/rendering_datastructure.hpp"
 
-#include "render/Vertex.hpp"
-
 namespace GComponent {
 
 class MyGL;

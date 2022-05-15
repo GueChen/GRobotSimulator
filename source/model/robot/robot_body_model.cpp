@@ -1,6 +1,6 @@
 #include "robot_body_model.h"
-#include "function/modelloader.h"
 
+#include "function/adapter/modelloader_qgladapter.h"
 #include "component/mesh_component.h"
 #include "render/mygl.hpp"
 #include "render/myshader.h"
@@ -26,7 +26,7 @@ void ROBOT_BODY_MODEL::InitializeResource()
 {
     if(hasInit) return;
     Resource = std::make_unique<MeshComponent>(
-                ModelLoader::getMesh(sPathModel(string("body.STL"))));
+                QGL::ModelLoader::getMesh(sPathModel(string("body.STL"))));
     hasInit = true;
 }
 

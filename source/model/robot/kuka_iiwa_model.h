@@ -2,6 +2,7 @@
 #define KUKA_IIWA_MODEL_H
 
 #include "GComponent/GTransform.hpp"
+
 #include "model/model.h"
 
 #include <eigen3/Eigen/Dense>

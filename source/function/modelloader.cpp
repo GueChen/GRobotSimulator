@@ -5,36 +5,38 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
+#include <unordered_map>
 
 using namespace GComponent;
 
-
-std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::readFile(const std::string & filePath)
+std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::readFile(const std::string & file_path)
 {
-    size_t filter = filePath.find_last_of('.');
-    auto lenth = filePath.length();
-    auto fileType = filePath.substr(filter + 1, lenth - filter - 1);
-    auto fileName = filePath.substr(0, filter);
+    size_t filter = file_path.find_last_of('.');
+    auto lenth = file_path.length();
+    auto file_type = file_path.substr(filter + 1, lenth - filter - 1);
+    auto file_name = file_path.substr(0, filter);
 
-    std::cout << "File Name: " << fileName << std::endl;
-    std::cout << "File Type: " << fileType << std::endl;
-    if (fileType == "ply")
+    std::cout << "File Name: " << file_name << std::endl;
+    std::cout << "File Type: " << file_type << std::endl;
+    if (file_type == "ply")
     {
-        return readPlyFile(filePath);
+        return readPlyFile(file_path);
     }
-    if (fileType == "STL")
+    else if (file_type == "STL")
+    {        
+        return readSTLFile(file_path);
+    }
+    else if (file_type == "obj")
     {
-        std::cout << " is STL" << std::endl;
-        return readSTLFile(filePath);
+        return readOBJFile(file_path);
     }
     
 }
 
-std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::readPlyFile(const std::string & filePath)
+std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::readPlyFile(const std::string & file_path)
 {
     
-    auto content = getFileContent(filePath);
+    string content = getFileContent(file_path);
     
     size_t offset = 0, next = 0;
     int VertexLine = 0, FaceLine = 0;
@@ -65,8 +67,7 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::readPlyFile(
     }
     std::vector<vec3> Positions;
     std::vector<Triangle> Indices;
-    std::cout << "#Vertex Lines = " << VertexLine << std::endl;
-    std::cout << "#Face Lines = " << FaceLine << std::endl;
+   
     line = 0;
     while ((next = content.find('\n', offset)) != -1 && line < VertexLine)
     {
@@ -77,7 +78,7 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::readPlyFile(
         Positions.push_back(vec3(std::stof(vals[0]), std::stof(vals[1]), std::stof(vals[2])));
         line++;
     }
-    std::cout << "Vertex Line Over" << std::endl;
+   
     line = 0;
     while ((next = content.find('\n', offset)) != -1 && line < FaceLine)
     {
@@ -111,7 +112,6 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::readPlyFile(
         vertices[Indices[i].third].Normal  += norm;
     }
 
-
     // 法向量正则化 
     for (auto& vert : vertices)
     {
@@ -135,6 +135,7 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::readSTLFile(
         std::cout << "ERROR::MODELLOADER::FILE_NOT_SUCCESS_READ:\n"
             "The file name is:" << filePath << std::endl;
     }
+
     std::vector<vec3> normal;
     std::vector<vec3> pos;
     std::vector<Triangle> ind;
@@ -148,7 +149,7 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::readSTLFile(
             if (lineContent.find("facet") != -1)
             {
                 auto vals = StringProcessor::Split(lineContent);
-                vec3 norm = vec3(std::stof(vals[2]), std::stof(vals[3]), std::stof(vals[4]));
+                vec3 norm = -vec3(std::stof(vals[2]), std::stof(vals[3]), std::stof(vals[4]));
                 
                 // 为 Vertex 法线赋值
                 normal.push_back(norm);
@@ -187,32 +188,103 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::readSTLFile(
     return {vertices, ind};
 }
 
-MeshComponent ModelLoader::getMesh(const std::string &resource)
-{
-    auto && [Vs, Is] = ModelLoader::readFile(resource);
-    MeshComponent m(Vs, Is, std::vector<Texture>{});
-    return m;
-}
+std::tuple<std::vector<Vertex>, std::vector<Triangle>> GComponent::ModelLoader::readOBJFile(const std::string& file_path)
+{    
+    using namespace tinyobj;    
+    ObjReaderConfig config;  
+    ObjReader       reader;
 
-MeshComponent* GComponent::ModelLoader::getMeshPtr(const std::string& resource)
-{
-    auto&& [Vs, Is] = ModelLoader::readFile(resource);
-    return new MeshComponent(Vs, Is, std::vector<Texture>{});
+    config.mtl_search_path = "./";
+    if (!reader.ParseFromFile(file_path, config)) {
+        if (!reader.Error().empty()) {
+            std::cerr << "OBJ_FILE_READ_ERROR: " << reader.Error();
+            return {};
+        }
+    }
+
+    if (!reader.Warning().empty())
+    {
+        std::cout << "OBJ_FILE_WARNING: " << reader.Warning();
+    }
+
+    const attrib_t&               attrib    = reader.GetAttrib();
+    const std::vector<shape_t>    shapes    = reader.GetShapes();
+    const std::vector<material_t> materials = reader.GetMaterials();
+    
+    std::vector<Vertex>   vertices;
+    std::vector<Triangle> triangles;
+    std::unordered_map<Vertex, uint32_t> vertices_map;
+    uint32_t count = 0;
+    for (auto& shape : shapes) 
+    {
+        size_t index_count = 0;
+        vector<int> triangle(3, -1);
+        for (auto& index : shape.mesh.indices)
+        {
+            Vertex      vertex;
+            glm::vec3 & pos   = vertex.Position,
+                      & norm  = vertex.Normal;
+            glm::vec2 & coord = vertex.TexCoords;
+            /* Process Position */
+            pos.x = attrib.vertices[3 * index.vertex_index + 0];
+            pos.y = attrib.vertices[3 * index.vertex_index + 1];
+            pos.z = attrib.vertices[3 * index.vertex_index + 2];
+            /* Process Normal */
+            if (attrib.normals.size() >= 0)
+            {
+                norm.x = attrib.normals[3 * index.normal_index + 0];
+                norm.y = attrib.normals[3 * index.normal_index + 1];
+                norm.z = attrib.normals[3 * index.normal_index + 2];
+            }
+            else
+            {
+                norm.x = norm.y = norm.z = 0.0f;
+            }
+            /* Process Texcoord UV */
+            if (attrib.texcoords.size() >= 0)
+            {
+                coord.x = attrib.texcoords[2 * index.texcoord_index + 0];
+                coord.y = attrib.texcoords[2 * index.texcoord_index + 1];
+            }
+            else
+            {
+                coord.x = coord.y = 0.0f;
+            }
+
+            /* Not Contain the Vertex */
+            if (!vertices_map.count(vertex))
+            {
+                vertices_map.emplace(vertex, count);
+                vertices.push_back(vertex);
+                ++count;                
+            }            
+            triangle[index_count % 3] = vertices_map[vertex];
+
+            if (index_count == 2)
+            {
+                triangles.emplace_back(triangle[0], triangle[1], triangle[2]);
+                index_count = -1;
+            }
+            ++index_count;          
+        }
+    }
+
+    return {vertices, triangles};
 }
 
 std::string ModelLoader::getFileContent(const std::string& filePath)
 {
     std::string content;
-    std::ifstream plyFile;                          // 文件路径初始化
-    plyFile.exceptions(                             // 确保异常可抛出
+    std::ifstream ply_file;                          // 文件路径初始化
+    ply_file.exceptions(                             // 确保异常可抛出
         std::ifstream::failbit |
         std::ifstream::badbit);
     try {
-        plyFile.open(filePath);                     // 打开文件
-        std::stringstream fileStream;
-        fileStream << plyFile.rdbuf();
-        plyFile.close();
-        content = fileStream.str();
+        ply_file.open(filePath);                     // 打开文件
+        std::stringstream file_stream;
+        file_stream << ply_file.rdbuf();
+        ply_file.close();
+        content = file_stream.str();
     }
     catch (std::ifstream::failure e)
     {

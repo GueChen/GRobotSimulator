@@ -21,12 +21,14 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <list>
 
 namespace GComponent {
 
 /// Ç°ÖÃÉùÃ÷ Forward Declaration
 class MyGL;
 
+using std::list;
 using std::string;
 using std::vector;
 using std::unique_ptr;
@@ -57,7 +59,7 @@ public:
 
     void SetGL(const shared_ptr<MyGL>& gl);
 
-    void tick(float delta_ms);
+    void tick(const shared_ptr<MyGL>& gl);
 protected:
     SceneManager();
 
@@ -66,6 +68,8 @@ private:
     unordered_map <string, QOpenGLWidget*>                  draw_ui_map_         = {};
     unordered_map <string, unique_ptr<MeshComponent>>       mesh_map_            = {};
     unordered_map <string, unique_ptr<MyShader>>            shader_map_          = {};
+    list<string>                                            mesh_require_gl_     = {};
+    list<string>                                            shader_require_gl_   = {};
 };
 
 }

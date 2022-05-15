@@ -3,7 +3,6 @@
 #define MAINWINDOW_H
 
 #include <QtWidgets/QMainWindow>
-#include <UI/Dialog/PathPlanningSettingDialog.h>
 
 #include <unordered_map>
 #include <functional>

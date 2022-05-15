@@ -15,7 +15,14 @@ TreeItem::~TreeItem() {
 
 void TreeItem::ApeendChild(_RawPtr child)
 {
+    child->parent_ = this;
     children_.emplace_back(_Ptr(child));
+}
+
+void TreeItem::ApeendChild(const vector<QVariant>& datas)
+{
+    if (datas.size() != datas_.size()) return;
+    ApeendChild(new _Self(datas, this));
 }
 
 void TreeItem::EraseChild(int idx)
@@ -57,9 +64,19 @@ bool TreeItem::InsertChildren(int child_pos, int child_count, int type_count)
     if (child_pos < 0 || child_pos > children_.size()) return false;
     
     for (int i = 0; i < child_count; ++i) {
-        children_.insert(children_.end(), make_unique<_Self>(vector<QVariant>(type_count)));
+        children_.insert(children_.begin() + child_pos, make_unique<_Self>(vector<QVariant>(type_count), this));
     }
+    return true;
+}
 
+bool TreeItem::InsertChildren(const vector<vector<QVariant>>& children_datas, int child_pos)
+{
+    if (child_pos < 0 || child_pos > children_.size()) return false;    
+    for (auto& child_datas : children_datas)
+    {
+        children_.insert(children_.begin() + child_pos, make_unique<_Self>(child_datas, this));
+        ++child_pos;
+    }
     return true;
 }
 

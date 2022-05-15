@@ -82,7 +82,8 @@ QVariant EditorTreeModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
     _RawPtrItem ptr_item = getItem(index);
-    return ptr_item->GetData(index.column());
+    return ptr_item && ptr_item->DataSize() && ptr_item->DataSize() < MaxDataSize? 
+           ptr_item->GetData(index.column()) : QVariant();
 }
 
 QVariant EditorTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -146,11 +147,28 @@ bool EditorTreeModel::insertRows(int position, int rows, const QModelIndex& pare
     _RawPtrItem ptr_parent = getItem(parent);
     if (!ptr_parent) return false;
 
+    emit layoutAboutToBeChanged();
     beginInsertRows(parent, position, position + rows - 1);
     const bool result = ptr_parent->InsertChildren(position, rows, root_->DataSize());
     endInsertRows();
+    emit layoutChanged();
 
     return result;
+}
+
+bool EditorTreeModel::insertRows(const vector<vector<QVariant>>& datas, int position, const QModelIndex& parent)
+{
+    _RawPtrItem ptr_parent = getItem(parent);
+    if (!ptr_parent) return false;
+    for (auto& data : datas) if (data.size() != root_->DataSize()) return false;    
+    
+    emit layoutAboutToBeChanged();
+    beginInsertRows(parent, position, position + datas.size() - 1);
+    const bool result = ptr_parent->InsertChildren(datas, position);
+    endInsertRows();
+    emit layoutChanged();
+
+    return true;
 }
 
 bool EditorTreeModel::removeRows(int position, int rows, const QModelIndex& parent)

@@ -42,11 +42,13 @@ public:
 /// Methods     成员函数
 public:
     void     ApeendChild(_RawPtr child);
+    void     ApeendChild(const vector<QVariant>& datas);
     void     EraseChild(int idx);
     void     ClearChildren();
     bool     SetData(int idx, const QVariant& value);
     bool     InsertDataTypes(int type_pos, int type_count);
     bool     InsertChildren(int child_pos, int child_count, int type_count);
+    bool     InsertChildren(const vector<vector<QVariant>>& children_datas, int child_pos);
     bool     RemoveDataTypes(int type_pos, int type_count);
     bool     RemoveChildren(int child_pos, int child_count);
 

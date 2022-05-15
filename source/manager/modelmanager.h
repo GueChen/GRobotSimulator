@@ -72,6 +72,9 @@ public:
 protected:
     ModelManager();
 
+signals:
+    void ModelRegisterNotice(const string& model_name, const string& parent_name);
+
 public slots:
     void ResponseDeleteRequest(const string& del_model_name);
 
