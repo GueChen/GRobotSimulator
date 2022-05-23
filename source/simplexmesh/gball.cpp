@@ -60,7 +60,7 @@ void GBall::Draw(MyShader *shader)
 
 void GBall::setupMesh(int la, int lo)
 {
-    mesh = MeshComponent(setupVertex(la, lo), setupIndicies(la, lo), {});
+    mesh = RenderMesh(setupVertex(la, lo), setupIndicies(la, lo), {});
 }
 
 std::vector<Vertex> GBall::setupVertex(int la, int lo)

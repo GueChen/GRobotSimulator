@@ -12,8 +12,6 @@ class Joint;
 class KUKA_IIWA_MODEL;
 class ROBOT_BODY_MODEL;
 
-using std::unique_ptr;
-using std::shared_ptr;
 using std::array;
 using std::pair;
 using Ptr_KUKA_IIWA_MODEL = KUKA_IIWA_MODEL*;
@@ -25,22 +23,23 @@ class DUAL_ARM_PLATFORM: public Model
 public:
     explicit DUAL_ARM_PLATFORM(mat4 transform = mat4(1.0f));
     ~DUAL_ARM_PLATFORM() = default;
+
     void Draw(MyShader * shader) override;
+    
     void setLeftColor(const vec3 & color);
     void setRightColor(const vec3 & color);
 
-    JointsPair getJoints() const;
-    Ptr_KUKA_IIWA_MODEL getLeftRobot() const;
+    JointsPair          getJoints()     const;
+    Ptr_KUKA_IIWA_MODEL getLeftRobot()  const;
     Ptr_KUKA_IIWA_MODEL getRightRobot() const;
 
-    static void setGL(const shared_ptr<MyGL> & other);
 private:
     void InitializeModel();
 
 /// 数据域 Fields
 private:
-    shared_ptr<KUKA_IIWA_MODEL> _left, _right;
-    shared_ptr<ROBOT_BODY_MODEL> _body;
+    KUKA_IIWA_MODEL*  _left = nullptr, *_right = nullptr;
+    ROBOT_BODY_MODEL* _body = nullptr;
 };
 
 }

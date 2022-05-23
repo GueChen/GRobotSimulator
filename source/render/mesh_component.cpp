@@ -1,4 +1,4 @@
-#include "component/mesh_component.h"
+#include "render/rendermesh.h"
 
 #include "render/mygl.hpp"
 
@@ -11,22 +11,22 @@
 
 using namespace GComponent;
 
-MeshComponent::MeshComponent(std::vector<Vertex> vertices, std::vector<Triangle> indices, std::vector<Texture> textures)
+RenderMesh::RenderMesh(std::vector<Vertex> vertices, std::vector<Triangle> indices, std::vector<Texture> textures)
 {
     mesh_datas_.Vertices = vertices;
     mesh_datas_.Indices = indices;
     mesh_datas_.Textures = textures;
-    VAO = 0;
+    VAO_ = 0;
 }
 
-MeshComponent::~MeshComponent()
+RenderMesh::~RenderMesh()
 {
     CheckClearGL();
 }
 
-void MeshComponent::setupMesh()
+void RenderMesh::setupMesh()
 {
-    if (!HaveSetup) {
+    if (!is_setup_) {
         std::vector<Vertex>& Vertices = mesh_datas_.Vertices;
         std::vector<Triangle>& Indices = mesh_datas_.Indices;
 
@@ -35,24 +35,24 @@ void MeshComponent::setupMesh()
 
         /* 绑定 VAO、VBO 与 EBO */
         const size_t BufferSize = Vertices.size() * sizeof(Vertex);
-        std::tie(VAO, VBO) = gl->genVABO(&Vertices[0], BufferSize);
-        gl->glBindVertexArray(VAO);
-        EBO = gl->genEBO(Indices);
+        std::tie(VAO_, VBO_) = gl->genVABO(&Vertices[0], BufferSize);
+        gl->glBindVertexArray(VAO_);
+        EBO_ = gl->genEBO(Indices);
 
         /* 激活顶点数据 */
         gl->EnableVertexAttribArrays(3, 3, 2);
         gl->glBindVertexArray(0);
 
         /* 标志位置true */
-        HaveSetup = true;
+        is_setup_ = true;
     }
 #ifdef _DEBUG
-    std::cout << std::format("VAO:[{: >5}]| VBO:[{: >5}]| EBO:[{: >5}]| gl:{}\n", VAO, VBO, EBO, QOpenGLContext::currentContext()->defaultFramebufferObject());
+    std::cout << std::format("VAO:[{: >5}]| VBO:[{: >5}]| EBO:[{: >5}]| gl:{}\n", VAO_, VBO_, EBO_, QOpenGLContext::currentContext()->defaultFramebufferObject());
 #endif // _DEBUG
 
 }
 
-void MeshComponent::setGL(const std::shared_ptr<MyGL>& other)
+void RenderMesh::setGL(const std::shared_ptr<MyGL>& other)
 {
     /* 为 GL 指针传递 Context */
     gl = other;
@@ -64,21 +64,21 @@ void MeshComponent::setGL(const std::shared_ptr<MyGL>& other)
     setupMesh();
 }
 
-void MeshComponent::CheckClearGL()
+void RenderMesh::CheckClearGL()
 {
-    if (HaveSetup) {
-        gl->glDeleteBuffers(1, &VBO);
-        gl->glDeleteBuffers(1, &EBO);
-        gl->glDeleteVertexArrays(1, &VAO);
+    if (is_setup_) {
+        gl->glDeleteBuffers(1, &VBO_);
+        gl->glDeleteBuffers(1, &EBO_);
+        gl->glDeleteVertexArrays(1, &VAO_);
 
-        VAO = VBO = EBO = 0;
-        HaveSetup = false;
+        VAO_ = VBO_ = EBO_ = 0;
+        is_setup_ = false;
     }
 }
 
-void MeshComponent::Draw()
+void RenderMesh::Draw()
 {
-    gl->glBindVertexArray(VAO);
+    gl->glBindVertexArray(VAO_);
     gl->glDrawElements(GL_TRIANGLES, 3 * mesh_datas_.Indices.size(), GL_UNSIGNED_INT, 0);
     gl->glBindVertexArray(0);
 }

@@ -1,6 +1,6 @@
 #include "syncduallinemotion.h"
 #include "model/robot/kuka_iiwa_model.h"
-#include "function/conversion.h"
+#include "function/conversion.hpp"
 
 using namespace GComponent;
 
@@ -57,8 +57,8 @@ SyncDualLineMotion::GetTGoalTransforms(KUKA_IIWA_MODEL* p_robot_left, KUKA_IIWA_
     mat4 base_left    = p_robot_left->getModelMatrix(),
          base_right   = p_robot_right->getModelMatrix();
 
-    SE3d T_goal_left  = InverseSE3(Conversion::Mat4Glm2Eigen(base_left)) * T_goal_ * T_bias_left,
-         T_goal_right =InverseSE3(Conversion::Mat4Glm2Eigen(base_right)) * T_goal_ * T_bias_right;
+    SE3d T_goal_left  = InverseSE3(Conversion::toMat4d(base_left)) * T_goal_ * T_bias_left,
+         T_goal_right =InverseSE3(Conversion::toMat4d(base_right)) * T_goal_ * T_bias_right;
 
     return {T_goal_left, T_goal_right};
 }

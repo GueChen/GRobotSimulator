@@ -7,7 +7,7 @@
 namespace GComponent {
 
 class MyGL;
-class MeshComponent;
+class RenderMesh;
 class MyShader;
 
 using std::unique_ptr;
@@ -18,15 +18,21 @@ class ROBOT_BODY_MODEL: public Model
 public:
     explicit ROBOT_BODY_MODEL(mat4 transform = mat4(1.0f));
     ~ROBOT_BODY_MODEL() = default;
-    void Draw(MyShader * shader) override;
 
-    static void setGL(const shared_ptr<MyGL>& other);
+/// Tick Functions
+    void tick(float delta_time) override;
+
+    void Draw(MyShader * shader) override;
+protected:
+    void setShaderProperty(MyShader& shader) override;
+
 private:
     void InitializeResource();
 
-    // FIXME:见KUKA_IIWA_MODEL 以及 10-27 思考整合 Model 部分
-    static bool hasInit;
-    static unique_ptr<MeshComponent> Resource;
+    vec3        color_ = vec3(0.85f, 0.85f, 0.75f);
+
+    static bool is_init_;
+    static size_t count_;
 };
 
 }

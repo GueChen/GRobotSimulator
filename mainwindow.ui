@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1050</width>
-    <height>788</height>
+    <width>1498</width>
+    <height>991</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,121 +33,707 @@ background:rgba(255,65,65,255)
    <property name="styleSheet">
     <string notr="true"/>
    </property>
-   <layout class="QGridLayout" name="gridLayout">
-    <property name="leftMargin">
-     <number>4</number>
-    </property>
-    <property name="topMargin">
-     <number>4</number>
-    </property>
-    <property name="rightMargin">
-     <number>4</number>
-    </property>
-    <property name="bottomMargin">
-     <number>4</number>
-    </property>
-    <property name="spacing">
-     <number>2</number>
-    </property>
+   <layout class="QGridLayout" name="gridLayout_11">
     <item row="0" column="0">
-     <widget class="DualArmViewWidget" name="mainArmView" native="true"/>
+     <widget class="QWidget" name="widget" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QPushButton" name="check_button">
+           <property name="minimumSize">
+            <size>
+             <width>45</width>
+             <height>45</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>45</width>
+             <height>45</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton{
+color: black;
+border-left: 		 	1px solid rgb(255, 255, 255);
+border-top: 		 	1px solid rgb(255, 255, 255);
+border-right: 		2px solid rgb(100, 100, 100);
+border-bottom: 	2px solid rgb(100, 100, 100);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 #f6f7fa, stop: 1 #dadbde);
+}
+QPushButton::hover{
+color: black;
+border-left: 		 	1px solid rgb(175, 205, 255);
+border-top: 		 	1px solid rgb(175, 205, 255);
+border-right: 		2px solid rgb(100, 155, 205);
+border-bottom: 	2px solid rgb(100, 155, 205);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 rgb(205, 235, 255), stop: 1 rgb(100, 155, 205));
+}
+QPushButton::pressed{
+color: rgb(55, 0, 25);
+border-left: 		 	2px outset rgb(225, 50, 50);
+border-top: 		 	2px outset rgb(225, 50, 50);
+border-right: 		3px outset rgb(150, 25, 25);
+border-bottom: 	3px outset rgb(205, 45, 45);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 rgb(165, 185, 235), stop: 1 rgb(50, 135, 175));
+}
+QPushButton::checked{
+color: rgb(55, 25, 0);
+border-left: 		 	2px outset rgb(225, 50, 50);
+border-top: 		 	2px outset rgb(225, 50, 50);
+border-right: 		3px outset rgb(150, 25, 25);
+border-bottom: 	3px outset rgb(205, 45, 45);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 rgb(205, 235, 255), stop: 1 rgb(100, 155, 205));
+}
+QPushButton::unchecked{
+color: black;
+border-left: 		 	1px solid rgb(255, 255, 255);
+border-top: 		 	1px solid rgb(255, 255, 255);
+border-right: 		2px solid rgb(100, 100, 100);
+border-bottom: 	2px solid rgb(100, 100, 100);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 #f6f7fa, stop: 1 #dadbde);
+}</string>
+           </property>
+           <property name="text">
+            <string>check</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <property name="default">
+            <bool>false</bool>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">operation_button_group</string>
+           </attribute>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="trans_button">
+           <property name="minimumSize">
+            <size>
+             <width>45</width>
+             <height>45</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>45</width>
+             <height>45</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton{
+color: black;
+border-left: 		 	1px solid rgb(255, 255, 255);
+border-top: 		 	1px solid rgb(255, 255, 255);
+border-right: 		2px solid rgb(100, 100, 100);
+border-bottom: 	2px solid rgb(100, 100, 100);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 #f6f7fa, stop: 1 #dadbde);
+}
+QPushButton::hover{
+color: black;
+border-left: 		 	1px solid rgb(175, 205, 255);
+border-top: 		 	1px solid rgb(175, 205, 255);
+border-right: 		2px solid rgb(100, 155, 205);
+border-bottom: 	2px solid rgb(100, 155, 205);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 rgb(205, 235, 255), stop: 1 rgb(100, 155, 205));
+}
+QPushButton::pressed{
+color: rgb(55, 0, 25);
+border-left: 		 	2px outset rgb(225, 50, 50);
+border-top: 		 	2px outset rgb(225, 50, 50);
+border-right: 		3px outset rgb(150, 25, 25);
+border-bottom: 	3px outset rgb(205, 45, 45);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 rgb(165, 185, 235), stop: 1 rgb(50, 135, 175));
+}
+QPushButton::checked{
+color: rgb(55, 25, 0);
+border-left: 		 	2px outset rgb(225, 50, 50);
+border-top: 		 	2px outset rgb(225, 50, 50);
+border-right: 		3px outset rgb(150, 25, 25);
+border-bottom: 	3px outset rgb(205, 45, 45);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 rgb(205, 235, 255), stop: 1 rgb(100, 155, 205));
+}
+QPushButton::unchecked{
+color: black;
+border-left: 		 	1px solid rgb(255, 255, 255);
+border-top: 		 	1px solid rgb(255, 255, 255);
+border-right: 		2px solid rgb(100, 100, 100);
+border-bottom: 	2px solid rgb(100, 100, 100);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 #f6f7fa, stop: 1 #dadbde);
+}</string>
+           </property>
+           <property name="text">
+            <string>trans</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">operation_button_group</string>
+           </attribute>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="rot_button">
+           <property name="minimumSize">
+            <size>
+             <width>45</width>
+             <height>45</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>45</width>
+             <height>45</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton{
+color: black;
+border-left: 		 	1px solid rgb(255, 255, 255);
+border-top: 		 	1px solid rgb(255, 255, 255);
+border-right: 		2px solid rgb(100, 100, 100);
+border-bottom: 	2px solid rgb(100, 100, 100);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 #f6f7fa, stop: 1 #dadbde);
+}
+QPushButton::hover{
+color: black;
+border-left: 		 	1px solid rgb(175, 205, 255);
+border-top: 		 	1px solid rgb(175, 205, 255);
+border-right: 		2px solid rgb(100, 155, 205);
+border-bottom: 	2px solid rgb(100, 155, 205);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 rgb(205, 235, 255), stop: 1 rgb(100, 155, 205));
+}
+QPushButton::pressed{
+color: rgb(55, 0, 25);
+border-left: 		 	2px outset rgb(225, 50, 50);
+border-top: 		 	2px outset rgb(225, 50, 50);
+border-right: 		3px outset rgb(150, 25, 25);
+border-bottom: 	3px outset rgb(205, 45, 45);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 rgb(165, 185, 235), stop: 1 rgb(50, 135, 175));
+}
+QPushButton::checked{
+color: rgb(55, 25, 0);
+border-left: 		 	2px outset rgb(225, 50, 50);
+border-top: 		 	2px outset rgb(225, 50, 50);
+border-right: 		3px outset rgb(150, 25, 25);
+border-bottom: 	3px outset rgb(205, 45, 45);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 rgb(205, 235, 255), stop: 1 rgb(100, 155, 205));
+}
+QPushButton::unchecked{
+color: black;
+border-left: 		 	1px solid rgb(255, 255, 255);
+border-top: 		 	1px solid rgb(255, 255, 255);
+border-right: 		2px solid rgb(100, 100, 100);
+border-bottom: 	2px solid rgb(100, 100, 100);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 #f6f7fa, stop: 1 #dadbde);
+}</string>
+           </property>
+           <property name="text">
+            <string>rot</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">operation_button_group</string>
+           </attribute>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="scale_button">
+           <property name="minimumSize">
+            <size>
+             <width>45</width>
+             <height>45</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>45</width>
+             <height>45</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton{
+color: black;
+border-left: 		 	1px solid rgb(255, 255, 255);
+border-top: 		 	1px solid rgb(255, 255, 255);
+border-right: 		2px solid rgb(100, 100, 100);
+border-bottom: 	2px solid rgb(100, 100, 100);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 #f6f7fa, stop: 1 #dadbde);
+}
+QPushButton::hover{
+color: black;
+border-left: 		 	1px solid rgb(175, 205, 255);
+border-top: 		 	1px solid rgb(175, 205, 255);
+border-right: 		2px solid rgb(100, 155, 205);
+border-bottom: 	2px solid rgb(100, 155, 205);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 rgb(205, 235, 255), stop: 1 rgb(100, 155, 205));
+}
+QPushButton::pressed{
+color: rgb(55, 0, 25);
+border-left: 		 	2px outset rgb(225, 50, 50);
+border-top: 		 	2px outset rgb(225, 50, 50);
+border-right: 		3px outset rgb(150, 25, 25);
+border-bottom: 	3px outset rgb(205, 45, 45);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 rgb(165, 185, 235), stop: 1 rgb(50, 135, 175));
+}
+QPushButton::checked{
+color: rgb(55, 25, 0);
+border-left: 		 	2px outset rgb(225, 50, 50);
+border-top: 		 	2px outset rgb(225, 50, 50);
+border-right: 		3px outset rgb(150, 25, 25);
+border-bottom: 	3px outset rgb(205, 45, 45);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 rgb(205, 235, 255), stop: 1 rgb(100, 155, 205));
+}
+QPushButton::unchecked{
+color: black;
+border-left: 		 	1px solid rgb(255, 255, 255);
+border-top: 		 	1px solid rgb(255, 255, 255);
+border-right: 		2px solid rgb(100, 100, 100);
+border-bottom: 	2px solid rgb(100, 100, 100);
+border-radius: 5px;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 #f6f7fa, stop: 1 #dadbde);
+}</string>
+           </property>
+           <property name="text">
+            <string>scale</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">operation_button_group</string>
+           </attribute>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QSplitter" name="splitter">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <widget class="GComponent::GLModelTreeView" name="treeView">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>500</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="sizeIncrement">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QHeaderView::section{
+	font: 9pt &quot;微软雅黑&quot;;
+	color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(125, 125, 255, 255), stop:1 rgba(150, 175, 175, 255));
+	background-color: rgb(50, 50, 50);
+}
+QTreeView{	
+	color: white;
+background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(50, 50, 75, 255));
+}
+
+QTreeView::item{
+	font: 9pt &quot;微软雅黑&quot;;
+	color: rgb(100, 205, 165);
+}
+
+QTreeView::item::hover{
+	font: 9pt &quot;微软雅黑&quot;;
+	background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop:1 #333377, stop: 0 #995599);
+}
+
+QTreeView::item::selected {
+	
+	background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop:0 #559977, stop: 1 #224455);
+	color: rgb(255, 230, 20);
+}
+
+QTreeView::item:selected:active{
+	font: bold 12pt &quot;微软雅黑&quot;;
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #6ea1f1, stop: 1 #567dbc);
+}
+</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAsNeeded</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOn</enum>
+          </property>
+          <property name="sizeAdjustPolicy">
+           <enum>QAbstractScrollArea::AdjustToContents</enum>
+          </property>
+          <property name="autoScrollMargin">
+           <number>2</number>
+          </property>
+          <property name="dragEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="dragDropMode">
+           <enum>QAbstractItemView::DragDrop</enum>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>2</width>
+            <height>2</height>
+           </size>
+          </property>
+          <property name="horizontalScrollMode">
+           <enum>QAbstractItemView::ScrollPerItem</enum>
+          </property>
+         </widget>
+         <widget class="QWidget" name="layoutWidget">
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout">
+             <item>
+              <widget class="GComponent::Viewport" name="m_viewport">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>300</width>
+                 <height>200</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_2">
+                 <item>
+                  <widget class="QLabel" name="spanTime">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>75</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>100</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>11</pointsize>
+                     <italic>false</italic>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">QLabel{
+	color: pink;
+	font: bold 11pt &quot;Cascadia Code&quot;;
+	background-color: black;
+	border:1px solid;
+	border-radius: 2px;
+	border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
+	padding: -3 -2px;
+}
+</string>
+                   </property>
+                   <property name="text">
+                    <string>SpanTime : </string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="spanTimeData">
+                 <property name="minimumSize">
+                  <size>
+                   <width>75</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                   <italic>false</italic>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="cursor">
+                  <cursorShape>ArrowCursor</cursorShape>
+                 </property>
+                 <property name="mouseTracking">
+                  <bool>false</bool>
+                 </property>
+                 <property name="acceptDrops">
+                  <bool>false</bool>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">QLineEdit{
+font: bold 11pt &quot;Cascadia Code&quot;;
+color: black;
+border: 2px solid rgb(210, 55, 175);
+border-radius: 4px;
+padding: 0 8px;
+background: rgb();
+}
+QLineEdit[readOnly=&quot;true&quot;]{}
+
+</string>
+                 </property>
+                 <property name="text">
+                  <string>0.00</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_3">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_2">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_3">
+                 <item>
+                  <spacer name="horizontalSpacer_4">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="FPS">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>75</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>100</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>11</pointsize>
+                     <italic>false</italic>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">QLabel{	
+	color: pink;
+	font: bold 11pt &quot;Cascadia Code&quot;;
+	background-color: black;
+	border:1px solid;
+	border-radius: 2px;
+	border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
+	padding: -3 -2px;
+}
+</string>
+                   </property>
+                   <property name="text">
+                    <string>FPS: </string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="FPSData">
+                 <property name="minimumSize">
+                  <size>
+                   <width>75</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="cursor">
+                  <cursorShape>ArrowCursor</cursorShape>
+                 </property>
+                 <property name="mouseTracking">
+                  <bool>false</bool>
+                 </property>
+                 <property name="acceptDrops">
+                  <bool>false</bool>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">QLineEdit{
+font:  bold 11pt &quot;Cascadia Code&quot;;
+color: black;
+border: 2px solid rgb(210, 55, 175);
+border-radius: 4px;
+padding: 0 8px;
+background: rgb();
+}
+QLineEdit[readOnly=&quot;true&quot;]{}
+
+</string>
+                 </property>
+                 <property name="text">
+                  <string>0.00</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1050</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="defaultUp">
-    <bool>false</bool>
-   </property>
-   <property name="nativeMenuBar">
-    <bool>false</bool>
-   </property>
-   <widget class="QMenu" name="menu">
-    <property name="title">
-     <string>窗口</string>
-    </property>
-    <addaction name="modelViewShow"/>
-   </widget>
-   <addaction name="menu"/>
-  </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QDockWidget" name="DualArmDocker">
-   <property name="styleSheet">
-    <string notr="true">font: 12pt &quot;楷体&quot;;</string>
-   </property>
-   <property name="windowTitle">
-    <string>拟人双臂平台</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>2</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents">
-    <layout class="QGridLayout" name="gridLayout_2">
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <item row="0" column="0">
-      <widget class="TestOpenGLWidget" name="openGLWidget"/>
-     </item>
-    </layout>
-   </widget>
-  </widget>
-  <widget class="QDockWidget" name="ModelObserverDocker">
-   <property name="styleSheet">
-    <string notr="true">font: 12pt &quot;楷体&quot;;</string>
-   </property>
-   <property name="windowTitle">
-    <string>模型观察器</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>2</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_2">
-    <layout class="QGridLayout" name="gridLayout_3">
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <item row="0" column="0">
-      <widget class="ModelViewWidget" name="modelObserver" native="true">
-       <property name="styleSheet">
-        <string notr="true">font: 12pt &quot;楷体&quot;;</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
   <widget class="QDockWidget" name="ControllerDocker">
    <property name="minimumSize">
     <size>
@@ -156,7 +742,7 @@ background:rgba(255,65,65,255)
     </size>
    </property>
    <property name="styleSheet">
-    <string notr="true">font: 12pt &quot;楷体&quot;;
+    <string notr="true">font: 11pt &quot;微软雅黑&quot;;
 QMainWindow::seperator{
 	background: yellow;
 }
@@ -194,69 +780,10 @@ border-left: 5px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
-   <widget class="SliderController" name="sliders"/>
-  </widget>
-  <widget class="QDockWidget" name="ButtonGroupDocker">
-   <property name="styleSheet">
-    <string notr="true">font: 12pt &quot;楷体&quot;;</string>
-   </property>
-   <property name="windowTitle">
-    <string>按钮控件组</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-   <widget class="ButtonGroup" name="buttonWidget"/>
-  </widget>
-  <widget class="QDockWidget" name="DataDisplayDocker">
-   <property name="styleSheet">
-    <string notr="true">font: 12pt &quot;楷体&quot;;
-QDockWidget QTabBar{
-color: rgb(255, 0, 0);
-
-background-color: rgb(85, 85, 255);
-
-alternate-background-color: rgb(255, 170, 255);
-
-selection-color: rgb(85, 255, 0);
-
-selection-background-color: rgb(0, 85, 0);
-
-}</string>
-   </property>
-   <property name="floating">
-    <bool>false</bool>
-   </property>
-   <property name="windowTitle">
-    <string>数据</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_3">
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(50, 50, 50);
-alternate-background-color: rgb(65, 65, 65);
-</string>
-    </property>
-    <layout class="QGridLayout" name="gridLayout_4">
-     <property name="leftMargin">
-      <number>8</number>
-     </property>
-     <property name="topMargin">
-      <number>8</number>
-     </property>
-     <property name="rightMargin">
-      <number>8</number>
-     </property>
-     <property name="bottomMargin">
-      <number>8</number>
-     </property>
-     <property name="spacing">
-      <number>0</number>
-     </property>
+   <widget class="QWidget" name="sliders">
+    <layout class="QGridLayout" name="gridLayout_10">
      <item row="0" column="0">
-      <widget class="QTabWidget" name="tabWidget">
+      <widget class="QTabWidget" name="armTab">
        <property name="styleSheet">
         <string notr="true">QTabWidget::pane{
 border-bottom:2px solid qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(50, 50, 75, 255), stop:1 rgba(65, 65, 65, 255));
@@ -269,15 +796,14 @@ border-top-right-radius: 10px;
 background:rgba(65,65,65,255)
 
 }
-
 QTabBar::tab {
-font: 11pt &quot;微软雅黑&quot;;
-min-width:85;
-min-height:20;
+font: 14pt &quot;Times New Roman&quot;;
+min-width:75;
+min-height:18;
 
 border-top-left-radius: 5px;
 border-top-right-radius: 5px;
-border-top:2px solid qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(50, 50, 75, 255), stop:1 rgba(65, 65, 65, 255));
+border-top:3px solid qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(50, 50, 75, 255), stop:1 rgba(65, 65, 65, 255));
 border-right:3px solid qlineargradient(spread:pad, x1:1, y1:0, x2:0, y2:0, stop:0 rgba(50, 50, 75, 255), stop:1 rgba(65, 65, 65, 255));
 }
 QTabBar::tab:!selected {
@@ -289,39 +815,1037 @@ color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 185,
 background-color: rgb(65, 65, 65);
 border-left: 5px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(50, 50, 75, 255), stop:1 rgba(65, 65, 65, 255));
 }
-border-color: rgb(65, 65, 65);
+
 </string>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
-       <widget class="QWidget" name="leftDataDisplayGrid">
+       <property name="usesScrollButtons">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="leftTab">
         <property name="styleSheet">
-         <string notr="true">background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(65, 65, 65, 255), stop:1 rgba(50, 50, 50, 255));
-alternate-background-color: rgb(65, 65, 65);</string>
+         <string notr="true">font: 10pt &quot;Times New Roman&quot;;
+background: rgba(65,65,65,255);
+color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 135, 130, 255), stop:1 rgba(255, 255, 255, 255));</string>
         </property>
         <attribute name="title">
-         <string>左臂位姿</string>
+         <string>L</string>
         </attribute>
-        <layout class="QGridLayout" name="gridLayout_6">
+        <layout class="QGridLayout" name="gridLayout_8">
+         <property name="leftMargin">
+          <number>25</number>
+         </property>
+         <property name="bottomMargin">
+          <number>9</number>
+         </property>
+         <property name="horizontalSpacing">
+          <number>25</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>5</number>
+         </property>
+         <item row="6" column="0">
+          <widget class="QLabel" name="lJointLabel7">
+           <property name="text">
+            <string>Joint 7</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSlider" name="lJointSlider4">
+           <property name="styleSheet">
+            <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QSlider" name="lJointSlider7">
+           <property name="styleSheet">
+            <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+	
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QSlider" name="lJointSlider5">
+           <property name="styleSheet">
+            <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+	
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="0">
-          <widget class="DataDisplayCanvas" name="leftDataDisplay" native="true"/>
+          <widget class="QLabel" name="lJointLabel1">
+           <property name="text">
+            <string>Joint 1</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="lJointLabel3">
+           <property name="text">
+            <string>Joint 3</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSlider" name="lJointSlider2">
+           <property name="styleSheet">
+            <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="lJointLabel4">
+           <property name="text">
+            <string>Joint 4</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="lJointLabel6">
+           <property name="text">
+            <string>Joint 6</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="lJointLabel2">
+           <property name="text">
+            <string>Joint 2</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSlider" name="lJointSlider3">
+           <property name="styleSheet">
+            <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="lJointLabel5">
+           <property name="text">
+            <string>Joint 5</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSlider" name="lJointSlider1">
+           <property name="styleSheet">
+            <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="tickPosition">
+            <enum>QSlider::NoTicks</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QSlider" name="lJointSlider6">
+           <property name="styleSheet">
+            <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+	
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="lJointVal1">
+           <property name="minimumSize">
+            <size>
+             <width>45</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>0.00</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="lJointVal2">
+           <property name="minimumSize">
+            <size>
+             <width>45</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>0.00</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="lJointVal3">
+           <property name="minimumSize">
+            <size>
+             <width>45</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>0.00</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QLabel" name="lJointVal4">
+           <property name="minimumSize">
+            <size>
+             <width>45</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>0.00</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QLabel" name="lJointVal5">
+           <property name="minimumSize">
+            <size>
+             <width>45</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>0.00</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="2">
+          <widget class="QLabel" name="lJointVal6">
+           <property name="minimumSize">
+            <size>
+             <width>45</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>0.00</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="2">
+          <widget class="QLabel" name="lJointVal7">
+           <property name="minimumSize">
+            <size>
+             <width>45</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>0.00</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="rightDataDisplayGrid">
+       <widget class="QWidget" name="tab_2">
         <property name="styleSheet">
-         <string notr="true">background-color: rgb(65, 65, 65);</string>
+         <string notr="true">font: 10pt &quot;Times New Roman&quot;;
+background: rgba(65,65,65,255);
+color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 135, 130, 255), stop:1 rgba(255, 255, 255, 255));</string>
         </property>
         <attribute name="title">
-         <string>右臂位姿</string>
+         <string>R</string>
         </attribute>
-        <layout class="QGridLayout" name="gridLayout_5">
+        <layout class="QGridLayout" name="gridLayout_9">
+         <property name="leftMargin">
+          <number>25</number>
+         </property>
+         <property name="horizontalSpacing">
+          <number>25</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>5</number>
+         </property>
          <item row="0" column="0">
-          <widget class="DataDisplayCanvas" name="rightDataDisplay" native="true"/>
+          <widget class="QLabel" name="rJointLabel1">
+           <property name="text">
+            <string>Joint 1</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="rJointVal2">
+           <property name="minimumSize">
+            <size>
+             <width>45</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>0.00</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="rJointVal1">
+           <property name="minimumSize">
+            <size>
+             <width>45</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>0.00</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="rJointLabel6">
+           <property name="text">
+            <string>Joint 6</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="rJointLabel5">
+           <property name="text">
+            <string>Joint 5</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QLabel" name="rJointVal4">
+           <property name="minimumSize">
+            <size>
+             <width>45</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>0.00</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="2">
+          <widget class="QLabel" name="rJointVal6">
+           <property name="minimumSize">
+            <size>
+             <width>45</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>0.00</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="rJointLabel4">
+           <property name="text">
+            <string>Joint 4</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QLabel" name="rJointVal5">
+           <property name="minimumSize">
+            <size>
+             <width>45</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>0.00</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="rJointLabel2">
+           <property name="text">
+            <string>Joint 2</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="2">
+          <widget class="QLabel" name="rJointVal7">
+           <property name="minimumSize">
+            <size>
+             <width>45</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>0.00</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="rJointVal3">
+           <property name="minimumSize">
+            <size>
+             <width>45</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>0.00</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="rJointLabel3">
+           <property name="text">
+            <string>Joint 3</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="rJointLabel7">
+           <property name="text">
+            <string>Joint 7</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSlider" name="rJointSlider1">
+           <property name="styleSheet">
+            <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSlider" name="rJointSlider2">
+           <property name="styleSheet">
+            <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSlider" name="rJointSlider3">
+           <property name="styleSheet">
+            <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSlider" name="rJointSlider4">
+           <property name="styleSheet">
+            <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QSlider" name="rJointSlider5">
+           <property name="styleSheet">
+            <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QSlider" name="rJointSlider6">
+           <property name="styleSheet">
+            <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QSlider" name="rJointSlider7">
+           <property name="styleSheet">
+            <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="ButtonGroupDocker">
+   <property name="styleSheet">
+    <string notr="true">font: 11pt &quot;微软雅黑&quot;;</string>
+   </property>
+   <property name="windowTitle">
+    <string>按钮控件组</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="buttonWidget">
+    <layout class="QGridLayout" name="gridLayout_3">
+     <item row="0" column="0">
+      <widget class="QGroupBox" name="groupBox">
+       <property name="styleSheet">
+        <string notr="true">border-color: rgb(58, 160, 255);
+gridline-color: rgb(85, 170, 127);
+alternate-background-color: rgb(255, 0, 0);
+</string>
+       </property>
+       <property name="title">
+        <string/>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="1" column="2">
+         <widget class="QPushButton" name="pushButton_5">
+          <property name="styleSheet">
+           <string notr="true">color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(140, 180, 255, 255), stop:1 rgba(230, 150, 175, 255));
+font: 12pt &quot;微软雅黑&quot;;</string>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QPushButton" name="pushButton">
+          <property name="styleSheet">
+           <string notr="true">color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(140, 180, 255, 255), stop:1 rgba(230, 150, 175, 255));
+font: 12pt &quot;微软雅黑&quot;;</string>
+          </property>
+          <property name="text">
+           <string>曲线绘制</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QPushButton" name="DataDispllayButton">
+          <property name="styleSheet">
+           <string notr="true">color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(140, 180, 255, 255), stop:1 rgba(230, 150, 175, 255));
+font: 12pt &quot;微软雅黑&quot;;</string>
+          </property>
+          <property name="text">
+           <string>数值显示块</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="pushButton_4">
+          <property name="styleSheet">
+           <string notr="true">color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(140, 180, 255, 255), stop:1 rgba(230, 150, 175, 255));
+font: 12pt &quot;微软雅黑&quot;;</string>
+          </property>
+          <property name="text">
+           <string>消息盒子</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="PlanningButton">
+          <property name="styleSheet">
+           <string notr="true">color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(140, 180, 255, 255), stop:1 rgba(230, 150, 175, 255));
+font: 12pt &quot;微软雅黑&quot;;</string>
+          </property>
+          <property name="text">
+           <string>规划模块</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QPushButton" name="SliderButton">
+          <property name="acceptDrops">
+           <bool>true</bool>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(140, 180, 255, 255), stop:1 rgba(230, 150, 175, 255));
+font: 12pt &quot;微软雅黑&quot;;
+</string>
+          </property>
+          <property name="text">
+           <string>滑条控制块</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
     </layout>
@@ -335,7 +1859,7 @@ alternate-background-color: rgb(65, 65, 65);</string>
     <string>规划模块</string>
    </property>
    <attribute name="dockWidgetArea">
-    <number>2</number>
+    <number>1</number>
    </attribute>
    <widget class="QWidget" name="PlanningWidget">
     <layout class="QGridLayout" name="gridLayout_7">
@@ -430,6 +1954,1427 @@ alternate-background-color: rgb(65, 65, 65);</string>
     </layout>
    </widget>
   </widget>
+  <widget class="QDockWidget" name="attributionsdocker">
+   <property name="styleSheet">
+    <string notr="true">font: 11pt &quot;微软雅黑&quot;;</string>
+   </property>
+   <property name="windowTitle">
+    <string>属性</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_2">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QGroupBox" name="component_observer">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="title">
+        <string/>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="leftMargin">
+         <number>1</number>
+        </property>
+        <property name="topMargin">
+         <number>1</number>
+        </property>
+        <property name="rightMargin">
+         <number>1</number>
+        </property>
+        <property name="bottomMargin">
+         <number>1</number>
+        </property>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QComboBox" name="selected_combo">
+            <property name="styleSheet">
+             <string notr="true">QComboBox{
+	font: bold 11pt  &quot;Segoe Print&quot;;
+	color: rgb(205,245,220);
+	background-color: qlineargradient(spread:pad, x1:0.9, y1:0, x2:1, y2:0, stop:0 rgba(30, 30, 40, 255), stop:1 rgba(255, 255, 255, 255));
+}
+</string>
+            </property>
+            <item>
+             <property name="text">
+              <string/>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolBox" name="componentstoolbox">
+            <property name="minimumSize">
+             <size>
+              <width>150</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>9</pointsize>
+              <italic>false</italic>
+              <bold>false</bold>
+              <strikeout>false</strikeout>
+              <kerning>true</kerning>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(25, 25, 25);
+color : rgb(105, 155, 175);
+font: 9pt &quot;Fixedsys&quot;;</string>
+            </property>
+            <property name="currentIndex">
+             <number>0</number>
+            </property>
+            <property name="tabSpacing">
+             <number>1</number>
+            </property>
+            <widget class="QWidget" name="proterties_2">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>223</width>
+               <height>659</height>
+              </rect>
+             </property>
+             <attribute name="label">
+              <string>properties</string>
+             </attribute>
+             <layout class="QHBoxLayout" name="horizontalLayout_11">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QWidget" name="widget_3" native="true">
+                <property name="styleSheet">
+                 <string notr="true">QWidget{
+background-color:rgb(30,30,30);
+}</string>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_15">
+                 <item>
+                  <layout class="QVBoxLayout" name="properties_group">
+                   <item>
+                    <layout class="QHBoxLayout" name="name_group">
+                     <property name="spacing">
+                      <number>5</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="QLabel" name="name_label">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>55</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>12</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLabel{
+	color:white;
+	font: 12pt &quot;Sitka&quot;;
+	background-color: black;
+	border:1px solid;
+	border-radius: 2px;
+	border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
+	padding: -3 -2px;
+}
+</string>
+                       </property>
+                       <property name="text">
+                        <string> name</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="name_edit">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>75</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>1677215</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLineEdit{
+font:  9pt &quot;Cascadia Code&quot;;
+color: rgb(55, 155, 75);
+border: 1px solid;
+border-color:white;
+border-radius: 2px;
+padding: 0 8px;
+background: black;
+}</string>
+                       </property>
+                       <property name="text">
+                        <string>NULL</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="shader_group">
+                     <property name="spacing">
+                      <number>5</number>
+                     </property>
+                     <item>
+                      <widget class="QLabel" name="shader_label">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>55</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>12</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLabel{
+	color:white;
+	font: 12pt &quot;Sitka&quot;;
+	background-color: black;
+	border:1px solid;
+	border-radius: 2px;
+	border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
+	padding: -3 -2px;
+}
+</string>
+                       </property>
+                       <property name="text">
+                        <string> shader</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="shader_edit">
+                       <property name="minimumSize">
+                        <size>
+                         <width>75</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>1677215</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLineEdit{
+font:  9pt &quot;Cascadia Code&quot;;
+color: rgb(55, 155, 75);
+border: 1px solid;
+border-color:white;
+border-radius: 2px;
+padding: 0 8px;
+background: black;
+}</string>
+                       </property>
+                       <property name="text">
+                        <string>NULL</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="mesh_group">
+                     <property name="spacing">
+                      <number>5</number>
+                     </property>
+                     <item>
+                      <widget class="QLabel" name="mesh_label">
+                       <property name="minimumSize">
+                        <size>
+                         <width>55</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>12</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLabel{
+	color:white;
+	font: 12pt &quot;Sitka&quot;;
+	background-color: black;
+	border:1px solid;
+	border-radius: 2px;
+	border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
+	padding: -3 -2px;
+}
+</string>
+                       </property>
+                       <property name="text">
+                        <string> mesh</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="mesh_edit">
+                       <property name="minimumSize">
+                        <size>
+                         <width>75</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>1677215</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLineEdit{
+font:  9pt &quot;Cascadia Code&quot;;
+color: rgb(55, 155, 75);
+border: 1px solid;
+border-color:white;
+border-radius: 2px;
+padding: 0 8px;
+background: black;
+}</string>
+                       </property>
+                       <property name="text">
+                        <string>NULL</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="parent_group">
+                     <property name="spacing">
+                      <number>5</number>
+                     </property>
+                     <item>
+                      <widget class="QLabel" name="parent_label">
+                       <property name="minimumSize">
+                        <size>
+                         <width>55</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>12</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLabel{
+	color:white;
+	font: 12pt &quot;Sitka&quot;;
+	background-color: black;
+	border:1px solid;
+	border-radius: 2px;
+	border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
+	padding: -3 -2px;
+}
+</string>
+                       </property>
+                       <property name="text">
+                        <string> parent</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="parent_edit">
+                       <property name="minimumSize">
+                        <size>
+                         <width>75</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>1677215</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLineEdit{
+font:  9pt &quot;Cascadia Code&quot;;
+color: rgb(55, 155, 75);
+border: 1px solid;
+border-color:white;
+border-radius: 2px;
+padding: 0 8px;
+background: black;
+}</string>
+                       </property>
+                       <property name="text">
+                        <string>NULL</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <spacer name="verticalSpacer_2">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="transform_2">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>116</width>
+               <height>402</height>
+              </rect>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0.5, x2:0, y2:1, stop:0 rgba(30, 30, 30, 255), stop:1 rgba(45, 45, 45, 255));</string>
+             </property>
+             <attribute name="label">
+              <string>transform</string>
+             </attribute>
+             <layout class="QVBoxLayout" name="verticalLayout_14">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QGroupBox" name="position_box">
+                <property name="styleSheet">
+                 <string notr="true"/>
+                </property>
+                <property name="title">
+                 <string>position</string>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_9">
+                 <property name="leftMargin">
+                  <number>9</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>3</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>3</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>12</number>
+                 </property>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_8">
+                   <item>
+                    <layout class="QHBoxLayout" name="trans_x">
+                     <property name="spacing">
+                      <number>4</number>
+                     </property>
+                     <item>
+                      <widget class="QLabel" name="trans_x_label">
+                       <property name="minimumSize">
+                        <size>
+                         <width>25</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>25</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>9</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLabel{
+	color:white;
+	background-color: rgb(220, 0, 0);
+	border:1px solid;
+	border-radius: 2px;
+	border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
+	padding: -3 -2px;
+}
+</string>
+                       </property>
+                       <property name="text">
+                        <string>x</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="trans_x_edit">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>16777215</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLineEdit{
+font:  9pt &quot;Cascadia Code&quot;;
+color: rgb(55, 155, 75);
+border: 1px solid;
+border-color:white;
+border-radius: 2px;
+padding: 0 8px;
+background: black;
+}</string>
+                       </property>
+                       <property name="text">
+                        <string>NULL</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="trans_y">
+                     <property name="spacing">
+                      <number>4</number>
+                     </property>
+                     <item>
+                      <widget class="QLabel" name="trans_y_label">
+                       <property name="minimumSize">
+                        <size>
+                         <width>25</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>25</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>9</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLabel{
+	color:white;
+	background-color: rgb(0, 165, 0);
+	border:1px solid;
+	border-radius: 2px;
+	border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
+	padding: -3 -2px;
+}
+</string>
+                       </property>
+                       <property name="text">
+                        <string>y</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="trans_y_edit">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>16777215</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLineEdit{
+font:  9pt &quot;Cascadia Code&quot;;
+color: rgb(55, 155, 75);
+border: 1px solid;
+border-color:white;
+border-radius: 2px;
+padding: 0 8px;
+background: black;
+}</string>
+                       </property>
+                       <property name="text">
+                        <string>NULL</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="trans_z">
+                     <item>
+                      <widget class="QLabel" name="trans_z_label">
+                       <property name="minimumSize">
+                        <size>
+                         <width>25</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>25</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>9</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLabel{
+	color:white;
+	background-color: rgb(0, 0, 185);
+	border:1px solid;
+	border-radius: 2px;
+	border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
+	padding: -3 -2px;
+}
+</string>
+                       </property>
+                       <property name="text">
+                        <string>z</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="trans_z_edit">
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>16777215</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLineEdit{
+font:  9pt &quot;Cascadia Code&quot;;
+color: rgb(55, 155, 75);
+border: 1px solid;
+border-color:white;
+border-radius: 2px;
+padding: 0 8px;
+background: black;
+}</string>
+                       </property>
+                       <property name="text">
+                        <string>NULL</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QGroupBox" name="rotation_box">
+                <property name="title">
+                 <string>rotation</string>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_10">
+                 <property name="leftMargin">
+                  <number>9</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>3</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>3</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>12</number>
+                 </property>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_11">
+                   <item>
+                    <layout class="QHBoxLayout" name="rot_x">
+                     <property name="spacing">
+                      <number>4</number>
+                     </property>
+                     <item>
+                      <widget class="QLabel" name="rot_x_label">
+                       <property name="minimumSize">
+                        <size>
+                         <width>25</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>25</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>9</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLabel{
+	color:white;
+	background-color: rgb(220, 0, 0);
+	border:1px solid;
+	border-radius: 2px;
+	border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
+	padding: -3 -2px;
+}
+</string>
+                       </property>
+                       <property name="text">
+                        <string>x</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="rot_x_edit">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>16777215</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLineEdit{
+font:  9pt &quot;Cascadia Code&quot;;
+color: rgb(55, 155, 75);
+border: 1px solid;
+border-color:white;
+border-radius: 2px;
+padding: 0 8px;
+background: black;
+}</string>
+                       </property>
+                       <property name="text">
+                        <string>NULL</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="rot_y">
+                     <property name="spacing">
+                      <number>4</number>
+                     </property>
+                     <item>
+                      <widget class="QLabel" name="rot_y_label">
+                       <property name="minimumSize">
+                        <size>
+                         <width>25</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>25</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>9</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLabel{
+	color:white;
+	background-color: rgb(0, 165, 0);
+	border:1px solid;
+	border-radius: 2px;
+	border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
+	padding: -3 -2px;
+}
+</string>
+                       </property>
+                       <property name="text">
+                        <string>y</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="rot_y_edit">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>16777215</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLineEdit{
+font:  9pt &quot;Cascadia Code&quot;;
+color: rgb(55, 155, 75);
+border: 1px solid;
+border-color:white;
+border-radius: 2px;
+padding: 0 8px;
+background: black;
+}</string>
+                       </property>
+                       <property name="text">
+                        <string>NULL</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="rot_z">
+                     <item>
+                      <widget class="QLabel" name="rot_z_label">
+                       <property name="minimumSize">
+                        <size>
+                         <width>25</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>25</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>9</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLabel{
+	color:white;
+	background-color: rgb(0, 0, 185);
+	border:1px solid;
+	border-radius: 2px;
+	border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
+	padding: -3 -2px;
+}
+</string>
+                       </property>
+                       <property name="text">
+                        <string>z</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="rot_z_edit">
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>16777215</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLineEdit{
+font:  9pt &quot;Cascadia Code&quot;;
+color: rgb(55, 155, 75);
+border: 1px solid;
+border-color:white;
+border-radius: 2px;
+padding: 0 8px;
+background: black;
+}</string>
+                       </property>
+                       <property name="text">
+                        <string>NULL</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QGroupBox" name="scale_box">
+                <property name="title">
+                 <string>scale</string>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_12">
+                 <property name="leftMargin">
+                  <number>9</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>3</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>3</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>12</number>
+                 </property>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_13">
+                   <item>
+                    <layout class="QHBoxLayout" name="scale_x">
+                     <property name="spacing">
+                      <number>4</number>
+                     </property>
+                     <item>
+                      <widget class="QLabel" name="scale_x_label">
+                       <property name="minimumSize">
+                        <size>
+                         <width>25</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>25</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>9</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLabel{
+	color:white;
+	background-color: rgb(220, 0, 0);
+	border:1px solid;
+	border-radius: 2px;
+	border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
+	padding: -3 -2px;
+}
+</string>
+                       </property>
+                       <property name="text">
+                        <string>x</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="scale_x_edit">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>16777215</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLineEdit{
+font:  9pt &quot;Cascadia Code&quot;;
+color: rgb(55, 155, 75);
+border: 1px solid;
+border-color:white;
+border-radius: 2px;
+padding: 0 8px;
+background: black;
+}</string>
+                       </property>
+                       <property name="text">
+                        <string>NULL</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="scale_y">
+                     <property name="spacing">
+                      <number>4</number>
+                     </property>
+                     <item>
+                      <widget class="QLabel" name="scale_y_label">
+                       <property name="minimumSize">
+                        <size>
+                         <width>25</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>25</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>9</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLabel{
+	color:white;
+	background-color: rgb(0, 165, 0);
+	border:1px solid;
+	border-radius: 2px;
+	border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
+	padding: -3 -2px;
+}
+</string>
+                       </property>
+                       <property name="text">
+                        <string>y</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="scale_y_edit">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>16777215</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLineEdit{
+font:  9pt &quot;Cascadia Code&quot;;
+color: rgb(55, 155, 75);
+border: 1px solid;
+border-color:white;
+border-radius: 2px;
+padding: 0 8px;
+background: black;
+}</string>
+                       </property>
+                       <property name="text">
+                        <string>NULL</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="scale_z">
+                     <item>
+                      <widget class="QLabel" name="scale_z_label">
+                       <property name="minimumSize">
+                        <size>
+                         <width>25</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>25</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>9</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLabel{
+	color:white;
+	background-color: rgb(0, 0, 185);
+	border:1px solid;
+	border-radius: 2px;
+	border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
+	padding: -3 -2px;
+}
+</string>
+                       </property>
+                       <property name="text">
+                        <string>z</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="scale_z_edit">
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>16777215</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QLineEdit{
+font:  9pt &quot;Cascadia Code&quot;;
+color: rgb(55, 155, 75);
+border: 1px solid;
+border-color:white;
+border-radius: 2px;
+padding: 0 8px;
+background: black;
+}</string>
+                       </property>
+                       <property name="text">
+                        <string>NULL</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <spacer name="verticalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="logger">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+     <italic>false</italic>
+     <bold>false</bold>
+     <kerning>true</kerning>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font: 11pt &quot;微软雅黑&quot;;</string>
+   </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::AllDockWidgetAreas</set>
+   </property>
+   <property name="windowTitle">
+    <string>消息盒子</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_4">
+     <item>
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+         <italic>false</italic>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 11pt &quot;Segoe Print&quot;;
+color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(195, 195, 205, 255), stop:1 rgba(255, 255, 255, 255));
+</string>
+       </property>
+       <property name="title">
+        <string>Logger</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="QListView" name="listView">
+          <property name="styleSheet">
+           <string notr="true">QListView{
+	alternate-background-color: rgb( 20, 20, 20);
+}</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1498</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="defaultUp">
+    <bool>false</bool>
+   </property>
+   <property name="nativeMenuBar">
+    <bool>false</bool>
+   </property>
+  </widget>
   <action name="modelViewShow">
    <property name="checkable">
     <bool>true</bool>
@@ -441,41 +3386,19 @@ alternate-background-color: rgb(65, 65, 65);</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>DualArmViewWidget</class>
-   <extends>QWidget</extends>
-   <header>UI/DockWidgetComponent/dualarmviewwidget.h</header>
-   <container>1</container>
+   <class>GComponent::GLModelTreeView</class>
+   <extends>QTreeView</extends>
+   <header>./source/ui/treeview/glmodeltreeview.h</header>
   </customwidget>
   <customwidget>
-   <class>ModelViewWidget</class>
-   <extends>QWidget</extends>
-   <header>UI/DockWidgetComponent/modelviewwidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ButtonGroup</class>
-   <extends>QWidget</extends>
-   <header>UI/NormalWidget/buttongroup.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>DataDisplayCanvas</class>
-   <extends>QWidget</extends>
-   <header>UI/NormalWidget/datadisplaycanvas.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>SliderController</class>
-   <extends>QWidget</extends>
-   <header>UI/NormalWidget/slidercontroller.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>TestOpenGLWidget</class>
+   <class>GComponent::Viewport</class>
    <extends>QOpenGLWidget</extends>
-   <header>UI/testopenglwidget.h</header>
+   <header>./source/ui/widget/viewport.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="operation_button_group"/>
+ </buttongroups>
 </ui>

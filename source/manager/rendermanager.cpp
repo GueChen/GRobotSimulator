@@ -6,7 +6,7 @@
  **/
 #include "manager/rendermanager.h"
 
-#include "manager/scenemanager.h"
+#include "manager/resourcemanager.h"
 #include "manager/modelmanager.h"
 #include "model/model.h"
 
@@ -90,31 +90,27 @@ void RenderManager::ClearList()
 void RenderManager::PickingPass()
 {
 	if (!picking_controller_handle_) return;
-	SceneManager& scene_manager = SceneManager::getInstance();
-	ModelManager& model_manager = ModelManager::getInstance();
 
 	PickingGuard picking_guard(picking_controller_handle_.value());
 	ClearGLScreenBuffer(0.0f, 0.0f, 0.0f, 1.0f);
 
-	auto dir_light_pass_obj_getor = [](const std::string& name) {
+	PassSpecifiedListPicking(PassType::DirLightPass, render_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetModelByName(name);
-	};
-	PassSpecifiedListPicking(PassType::DirLightPass, render_list_, dir_light_pass_obj_getor);
+	});
 
-	auto auxi_obj_getor = [](const std::string& name) {
-		return ModelManager::getInstance().GetAuxiModelByName(name);
-	};
 	DisableGuard guard(gl_.get(), GL_DEPTH_TEST);
-	PassSpecifiedListPicking(PassType::AuxiliaryPass, axui_render_list_, auxi_obj_getor);
+	PassSpecifiedListPicking(PassType::AuxiliaryPass, axui_render_list_, [](const std::string& name) {
+		return ModelManager::getInstance().GetAuxiModelByName(name);
+	});
 }
 
 void RenderManager::PassSpecifiedListPicking(PassType draw_index_type, list<RenderCommand>& list, function<Model* (const std::string&)> ObjGetter)
 {
-	SceneManager& scene_manager = SceneManager::getInstance();
+	ResourceManager& scene_manager = ResourceManager::getInstance();
 	ModelManager& model_manager = ModelManager::getInstance();
 	for (auto& [obj_name, shader_name, mesh_name, uniform_name] : list) {
 		MyShader*		picking_shader	= scene_manager.GetShaderByName("picking");
-		MeshComponent*	mesh			= scene_manager.GetMeshByName(mesh_name);
+		RenderMesh*	mesh			= scene_manager.GetMeshByName(mesh_name);
 		Model*			obj				= ObjGetter(obj_name);
 
 		picking_shader->use();
@@ -127,12 +123,12 @@ void RenderManager::PassSpecifiedListPicking(PassType draw_index_type, list<Rend
 
 void RenderManager::PassSpecifiedListNormal(std::list<RenderCommand>& list, std::function<Model* (const std::string&)> ObjGetter)
 {
-	SceneManager& scene_manager = SceneManager::getInstance();
+	ResourceManager& scene_manager = ResourceManager::getInstance();
 	ModelManager& model_manager = ModelManager::getInstance();
 	for (auto& [obj_name, shader_name, mesh_name, uniform_name] : list) {
 
 		MyShader*      shader	= scene_manager.GetShaderByName(shader_name);	
-		MeshComponent* mesh		= scene_manager.GetMeshByName(mesh_name);
+		RenderMesh* mesh		= scene_manager.GetMeshByName(mesh_name);
 		Model*         obj		= ObjGetter(obj_name);
 
 		shader->use();
@@ -143,18 +139,16 @@ void RenderManager::PassSpecifiedListNormal(std::list<RenderCommand>& list, std:
 
 void RenderManager::RenderingPass()
 {
-	auto obj_getor = [](const std::string& name) { 
-		return ModelManager::getInstance().GetModelByName(name); 
-	};
-	PassSpecifiedListNormal(render_list_, obj_getor);
+	PassSpecifiedListNormal(render_list_, [](const std::string& name) {
+		return ModelManager::getInstance().GetModelByName(name);
+		});
 }
 void RenderManager::AuxiliaryPass()
 {
-	auto obj_getor = [](const std::string& name) {
-		return ModelManager::getInstance().GetAuxiModelByName(name);
-	};
 	DisableGuard guard(gl_.get(), GL_DEPTH_TEST);
-	PassSpecifiedListNormal(axui_render_list_, obj_getor);
+	PassSpecifiedListNormal(axui_render_list_, [](const std::string& name) {
+		return ModelManager::getInstance().GetAuxiModelByName(name);
+		});
 }
 
 void RenderManager::PostProcessPass()

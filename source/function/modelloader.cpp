@@ -30,7 +30,10 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::readFile(con
     {
         return readOBJFile(file_path);
     }
-    
+    else
+    {
+        return {};
+    }
 }
 
 std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::readPlyFile(const std::string & file_path)
@@ -149,7 +152,7 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::readSTLFile(
             if (lineContent.find("facet") != -1)
             {
                 auto vals = StringProcessor::Split(lineContent);
-                vec3 norm = -vec3(std::stof(vals[2]), std::stof(vals[3]), std::stof(vals[4]));
+                vec3 norm = -vec3(std::stod(vals[2]), std::stod(vals[3]), std::stod(vals[4]));
                 
                 // 为 Vertex 法线赋值
                 normal.push_back(norm);
@@ -163,7 +166,7 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::readSTLFile(
                     {
                         auto vals = StringProcessor::Split(lineContent);
                         pos.push_back(
-                            0.001f * vec3(std::stof(vals[1]) , std::stof(vals[2]), std::stof(vals[3]))
+                            0.001f * vec3(std::stod(vals[1]) , std::stod(vals[2]), std::stod(vals[3]))
                         );
                     }
                 } while (lineContent.find("endfacet") == -1);

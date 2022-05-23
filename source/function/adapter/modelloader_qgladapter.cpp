@@ -4,16 +4,16 @@ namespace GComponent
 {
 namespace QGL
 {
-MeshComponent ModelLoader::getMesh(const std::string& resource)
+RenderMesh ModelLoader::getMesh(const std::string& resource)
 {
     auto&& [Vs, Is] = GComponent::ModelLoader::readFile(resource);
-    return MeshComponent(Vs, Is, std::vector<Texture>{});
+    return RenderMesh(Vs, Is, std::vector<Texture>{});
 }
 
-MeshComponent* ModelLoader::getMeshPtr(const std::string& resource)
+RenderMesh* ModelLoader::getMeshPtr(const std::string& resource)
 {
     auto&& [Vs, Is] = GComponent::ModelLoader::readFile(resource);
-    return new MeshComponent(Vs, Is, std::vector<Texture>{});
+    return new RenderMesh(Vs, Is, std::vector<Texture>{});
 }
 }
 }

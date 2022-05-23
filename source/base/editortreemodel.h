@@ -96,11 +96,17 @@ _RawPtrItem
 void
     setupModelData(const QString & data);
 
+public slots:
+    void ResponseDeleteRequest(const string& name);
+    void ResponseCreateRequest(const string& name, const string& parent_name);
+    void ResponseParentChangeRequest(const string& name, const string& parent_name);
 
+signals:
+    void DataDeletedNotice();
 
 /// Fields      数据域
 private:
-    _PtrItem root_;
+    _PtrItem root_ = nullptr;
 };
 
 } // namespace GComponent

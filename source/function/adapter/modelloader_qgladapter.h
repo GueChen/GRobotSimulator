@@ -2,7 +2,7 @@
 #define _MODELLOADER_QGLADAPTER_H
 
 #include "function/modelloader.h"
-#include "component/mesh_component.h"
+#include "render/rendermesh.h"
 
 #include <string>
 
@@ -16,8 +16,8 @@ class ModelLoader
 {
 public:
 	ModelLoader() = delete;
-	static MeshComponent  getMesh(const std::string& resource);
-	static MeshComponent* getMeshPtr(const std::string& resource);
+	static RenderMesh  getMesh(const std::string& resource);
+	static RenderMesh* getMeshPtr(const std::string& resource);
 };
 }
 }

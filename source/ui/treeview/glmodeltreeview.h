@@ -7,17 +7,17 @@
 #ifndef _GLMODELTREEVIEW_H
 #define _GLMODELTREEVIEW_H
 
-#include "base/editortreemodel.h"
-
 #include <QtWidgets/QTreeView>
 #include <QtWidgets/QMenu>
 #include <QtCore/QString>
+
+#include <string>
 
 namespace Ui { class GLModelTreeView; };
 
 namespace GComponent 
 {
-
+using std::string;
 class GLModelTreeView : public QTreeView
 {
 	Q_OBJECT
@@ -25,17 +25,18 @@ public:
 	GLModelTreeView(QWidget* parent = nullptr);
 	~GLModelTreeView();
 
+	void setModel(QAbstractItemModel* model)   override;
+
 protected:
 	void mouseReleaseEvent(QMouseEvent* event) override;
 	void keyReleaseEvent(QKeyEvent* event)	   override;
 
 private:
-	QString GetTreeModelData();
 	void InitMenuActions();
+
 public slots:
-	void ResponseSelectRequest(const string& name);
-	void ResponseDeleteRequest(const string& name);
-	void ResponseCreateRequest(const string& name, const string& parent_name);
+	void ResponseSelectRequest(const QModelIndex& select);	
+	void ResponseDataDeleted();
 
 private slots:
 	void SelectionChangeSlot(const QModelIndex& current, const QModelIndex& previous);
@@ -46,9 +47,6 @@ signals:
 	void DeleteRequest(const string& name);
 
 private:
-	EditorTreeModel*	 m_tree_model;
-	Ui::GLModelTreeView* ui;
-
 	QMenu				 m_basic_menu;
 /*_______________________BASIC MENU ACTIONS_______________________________*/	
 	QAction*			 copy_action_;

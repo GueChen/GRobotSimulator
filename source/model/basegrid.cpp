@@ -54,17 +54,17 @@ vector<vec3> BaseGrid::GetGridVertexLocation(int num, float size)
         float locationX = corner;
         for(int i = 0; i < num; ++i)
         {
-            (*it++) = vec3(locationX, 0.0, corner);
-            (*it++) = vec3(locationX, 0.0, counter);
+            (*it++) = vec3(locationX, corner, 0.0);
+            (*it++) = vec3(locationX, counter, 0.0);
             locationX += size;
         }
         /* 添加纵格点 */
-        float locationZ = corner +  size;
+        float locationY = corner +  size;
         for(int i = 1; i < num - 1; ++i)
         {
-            (*it++) = vec3(corner,  0.0f, locationZ);
-            (*it++) = vec3(counter, 0.0f, locationZ);
-            locationZ += size;
+            (*it++) = vec3(corner,  locationY, 0.0f);
+            (*it++) = vec3(counter, locationY, 0.0f);
+            locationY += size;
         }
     }
 

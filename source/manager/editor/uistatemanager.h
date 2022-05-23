@@ -43,32 +43,34 @@ enum class KeyButtonState: size_t
 };
 
 enum {
-	NoneSelected = 0
+	NoneSelected	 = 0,
+	BufferNoValue	 = -1
 };
 
 class UIState : public QObject	
 {
 	Q_OBJECT
 public:
-	UIState(unsigned, unsigned);
-	~UIState()	= default;
-	
-	void Init(int segments = 15, float radius = 0.045f);
-	
+	UIState(unsigned w, unsigned h, int segments = 15, float radius = 0.045f);
+	~UIState();
+		
 	void tick();
-
 	void SetGL(const shared_ptr<MyGL>& gl);
-
 	PickingPixelInfo GetPickingPixelInfo();
+	Model* GetSelectedObject() const;
 
 	virtual void OnCursorMove(int mouse_pos_x, int mouse_pos_y);
 	virtual void OnMousePress(unsigned button_flags);
 	virtual void OnMouseRelease(unsigned button_flags);
-	virtual void OnMouseEnter();
+	virtual void OnMouseEnter(int mouse_pos_x, int mouse_pos_y);
 	virtual void OnMouseLeave();
 	virtual void OnKeyPress(size_t key_state);
 	virtual void OnKeyRelease(size_t key_state);
 	virtual void OnResize(int w, int h);
+
+private:
+	void Init(int segments = 15, float radius = 0.045f);
+	void ProcessDelete();
 
 signals:
 	void DeleteRequest(const string& msg);
@@ -81,32 +83,36 @@ public slots:
 protected:
 	int			  m_mouse_pos_x			= -1;
 	int			  m_mouse_pos_y			= -1;
-	int			  selected_id			= 0;
-	int			  selected_id_buffer	= 0;
+	int			  m_last_mouse_pos_x	= -1;
+	int			  m_last_mouse_pos_y    = -1;
+	int			  m_mouse_delta_x		= 0;
+	int			  m_mouse_delta_y       = 0;
+	int			  selected_id			= NoneSelected;
+	int			  selected_id_buffer	= BufferNoValue;
 
-	bool		  model_selected		= false;
 	bool		  is_draged				= false;
 	bool		  is_enter_area			= false;
-	bool		  have_init				= false;
+	bool		  is_init				= false;
 
+	float		  m_aspect				= 0.0f;
 	unsigned	  m_width				= 0;
-	unsigned	  m_height				= 0;
-	size_t		  m_key_state			= static_cast<size_t>(KeyButtonState::None);
+	unsigned	  m_height				= 0;	
 	unsigned	  button_state			= MouseButton::NoButton;
+	size_t		  m_key_state			= static_cast<size_t>(KeyButtonState::None);
 	
 private:
-	AxisMode	  m_axis_mode			= AxisMode::Translation;
-	AxisSelected  m_axis_selected		= AxisSelected::None;
+	AxisMode				m_axis_mode			    = AxisMode::Translation;
+	AxisSelected			   m_axis_selected		= AxisSelected::None;
 
 	QtGLAbstractAxis*		   m_cur_axis			= nullptr;
-	QtGLTranslationAxis*	   m_translation_axis;
-	QtGLRotationAxis*		   m_rotation_axis;
-	QtGLScaleAxis*			   m_scale_axis;
+	QtGLTranslationAxis*	   m_translation_axis	= nullptr;
+	QtGLRotationAxis*		   m_rotation_axis		= nullptr;
+	QtGLScaleAxis*			   m_scale_axis			= nullptr;
+
+	optional<PickingPixelInfo> picking_msg_ = std::nullopt;
 
 	PickingController		   picking_controller;
-
-	optional<PickingPixelInfo> picking_msg_;
-
+	
 	vec3 scale = vec3(0.2f);
 };
 }

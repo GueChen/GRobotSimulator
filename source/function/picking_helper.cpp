@@ -39,10 +39,8 @@ bool GComponent::PickingController::Init(unsigned width, unsigned height)
 		return false;
 	}
 
-	std::cout << "current FBO: " << FBO_ << std::endl;
-
 	gl_->glBindTexture(GL_TEXTURE_2D, 0);
-	gl_->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	gl_->glBindFramebuffer(GL_FRAMEBUFFER, default_FBO_);
 
 	have_init_ = true;
 	return true;

@@ -27,8 +27,8 @@ using _ConstRef = const TreeItem &;
 
 /// Fields      数据域
 private:
-    vector<QVariant> datas_;
-    vector<_Ptr>     children_;
+    vector<QVariant> datas_     = {};
+    vector<_Ptr>     children_  = {};
     _RawPtr          parent_    = nullptr;
 
 /// Constructer 构造函数
@@ -54,12 +54,15 @@ public:
 
     _RawPtr  SearchItemByData(const QVariant& data);
 
-    inline _RawPtr  GetChild(int idx)   const { return idx <= children_.size() && idx >= 0? children_[idx].get(): nullptr; }
-    inline _RawPtr  GetParent()         const { return parent_; }
-    inline QVariant GetData(int idx)    const { return idx <= datas_.size() && idx >= 0? datas_[idx]: QVariant(); }
+    inline _RawPtr  GetChild(int idx)   const { return idx <= children_.size() && idx >= 0? children_[idx].get(): nullptr; }        
+    inline QVariant GetData(int idx)    const { return idx <= datas_.size() && idx >= 0? datas_[idx]: QVariant(); }   
     inline int      IndexInParent()     const { return parent_ ? parent_->GetChildIndex(const_cast<_RawPtr>(this)) : -1; }
     inline int      ChildrenSize()      const { return children_.size(); }
     inline int      DataSize()          const { return datas_.size(); }
+    
+    inline _RawPtr                 GetParent()  const { return parent_; }
+    inline const vector<QVariant>& GetDatas()   const { return datas_; }
+    inline const vector<_Ptr>    & GetChildren()const { return children_; }
 
 private:
     int      GetChildIndex(_RawPtr child);

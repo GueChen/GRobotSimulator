@@ -1,12 +1,12 @@
 #include "kuka_iiwa_model.h"
 
 #include "manager/modelmanager.h"
-#include "manager/scenemanager.h"
+#include "manager/resourcemanager.h"
 #include "manager/rendermanager.h"
 #include "render/mygl.hpp"
 #include "render/myshader.h"
 #include "model/robot/joint.h"
-#include "component/mesh_component.h"
+#include "render/rendermesh.h"
 #include "function/adapter/modelloader_qgladapter.h"
 
 #include <GComponent/GNumerical.hpp>
@@ -37,7 +37,8 @@ array<twistd, 7> KUKA_IIWA_MODEL::expCoords = {};
 KUKA_IIWA_MODEL::KUKA_IIWA_MODEL(mat4 transform):
     _thetas({0}), _Ts()
 {
-    model_mat_ = transform;
+    shader_ = "color";
+    setModelMatrix(transform);    
     InitializeResource();
     InitializeLimitation();
     InitializeKinematicsParameters();
@@ -71,71 +72,54 @@ void KUKA_IIWA_MODEL::InitializeKinematicsParameters()
 
 void KUKA_IIWA_MODEL::InitializeResource()
 {
-    SceneManager& scene_manager = SceneManager::getInstance();
+    ResourceManager& scene_manager = ResourceManager::getInstance();
     ModelManager& model_manager = ModelManager::getInstance();
     if(!hasInit)
     {       
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_base",    QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(base))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_0",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(base))));
         scene_manager.RegisteredMesh("kuka_iiwa_robot_link_1",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_1))));
         scene_manager.RegisteredMesh("kuka_iiwa_robot_link_2",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_2))));
         scene_manager.RegisteredMesh("kuka_iiwa_robot_link_3",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_3))));
         scene_manager.RegisteredMesh("kuka_iiwa_robot_link_4",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_4))));
         scene_manager.RegisteredMesh("kuka_iiwa_robot_link_5",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_5))));
         scene_manager.RegisteredMesh("kuka_iiwa_robot_link_6",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_6))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_flansch", QGL::ModelLoader::getMeshPtr(cPathModel("flanschExten.STL")));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_7",  QGL::ModelLoader::getMeshPtr(cPathModel("flanschExten.STL")));
     }
 
     array<Model*, 8> models;
+    array<glm::vec3, 8> trans =
+    {
+        vec3(0.0f),
+        vec3(0.0f, 0.0f, 0.1575f),
+        vec3(0.0f, 0.0f, 0.2025f),
+        vec3(0.0f, 0.0f, 0.2045f),
+        vec3(0.0f, 0.0f, 0.2155f),
+        vec3(0.0f, 0.0f, 0.1845f),
+        vec3(0.0f, -0.0607f, 0.2155f),
+        vec3(0.0f, 0.0607f, 0.0809f)
+    };
+
     string count_str = "_" + std::to_string(count);
     for(int i = 0; i < 8; ++i)
     {
-        //string mesh_name = "kuka_iiwa_robot_link_" + std::to_string(i);
-        //string name = mesh_name + count_str;
-        //models[i] = new Model(name, mesh_name, "color", );
-        models[i] = new Model;
+        models[i] = new Model("kuka_iiwa_robot_link_" + std::to_string(i) + count_str, 
+                              "kuka_iiwa_robot_link_" + std::to_string(i), 
+                              "color",
+                              trans[i], vec3(0.0f), vec3(1.0f), 
+                              i > 0 ? models[i - 1] :this);
+
     }
     
-    models[0]->setMesh("kuka_iiwa_robot_base");
-    models[1]->setMesh("kuka_iiwa_robot_link_1");
-    models[2]->setMesh("kuka_iiwa_robot_link_2");
-    models[3]->setMesh("kuka_iiwa_robot_link_3");
-    models[4]->setMesh("kuka_iiwa_robot_link_4");
-    models[5]->setMesh("kuka_iiwa_robot_link_5");
-    models[6]->setMesh("kuka_iiwa_robot_link_6");
-    models[7]->setMesh("kuka_iiwa_robot_flansch");
+    models[1]->setAxis(vec3(0.0f, 0.0f,  1.0f));
+    models[2]->setAxis(vec3(0.0f, 1.0f,  0.0f));
+    models[3]->setAxis(vec3(0.0f, 0.0f,  1.0f));
+    models[4]->setAxis(vec3(0.0f, -1.0f, 0.0f));
+    models[5]->setAxis(vec3(0.0f, 0.0f,  1.0f));
+    models[6]->setAxis(vec3(0.0f, 1.0f,  0.0f));
+    models[7]->setAxis(vec3(0.0f, 0.0f,  1.0f));
 
-    setShader("color");
-    models[0]->setShader("color");
-    models[1]->setShader("color");
-    models[2]->setShader("color");
-    models[3]->setShader("color");
-    models[4]->setShader("color");
-    models[5]->setShader("color");
-    models[6]->setShader("color");
-    models[7]->setShader("color");
-
-    models[1]->setAxis(vec3(0.0f, 1.0f, 0.0f));
-    models[2]->setAxis(vec3(0.0f, 0.0f, 1.0f));
-    models[3]->setAxis(vec3(0.0f, 1.0f, 0.0f));
-    models[4]->setAxis(vec3(0.0f, 0.0f, -1.0f));
-    models[5]->setAxis(vec3(0.0f, 1.0f, 0.0f));
-    models[6]->setAxis(vec3(0.0f, 0.0f, 1.0f));
-    models[7]->setAxis(vec3(0.0f, 1.0f, 0.0f));
-
-    mat4 im = glm::identity<mat4>();
-
-    models[6]->appendChild(models[7], glm::translate(im, vec3(0.0f, 0.0809f, 0.0607f)));
-    models[5]->appendChild(models[6], glm::translate(im, vec3(0.0f, 0.2155f, -0.0607f)));
-    models[4]->appendChild(models[5], glm::translate(im, vec3(0.0f, 0.1845f, 0.0f)));
-    models[3]->appendChild(models[4], glm::translate(im, vec3(0.0f, 0.2155f, 0.0f)));
-    models[2]->appendChild(models[3], glm::translate(im, vec3(0.0f, 0.2045f, 0.0f)));
-    models[1]->appendChild(models[2], glm::translate(im, vec3(0.0f, 0.2025f, 0.0f)));
-    models[0]->appendChild(models[1], glm::translate(im, vec3(0.0f, 0.1575f, 0.0f)));
-    appendChild(models[0], im);
-
-    
-    model_manager.RegisteredModel("kuka_iiwa_robot_" + count_str, this);
-    model_manager.RegisteredModel("kuka_iiwa_robot_base_" + count_str, models[0]);
+    model_manager.RegisteredModel("kuka_iiwa_robot_"       + count_str, this);
+    model_manager.RegisteredModel("kuka_iiwa_robot_base_"  + count_str, models[0]);
     model_manager.RegisteredModel("kuka_iiwa_robot_link1_" + count_str, models[1]);
     model_manager.RegisteredModel("kuka_iiwa_robot_link2_" + count_str, models[2]);
     model_manager.RegisteredModel("kuka_iiwa_robot_link3_" + count_str, models[3]);
@@ -191,16 +175,16 @@ void GComponent::KUKA_IIWA_MODEL::setShaderProperty(MyShader & shader)
     shader.setBool("NormReverse", false);
 }
 
-void GComponent::KUKA_IIWA_MODEL::tick()
+void GComponent::KUKA_IIWA_MODEL::tick(float delta_time)
 {   
-    RenderManager::getInstance().EmplaceRenderCommand(name_, shader_, mesh_, "color");
+    RenderManager::getInstance().EmplaceRenderCommand(name_, shader_, mesh_);
 }
 
 /// 图片绘制部分
 void KUKA_IIWA_MODEL::Draw(MyShader * shader)
 {
     shader->setVec3("color", _color);
-    for (auto& [child, _] : children_)
+    for (auto& child : children_)
     {
         Draw(shader, child);
     }
@@ -208,8 +192,8 @@ void KUKA_IIWA_MODEL::Draw(MyShader * shader)
 void KUKA_IIWA_MODEL::Draw(MyShader * shader, Model * next)
 {
     shader->setMat4("model", next->getModelMatrix());
-    SceneManager::getInstance().GetMeshByName(next->getMesh())->Draw();
-    for(auto & [child, _]: next->getChildren())
+    ResourceManager::getInstance().GetMeshByName(next->getMesh())->Draw();
+    for(auto & child : next->getChildren())
     {
         Draw(shader, child);
     }

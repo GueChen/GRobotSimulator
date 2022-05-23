@@ -26,8 +26,6 @@ struct PickingPixelInfo {
 	float primitiveID	= 0.0f;	
 };
 
-
-
 class PickingGuard {
 public:
 	PickingGuard(PickingController & controller);
@@ -55,10 +53,10 @@ private:
 	bool			 have_init_;
 	shared_ptr<MyGL> gl_;
 
-	unsigned default_FBO_;
-	unsigned FBO_;
-	unsigned picking_texture_obeject_;
-	unsigned depth_texture_object_;
+	unsigned default_FBO_			   = 0;
+	unsigned FBO_					   = 0;
+	unsigned picking_texture_obeject_  = 0;
+	unsigned depth_texture_object_	   = 0;
 };
 
 }

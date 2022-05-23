@@ -9,10 +9,11 @@
 
 #include "base/singleton.h"
 
+#include "render/rendermesh.h"
 #include "render/myshader.h"
 #include "render/mygl.hpp"
 #include "function/picking_helper.h"
-#include "component/mesh_component.h"
+
 
 #include <QtCore/QObject>
 

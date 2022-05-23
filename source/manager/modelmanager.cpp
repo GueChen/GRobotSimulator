@@ -17,7 +17,12 @@ using std::move;
 
 ModelManager::ModelManager() = default;
 
-ModelManager::~ModelManager() = default;
+ModelManager::~ModelManager() {
+    auxiliary_models_.clear();
+    models_.clear();
+    cameras_.clear();
+    gl_ = nullptr;
+}
 
 ModelManager& ModelManager::getInstance() 
 {
@@ -25,7 +30,7 @@ ModelManager& ModelManager::getInstance()
     return instance;
 }
 
-bool ModelManager::RegisteredModel(string name, Model *ptr_model)
+bool ModelManager::RegisteredModel(const string& name, Model *ptr_model)
 {   
 
     ptr_model->model_id_ = next_model_id_;
@@ -43,8 +48,8 @@ bool ModelManager::DeregisteredModel(size_t model_id)
 {
     auto iter = models_.find(model_id);
     if(iter == models_.end()) return false;
-    /* Derigister Children */
-    for (auto& [child, _] : iter->second->getChildren()) 
+    /* Derigister Children */  
+    for (auto& child : iter->second->getChildren()) 
     {
         DeregisteredModel(child->model_id_);
     }
@@ -53,6 +58,7 @@ bool ModelManager::DeregisteredModel(size_t model_id)
     models_.erase(model_id);
     model_handle_to_name_table_.erase(model_id);
     model_name_to_handle_table_.erase(name);
+    emit ModelDeregisterNotice(name);
     return true;
 }
 
@@ -63,7 +69,7 @@ Model* ModelManager::GetModelByHandle(size_t model_id) const
     return iter->second.get();
 }
 
-Model* ModelManager::GetModelByName(string name) const
+Model* ModelManager::GetModelByName(const string& name) const
 {
     auto iter = model_name_to_handle_table_.find(name);
     if (iter == model_name_to_handle_table_.end()) return nullptr;
@@ -84,7 +90,14 @@ string ModelManager::GetNameByID(size_t handle) const
     return iter->second;
 }
 
-bool ModelManager::RegisteredAuxiModel(string name, Model* ptr_model)
+bool ModelManager::ChangeModelParent(const string& child, const string& new_parent)
+{
+    if (!model_name_to_handle_table_.count(child) || (!new_parent.empty() && !model_name_to_handle_table_.count(new_parent))) return false;
+    emit ModelParentChangeNotice(child, new_parent);
+    return true;
+}
+
+bool ModelManager::RegisteredAuxiModel(const string& name, Model* ptr_model)
 {
     ptr_model->model_id_ = next_auxiliary_id_;
     ptr_model->name_ = name;
@@ -117,7 +130,7 @@ Model* ModelManager::GetAuxiModelByHandle(size_t model_id) const
     return iter->second.get();
 }
 
-Model* ModelManager::GetAuxiModelByName(string name) const
+Model* ModelManager::GetAuxiModelByName(const string& name) const
 {
     auto iter = auxiliary_name_to_handle_table_.find(name);
     if (iter == auxiliary_name_to_handle_table_.end()) return nullptr;

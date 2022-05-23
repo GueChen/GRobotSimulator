@@ -3,7 +3,7 @@
 #include "function/stringprocessor.hpp"
 
 #include <stack>
-
+#include <queue>
 #ifdef _DEBUG
 #include <iostream>
 #include <format>
@@ -53,7 +53,7 @@ QModelIndex EditorTreeModel::parent(const QModelIndex &child) const
     _RawPtrItem ptr_child   = getItem(child);
     _RawPtrItem ptr_parent  = ptr_child && ptr_child->DataSize() && ptr_child->DataSize() < MaxDataSize ?
                               ptr_child->GetParent() : nullptr;
-    if(ptr_parent == root_.get() || !ptr_parent || !ptr_parent->ChildrenSize()){
+    if(ptr_parent == root_.get() || !ptr_parent || !ptr_parent->ChildrenSize() || ptr_parent->DataSize() > MaxDataSize){
         return QModelIndex();
     }
 
@@ -110,7 +110,7 @@ bool EditorTreeModel::setData(const QModelIndex& index, const QVariant& value, i
         emit dataChanged(index, index, { Qt::DisplayRole, Qt::EditRole });
     }
     
-    return false;
+    return result;
 }
 
 bool EditorTreeModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant& value, int role)
@@ -168,7 +168,7 @@ bool EditorTreeModel::insertRows(const vector<vector<QVariant>>& datas, int posi
     endInsertRows();
     emit layoutChanged();
 
-    return true;
+    return result;
 }
 
 bool EditorTreeModel::removeRows(int position, int rows, const QModelIndex& parent)
@@ -186,6 +186,7 @@ bool EditorTreeModel::removeRows(int position, int rows, const QModelIndex& pare
 
 QModelIndex EditorTreeModel::getIndexByName(const string& name)
 {
+    if (name.empty()) return QModelIndex();
     _RawPtrItem ptr_item = getItemByName(name);    
     return ptr_item? createIndex(ptr_item->IndexInParent(), 0, ptr_item) : QModelIndex();
 }
@@ -217,6 +218,7 @@ void EditorTreeModel::removeData(const string& delete_item_name)
         {
             removeRow(ptr_item->IndexInParent(), createIndex(ptr_parent->IndexInParent(), 0, ptr_parent));
         }
+        emit DataDeletedNotice();
     }
 }
 
@@ -258,7 +260,36 @@ void EditorTreeModel::setupModelData(const QString& data)
 #endif // _DEBUG
     }
 }
+/*_________________________________________SLOT FUNCTIONS_____________________________________________*/
+void EditorTreeModel::ResponseDeleteRequest(const string& name)
+{
+    removeData(name);
+}
 
+void EditorTreeModel::ResponseCreateRequest(const string& name, const string& parent_name)
+{
+    insertRow(vector<QVariant>{QString::fromStdString(name)}, 0, getIndexByName(parent_name));
+}
+
+void EditorTreeModel::ResponseParentChangeRequest(const string& name, const string& parent_name)
+{
+    TreeItem* item_ptr = static_cast<_RawPtrItem>(getIndexByName(name).internalPointer());
+    if (!item_ptr) return;
+    insertRow(item_ptr->GetDatas(), 0, getIndexByName(parent_name));
+    /* BFS traversal the tree item */
+    std::queue<_RawPtrItem> item_queue;
+    item_queue.push(item_ptr);
+    while (!item_queue.empty()) {
+        _RawPtrItem cur_item = item_queue.front();
+        item_queue.pop();
+        string cur_name = cur_item->GetData(0).toString().toStdString();
+        for (int count = 0; auto & child : cur_item->GetChildren()) {
+            item_queue.push(child.get());
+            insertRow(child->GetDatas(), count++, getIndexByName(cur_name));
+        }
+    }
+    removeRow(item_ptr->IndexInParent(), getIndexByName(item_ptr->GetParent()->GetData(0).toString().toStdString()));
+}
 
 
 } // namespace GComponent

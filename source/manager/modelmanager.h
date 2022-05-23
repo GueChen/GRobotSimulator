@@ -42,20 +42,22 @@ public:
 
     virtual     ~ModelManager();
 
-    bool        RegisteredModel(string name, Model* ptr_model);
+    bool        RegisteredModel(const string& name, Model* ptr_model);
     bool        DeregisteredModel(size_t handle);
-    Model*      GetModelByHandle(size_t handle)     const;
-    Model*      GetModelByName(string name)         const;
-    size_t      GetIDByName(const string& name)     const;
-    string      GetNameByID(size_t handle)          const;
+    bool        ChangeModelParent(const string& child, const string& new_parent);
+    Model*      GetModelByHandle(size_t handle)            const;
+    Model*      GetModelByName(const string& name)         const;
+    size_t      GetIDByName(const string& name)            const;
+    string      GetNameByID(size_t handle)                 const;
+    
 
-    bool        RegisteredAuxiModel(string name, Model* ptr_model);
+    bool        RegisteredAuxiModel(const string& name, Model* ptr_model);
     bool        DeregisteredAuxiModel(size_t handle);
-    Model*      GetAuxiModelByHandle(size_t handle) const;
-    Model*      GetAuxiModelByName(string name)     const;
+    Model*      GetAuxiModelByHandle(size_t handle)        const;
+    Model*      GetAuxiModelByName(const string& name)     const;
 
     [[nodiscard]]
-    size_t      RegisteredCamera(glm::vec3 pos = glm::vec3(0.0f, 0.5f, 8.0f));
+    size_t      RegisteredCamera(glm::vec3 pos = glm::vec3(8.0f, 0.0f, 0.5f));
     void        DeregisterdCamera(size_t handle);
     Camera*     GetCameraByHandle(size_t handle) const;
 
@@ -74,9 +76,13 @@ protected:
 
 signals:
     void ModelRegisterNotice(const string& model_name, const string& parent_name);
+    void ModelDeregisterNotice(const string& model_name);
+    void ModelParentChangeNotice(const string& model_name, const string& new_parent_name);
 
 public slots:
     void ResponseDeleteRequest(const string& del_model_name);
+    // TODO: 实现该槽函数
+    //void ResponseParentChangeRequest(const string& model_name, const string& new_parent_name);
 
 private:    
     /* Model Realated Terms 实例管理相关项 */

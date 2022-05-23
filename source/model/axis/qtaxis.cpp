@@ -7,7 +7,7 @@
 #include "model/axis/qtaxis.h"
 
 #include "manager/rendermanager.h"
-#include "manager/scenemanager.h"
+#include "manager/resourcemanager.h"
 
 size_t GComponent::QtGLTranslationAxis::count = 0;
 size_t GComponent::QtGLRotationAxis::count	  = 0;
@@ -21,22 +21,22 @@ size_t GComponent::QtGLScaleAxis::count		  = 0;
 /// <param name="radius">  {float} the Radius of Cone </param>
 void GComponent::QtGLAbstractAxis::Init(int segments, float radius)
 {
-	SceneManager::getInstance().RegisteredMesh(mesh_, new MeshComponent(SetupVertexData(segments, radius), SetupIndexData(segments), {}));
+	ResourceManager::getInstance().RegisteredMesh(mesh_, new RenderMesh(SetupVertexData(segments, radius), SetupIndexData(segments), {}));
 }
 
 unsigned GComponent::QtGLAbstractAxis::GetStridedSize()
 {
-	return SceneManager::getInstance().GetMeshByName(mesh_)->getElementSize() / 3;
+	return ResourceManager::getInstance().GetMeshByName(mesh_)->getElementSize() / 3;
 }
 
-void GComponent::QtGLAbstractAxis::tick()
+void GComponent::QtGLAbstractAxis::tick(float delta_time)
 {
 	RenderManager::getInstance().EmplaceAuxiRenderCommand(name_, shader_, mesh_);
 }
 
 void GComponent::QtGLAbstractAxis::Draw()
 {
-	SceneManager::getInstance().GetMeshByName(mesh_)->Draw();
+	ResourceManager::getInstance().GetMeshByName(mesh_)->Draw();
 }
 
 void GComponent::QtGLAbstractAxis::setShaderProperty(MyShader& shader)
@@ -74,13 +74,13 @@ void GComponent::QtGLAbstractAxis::SetupYaxisVertex(const int count, vector<Vert
 					&	ref_norm	= ref.Normal;
 		glm::vec2	&	coord		= temp.TexCoords;
 
-		pos.z = -ref_pos.x; 
-		pos.x = ref_pos.y;
-		pos.y = ref_pos.z;
+		pos.z = ref_pos.y; 
+		pos.x = ref_pos.z;
+		pos.y = ref_pos.x;
 
-		norm.z = -ref_norm.x;
-		norm.x = ref_norm.y;
-		norm.y = ref_norm.z;
+		norm.z = ref_norm.y;
+		norm.x = ref_norm.z;
+		norm.y = ref_norm.x;
 
 		coord.x = 1.0f;
 		coord.y = 0.0f;
@@ -99,13 +99,13 @@ void GComponent::QtGLAbstractAxis::SetupZaxisVertex(const int count, vector<Vert
 					&	ref_norm	= ref.Normal;
 		glm::vec2	&	coord		= temp.TexCoords;
 
-		pos.y = -ref_pos.x;
-		pos.z = ref_pos.y;
-		pos.x = ref_pos.z;
+		pos.z = ref_pos.x;
+		pos.y = ref_pos.z;
+		pos.x = ref_pos.y;
 
-		norm.y = -ref_norm.x;
-		norm.z = ref_norm.y;
-		norm.x = ref_norm.z;
+		norm.y = ref_norm.z;
+		norm.z = ref_norm.x;
+		norm.x = ref_norm.y;
 
 		coord.x = 2.0f;
 		coord.y = 0.0f;
@@ -142,8 +142,8 @@ std::vector<GComponent::Vertex> GComponent::QtGLTranslationAxis::SetupVertexData
 	/* the Cylinder inner Circle */
 	SetupXaxisCircle(segments, radius, 0.0f, vertices);
 	/* the Cylinder outer Circle */
-	SetupXaxisCircle(segments, radius, -1.5, vertices);
-	SetupXaxisCircle(segments, radius * 4.0f, -1.5, vertices);
+	SetupXaxisCircle(segments, radius, 1.5, vertices);
+	SetupXaxisCircle(segments, radius * 4.0f, 1.5, vertices);
 	/* the Cone Conical Point */
 	{
 		Vertex		temp;
@@ -151,10 +151,10 @@ std::vector<GComponent::Vertex> GComponent::QtGLTranslationAxis::SetupVertexData
 				 &	norm	= temp.Normal;
 		glm::vec2&	coord	= temp.TexCoords;
 
-		pos.x = -1.5f - 10.0f * radius;
+		pos.x = 1.5f + 10.0f * radius;
 		pos.y = pos.z = 0.0f;
 
-		norm.x = -1.0f;
+		norm.x = 1.0f;
 		norm.y = norm.z = 0.0f;
 		coord.x = coord.y = 0.0f;
 		vertices.emplace_back(temp);
@@ -248,10 +248,10 @@ std::vector<GComponent::Vertex> GComponent::QtGLScaleAxis::SetupVertexData(int s
 	/* the Cylinder inner Circle */
 	SetupXaxisCircle(segments, radius, 0.0f, vertices);
 	/* the Cylinder outer Circle */
-	SetupXaxisCircle(segments, radius, -1.5f, vertices);
+	SetupXaxisCircle(segments, radius, 1.5f, vertices);
 
 	/* the Block part Vertex */
-	glm::vec3 base_pos(-1.5f, 0.0f, 0.0f);
+	glm::vec3 base_pos(1.5f, 0.0f, 0.0f);
 	float half = radius * 5.0f;
 	auto emplace_vertex_in_x = [&vertices = vertices, &base_pos = base_pos](float x, float y, float z) {
 		Vertex		temp;

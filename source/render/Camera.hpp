@@ -23,7 +23,7 @@ enum class CameraMoveMent{
 };
 
 // 默认值设置 Default Settings
-constexpr float YAW         =  -90.0f;
+constexpr float YAW         =  180.0f;//-90.0f;
 constexpr float PITCH       =  0.0f;
 constexpr float SPEED       =  2.5f;
 constexpr float SENSITIVITY =  0.1f;
@@ -47,8 +47,8 @@ public:
     float Zoom;
 
     /// 构造函数 Constructors
-    Camera(vec3 position = vec3(0.0f, 0.5f, 8.0f), vec3 up = vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH):
-        Front(glm::vec3(0.0f, 0.0f, -1.0f)),
+    Camera(vec3 position = vec3(8.0f, 0.0f, 0.0f) /*vec3(0.0f, 0.5f, 8.0f)*/, vec3 up = vec3(0.0f, 0.0f, 1.0f)/*vec3(0.0f, 1.0f, 0.0f) */, float yaw = YAW, float pitch = PITCH) :
+            Front(vec3(-1.0f, 0.0f, 0.0f)/*glm::vec3(0.0f, 0.0f, -1.0f)*/),
             MovementSpeed(SPEED),
             MouseSensitivity(SENSITIVITY),
             Zoom(ZOOM)
@@ -60,7 +60,7 @@ public:
             updateCameraVectors();
         }
     Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) :
-        Front(glm::vec3(0.0f, 0.0f, -1.0f)),
+        Front(vec3(1.0f, 0.0f, 0.0f)/*glm::vec3(0.0f, 0.0f, -1.0f)*/),
             MovementSpeed(SPEED),
             MouseSensitivity(SENSITIVITY),
             Zoom(ZOOM)
@@ -82,11 +82,20 @@ public:
         return MyLookAt(Position, Position + Front, Up);
 
     }
+
+    mat4 GetProjection(float aspect, float z_near = 0.001f, float z_far = 1000.0f)
+    {
+        return glm::perspective(radians(ZOOM), aspect, z_near, z_far);
+    }
+
     void Move(float x, float y, float z)
     {
-        Position += Front * z;
+       /* Position += Front * z;
         Position += Right * x;
-        Position += Up * y;
+        Position += Up * y;*/
+        Position += Front.x;
+        Position += Right.y;
+        Position += Up.z;
     }
     void ProcessKeyMovementCommand(CameraMoveMent direction, float delta_time) {
         float velocity = MovementSpeed * (delta_time < 1e-5 ? 0.05 : delta_time);
@@ -121,7 +130,7 @@ public:
         xoffset *= MouseSensitivity;
         yoffset *= MouseSensitivity;
 
-        Yaw += xoffset;
+        Yaw   -= xoffset;
         Pitch += yoffset;
 
         if (constrainPitch)
@@ -150,7 +159,7 @@ public:
             Zoom = 45.0f;
         }
     }
-
+    // TODO: Change to Right System
     void Rotation(float yaw, float pitch, bool constrainPitch = true)
     {
         float interY = Position.y - Front.y * Position.x / Front.x;
@@ -179,13 +188,17 @@ private:
     void updateCameraVectors()
     {
         vec3 front;
-        front.x = cos(radians(Yaw)) * cos(radians(Pitch));
+        /*front.x = cos(radians(Yaw)) * cos(radians(Pitch));
         front.y = sin(radians(Pitch));
-        front.z = sin(radians(Yaw)) * cos(radians(Pitch));
+        front.z = sin(radians(Yaw)) * cos(radians(Pitch));*/
 
+        front.x = cos(radians(Yaw)) * cos(radians(Pitch));
+        front.y = sin(radians(Yaw)) * cos(radians(Pitch));
+        front.z = sin(radians(Pitch));
+        
         Front = normalize(front);
         Right = normalize(cross(Front, WorldUp));
-        Up = normalize(cross(Right, Front));
+        Up    = normalize(cross(Right, Front));
     }
     /**
      * 构造我的 LookAt 矩阵

@@ -99,6 +99,7 @@ bool TreeItem::RemoveChildren(int child_pos, int child_count)
 
 TreeItem::_RawPtr TreeItem::SearchItemByData(const QVariant& data)
 {
+    // TODO: 使用树结构的 map 改善 traversal 性能
     if (datas_.front() == data) return this;
     _RawPtr ret_ptr = nullptr;
     for (auto& child : children_) 

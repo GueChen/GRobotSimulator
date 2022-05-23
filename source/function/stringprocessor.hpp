@@ -15,19 +15,19 @@ public:
     StringProcessor() = delete;
     static std::vector<std::string> Split(const std::string& s, char sparse = ' ')
     {
-        std::vector<std::string> rval;
+        std::vector<std::string> ret_val;
 
         size_t cur = 0, last = 0;
-        while (s[last++] == ' ');
+        while (s[last++] == ' '); 
         --last;
         while ((cur = s.find(sparse, last)) != -1)
         {
-            rval.push_back(s.substr(last, cur - last));
+            ret_val.push_back(s.substr(last, cur - last));
             last = cur + 1;
         }
-        rval.push_back(s.substr(last, s.length() - cur));
+        ret_val.push_back(s.substr(last, s.length() - cur));
 
-        return rval;
+        return ret_val;
     }
 };
 

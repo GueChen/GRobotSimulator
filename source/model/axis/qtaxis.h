@@ -1,7 +1,13 @@
+/**
+ *  @file	qtaxis.h
+ *  @brief	Axis Resource File used for Graphic Program implementations etc.
+ *  @author Gue Chen<guechen@buaa.edu.cn>
+ *  @date	Apri 26, 2022
+ **/
 #ifndef _QTAXIS_H
 #define _QTAXIS_H
 
-#include  "component/mesh_component.h"
+#include  "render/rendermesh.h"
 #include  "render/myshader.h"
 #include  "model/model.h"
 
@@ -24,7 +30,6 @@ enum class AxisSelected {
 };
 
 namespace GComponent {
-using std::shared_ptr;
 using std::vector;
 
 class QtGLAbstractAxis : public Model {
@@ -37,7 +42,7 @@ public:
 	inline AxisSelected GetAxisSelected() const				{ return selected_which_; }
 
 	void Init(int segments, float radius);
-	void tick() override;
+	void tick(float delta_time) override;
 	[[deprecated]]
 	void Draw();
 protected:

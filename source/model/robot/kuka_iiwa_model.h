@@ -14,7 +14,7 @@
 namespace GComponent{
 
 /// Forward Declaration
-class MeshComponent;
+class RenderMesh;
 class Revolute;
 class MyShader;
 
@@ -52,7 +52,7 @@ public:
     ~KUKA_IIWA_MODEL() = default;
 
 /// Tick Functions
-    void tick() override;
+    void tick(float delta_time) override;
 
 /// 绘图函数 Drawing Functions
     void Draw(MyShader * shader) override;
@@ -132,7 +132,7 @@ public:
     void AddCheckPoint(int idx, const WeightedCheckPoint & p);
 
 protected:
-    void     setShaderProperty(MyShader & shader) override;
+    void setShaderProperty(MyShader & shader) override;
    
 private:
     void Draw(MyShader* shader, Model * next);

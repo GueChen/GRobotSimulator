@@ -1,7 +1,7 @@
 #ifndef GCOMPONENT_GBALL_H
 #define GCOMPONENT_GBALL_H
 
-#include "component/mesh_component.h"
+#include "render/rendermesh.h"
 
 #include "simplexmesh/simplexmodel.hpp"
 
@@ -15,7 +15,7 @@ public:
     float   radius;
 
 private:
-    MeshComponent    mesh;
+    RenderMesh    mesh;
 
 /// 成员函数 Member Functions
 public:
