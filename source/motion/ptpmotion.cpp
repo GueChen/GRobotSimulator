@@ -25,24 +25,18 @@ JointCruveMsgPkg PTPMotion::GetCurvesFunction(KUKA_IIWA_MODEL * robot, const dou
     /* 计算差角 */
     decltype (thetas_ini) thetas_delta;
     std::transform(std::execution::par,
-                   thetas_goal.begin(),
-                   thetas_goal.end(),
-                   thetas_ini.begin(),
-                   thetas_delta.begin(),
-                   [](auto & goal, auto & ini){
-                        return goal- ini;
-                   }
+                   thetas_goal.begin(), thetas_goal.end(),      // Inputs1
+                   thetas_ini.begin(),                          // Inputs2 
+                   thetas_delta.begin(),                        // Outputs
+                   std::minus<>()
     );
 
     /* 计算耗时 */
     auto max_delta = std::abs(*std::max_element(
-                thetas_delta.begin(),
-                thetas_delta.end(),
-                [](auto & num1, auto & num2){
-                    return std::abs(num1) < std::abs(num2);
-                }
+                thetas_delta.begin(),   thetas_delta.end(),
+                [](auto & num1, auto & num2){ return std::abs(num1) < std::abs(num2); }
     ));
-    std::cout << "max_delta:= "<< max_delta << std::endl;
+    
     double time_total = 0;
     // 判断计算情况是否全加速
     if(double MaxAccDistance = std::pow(Max_Vel_Limit, 2) / Max_Acc_Limit;
@@ -56,8 +50,7 @@ JointCruveMsgPkg PTPMotion::GetCurvesFunction(KUKA_IIWA_MODEL * robot, const dou
     }
 
     array<tuple<int, double, double>, JointNum> msg_list;
-    std::transform(thetas_delta.begin(),
-                   thetas_delta.end(),
+    std::transform(thetas_delta.begin(), thetas_delta.end(),
                    msg_list.begin(),
                    [&GetThis = Max_Acc_Limit, B = -Max_Acc_Limit*time_total](auto & C){
                         return std::make_tuple(

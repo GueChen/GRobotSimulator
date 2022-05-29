@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  *  @file   modelmanager.h
  *  @brief  A Manager Class Definition, Rigister all Model Instance in Hash Map.
  *  @author Gue Chen<guechen@buaa.edu.cn>
@@ -81,11 +81,11 @@ signals:
 
 public slots:
     void ResponseDeleteRequest(const string& del_model_name);
-    // TODO: ÊµÏÖ¸Ã²Ûº¯Êı
+    // TODO: å®ç°è¯¥æ§½å‡½æ•°
     //void ResponseParentChangeRequest(const string& model_name, const string& new_parent_name);
 
 private:    
-    /* Model Realated Terms ÊµÀı¹ÜÀíÏà¹ØÏî */
+    /* Model Realated Terms å®ä¾‹ç®¡ç†ç›¸å…³é¡¹ */
     size_t                                    next_model_id_                        = 1;
     unordered_map<size_t, unique_ptr<Model>>  models_                               = {};
     unordered_map<string, size_t>             model_name_to_handle_table_           = {};
@@ -97,7 +97,7 @@ private:
     unordered_map<size_t, string>             auxiliary_handle_to_name_table_       = {};
     
     queue<size_t>                             deleted_queue_                         = {};
-    /* ÖµµÃ¿¼ÂÇ¸ÃÈıÏîÊÇ·ñÒÆ³ı»ò¸øÆäËü¶ÔÏó±£¹Ü */
+    /* å€¼å¾—è€ƒè™‘è¯¥ä¸‰é¡¹æ˜¯å¦ç§»é™¤æˆ–ç»™å…¶å®ƒå¯¹è±¡ä¿ç®¡ */
     vector<unique_ptr<Camera>>                cameras_                              = {};
     size_t                                    matrices_UBO_                         = 0;
     size_t                                    ambient_observer_UBO_                 = 0;

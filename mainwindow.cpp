@@ -3,6 +3,7 @@
 #include "ui_mainwindow.h"
 
 #include "manager/modelmanager.h"
+#include "function/adapter/component_ui_factory.h"
 
 #include <QtWidgets/QCombobox>
 
@@ -12,6 +13,7 @@
 
 #include "motion/GMotion"
 #include "model/robot/kuka_iiwa_model.h"
+#include "component/joint_group_component.h"
 
 #include "function/conversion.hpp"
 
@@ -39,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);    
     updated_timer_ptr = new QTimer;
     ConnectionInit();
-
+   
 #ifdef __TEST__PLANNING
     QChart * chart = new QChart();
     chart->createDefaultAxes();
@@ -78,19 +80,16 @@ QComboBox* MainWindow::getModelDispaly() const
 
 void MainWindow::on_TestPTPButton_clicked()
 {
-    constexpr double Bound = 180.0 * 2.0 / 3.0;
+    double Bound = 180.0 * 2.0 / 3.0;
     auto ptr_left = dynamic_cast<GComponent::KUKA_IIWA_MODEL*>(GComponent::ModelManager::getInstance().GetModelByName("kuka_iiwa_robot_0"));
     //auto ptr_left = ui->mainArmView->getLeftRobot();
     if (ptr_left) {
-        array<double, 7> datas = GenUniformRandom<7>(-Bound, Bound);
+        array<double, 7> datas = GenUniformRandom<double, 7>(-Bound, Bound);
         PTPMotion ptp(vector<double>{datas.begin(), datas.end()});
         auto&& [tot, PosFun, VelFun] = ptp.GetCurvesFunction(ptr_left, 20, 5);
-        DataList lastData;
-        for (auto& val : ptr_left->GetThetas())
-        {
-            lastData << Data(QPointF(0, val), QString::number(0));
-        }     
-        
+
+        auto joints =  ptr_left->GetComponet<JointGroupComponent>("JointGroupComponent");
+        //joints->
         Plot(m_chart->chart(), tot, PosFun, "θ_", "关节曲线图");
         Plot(m_vel_chart->chart(), tot, VelFun, "v_", "关节速度曲线图");
     }
@@ -101,7 +100,7 @@ void MainWindow::on_TestLINMotion_clicked()
 #ifdef __TEST__PLANNING
     auto ptr_left = dynamic_cast<GComponent::KUKA_IIWA_MODEL*>(GComponent::ModelManager::getInstance().GetModelByName("kuka_iiwa_robot_0"));
     if (ptr_left) {
-        IIWAThetas  thetas = GComponent::GenUniformRandom<7>(-3.1415926 * 2.0 / 3.0, 3.1415926 * 2.0 / 3.0);
+        IIWAThetas  thetas = GComponent::GenUniformRandom<double, 7>(-3.1415926 * 2.0 / 3.0, 3.1415926 * 2.0 / 3.0);
         SE3d        T_ini = ptr_left->ForwardKinematic();
         SE3d        T_goal = ptr_left->ForwardKinematic(thetas);
 
@@ -131,8 +130,8 @@ void MainWindow::on_TestCircMotion_clicked()
 #ifdef __TEST__PLANNING
     auto ptr_left = dynamic_cast<GComponent::KUKA_IIWA_MODEL*>(GComponent::ModelManager::getInstance().GetModelByName("kuka_iiwa_robot_0"));
     if (ptr_left) {
-        IIWAThetas thetas = GComponent::GenUniformRandom<7>(-3.1415926 * 2.0 / 3.0, 3.1415926 * 2.0 / 3.0);
-        IIWAThetas thetasmid = GComponent::GenUniformRandom<7>(-3.1415926 * 2.0 / 3.0, 3.1415926 * 2.0 / 3.0);
+        IIWAThetas thetas = GComponent::GenUniformRandom<double, 7>(-3.1415926 * 2.0 / 3.0, 3.1415926 * 2.0 / 3.0);
+        IIWAThetas thetasmid = GComponent::GenUniformRandom<double, 7>(-3.1415926 * 2.0 / 3.0, 3.1415926 * 2.0 / 3.0);
 
         SE3d  T_ini = ptr_left->ForwardKinematic(),
             T_goal = ptr_left->ForwardKinematic(thetas),
@@ -159,13 +158,13 @@ void MainWindow::on_TestSPLMotion_clicked()
     vector<vec3d> posMidList;
     auto ptr_left = dynamic_cast<GComponent::KUKA_IIWA_MODEL*>(GComponent::ModelManager::getInstance().GetModelByName("kuka_iiwa_robot_0"));
     if (ptr_left) {
-        IIWAThetas thetas = GComponent::GenUniformRandom<7>(-3.1415926 * 2.0 / 3.0, 3.1415926 * 2.0 / 3.0);
+        IIWAThetas thetas = GComponent::GenUniformRandom<double, 7>(-3.1415926 * 2.0 / 3.0, 3.1415926 * 2.0 / 3.0);
         SE3d  T_goal = ptr_left->ForwardKinematic(thetas),
             T_ini = ptr_left->ForwardKinematic();
 
         vec3d pos_end = T_goal.block(0, 3, 3, 1),
             pos_ini = T_ini.block(0, 3, 3, 1);
-        auto thetaSS = GenUniformRandoms<2, 7>(-3.1415926 * 2.0 / 3.0, 3.1415926 * 2.0 / 3.0);
+        auto thetaSS = GenUniformRandoms<double, 2, 7>(-3.1415926 * 2.0 / 3.0, 3.1415926 * 2.0 / 3.0);
         for (auto& theta : thetaSS)
         {
             SE3d T_cur = ptr_left->ForwardKinematic(theta);
@@ -189,7 +188,7 @@ void MainWindow::on_TestGPMMotion_clicked()
 
     auto ptr_left = dynamic_cast<GComponent::KUKA_IIWA_MODEL*>(GComponent::ModelManager::getInstance().GetModelByName("kuka_iiwa_robot_0"));
     if (ptr_left) {
-        IIWAThetas  thetas = GComponent::GenUniformRandom<7>(-3.1415926 * 2.0 / 3.0, 3.1415926 * 2.0 / 3.0);
+        IIWAThetas  thetas = GComponent::GenUniformRandom<double, 7>(-3.1415926 * 2.0 / 3.0, 3.1415926 * 2.0 / 3.0);
         SE3d        T_ini = ptr_left->ForwardKinematic();
         SE3d        T_goal = ptr_left->ForwardKinematic(thetas);
 
@@ -210,7 +209,7 @@ void MainWindow::on_TestWLNMotion_clicked()
 {
     auto ptr_left = dynamic_cast<GComponent::KUKA_IIWA_MODEL*>(GComponent::ModelManager::getInstance().GetModelByName("kuka_iiwa_robot_0"));
     if (ptr_left) {
-        IIWAThetas  thetas = GComponent::GenUniformRandom<7>(-3.1415926 * 2.0 / 3.0, 3.1415926 * 2.0 / 3.0);
+        IIWAThetas  thetas = GComponent::GenUniformRandom<double, 7>(-3.1415926 * 2.0 / 3.0, 3.1415926 * 2.0 / 3.0);
         SE3d        T_ini = ptr_left->ForwardKinematic();
         SE3d        T_goal = ptr_left->ForwardKinematic(thetas);
 
@@ -283,10 +282,10 @@ void MainWindow::on_TestTightCoord_clicked()
             *ptr_left  = dynamic_cast<GComponent::KUKA_IIWA_MODEL*>(GComponent::ModelManager::getInstance().GetModelByName("kuka_iiwa_robot_0")),
             *ptr_right = dynamic_cast<GComponent::KUKA_IIWA_MODEL*>(GComponent::ModelManager::getInstance().GetModelByName("kuka_iiwa_robot_1"));
     if (ptr_left && ptr_right) {
-        Vector3d goal_eigen = Vector3d(0.5, GenUniformRandom<1>(-0.2, 0.2)[0], GenUniformRandom<1>(1.3, 1.8)[0]);
+        Vector3d goal_eigen = Vector3d(0.5, GenUniformRandom<double, 1>(-0.2, 0.2)[0], GenUniformRandom<double, 1>(1.3, 1.8)[0]);
         SE3d T_goal = SE3d::Identity();
         T_goal.block(0, 3, 3, 1) = goal_eigen;
-        T_goal.block(0, 0, 3, 3) = Roderigues(Vector3d(0.0, 1.0, 0.0), GenUniformRandom<1>(-1.0, 1.0)[0]);
+        T_goal.block(0, 0, 3, 3) = Roderigues(Vector3d(0.0, 1.0, 0.0), GenUniformRandom<double, 1>(-1.0, 1.0)[0]);
         SyncDualLineMotion dual_line_motion(T_goal);
         SE3d left_bias = SE3d::Identity(),
             right_bias = SE3d::Identity();
@@ -415,12 +414,14 @@ void MainWindow::CheckSelected()
         }
     }
     else {
+        // Setting Properties
         Model* parent_ptr = selected_obj_ptr->getParent();
         ui->name_edit->setText(QString::fromStdString(selected_obj_ptr->getName()));
         ui->mesh_edit->setText(QString::fromStdString(selected_obj_ptr->getMesh()));
         ui->shader_edit->setText(QString::fromStdString(selected_obj_ptr->getShader()));
         ui->parent_edit->setText(QString::fromStdString(parent_ptr ? parent_ptr->getName() : "None"));
 
+        // Setting Transforms
         vec3 trans = selected_obj_ptr->getTransGlobal();
         ui->trans_x_edit->setText(QString::number(trans.x, 10, 4));
         ui->trans_y_edit->setText(QString::number(trans.y, 10, 4));
@@ -433,6 +434,14 @@ void MainWindow::CheckSelected()
         ui->scale_x_edit->setText(QString::number(scale.x, 10, 4));
         ui->scale_y_edit->setText(QString::number(scale.y, 10, 4));
         ui->scale_z_edit->setText(QString::number(scale.z, 10, 4));
+
+        if (last_ptr != selected_obj_ptr) {    
+            while (ui->componentstoolbox->count() > 2) ui->componentstoolbox->removeItem(2);
+            for (auto& component : selected_obj_ptr->GetComponents()) {
+                const string_view& type_name = component->GetTypeName();
+                ui->componentstoolbox->addItem(ComponentUIFactory::Create(type_name), type_name.data());
+            }
+        }
     }
     last_ptr = selected_obj_ptr;
 }

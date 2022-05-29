@@ -1,4 +1,4 @@
-#include "engineapp.h"
+ï»¿#include "engineapp.h"
 
 #include "ui_mainwindow.h"
 
@@ -29,7 +29,7 @@ void GComponent::EngineApp::Init(int argc, char* argv[])
 
 	// ui initialize
 	window_ptr_ = std::make_unique<MainWindow>();
-	window_ptr_->setWindowIconText("»úÐµ±Û¹æ»®·ÂÕæÈí¼þ");
+	window_ptr_->setWindowIconText("æœºæ¢°è‡‚è§„åˆ’ä»¿çœŸè½¯ä»¶");
 	window_ptr_->setWindowFlag(Qt::FramelessWindowHint);
 
 	GLModelTreeView* treeview	  = window_ptr_->getModelTreeView();

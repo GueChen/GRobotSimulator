@@ -20,18 +20,18 @@ ROBOT_BODY_MODEL::ROBOT_BODY_MODEL(mat4 transform)
     mesh_      = "dual_arm_body";
     shader_    = "color";
     setModelMatrix(transform);    
-    InitializeResource();
+    InitializeModelResource();
     ModelManager::getInstance().RegisteredModel(name_, this);
 }
 
-void ROBOT_BODY_MODEL::InitializeResource()
+void ROBOT_BODY_MODEL::InitializeModelResource()
 {
     if(is_init_) return;
     ResourceManager::getInstance().RegisteredMesh(mesh_, new RenderMesh(QGL::ModelLoader::getMesh(sPathModel(string("body.STL")))));    
     is_init_ = true;
 }
 
-void GComponent::ROBOT_BODY_MODEL::tick(float delta_time)
+void GComponent::ROBOT_BODY_MODEL::tickImpl(float delta_time)
 {
     RenderManager::getInstance().EmplaceRenderCommand(name_, shader_, mesh_);
 }

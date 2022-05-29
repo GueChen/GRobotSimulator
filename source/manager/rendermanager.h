@@ -14,7 +14,6 @@
 #include "render/mygl.hpp"
 #include "function/picking_helper.h"
 
-
 #include <QtCore/QObject>
 
 #include <functional>

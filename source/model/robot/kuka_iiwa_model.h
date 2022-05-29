@@ -25,11 +25,13 @@ using std::vector;
 using std::unique_ptr;
 using std::shared_ptr;
 
+using Eigen::Matrix4d;
+
 /// Type Alias
 using Weight                = double;
 using Radius                = double;
-using vec3d                 = Vector3d;
-using vec4d                 = Vector4d;
+using vec3d                 = Eigen::Vector3d;
+using vec4d                 = Eigen::Vector4d;
 using vec7d                 = Matrix<double, 7, 1>;
 using mat6d                 = Matrix<double, 6, 6>;
 using mat7d                 = Matrix<double, 7, 7>;
@@ -52,7 +54,7 @@ public:
     ~KUKA_IIWA_MODEL() = default;
 
 /// Tick Functions
-    void tick(float delta_time) override;
+    void tickImpl(float delta_time) override;
 
 /// 绘图函数 Drawing Functions
     void Draw(MyShader * shader) override;
@@ -128,7 +130,7 @@ public:
     IIWAThetas GetThetas() const;
     void SetThetas(const IIWAThetas&);
 
-    // 添加检测点辅助函数
+// 添加检测点辅助函数
     void AddCheckPoint(int idx, const WeightedCheckPoint & p);
 
 protected:
@@ -138,33 +140,34 @@ private:
     void Draw(MyShader* shader, Model * next);
 
     void InitializeKinematicsParameters();
-    void InitializeResource();
+    void InitializeModelResource();
+    void InitializeMeshResource();
     void InitializeLimitation();
 
     template<class _LQSolver>
     IIWAThetas BackKinematicIteration(_LQSolver&& solver, const SE3d& trans_desire, const IIWAThetav& initialGuess);
-/// 数据域 Fields
-public:
-    vector<Revolute*> Joints;
 
+/// 数据域 Fields
 private:
 // 当前单一颜色着色器下的显示颜色
-    vec3 _color     = vec3(1.0f);
+    vec3            _color     = vec3(1.0f);
+
 // 角度及坐标变换参数
     IIWAThetas      _thetas;
     IIWATransfoms   _Ts;
 
 //  限制参数
-    IIWAThetas _thetas_max_limitation;
-    IIWAThetas _thetas_min_limitation;
+    IIWAThetas      _thetas_max_limitation;
+    IIWAThetas      _thetas_min_limitation;
 
 /// 碰撞检测部分 Collision Part
     map<int, vector<WeightedCheckPoint>> _checkPointDict;
 
 // FIXME：单一窗口下资源优化的最佳方式，但多窗口下可能会存在隐患
 /// 资源管理部分 Resource Manager
-    static bool hasInit;
+    static bool is_init_;
     static int  count;
+
 /// 运动学部分 Kinematic Part
     static SE3d M;
     static IIWAExpCoords expCoords;

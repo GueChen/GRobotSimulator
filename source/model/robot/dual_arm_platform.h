@@ -8,14 +8,12 @@
 namespace GComponent {
 
 class MyGL;
-class Joint;
 class KUKA_IIWA_MODEL;
 class ROBOT_BODY_MODEL;
 
 using std::array;
 using std::pair;
 using Ptr_KUKA_IIWA_MODEL = KUKA_IIWA_MODEL*;
-using JointsPair = pair<array<Joint*, 7>, array<Joint*, 7>>;
 
 class DUAL_ARM_PLATFORM: public Model
 {
@@ -29,7 +27,6 @@ public:
     void setLeftColor(const vec3 & color);
     void setRightColor(const vec3 & color);
 
-    JointsPair          getJoints()     const;
     Ptr_KUKA_IIWA_MODEL getLeftRobot()  const;
     Ptr_KUKA_IIWA_MODEL getRightRobot() const;
 

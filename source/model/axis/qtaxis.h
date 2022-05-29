@@ -42,7 +42,7 @@ public:
 	inline AxisSelected GetAxisSelected() const				{ return selected_which_; }
 
 	void Init(int segments, float radius);
-	void tick(float delta_time) override;
+	void tickImpl(float delta_time) override;
 	[[deprecated]]
 	void Draw();
 protected:

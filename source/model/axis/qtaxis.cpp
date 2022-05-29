@@ -29,7 +29,7 @@ unsigned GComponent::QtGLAbstractAxis::GetStridedSize()
 	return ResourceManager::getInstance().GetMeshByName(mesh_)->getElementSize() / 3;
 }
 
-void GComponent::QtGLAbstractAxis::tick(float delta_time)
+void GComponent::QtGLAbstractAxis::tickImpl(float delta_time)
 {
 	RenderManager::getInstance().EmplaceAuxiRenderCommand(name_, shader_, mesh_);
 }
@@ -210,7 +210,7 @@ std::vector<GComponent::Vertex> GComponent::QtGLRotationAxis::SetupVertexData(in
 	vector<Vertex> vertices;
 	/* Make X Circle */
 	SetupXaxisCircle(segments, radius, 0.0f, vertices);
-	SetupXaxisCircle(segments, 1.07f * radius, 0.0f, vertices);
+	SetupXaxisCircle(segments, 1.15f * radius, 0.0f, vertices);
 
 	const int vertex_count = vertices.size();
 	/* Make Y-Z Vertex Setup */
@@ -252,7 +252,7 @@ std::vector<GComponent::Vertex> GComponent::QtGLScaleAxis::SetupVertexData(int s
 
 	/* the Block part Vertex */
 	glm::vec3 base_pos(1.5f, 0.0f, 0.0f);
-	float half = radius * 5.0f;
+	float half = radius * 3.0f;
 	auto emplace_vertex_in_x = [&vertices = vertices, &base_pos = base_pos](float x, float y, float z) {
 		Vertex		temp;
 		glm::vec3&	pos		= temp.Position,

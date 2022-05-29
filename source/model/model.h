@@ -37,6 +37,7 @@ using std::unique_ptr;
 using Vec3 = Eigen::Vector3f;
 using Mat4 = Eigen::Matrix4f;
 using vec3 = glm::vec3;
+using mat3 = glm::mat3;
 using mat4 = glm::mat4;
 using std::unordered_map;
 
@@ -55,8 +56,9 @@ public:
     
     virtual         ~Model();
 
-    virtual
     void            tick(float delta_time);
+    virtual
+    void            tickImpl(float delta_time);
 
     virtual 
     void            Draw(MyShader * shader);
@@ -102,17 +104,16 @@ public:
     //vec3          getScaleGlobal() const;
 
     bool            RegisterComponent(_PtrComponent && component_ptr);
-    bool            DerigisterComponent();
-    template<class _TypeComponent>
+    // bool            DerigisterComponent();
+    inline const vector<_PtrComponent>&
+                    GetComponents()  const              { return components_ptrs_;}
+    template<class _TypeComponent> requires std::is_base_of_v<Component, _TypeComponent>
     _TypeComponent* GetComponet(const string & component_name);
     
-    inline void     setAxis(vec3 axis)                   { axis_ = axis; }
-    void            setRotate(float angle);
-
 protected:
     int             getChildIndex(_RawPtr ptr);
     void            updateModelMatrix();
-    void            updateChildrenMatrix();
+    void            updateChildrenMatrix(const mat4& parent_scale_mat);
     virtual void    setShaderProperty(MyShader& shader);
 
 protected:
@@ -121,34 +122,32 @@ protected:
     vector<string>        components_type_names_;
 
     /// Transform 变换相关
-    vec3 trans_                 = vec3(0.0f);
-    vec3 rot_                   = vec3(0.0f);
-    vec3 scale_                 = vec3(1.0f);
+    vec3 trans_                     = vec3(0.0f);
+    vec3 rot_                       = vec3(0.0f);
+    vec3 scale_                     = vec3(1.0f);
+    vec3 shear_                     = vec3(0.0f);
 
     /// Fields 数据域
-    mat4 parent_model_mat_      = mat4(1.0f);
-    mat4 model_mat_             = mat4(1.0f);
+    mat4 parent_model_mat_          = mat4(1.0f);    
+    mat4 model_mat_                 = mat4(1.0f);
+    mat3 inv_parent_U_mat_          = mat3(1.0f);
 
-    _RawPtr         parent_     = nullptr;
-    vector<_RawPtr> children_   = {};
+    _RawPtr         parent_         = nullptr;
+    vector<_RawPtr> children_       = {};
 
     /// Structure 结构相关
-    int     model_id_           = -1;
-    string  name_               = "";
-    string  mesh_               = "";
-    string  shader_             = "";
+    int     model_id_               = -1;
+    string  name_                   = "";
+    string  mesh_                   = "";
+    string  shader_                 = "";
 
-    // TODO : 将其替换为 Motor/Joint 组件
-    /// MoveMent 运动相关
-    vec3  axis_                 = vec3(0.0f, 1.0f, 0.0f);
-    float angle_                = 0.0;    
 };
 
-template<class _TypeComponent>
+template<class _TypeComponent> requires std::is_base_of_v<Component, _TypeComponent>
 _TypeComponent* Model::GetComponet(const string& component_name) {
     for (int i = 0; i < components_type_names_.size(); ++i) {
         if (components_type_names_[i] == component_name) {
-            return dynamic_cast<_TypeComponent*>(components_ptrs_[i]);
+            return dynamic_cast<_TypeComponent*>(components_ptrs_[i].get());
         }
     }
     return nullptr;

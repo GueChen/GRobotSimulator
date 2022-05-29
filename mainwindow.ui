@@ -2406,8 +2406,8 @@ background: black;
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>116</width>
-               <height>402</height>
+               <width>208</width>
+               <height>659</height>
               </rect>
              </property>
              <property name="styleSheet">
@@ -3347,9 +3347,12 @@ color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(195, 195,
         <item row="0" column="0">
          <widget class="QListView" name="listView">
           <property name="styleSheet">
-           <string notr="true">QListView{
-	alternate-background-color: rgb( 20, 20, 20);
+           <string notr="true">QListView{ 
+	background-color: qlineargradient(spread:pad, x1:0, y1:0.75, x2:0, y2:1, stop:0 rgba(25, 25, 25, 255), stop:1 rgba(40, 40, 50, 255));
 }</string>
+          </property>
+          <property name="viewMode">
+           <enum>QListView::ListMode</enum>
           </property>
          </widget>
         </item>

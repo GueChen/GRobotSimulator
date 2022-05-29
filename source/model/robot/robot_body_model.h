@@ -20,14 +20,14 @@ public:
     ~ROBOT_BODY_MODEL() = default;
 
 /// Tick Functions
-    void tick(float delta_time) override;
+    void tickImpl(float delta_time) override;
 
     void Draw(MyShader * shader) override;
 protected:
     void setShaderProperty(MyShader& shader) override;
 
 private:
-    void InitializeResource();
+    void InitializeModelResource();
 
     vec3        color_ = vec3(0.85f, 0.85f, 0.75f);
 

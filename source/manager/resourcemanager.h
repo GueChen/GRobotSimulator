@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  *  @file  	resourcemanager.h
  *  @brief 	The Resource Manager by this Class include shader, mesh Resources.
  *  @author Gue Chen<guechen@buaa.edu.cn>
@@ -25,7 +25,7 @@
 
 namespace GComponent {
 
-/// Ç°ÖÃÉùÃ÷ Forward Declaration
+/// å‰ç½®å£°æ˜ Forward Declaration
 class MyGL;
 
 using std::list;

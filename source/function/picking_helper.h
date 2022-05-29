@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  *  @file  	picking_helper.h
  *  @brief 	qt version to making picking uv helper class.
  *  @author Gue Chen<guechen@buaa.edu.cn>
@@ -17,8 +17,8 @@ class PickingController;
 
 using std::shared_ptr;
 /*
-* @brief Í¼Æ¬Ë÷ÒýµÄ id
-* Ä¬ÈÏ r ´ú±í»æÖÆ Pass µÄ ID, g ´ú±í model ¶ÔÏóµÄ ID, b ´ú±íÍ¼Ôª ID
+* @brief å›¾ç‰‡ç´¢å¼•çš„ id
+* é»˜è®¤ r ä»£è¡¨ç»˜åˆ¶ Pass çš„ ID, g ä»£è¡¨ model å¯¹è±¡çš„ ID, b ä»£è¡¨å›¾å…ƒ ID
 * */
 struct PickingPixelInfo {
 	float drawID		= 0.0f;		

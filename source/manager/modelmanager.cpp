@@ -148,7 +148,7 @@ void ModelManager::tickAll(float delta_time)
     /* Tick The Rest Models */
     for(auto && [id, model]: models_)
     {
-        model->tick();
+        model->tick(delta_time);
     }
 }
 

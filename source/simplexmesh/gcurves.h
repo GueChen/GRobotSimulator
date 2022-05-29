@@ -3,6 +3,9 @@
 
 #include "simplexmesh/simplexmodel.hpp"
 
+#include <glm/gtx/compatibility.hpp>
+#include <GComponent/GGeometry.hpp>
+
 #include <vector>
 
 namespace GComponent {

@@ -64,7 +64,7 @@ void Viewport::paintGL()
 	ModelManager::getInstance().SetProjectViewMatrices(
 		perspective(radians(camera_ptr->Zoom), static_cast<float>(width()) / height(), 0.1f, 1000.0f),
 		camera_ptr->GetViewMatrix());
-	ModelManager::getInstance().SetDirLightViewPosition(vec3(-0.5f, -1.0f, -1.0f), vec3(1.0f), camera_ptr->Position);
+	ModelManager::getInstance().SetDirLightViewPosition(vec3(0.5f, 1.0f, 1.0f), vec3(1.0f), camera_ptr->Position);
 	// Adjust all component
 	ModelManager::getInstance().tickAll(delta_time.count());
 	// Adjust all resources

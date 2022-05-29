@@ -1,8 +1,6 @@
 #include "gcurves.h"
 
-#include <glm/gtx/compatibility.hpp>
 
-#include <GComponent/GGeometry.hpp>
 
 #include <algorithm>
 #include <execution>

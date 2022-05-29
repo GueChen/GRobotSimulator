@@ -111,8 +111,8 @@ void GComponent::UIState::tick()
 				break;
 			}
 			case Rotation: {			
-				Eigen::Matrix3f global_rot_dcm  = Conversion::toMat4f(selected_obj->getModelMatrix()).block(0, 0, 3, 3);
-				Eigen::Matrix3f local_rot_dcm   = Conversion::toMat4f(selected_obj->getParentModelMatrix()).block(0, 0, 3, 3).transpose() * Roderigues(Conversion::toVec3f(dir)) * global_rot_dcm;			
+				Eigen::Matrix3f global_rot_dcm  = Conversion::toMat4f(selected_obj->getModelMatrixWithoutScale()).block(0, 0, 3, 3);				
+				Eigen::Matrix3f local_rot_dcm   = Conversion::toMat4f(selected_obj->getParentModelMatrix()).block(0, 0, 3, 3).inverse() * Roderigues(Conversion::toVec3f(dir)) * global_rot_dcm;			
 				selected_obj->setRotLocal(Conversion::fromVec3f(LogMapSO3Toso3(local_rot_dcm)));
 				break;
 			}
@@ -157,7 +157,7 @@ void GComponent::UIState::tick()
 		m_cur_axis->setModelMatrix(
 			(m_axis_mode != AxisMode::Scale? selected_obj->getTranslationModelMatrix() : selected_obj->getModelMatrixWithoutScale())
 				* glm::scale(glm::mat4(1.0f), scale));
-		m_cur_axis->tick();
+		m_cur_axis->tick(0.0f);
 	}
 
 }
@@ -206,7 +206,7 @@ void GComponent::UIState::Init(int segments, float radius)
 	if (!is_init) {
 		m_translation_axis->Init(segments, radius);
 		m_scale_axis->Init(segments, radius);
-		m_rotation_axis->Init(5 * segments, 30.0f * radius);
+		m_rotation_axis->Init(8 * segments, 15.0f * radius);
 	}
 	is_init = true;
 }

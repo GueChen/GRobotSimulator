@@ -1,4 +1,4 @@
-#ifndef _VIEWPORT_H
+ï»¿#ifndef _VIEWPORT_H
 #define _VIEWPORT_H
 #include "function/picking_helper.h"
 
@@ -30,7 +30,7 @@ namespace GComponent {
 	private:
 		void RegisteredShader();
 
-		/// Event Definitions ÊÂ¼þ¶¨Òå
+		/// Event Definitions äº‹ä»¶å®šä¹‰
 	protected:
 		void keyPressEvent(QKeyEvent* event)		override;
 		void keyReleaseEvent(QKeyEvent* event)		override;

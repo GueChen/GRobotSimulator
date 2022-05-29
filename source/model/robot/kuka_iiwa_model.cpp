@@ -3,10 +3,14 @@
 #include "manager/modelmanager.h"
 #include "manager/resourcemanager.h"
 #include "manager/rendermanager.h"
+
 #include "render/mygl.hpp"
 #include "render/myshader.h"
-#include "model/robot/joint.h"
 #include "render/rendermesh.h"
+
+#include "component/joint_component.h"
+#include "component/joint_group_component.h"
+
 #include "function/adapter/modelloader_qgladapter.h"
 
 #include <GComponent/GNumerical.hpp>
@@ -14,14 +18,17 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <execution>
+#include <algorithm>
 #include <iostream>
 #include <ranges>
 
 #define IIWASource(name) "iiwa14_"#name".STL"
 
 using namespace GComponent;
+using std::make_unique;
 
-bool KUKA_IIWA_MODEL::hasInit = false;
+bool KUKA_IIWA_MODEL::is_init_ = false;
 int KUKA_IIWA_MODEL::count    = 0;
 SE3d KUKA_IIWA_MODEL::M = SE3d();
 array<twistd, 7> KUKA_IIWA_MODEL::expCoords = {};
@@ -38,8 +45,9 @@ KUKA_IIWA_MODEL::KUKA_IIWA_MODEL(mat4 transform):
     _thetas({0}), _Ts()
 {
     shader_ = "color";
-    setModelMatrix(transform);    
-    InitializeResource();
+    setModelMatrix(transform); 
+    InitializeMeshResource();
+    InitializeModelResource();
     InitializeLimitation();
     InitializeKinematicsParameters();
     ++count;
@@ -70,24 +78,11 @@ void KUKA_IIWA_MODEL::InitializeKinematicsParameters()
     expCoords[6] << 0.,  0., 1.,    0., 0., 0.;
 }
 
-void KUKA_IIWA_MODEL::InitializeResource()
-{
-    ResourceManager& scene_manager = ResourceManager::getInstance();
+void KUKA_IIWA_MODEL::InitializeModelResource()
+{            
     ModelManager& model_manager = ModelManager::getInstance();
-    if(!hasInit)
-    {       
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_0",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(base))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_1",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_1))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_2",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_2))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_3",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_3))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_4",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_4))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_5",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_5))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_6",  QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_6))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_7",  QGL::ModelLoader::getMeshPtr(cPathModel("flanschExten.STL")));
-    }
-
-    array<Model*, 8> models;
-    array<glm::vec3, 8> trans =
+    array<Model*, 8>    models_tmp;
+    array<glm::vec3, 8> local_trans =
     {
         vec3(0.0f),
         vec3(0.0f, 0.0f, 0.1575f),
@@ -100,55 +95,58 @@ void KUKA_IIWA_MODEL::InitializeResource()
     };
 
     string count_str = "_" + std::to_string(count);
+    model_manager.RegisteredModel("kuka_iiwa_robot" + count_str, this);
     for(int i = 0; i < 8; ++i)
     {
-        models[i] = new Model("kuka_iiwa_robot_link_" + std::to_string(i) + count_str, 
-                              "kuka_iiwa_robot_link_" + std::to_string(i), 
-                              "color",
-                              trans[i], vec3(0.0f), vec3(1.0f), 
-                              i > 0 ? models[i - 1] :this);
-
+        string count_name = "kuka_iiwa_robot_link_" + std::to_string(i);
+        models_tmp[i] = new Model(count_name + count_str, 
+                                  count_name, 
+                                  "color",
+                                  local_trans[i], vec3(0.0f), vec3(1.0f), 
+                                  i > 0 ? models_tmp[i - 1] :this);
+        model_manager.RegisteredModel(models_tmp[i]->getName(), models_tmp[i]);
     }
-    
-    models[1]->setAxis(vec3(0.0f, 0.0f,  1.0f));
-    models[2]->setAxis(vec3(0.0f, 1.0f,  0.0f));
-    models[3]->setAxis(vec3(0.0f, 0.0f,  1.0f));
-    models[4]->setAxis(vec3(0.0f, -1.0f, 0.0f));
-    models[5]->setAxis(vec3(0.0f, 0.0f,  1.0f));
-    models[6]->setAxis(vec3(0.0f, 1.0f,  0.0f));
-    models[7]->setAxis(vec3(0.0f, 0.0f,  1.0f));
+                
+    vector<Vec3> axis_binds = { Vec3::UnitZ(), Vec3::UnitY(),Vec3::UnitZ(), -Vec3::UnitY(), Vec3::UnitZ(), Vec3::UnitY(), Vec3::UnitZ() };
+    for (int i = 1; i < 8; ++i) {
+        //models_tmp[i]->RegisterComponent(make_unique<JointComponent>(models_tmp[i], axis_binds[i - 1]));
+    }
 
-    model_manager.RegisteredModel("kuka_iiwa_robot_"       + count_str, this);
-    model_manager.RegisteredModel("kuka_iiwa_robot_base_"  + count_str, models[0]);
-    model_manager.RegisteredModel("kuka_iiwa_robot_link1_" + count_str, models[1]);
-    model_manager.RegisteredModel("kuka_iiwa_robot_link2_" + count_str, models[2]);
-    model_manager.RegisteredModel("kuka_iiwa_robot_link3_" + count_str, models[3]);
-    model_manager.RegisteredModel("kuka_iiwa_robot_link4_" + count_str, models[4]);
-    model_manager.RegisteredModel("kuka_iiwa_robot_link5_" + count_str, models[5]);
-    model_manager.RegisteredModel("kuka_iiwa_robot_link6_" + count_str, models[6]);
-    model_manager.RegisteredModel("kuka_iiwa_robot_flansch_" + count_str, models[7]);
+    /*vector<JointComponent*> joints;
+    for (int i = 1; i < 8; ++i) {
+        joints.push_back(models_tmp[i]->GetComponet<JointComponent>("JointComponent"));
+    }
+    RegisterComponent(make_unique<JointGroupComponent>(this, joints));*/
+             
+}
 
-    Joints.resize(7);
-    Joints[0] = new Revolute(models[1]);
-    Joints[1] = new Revolute(models[2]);
-    Joints[2] = new Revolute(models[3]);
-    Joints[3] = new Revolute(models[4]);
-    Joints[4] = new Revolute(models[5]);
-    Joints[5] = new Revolute(models[6]);
-    Joints[6] = new Revolute(models[7]);
-
-    hasInit = true;
+void GComponent::KUKA_IIWA_MODEL::InitializeMeshResource()
+{
+    if (!is_init_)
+    {
+        ResourceManager& scene_manager = ResourceManager::getInstance();
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_0", QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(base))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_1", QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_1))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_2", QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_2))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_3", QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_3))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_4", QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_4))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_5", QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_5))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_6", QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_6))));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_7", QGL::ModelLoader::getMeshPtr(cPathModel("flanschExten.STL")));
+        is_init_ = true;
+    }
 }
 
 // TODO: 完善 Move
 /// 操作控制类函数
 void KUKA_IIWA_MODEL::Move(const IIWAThetas& thetas)
 {
-    SetThetas(thetas);
-    for (int index = 0; auto && joint : Joints)
+    /*SetThetas(thetas);
+    JointGroupComponent* joints =  GetComponet<JointGroupComponent>("JointGroupComponent");
+    for (int index = 0; auto && joint : joints->GetJoints())
     {
-        joint->Rotate(RadiusToDegree(thetas[index++]));
-    }
+        joint->SetPosition(thetas[index++]);        
+    }*/
 }
 void KUKA_IIWA_MODEL::Move(const IIWAThetav& vthetas)
 {
@@ -175,7 +173,7 @@ void GComponent::KUKA_IIWA_MODEL::setShaderProperty(MyShader & shader)
     shader.setBool("NormReverse", false);
 }
 
-void GComponent::KUKA_IIWA_MODEL::tick(float delta_time)
+void GComponent::KUKA_IIWA_MODEL::tickImpl(float delta_time)
 {   
     RenderManager::getInstance().EmplaceRenderCommand(name_, shader_, mesh_);
 }
@@ -336,7 +334,7 @@ IIWAThetas KUKA_IIWA_MODEL::BackKinematicIteration(_LQSolver && solver, const SE
     int iter = 0;
     double decay = 1;
     double residualDelta = -1e2;
-    while (residual > 1e-5 && iter < 1.0e2) {
+    while (residual > 1e-5 && iter < 50) {
 
         /* Get Precondition */
         auto t_cal = decay * t_delta;
@@ -369,7 +367,9 @@ IIWAThetas KUKA_IIWA_MODEL::BackKinematicIteration(_LQSolver && solver, const SE
 
         iter++;
     }
-
+    std::for_each(std::execution::par, 
+                  thetav.begin(), thetav.end(), 
+                  [](auto& val) { val = ToStandarAngle(val); });
     return IIWAThetas{ thetav[0], thetav[1], thetav[2], thetav[3],
                 thetav[4], thetav[5], thetav[6]};
 }

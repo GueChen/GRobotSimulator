@@ -12,7 +12,6 @@
 
 class Conversion
 {
-
 public:
     Conversion()  = delete;
     ~Conversion() = delete;
@@ -34,6 +33,18 @@ public:
     static inline glm::vec3 fromVec3f(const Eigen::Vector3f& vec) 
     {
         return glm::vec3(vec.x(), vec.y(), vec.z());
+    }
+
+    static inline Eigen::Matrix3f toMat3f(const glm::mat3& matrix)
+    {
+        return Eigen::Matrix3f(glm::value_ptr(matrix));
+    }
+
+    static inline glm::mat3 fromMat3f(const Eigen::Matrix3f& matrix)
+    {
+        return glm::mat3(matrix(0, 0), matrix(1, 0), matrix(2, 0), 
+                         matrix(0, 1), matrix(1, 1), matrix(2, 1),
+                         matrix(0, 2), matrix(1, 2), matrix(2, 2));
     }
 
     static Eigen::Matrix4d toMat4d(const glm::mat4 & matrix){
