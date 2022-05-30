@@ -41,7 +41,7 @@ void GComponent::QtGLAbstractAxis::Draw()
 
 void GComponent::QtGLAbstractAxis::setShaderProperty(MyShader& shader)
 {
-	shader.setMat4("model",	getModelMatrix());
+	shader.setMat4("model",	Conversion::fromMat4f(getModelMatrix()));
 	shader.setInt( "selected", static_cast<int>(selected_which_));
 }
 

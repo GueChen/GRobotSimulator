@@ -15,6 +15,29 @@ class Conversion
 public:
     Conversion()  = delete;
     ~Conversion() = delete;
+    
+    static Eigen::Matrix4d toMat4d(const Eigen::Matrix4f& matrix) 
+    {
+        Eigen::Matrix4d ret_mat;        
+        for(int i = 0; i < 4; ++i)
+        for(int j = 0; j < 4; ++j)
+        {
+            ret_mat(i, j) = matrix(i, j);
+        }
+        return ret_mat;
+    }
+    
+    static Eigen::Matrix3d toMat3d(const Eigen::Matrix3f& matrix) 
+    {
+        Eigen::Matrix3d ret_mat;        
+        for(int i = 0; i < 3; ++i)
+        for(int j = 0; j < 3; ++j)
+        {
+            ret_mat(i, j) = matrix(i, j);
+        }
+        return ret_mat;
+    }
+
     static inline glm::vec3 fromVec3d(const Eigen::Vector3d & vec)
     {      
         return glm::vec3(vec.x(), vec.y(), vec.z());

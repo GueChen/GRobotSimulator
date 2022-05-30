@@ -50,7 +50,7 @@ class KUKA_IIWA_MODEL:public Model
 /// 成员函数 Member Functions
 public:
 /// 构造函数 Constructors
-    explicit KUKA_IIWA_MODEL(mat4 transform = mat4(1.0f));
+    explicit KUKA_IIWA_MODEL(Mat4 transform = Mat4::Identity());
     ~KUKA_IIWA_MODEL() = default;
 
 /// Tick Functions

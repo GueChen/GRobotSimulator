@@ -16,7 +16,7 @@ using std::shared_ptr;
 class ROBOT_BODY_MODEL: public Model
 {
 public:
-    explicit ROBOT_BODY_MODEL(mat4 transform = mat4(1.0f));
+    explicit ROBOT_BODY_MODEL(Mat4 transform = Mat4::Identity());
     ~ROBOT_BODY_MODEL() = default;
 
 /// Tick Functions

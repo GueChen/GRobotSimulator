@@ -48,7 +48,7 @@ bool GComponent::ObjectManager::DerigisterObject(const string& obj_name)
 	return true;
 }
 
-bool GComponent::ObjectManager::CreateInstanceWithModelMat(const string& obj_name, const glm::mat4& model_mat)
+bool GComponent::ObjectManager::CreateInstanceWithModelMat(const string& obj_name, const Mat4& model_mat)
 {
 	auto iter = obj_lists_count_table_.find(obj_name);
 	if (iter == obj_lists_count_table_.end()) return false;
@@ -61,5 +61,5 @@ bool GComponent::ObjectManager::CreateInstanceWithModelMat(const string& obj_nam
 
 void GComponent::ObjectManager::CreateInstance(const string& obj_name)
 {
-	CreateInstanceWithModelMat(obj_name, glm::mat4(1.0f));
+	CreateInstanceWithModelMat(obj_name, Mat4::Identity());
 }

@@ -54,11 +54,11 @@ SyncDualLineMotion::GetCurvesFunction(KUKA_IIWA_MODEL* robot_left, KUKA_IIWA_MOD
 tuple<SE3d, SE3d>
 SyncDualLineMotion::GetTGoalTransforms(KUKA_IIWA_MODEL* p_robot_left, KUKA_IIWA_MODEL* p_robot_right,
                                        const SE3d & T_bias_left, const SE3d & T_bias_right){
-    mat4 base_left    = p_robot_left->getModelMatrix(),
-         base_right   = p_robot_right->getModelMatrix();
+    SE3d base_left    = Conversion::toMat4d(p_robot_left->getModelMatrix()),
+         base_right   = Conversion::toMat4d(p_robot_right->getModelMatrix());
 
-    SE3d T_goal_left  = InverseSE3(Conversion::toMat4d(base_left)) * T_goal_ * T_bias_left,
-         T_goal_right =InverseSE3(Conversion::toMat4d(base_right)) * T_goal_ * T_bias_right;
+    SE3d T_goal_left  = SE3d(InverseSE3(base_left))  * T_goal_ * T_bias_left,
+         T_goal_right = SE3d(InverseSE3(base_right)) * T_goal_ * T_bias_right;
 
     return {T_goal_left, T_goal_right};
 }

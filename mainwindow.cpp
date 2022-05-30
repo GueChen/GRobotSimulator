@@ -110,14 +110,14 @@ void MainWindow::on_TestLINMotion_clicked()
         vec3d EigenPos_ini = T_ini.block(0, 3, 3, 1);
         vec3d EigenPos_end = T_goal.block(0, 3, 3, 1);
 
-        mat4 base = ptr_left->getModelMatrix();
+        Mat4 base = ptr_left->getModelMatrix();
 
-        glm::vec3 pos_goal_affine = Conversion::fromVec3d(EigenPos_end);
+        /*glm::vec3 pos_goal_affine = Conversion::fromVec3d(EigenPos_end);
         vec3 pos_goal = base * glm::vec4(pos_goal_affine, 1.0f);
         glm::vec3 pos_ini_affine = Conversion::fromVec3d(EigenPos_ini);
         vec3 pos_ini = base * glm::vec4(pos_ini_affine, 1.0f);
         auto pthetas = PosFun(tot);
-        std::for_each(pthetas.begin(), pthetas.end(), [](auto&& val) {val = DegreeToRadius(val); });
+        std::for_each(pthetas.begin(), pthetas.end(), [](auto&& val) {val = DegreeToRadius(val); });*/
 
         Plot(m_chart->chart(), tot, PosFun, "θ_", "关节曲线图");
         Plot(m_vel_chart->chart(), tot, VelFun, "v_", "关节速度曲线图");
@@ -422,18 +422,18 @@ void MainWindow::CheckSelected()
         ui->parent_edit->setText(QString::fromStdString(parent_ptr ? parent_ptr->getName() : "None"));
 
         // Setting Transforms
-        vec3 trans = selected_obj_ptr->getTransGlobal();
-        ui->trans_x_edit->setText(QString::number(trans.x, 10, 4));
-        ui->trans_y_edit->setText(QString::number(trans.y, 10, 4));
-        ui->trans_z_edit->setText(QString::number(trans.z, 10, 4));
-        vec3 rot = selected_obj_ptr->getRotGlobal();
-        ui->rot_x_edit->setText(QString::number(rot.x, 10, 4));
-        ui->rot_y_edit->setText(QString::number(rot.y, 10, 4));
-        ui->rot_z_edit->setText(QString::number(rot.z, 10, 4));
-        vec3 scale = selected_obj_ptr->getScale();
-        ui->scale_x_edit->setText(QString::number(scale.x, 10, 4));
-        ui->scale_y_edit->setText(QString::number(scale.y, 10, 4));
-        ui->scale_z_edit->setText(QString::number(scale.z, 10, 4));
+        Vec3 trans = selected_obj_ptr->getTransGlobal();
+        ui->trans_x_edit->setText(QString::number(trans.x(), 10, 4));
+        ui->trans_y_edit->setText(QString::number(trans.y(), 10, 4));
+        ui->trans_z_edit->setText(QString::number(trans.z(), 10, 4));
+        Vec3 rot = selected_obj_ptr->getRotGlobal();
+        ui->rot_x_edit->setText(QString::number(rot.x(), 10, 4));
+        ui->rot_y_edit->setText(QString::number(rot.y(), 10, 4));
+        ui->rot_z_edit->setText(QString::number(rot.z(), 10, 4));
+        Vec3 scale = selected_obj_ptr->getScale();
+        ui->scale_x_edit->setText(QString::number(scale.x(), 10, 4));
+        ui->scale_y_edit->setText(QString::number(scale.y(), 10, 4));
+        ui->scale_z_edit->setText(QString::number(scale.z(), 10, 4));
 
         if (last_ptr != selected_obj_ptr) {    
             while (ui->componentstoolbox->count() > 2) ui->componentstoolbox->removeItem(2);

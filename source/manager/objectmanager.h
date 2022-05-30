@@ -9,7 +9,8 @@
 
 #include "base/singleton.h"
 
-#include <glm/glm.hpp>
+//#include <glm/glm.hpp>
+#include <Eigen/Dense>
 
 #include <QtCore/QObject>
 
@@ -18,6 +19,7 @@
 
 namespace GComponent
 {
+using Mat4 = Eigen::Matrix4f;
 using std::unordered_map;
 using std::string;
 using std::pair;
@@ -39,7 +41,7 @@ public:
 						   const string& shader_frag	   = "");
 	bool	DerigisterObject(const string& obj_name);
 
-	bool	CreateInstanceWithModelMat(const string& obj_name, const glm::mat4& model_mat);
+	bool	CreateInstanceWithModelMat(const string& obj_name, const Mat4& model_mat);
 	void	CreateInstance(const string& obj_name);
 	virtual ~ObjectManager() = default;
 

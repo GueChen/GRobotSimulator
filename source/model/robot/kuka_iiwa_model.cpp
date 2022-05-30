@@ -41,7 +41,7 @@ array<twistd, 7> KUKA_IIWA_MODEL::expCoords = {};
  ************************************/
 
 /// 资源管理部分
-KUKA_IIWA_MODEL::KUKA_IIWA_MODEL(mat4 transform):
+KUKA_IIWA_MODEL::KUKA_IIWA_MODEL(Mat4 transform):
     _thetas({0}), _Ts()
 {
     shader_ = "color";
@@ -82,16 +82,16 @@ void KUKA_IIWA_MODEL::InitializeModelResource()
 {            
     ModelManager& model_manager = ModelManager::getInstance();
     array<Model*, 8>    models_tmp;
-    array<glm::vec3, 8> local_trans =
+    array<Vec3, 8> local_trans =
     {
-        vec3(0.0f),
-        vec3(0.0f, 0.0f, 0.1575f),
-        vec3(0.0f, 0.0f, 0.2025f),
-        vec3(0.0f, 0.0f, 0.2045f),
-        vec3(0.0f, 0.0f, 0.2155f),
-        vec3(0.0f, 0.0f, 0.1845f),
-        vec3(0.0f, -0.0607f, 0.2155f),
-        vec3(0.0f, 0.0607f, 0.0809f)
+        Vec3(0.0f, 0.0f, 0.0f),
+        Vec3(0.0f, 0.0f, 0.1575f),
+        Vec3(0.0f, 0.0f, 0.2025f),
+        Vec3(0.0f, 0.0f, 0.2045f),
+        Vec3(0.0f, 0.0f, 0.2155f),
+        Vec3(0.0f, 0.0f, 0.1845f),
+        Vec3(0.0f, -0.0607f, 0.2155f),
+        Vec3(0.0f, 0.0607f, 0.0809f)
     };
 
     string count_str = "_" + std::to_string(count);
@@ -102,21 +102,23 @@ void KUKA_IIWA_MODEL::InitializeModelResource()
         models_tmp[i] = new Model(count_name + count_str, 
                                   count_name, 
                                   "color",
-                                  local_trans[i], vec3(0.0f), vec3(1.0f), 
+                                  local_trans[i], 
+                                  Vec3::Zero(), 
+                                  Vec3::Ones(),
                                   i > 0 ? models_tmp[i - 1] :this);
         model_manager.RegisteredModel(models_tmp[i]->getName(), models_tmp[i]);
     }
                 
     vector<Vec3> axis_binds = { Vec3::UnitZ(), Vec3::UnitY(),Vec3::UnitZ(), -Vec3::UnitY(), Vec3::UnitZ(), Vec3::UnitY(), Vec3::UnitZ() };
     for (int i = 1; i < 8; ++i) {
-        //models_tmp[i]->RegisterComponent(make_unique<JointComponent>(models_tmp[i], axis_binds[i - 1]));
+        models_tmp[i]->RegisterComponent(make_unique<JointComponent>(models_tmp[i], axis_binds[i - 1]));
     }
 
-    /*vector<JointComponent*> joints;
+    vector<JointComponent*> joints;
     for (int i = 1; i < 8; ++i) {
         joints.push_back(models_tmp[i]->GetComponet<JointComponent>("JointComponent"));
     }
-    RegisterComponent(make_unique<JointGroupComponent>(this, joints));*/
+    RegisterComponent(make_unique<JointGroupComponent>(this, joints));
              
 }
 
@@ -141,12 +143,12 @@ void GComponent::KUKA_IIWA_MODEL::InitializeMeshResource()
 /// 操作控制类函数
 void KUKA_IIWA_MODEL::Move(const IIWAThetas& thetas)
 {
-    /*SetThetas(thetas);
+    SetThetas(thetas);
     JointGroupComponent* joints =  GetComponet<JointGroupComponent>("JointGroupComponent");
     for (int index = 0; auto && joint : joints->GetJoints())
     {
         joint->SetPosition(thetas[index++]);        
-    }*/
+    }
 }
 void KUKA_IIWA_MODEL::Move(const IIWAThetav& vthetas)
 {
@@ -168,7 +170,7 @@ void KUKA_IIWA_MODEL::SetThetas(const IIWAThetas& thetas)
 
 void GComponent::KUKA_IIWA_MODEL::setShaderProperty(MyShader & shader)
 {
-    shader.setMat4("model", getModelMatrix());
+    shader.setMat4("model", Conversion::fromMat4f(getModelMatrix()));
     shader.setVec3("color", _color);
     shader.setBool("NormReverse", false);
 }
@@ -189,7 +191,7 @@ void KUKA_IIWA_MODEL::Draw(MyShader * shader)
 }
 void KUKA_IIWA_MODEL::Draw(MyShader * shader, Model * next)
 {
-    shader->setMat4("model", next->getModelMatrix());
+    shader->setMat4("model", Conversion::fromMat4f(next->getModelMatrix()));
     ResourceManager::getInstance().GetMeshByName(next->getMesh())->Draw();
     for(auto & child : next->getChildren())
     {

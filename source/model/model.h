@@ -35,6 +35,8 @@ using std::pair;
 using std::shared_ptr;
 using std::unique_ptr;
 using Vec3 = Eigen::Vector3f;
+using Vec4 = Eigen::Vector4f;
+using Mat3 = Eigen::Matrix3f;
 using Mat4 = Eigen::Matrix4f;
 using vec3 = glm::vec3;
 using mat3 = glm::mat3;
@@ -49,9 +51,9 @@ class Model
     friend class RenderManager;
 public:
     explicit        Model(_RawPtr parent = nullptr, const string & meshKey = "");
-                    Model(const string& name, const string& mesh, const string& shader, const mat4& model_mat = mat4(1.0f), _RawPtr parent =nullptr);
+                    Model(const string& name, const string& mesh, const string& shader, const Mat4& model_mat = Mat4(1.0f), _RawPtr parent =nullptr);
                     Model(const string& name, const string& mesh, const string& shader, 
-                          const vec3& trans = vec3(0.0f), const vec3& rot = vec3(0.0f), const vec3& scale = vec3(1.0f), 
+                          const Vec3& trans = Vec3::Zero(), const Vec3& rot = Vec3::Zero(), const Vec3& scale = Vec3::Ones(),
                           _RawPtr parent = nullptr);
     
     virtual         ~Model();
@@ -63,7 +65,7 @@ public:
     virtual 
     void            Draw(MyShader * shader);
 
-    void            appendChild(const _RawPtr pchild, mat4 transform = mat4(1.0f));
+    void            appendChild(const _RawPtr pchild, Mat4 transform = Mat4::Identity());
 
     inline const vector<_RawPtr>& 
                     getChildren() const { return children_; }
@@ -71,12 +73,12 @@ public:
     bool            eraseChild(int idx);
 
     [[deprecated("no implementation for glm axis getting")]]
-    void            setModelMatrix(const mat4 & mat);
-    inline mat4     getModelMatrix() const               { return parent_model_mat_ * model_mat_; }
+    void            setModelMatrix(const Mat4 & mat);
+    inline Mat4     getModelMatrix() const               { return parent_model_mat_ * model_mat_; }
         
-    mat4            getTranslationModelMatrix() const;
-    mat4            getModelMatrixWithoutScale()const;
-    inline mat4     getParentModelMatrix()      const    { return parent_model_mat_;}
+    Mat4            getTranslationModelMatrix() const;
+    Mat4            getModelMatrixWithoutScale()const;
+    inline Mat4     getParentModelMatrix()      const    { return parent_model_mat_;}
 
     inline void     setMesh(const string & mesh_name)    { mesh_ = mesh_name;}
     inline string   getMesh()        const               { return mesh_;}
@@ -90,16 +92,16 @@ public:
     inline void     setParent(Model * parent)            { parent_ = parent;}
     inline _RawPtr  getParent()      const               { return parent_;}
 
-    void            setTransLocal(const vec3& translation, bool updateflag = true);
-    inline vec3     getTransLocal()  const               { return trans_;}
-    vec3            getTransGlobal() const;
+    void            setTransLocal(const Vec3& translation, bool updateflag = true);
+    inline Vec3     getTransLocal()  const               { return trans_;}
+    Vec3            getTransGlobal() const;
 
-    void            setRotLocal(const vec3& rotation, bool updateflag = true);
-    inline vec3     getRotLocal()    const               { return rot_;}
-    vec3            getRotGlobal()   const;
+    void            setRotLocal(const Vec3& rotation, bool updateflag = true);
+    inline Vec3     getRotLocal()    const               { return rot_;}
+    Vec3            getRotGlobal()   const;
 
-    void            setScale(const vec3 scale, bool updateflag = true);
-    inline vec3     getScale()       const               { return scale_;}
+    void            setScale(const Vec3 scale, bool updateflag = true);
+    inline Vec3     getScale()       const               { return scale_;}
     // TODO: add QR Decomposition then set global scale
     //vec3          getScaleGlobal() const;
 
@@ -113,7 +115,7 @@ public:
 protected:
     int             getChildIndex(_RawPtr ptr);
     void            updateModelMatrix();
-    void            updateChildrenMatrix(const mat4& parent_scale_mat);
+    void            updateChildrenMatrix(const Mat3& parent_scale_mat);
     virtual void    setShaderProperty(MyShader& shader);
 
 protected:
@@ -122,15 +124,15 @@ protected:
     vector<string>        components_type_names_;
 
     /// Transform 变换相关
-    vec3 trans_                     = vec3(0.0f);
-    vec3 rot_                       = vec3(0.0f);
-    vec3 scale_                     = vec3(1.0f);
-    vec3 shear_                     = vec3(0.0f);
+    Vec3 trans_                     = Vec3::Zero();
+    Vec3 rot_                       = Vec3::Zero();
+    Vec3 scale_                     = Vec3::Ones();
+    Vec3 shear_                     = Vec3::Zero();
 
     /// Fields 数据域
-    mat4 parent_model_mat_          = mat4(1.0f);    
-    mat4 model_mat_                 = mat4(1.0f);
-    mat3 inv_parent_U_mat_          = mat3(1.0f);
+    Mat4 parent_model_mat_          = Mat4::Identity();    
+    Mat4 model_mat_                 = Mat4::Identity();
+    Mat3 inv_parent_U_mat_          = Mat3::Identity();
 
     _RawPtr         parent_         = nullptr;
     vector<_RawPtr> children_       = {};

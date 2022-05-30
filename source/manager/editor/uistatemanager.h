@@ -113,7 +113,6 @@ private:
 
 	PickingController		   picking_controller;
 	
-	vec3 scale = vec3(0.2f);
 };
 }
 #endif // !_UISTATE_H

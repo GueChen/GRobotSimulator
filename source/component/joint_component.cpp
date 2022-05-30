@@ -14,11 +14,11 @@ JointComponent::JointComponent(Model* ptr_parent, Vec3 bind_axis, _OptDelFun del
 	switch (type_) {
 		using enum JointType;
 	case Revolute: {
-		zero_pos_ = Conversion::toVec3f(ptr_parent_->getRotLocal());
+		zero_pos_ = ptr_parent_->getRotLocal();
 		break;
 	}
 	case Prismatic: {
-		zero_pos_ = Conversion::toVec3f(ptr_parent_->getTransLocal());
+		zero_pos_ = ptr_parent_->getTransLocal();
 		break;
 	}
 	}
@@ -60,11 +60,11 @@ void JointComponent::tick(float delta_time)
 	switch (type_) {
 	using enum JointType;
 	case Revolute: {
-		ptr_parent_->setRotLocal(Conversion::fromVec3f(cur_pos_));
+		ptr_parent_->setRotLocal(cur_pos_);
 		break;
 	}
 	case Prismatic: {
-		ptr_parent_->setTransLocal(Conversion::fromVec3f(cur_pos_));
+		ptr_parent_->setTransLocal(cur_pos_);
 		break;
 	}
 	}

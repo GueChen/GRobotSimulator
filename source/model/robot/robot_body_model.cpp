@@ -14,7 +14,7 @@ using namespace GComponent;
 bool    ROBOT_BODY_MODEL::is_init_  = false;
 size_t  ROBOT_BODY_MODEL::count_    = 0;
 
-ROBOT_BODY_MODEL::ROBOT_BODY_MODEL(mat4 transform)
+ROBOT_BODY_MODEL::ROBOT_BODY_MODEL(Mat4 transform)
 {    
     name_      = "dual_robot_body_" + std::to_string(count_++);
     mesh_      = "dual_arm_body";
@@ -38,14 +38,14 @@ void GComponent::ROBOT_BODY_MODEL::tickImpl(float delta_time)
 
 void GComponent::ROBOT_BODY_MODEL::setShaderProperty(MyShader& shader)
 {
-    shader.setMat4("model", getModelMatrix());
+    shader.setMat4("model", Conversion::fromMat4f(getModelMatrix()));
     shader.setVec3("color", color_);
     shader.setBool("NormReverse", false);
 }
 
 void ROBOT_BODY_MODEL::Draw(MyShader *shader)
 {
-    shader->setMat4("model", getModelMatrix());
+    shader->setMat4("model", Conversion::fromMat4f(getModelMatrix()));
     ResourceManager::getInstance().GetMeshByName(mesh_)->Draw();    
     for(auto & _child : children_)
     {

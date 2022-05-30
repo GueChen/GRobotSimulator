@@ -15,8 +15,8 @@ int main(int argc, char *argv[])
     GComponent::ObjectManager::getInstance().CreateInstance("sphere");
     GComponent::Model * sphere = GComponent::ModelManager::getInstance().GetModelByName("sphere0");
     if (sphere) {
-        sphere->setTransLocal(glm::vec3(0.0, 1.3, 2.0f));
-        sphere->setScale(glm::vec3(0.05f));
+        sphere->setTransLocal(Eigen::Vector3f(0.0f, 1.3f, 2.0f));
+        sphere->setScale(0.05f * Eigen::Vector3f::Ones());
     }
     GComponent::DUAL_ARM_PLATFORM robot;
     GComponent::EngineApp::getInstance().Exec();

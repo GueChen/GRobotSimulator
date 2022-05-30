@@ -12,7 +12,7 @@ void GComponent::TrackerComponent::tick(float delta_time)
 	if (!tracked_goal_ || !ptr_parent) return;
 	//Kinematic* robot_kinematic_component = ptr_parent->GetComponents<Kinematic>("Kinematic");
 	KUKA_IIWA_MODEL* robot_component = static_cast<KUKA_IIWA_MODEL*>(ptr_parent);
-	mat4 goal_global_SE3 = tracked_goal_->getModelMatrixWithoutScale();
-	mat4 goal_local_SE3 = inverse(robot_component->getModelMatrix()) * goal_global_SE3;
+	Mat4 goal_global_SE3 = tracked_goal_->getModelMatrixWithoutScale();
+	Mat4 goal_local_SE3 = InverseSE3(robot_component->getModelMatrix()) * goal_global_SE3;
 	robot_component->Move(robot_component->BackKinematic(Conversion::toMat4d(goal_local_SE3)));
 }

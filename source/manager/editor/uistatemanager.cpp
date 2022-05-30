@@ -80,40 +80,39 @@ void GComponent::UIState::tick()
 	}
 
 	if (is_draged && m_axis_selected != AxisSelected::None) {
-		Camera* camera = ModelManager::getInstance().GetCameraByHandle(1);
-		mat4 inv_view = inverse(camera->GetViewMatrix()), inv_proj = inverse(camera->GetProjection(m_aspect));
-		mat4 inv_view_rot_only = mat4(inv_view[0][0], inv_view[0][1], inv_view[0][2],			0.0f,
-									  inv_view[1][0], inv_view[1][1], inv_view[1][2],			0.0f,
-									  inv_view[2][0], inv_view[2][1], inv_view[2][2],			0.0f,
-												0.0f,			0.0f,			0.0f,			1.0f);
-		
-		vec4 screen_uv_coord(static_cast<float>(m_mouse_delta_x)   / m_width, 
-							 static_cast<float>(-m_mouse_delta_y) / m_height, 0.0f, 1.0f);
-		vec4 line_in_eye   = vec4(vec2(inv_proj * screen_uv_coord), 0.0f, 1.0f);
-		vec4 line_in_world = inv_view_rot_only * line_in_eye;
+		Camera* camera = ModelManager::getInstance().GetCameraByHandle(1);		
+		Mat4 inv_proj = InverseSE3(Conversion::toMat4f(camera->GetProjection(m_aspect)));	
+		Mat3 inv_view = InverseSE3(Conversion::toMat4f(camera->GetViewMatrix())).block(0, 0, 3, 3);
+		Vec4 screen_uv_coor(static_cast<float>(m_mouse_delta_x) / m_width,
+							static_cast<float>(-m_mouse_delta_y) / m_height, 
+							0.0f, 1.0f);
 
-		vec3 dir;
+		Vec3 line_in_eye   =  Vec3::Zero();
+		line_in_eye.block(0, 0, 2, 1) = (inv_proj * screen_uv_coor).block(0, 0, 2, 1);
+		Vec3 line_in_world = inv_view * line_in_eye;
+
+		Vec3 dir;
 		switch (m_axis_selected) {
 			using enum AxisSelected;
-			case xAxis:	dir = vec3(1.0f, 0.0f, 0.0f); break;
-			case yAxis: dir = vec3(0.0f, 1.0f, 0.0f); break;
-			case zAxis: dir = vec3(0.0f, 0.0f, 1.0f); break;
+			case xAxis:	dir = Vec3(1.0f, 0.0f, 0.0f); break;
+			case yAxis: dir = Vec3(0.0f, 1.0f, 0.0f); break;
+			case zAxis: dir = Vec3(0.0f, 0.0f, 1.0f); break;
 		}	
-		dir = (dir.x * line_in_world.x + dir.y * line_in_world.y + dir.z * line_in_world.z) * dir;
+		dir = dir.dot(line_in_world) * dir;
 		if (Model* selected_obj = ModelManager::getInstance().GetModelByHandle(selected_id);
 			selected_obj) {
 			switch (m_axis_mode) { using enum AxisMode;
 			case Translation: {
-				Eigen::Matrix4f global_trans    = Conversion::toMat4f(selected_obj->getTranslationModelMatrix());
-				global_trans.block(0, 3, 3, 1) += Conversion::toVec3f(dir);
-				Eigen::Matrix4f local_trans     = InverseSE3(Conversion::toMat4f(selected_obj->getParentModelMatrix())) * global_trans;			
-				selected_obj->setTransLocal(Conversion::fromVec3f(local_trans.block(0, 3, 3, 1)));
+				Eigen::Matrix4f global_trans    = selected_obj->getTranslationModelMatrix();
+				global_trans.block(0, 3, 3, 1) += dir;
+				Eigen::Matrix4f local_trans     = InverseSE3(selected_obj->getParentModelMatrix()) * global_trans;			
+				selected_obj->setTransLocal(local_trans.block(0, 3, 3, 1));
 				break;
 			}
 			case Rotation: {			
-				Eigen::Matrix3f global_rot_dcm  = Conversion::toMat4f(selected_obj->getModelMatrixWithoutScale()).block(0, 0, 3, 3);				
-				Eigen::Matrix3f local_rot_dcm   = Conversion::toMat4f(selected_obj->getParentModelMatrix()).block(0, 0, 3, 3).inverse() * Roderigues(Conversion::toVec3f(dir)) * global_rot_dcm;			
-				selected_obj->setRotLocal(Conversion::fromVec3f(LogMapSO3Toso3(local_rot_dcm)));
+				Eigen::Matrix3f global_rot_dcm  = selected_obj->getModelMatrixWithoutScale().block(0, 0, 3, 3);				
+				Eigen::Matrix3f local_rot_dcm   = selected_obj->getParentModelMatrix().block(0, 0, 3, 3).inverse() * Roderigues(dir) * global_rot_dcm;			
+				selected_obj->setRotLocal(LogMapSO3Toso3(local_rot_dcm));
 				break;
 			}
 			case Scale: {				
@@ -147,16 +146,20 @@ void GComponent::UIState::tick()
 		selected_obj)
 	{
 		Camera* camera = ModelManager::getInstance().GetCameraByHandle(1);
-		mat4 view = camera->GetViewMatrix();
-		mat4 model_mat = selected_obj->getModelMatrix();
-		vec4 glb_pos(model_mat[3][0], model_mat[3][1], model_mat[3][2], 1.0f);
-		vec3 pos = vec3(glm::inverse(view) * glb_pos);
-		scale = vec3(glm::l2Norm(pos) * 0.05f);
-	
+		Mat4 view	   = Conversion::toMat4f(camera->GetViewMatrix());
+		Vec4 glb_pos   = Vec4::Ones();
+		glb_pos.block(0, 0, 3, 1) 
+					   = selected_obj->getModelMatrix().block(0, 3, 3, 1);
+		
+		float distance = ((InverseSE3(view) * glb_pos).block(0, 0, 3, 1)).norm();
+
+		Mat4 scale_mat = Mat4::Identity();
+		scale_mat.block(0, 0, 3, 3) = Scale((Vec3::Ones() * distance * 0.05f).eval());
+
 		m_cur_axis->SetAxisSelected(m_axis_selected);
 		m_cur_axis->setModelMatrix(
 			(m_axis_mode != AxisMode::Scale? selected_obj->getTranslationModelMatrix() : selected_obj->getModelMatrixWithoutScale())
-				* glm::scale(glm::mat4(1.0f), scale));
+				* scale_mat);
 		m_cur_axis->tick(0.0f);
 	}
 

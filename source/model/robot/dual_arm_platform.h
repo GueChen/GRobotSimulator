@@ -1,9 +1,11 @@
 #ifndef DUAL_ARM_PLATFORM_H
 #define DUAL_ARM_PLATFORM_H
 
+#include "model/model.h"
+
 #include <memory>
 
-#include "model/model.h"
+#include <GComponent/GNumerical.hpp>
 
 namespace GComponent {
 
@@ -19,7 +21,7 @@ class DUAL_ARM_PLATFORM: public Model
 {
 /// 成员函数 Member Function
 public:
-    explicit DUAL_ARM_PLATFORM(mat4 transform = mat4(1.0f));
+    explicit DUAL_ARM_PLATFORM(Mat4 transform = Mat4::Identity());
     ~DUAL_ARM_PLATFORM() = default;
 
     void Draw(MyShader * shader) override;
