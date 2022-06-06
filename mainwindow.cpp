@@ -40,22 +40,24 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);    
     updated_timer_ptr = new QTimer;
+    this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::West);
+    ui->logger->setContextMenuPolicy(Qt::CustomContextMenu);
     ConnectionInit();
    
-#ifdef __TEST__PLANNING
-    QChart * chart = new QChart();
-    chart->createDefaultAxes();
-    chart->setTheme(QChart::ChartThemeDark);
-    chart->legend()->setAlignment(Qt::AlignRight);
-    m_chart = new QChartView(chart);
-    ui->PlanningLayout->addWidget(m_chart, 4, 0, 1, 3);
-    chart = new QChart();
-    chart->createDefaultAxes();
-    chart->setTheme(QChart::ChartThemeDark);
-    chart->legend()->setAlignment(Qt::AlignRight);
-    m_vel_chart = new QChartView(chart);
-    ui->PlanningLayout->addWidget(m_vel_chart, 5, 0, 1, 3);
-#endif
+//#ifdef __TEST__PLANNING
+//    QChart * chart = new QChart();
+//    chart->createDefaultAxes();
+//    chart->setTheme(QChart::ChartThemeDark);
+//    chart->legend()->setAlignment(Qt::AlignRight);
+//    m_chart = new QChartView(chart);
+//    ui->PlanningLayout->addWidget(m_chart, 4, 0, 1, 3);
+//    chart = new QChart();
+//    chart->createDefaultAxes();
+//    chart->setTheme(QChart::ChartThemeDark);
+//    chart->legend()->setAlignment(Qt::AlignRight);
+//    m_vel_chart = new QChartView(chart);
+//    ui->PlanningLayout->addWidget(m_vel_chart, 5, 0, 1, 3);
+//#endif
 }
 
 MainWindow::~MainWindow()
@@ -406,6 +408,15 @@ void MainWindow::CheckSelected()
 {
     static Model* last_ptr = nullptr;
     Model* selected_obj_ptr = ui->m_viewport->ui_state_.GetSelectedObject();
+    
+    if (last_ptr != selected_obj_ptr) {
+        while (ui->componentstoolbox->count() > 2) {
+            QWidget* w = ui->componentstoolbox->widget(2);
+            ui->componentstoolbox->removeItem(2);
+            delete w;
+        }
+    }
+
     if (!selected_obj_ptr) {
         if (last_ptr != selected_obj_ptr) {            
             for (QString text = "NULL"; auto& edit : ui->component_observer->findChildren<QLineEdit*>()) {
@@ -422,7 +433,7 @@ void MainWindow::CheckSelected()
         ui->parent_edit->setText(QString::fromStdString(parent_ptr ? parent_ptr->getName() : "None"));
 
         // Setting Transforms
-        Vec3 trans = selected_obj_ptr->getTransGlobal();
+        Vec3 trans = selected_obj_ptr->getTransGlobal();        
         ui->trans_x_edit->setText(QString::number(trans.x(), 10, 4));
         ui->trans_y_edit->setText(QString::number(trans.y(), 10, 4));
         ui->trans_z_edit->setText(QString::number(trans.z(), 10, 4));
@@ -435,11 +446,10 @@ void MainWindow::CheckSelected()
         ui->scale_y_edit->setText(QString::number(scale.y(), 10, 4));
         ui->scale_z_edit->setText(QString::number(scale.z(), 10, 4));
 
-        if (last_ptr != selected_obj_ptr) {    
-            while (ui->componentstoolbox->count() > 2) ui->componentstoolbox->removeItem(2);
+        if (last_ptr != selected_obj_ptr) {                
             for (auto& component : selected_obj_ptr->GetComponents()) {
                 const string_view& type_name = component->GetTypeName();
-                ui->componentstoolbox->addItem(ComponentUIFactory::Create(type_name), type_name.data());
+                ui->componentstoolbox->addItem(ComponentUIFactory::Create(*component), type_name.data());
             }
         }
     }

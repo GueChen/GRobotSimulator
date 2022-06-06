@@ -4,31 +4,32 @@
  *  @author Gue Chen<guechen@buaa.edu.cn>
  *  @date 	May 24, 2022
  **/
-
 #ifndef _JOINT_GROUP_COMPONENT_H
 #define _JOINT_GROUP_COMPONENT_H
 
 #include "component/component.hpp"
 #include "component/joint_component.h"
 
-#include <optional>
 #include <functional>
+#include <optional>
+#include <unordered_set>
 #include <vector>
 #include <string>
+#include <list>
 
 namespace GComponent
 {
+using std::list;
 using std::vector;
 using std::string_view;
+using std::unordered_set;
 using _DelFun = std::function<void(void)>;
 
 class JointGroupComponent:public Component {
 public:
 	JointGroupComponent(Model* ptr_parent, const vector<JointComponent*>& joints = {});
-	~JointGroupComponent() = default;
-
-	void tick(float delta_time)		override;
-
+	~JointGroupComponent();
+	
 	// void Derigistered()			override;
 	// 通过 Component 继承
 	virtual const string_view& 
@@ -39,8 +40,16 @@ public:
 	inline const vector<JointComponent*>& 
 					GetJoints()		const			{ return joints_; }
 
+	int				SearchJointsInChildren();
+
+protected:
+	void tickImpl(float delta_time)		override;
+
 private:
-	vector<JointComponent*> joints_				 = {};
+	vector<JointComponent*>			joints_				 = {};
+	// TODO: consider the situation under tow paralle joints
+	vector<JointComponent*>			joinable_joints_	 = {};
+	unordered_set<JointComponent*>	record_table_		 = {};
 
 	std::optional<std::function<vector<double>()>> 
 							pos_function		 = std::nullopt;

@@ -26,8 +26,8 @@ public:
 
     void Draw(MyShader * shader) override;
     
-    void setLeftColor(const vec3 & color);
-    void setRightColor(const vec3 & color);
+    void setLeftColor(const Vec3 & color);
+    void setRightColor(const Vec3 & color);
 
     Ptr_KUKA_IIWA_MODEL getLeftRobot()  const;
     Ptr_KUKA_IIWA_MODEL getRightRobot() const;

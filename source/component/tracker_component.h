@@ -19,11 +19,13 @@ class TrackerComponent: public Component {
 public:
 	explicit	TrackerComponent(Model* ptr_parent, Model* goal) : Component(ptr_parent), tracked_goal_(goal) {}
 	virtual		~TrackerComponent() = default;
-
-	virtual void tick(float delta_time) override;
+	
 	inline  void SetGoal(Model* goal) { tracked_goal_ = goal; }
 	// 通过 Component 继承
 	virtual const string_view& GetTypeName() const override { return type_name; }
+
+protected:
+	virtual void tickImpl(float delta_time) override;
 
 private:
 	Model*	tracked_goal_ = nullptr;

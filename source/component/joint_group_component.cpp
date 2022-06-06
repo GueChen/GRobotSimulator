@@ -1,6 +1,12 @@
 #include "joint_group_component.h"
 
+#include "model/model.h"
+
+#include <stack>
+
 namespace GComponent {
+
+using std::stack;
 
 JointGroupComponent::JointGroupComponent(Model* ptr_parent, const vector<JointComponent*>& joints) :
 	Component(ptr_parent)
@@ -10,7 +16,48 @@ JointGroupComponent::JointGroupComponent(Model* ptr_parent, const vector<JointCo
 	}
 }
 
-void JointGroupComponent::tick(float delta_time)
+JointGroupComponent::~JointGroupComponent()
+{
+	for (auto& joint : joints_) {
+		joint->opt_del_func_ = std::nullopt;
+	}
+}
+
+
+int JointGroupComponent::SearchJointsInChildren()
+{
+	Model* parent = GetParent();
+	if (!parent) return 0;
+	stack<Model*> search_stack;
+	search_stack.push(parent);
+	
+	while (!search_stack.empty())
+	{
+		Model* cur = search_stack.top();
+		search_stack.pop();
+		for (auto& child : cur->getChildren()) 
+		{
+			JointComponent* joint = child->GetComponet<JointComponent>("JointComponent");
+			if (joint && !record_table_.count(joint))
+			{
+				joinable_joints_.push_back(joint);
+				record_table_.insert(joint);
+				joint->SetDelFunction([self = joint, &joints = joinable_joints_, &record = record_table_]() {
+					joints.erase(
+						std::remove_if(joints.begin(), joints.end(), [&self = self](auto& val) { return val == self; }),
+						joints.end());
+					record.erase(self);
+					}
+				);
+				search_stack.push(child);
+			}
+		}
+	}
+
+	return joints_.size();
+}
+
+void JointGroupComponent::tickImpl(float delta_time)
 {
 
 }
@@ -19,14 +66,15 @@ bool JointGroupComponent::RegisterJoint(JointComponent* joint)
 {
 	if (!joint) return false;
 	// joint not possible live longger than joints
-	joint->SetDelFunction([self = joint, &joints = joints_](){	
-		if(!joints.empty())
+	joint->SetDelFunction([self = joint, &joints = joints_, &record = record_table_]() {		
 			joints.erase(
-				std::remove_if(joints.begin(), joints.end(), [&self = self](auto& val) { return val == self; }), 
+				std::remove_if(joints.begin(), joints.end(), [&self = self](auto& val) { return val == self; }),
 				joints.end());
+			record.erase(self);
 		}
 	);
 	joints_.push_back(joint);	
+	record_table_.insert(joint);
 	return true;
 }
 

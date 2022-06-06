@@ -1,0 +1,1211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>530</width>
+    <height>513</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QWidget" name="widget" native="true">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>50</y>
+     <width>317</width>
+     <height>82</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(30, 30, 30);</string>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="singleJoint">
+      <item>
+       <widget class="QLabel" name="joint_tag">
+        <property name="minimumSize">
+         <size>
+          <width>45</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(255, 255, 255);</string>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::WinPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <property name="text">
+         <string>Joint
+1</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="plugins">
+        <item>
+         <layout class="QHBoxLayout" name="slidergroup">
+          <item>
+           <widget class="QToolButton" name="left_tag">
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resource/icons.qrc">
+              <normaloff>:/icon/leftarrow.png</normaloff>:/icon/leftarrow.png</iconset>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="popupMode">
+             <enum>QToolButton::DelayedPopup</enum>
+            </property>
+            <property name="autoRaise">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSlider" name="joint_slider">
+            <property name="cursor">
+             <cursorShape>SizeHorCursor</cursorShape>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QSlider::handle:horizontal {
+    background:  qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(0, 0, 0, 255), stop:0.2 rgba(240, 175, 255, 185), stop:0.4 rgba(0, 0, 0, 255), stop:0.5 rgba(0, 0, 0, 255), stop:0.8 rgba(155, 155, 255, 150), stop: 1 rgba(100, 180, 100, 180));
+
+    width: 40px;
+    margin: -8px; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 5px;
+}
+
+QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+	border-radius: 3px;
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,255,120), stop:1 rgb(255,55,80));
+    margin: -1px 10px;
+}
+
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+	border-radius: 3px;
+    height: 5px;
+	margin: -1px 0px -1px 10px;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(120,255,120), stop:1 rgb(80,55,255));
+}
+
+</string>
+            </property>
+            <property name="minimum">
+             <number>-1</number>
+            </property>
+            <property name="maximum">
+             <number>1</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="right_tag">
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resource/icons.qrc">
+              <normaloff>:/icon/rightarrow.png</normaloff>:/icon/rightarrow.png</iconset>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="autoRaise">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="displaygroup">
+          <item>
+           <widget class="QLabel" name="value_tag">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>75</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(200, 150, 255);
+font: 9pt &quot;Microsoft YaHei UI&quot;;</string>
+            </property>
+            <property name="text">
+             <string>value(deg.)</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="value">
+            <property name="styleSheet">
+             <string notr="true">QLineEdit{
+font:  9pt &quot;Cascadia Code&quot;;
+color: rgb(150, 255, 175);
+border: 3px double rgb(255, 255, 255);
+}</string>
+            </property>
+            <property name="text">
+             <string>0.0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="setting_button">
+            <property name="styleSheet">
+             <string notr="true">QToolButton{
+color: rgb(255, 255, 255);
+background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(0, 0, 0, 255), stop:0.2 rgba(220, 195, 255, 155), stop:0.4 rgba(0, 0, 0, 255), stop:0.5 rgba(0, 0, 0, 255), stop:0.8 rgba(155, 155, 255, 100), stop: 1 rgba(100, 180, 100, 150));
+}</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resource/icons.qrc">
+              <normaloff>:/icon/setting.png</normaloff>:/icon/setting.png</iconset>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonIconOnly</enum>
+            </property>
+            <property name="autoRaise">
+             <bool>false</bool>
+            </property>
+            <property name="arrowType">
+             <enum>Qt::NoArrow</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QTabWidget" name="armTab">
+   <property name="geometry">
+    <rect>
+     <x>250</x>
+     <y>10</y>
+     <width>222</width>
+     <height>495</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QTabWidget::pane{
+border-bottom:2px solid qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(50, 50, 75, 255), stop:1 rgba(65, 65, 65, 255));
+border-left:5px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(50, 50, 75, 255), stop:1 rgba(65, 65, 65, 255));
+border-right:5px solid qlineargradient(spread:pad, x1:1, y1:0, x2:0, y2:0, stop:0 rgba(50, 50, 75, 255), stop:1 rgba(65, 65, 65, 255));
+
+border-bottom-left-radius: 10px;
+border-bottom-right-radius: 10px;
+border-top-right-radius: 10px;
+background:rgba(65,65,65,255)
+
+}
+QTabBar::tab {
+font: 14pt &quot;Times New Roman&quot;;
+min-width:75;
+min-height:18;
+
+border-top-left-radius: 5px;
+border-top-right-radius: 5px;
+border-top:3px solid qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(50, 50, 75, 255), stop:1 rgba(65, 65, 65, 255));
+border-right:3px solid qlineargradient(spread:pad, x1:1, y1:0, x2:0, y2:0, stop:0 rgba(50, 50, 75, 255), stop:1 rgba(65, 65, 65, 255));
+}
+QTabBar::tab:!selected {
+background-color:rgb(50, 50, 50);
+margin-top: 5px;
+} 
+QTabBar::tab:selected {
+color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 185, 150, 255), stop:1 rgba(175, 175, 255, 255));
+background-color: rgb(65, 65, 65);
+border-left: 5px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(50, 50, 75, 255), stop:1 rgba(65, 65, 65, 255));
+}
+
+</string>
+   </property>
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <property name="usesScrollButtons">
+    <bool>true</bool>
+   </property>
+   <widget class="QWidget" name="leftTab">
+    <property name="styleSheet">
+     <string notr="true">font: 10pt &quot;Times New Roman&quot;;
+background: rgba(65,65,65,255);
+color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 135, 130, 255), stop:1 rgba(255, 255, 255, 255));</string>
+    </property>
+    <attribute name="title">
+     <string>L</string>
+    </attribute>
+    <layout class="QGridLayout" name="gridLayout_8">
+     <property name="leftMargin">
+      <number>25</number>
+     </property>
+     <property name="bottomMargin">
+      <number>9</number>
+     </property>
+     <property name="horizontalSpacing">
+      <number>25</number>
+     </property>
+     <property name="verticalSpacing">
+      <number>5</number>
+     </property>
+     <item row="6" column="0">
+      <widget class="QLabel" name="lJointLabel7">
+       <property name="text">
+        <string>Joint 7</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QSlider" name="lJointSlider4">
+       <property name="styleSheet">
+        <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QSlider" name="lJointSlider7">
+       <property name="styleSheet">
+        <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+	
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QSlider" name="lJointSlider5">
+       <property name="styleSheet">
+        <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+	
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="lJointLabel1">
+       <property name="text">
+        <string>Joint 1</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="lJointLabel3">
+       <property name="text">
+        <string>Joint 3</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSlider" name="lJointSlider2">
+       <property name="styleSheet">
+        <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="lJointLabel4">
+       <property name="text">
+        <string>Joint 4</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="lJointLabel6">
+       <property name="text">
+        <string>Joint 6</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="lJointLabel2">
+       <property name="text">
+        <string>Joint 2</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QSlider" name="lJointSlider3">
+       <property name="styleSheet">
+        <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="lJointLabel5">
+       <property name="text">
+        <string>Joint 5</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QSlider" name="lJointSlider1">
+       <property name="styleSheet">
+        <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="tickPosition">
+        <enum>QSlider::NoTicks</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QSlider" name="lJointSlider6">
+       <property name="styleSheet">
+        <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+	
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="lJointVal1">
+       <property name="minimumSize">
+        <size>
+         <width>45</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>0.00</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QLabel" name="lJointVal2">
+       <property name="minimumSize">
+        <size>
+         <width>45</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>0.00</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLabel" name="lJointVal3">
+       <property name="minimumSize">
+        <size>
+         <width>45</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>0.00</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QLabel" name="lJointVal4">
+       <property name="minimumSize">
+        <size>
+         <width>45</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>0.00</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QLabel" name="lJointVal5">
+       <property name="minimumSize">
+        <size>
+         <width>45</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>0.00</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2">
+      <widget class="QLabel" name="lJointVal6">
+       <property name="minimumSize">
+        <size>
+         <width>45</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>0.00</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2">
+      <widget class="QLabel" name="lJointVal7">
+       <property name="minimumSize">
+        <size>
+         <width>45</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>0.00</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="tab_2">
+    <property name="styleSheet">
+     <string notr="true">font: 10pt &quot;Times New Roman&quot;;
+background: rgba(65,65,65,255);
+color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 135, 130, 255), stop:1 rgba(255, 255, 255, 255));</string>
+    </property>
+    <attribute name="title">
+     <string>R</string>
+    </attribute>
+    <layout class="QGridLayout" name="gridLayout_9">
+     <property name="leftMargin">
+      <number>25</number>
+     </property>
+     <property name="horizontalSpacing">
+      <number>25</number>
+     </property>
+     <property name="verticalSpacing">
+      <number>5</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="QLabel" name="rJointLabel1">
+       <property name="text">
+        <string>Joint 1</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QLabel" name="rJointVal2">
+       <property name="minimumSize">
+        <size>
+         <width>45</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>0.00</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="rJointVal1">
+       <property name="minimumSize">
+        <size>
+         <width>45</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>0.00</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="rJointLabel6">
+       <property name="text">
+        <string>Joint 6</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="rJointLabel5">
+       <property name="text">
+        <string>Joint 5</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QLabel" name="rJointVal4">
+       <property name="minimumSize">
+        <size>
+         <width>45</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>0.00</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2">
+      <widget class="QLabel" name="rJointVal6">
+       <property name="minimumSize">
+        <size>
+         <width>45</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>0.00</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="rJointLabel4">
+       <property name="text">
+        <string>Joint 4</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QLabel" name="rJointVal5">
+       <property name="minimumSize">
+        <size>
+         <width>45</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>0.00</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="rJointLabel2">
+       <property name="text">
+        <string>Joint 2</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2">
+      <widget class="QLabel" name="rJointVal7">
+       <property name="minimumSize">
+        <size>
+         <width>45</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>0.00</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLabel" name="rJointVal3">
+       <property name="minimumSize">
+        <size>
+         <width>45</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>0.00</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="rJointLabel3">
+       <property name="text">
+        <string>Joint 3</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="rJointLabel7">
+       <property name="text">
+        <string>Joint 7</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QSlider" name="rJointSlider1">
+       <property name="styleSheet">
+        <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSlider" name="rJointSlider2">
+       <property name="styleSheet">
+        <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QSlider" name="rJointSlider3">
+       <property name="styleSheet">
+        <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QSlider" name="rJointSlider4">
+       <property name="styleSheet">
+        <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QSlider" name="rJointSlider5">
+       <property name="styleSheet">
+        <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QSlider" name="rJointSlider6">
+       <property name="styleSheet">
+        <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QSlider" name="rJointSlider7">
+       <property name="styleSheet">
+        <string notr="true">QSlider::groove:horizontal {
+    border: 1px solid rgb(135,135,135);
+    height: 5px;
+    background: qlineargradient(x1:0, y1:0.8, x2:1, y2:1, stop:0 rgb(120,120,255), stop:1 rgb(55,55,80));
+    margin: 2px 0px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0.2, y1:0.7, x2:1, y2:1, stop:0 rgb(150,50,120), stop:1 rgb(20,20,180));
+    border: 0.5px solid rgb(120,120,120);
+	border-right: 1px solid rgb(180,180,180);
+	border-bottom: 1px solid rgb(180,180,180);
+    width: 18px;
+    margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 2px;
+}
+QSlider::sub-page:horizontal {
+	border: 1px solid rgb(135,135,135);
+    height: 5px;
+	margin: 2px 0;
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop:0 rgb(50,50,50), stop:1 rgb(255,255,255));
+}
+
+</string>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../../resource/icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>

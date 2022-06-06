@@ -24,7 +24,7 @@ JointComponent::JointComponent(Model* ptr_parent, Vec3 bind_axis, _OptDelFun del
 	}
 }
 
-void JointComponent::tick(float delta_time)
+void JointComponent::tickImpl(float delta_time)
 {
 	switch (mode_) {
 	using enum JointMode;
@@ -32,7 +32,10 @@ void JointComponent::tick(float delta_time)
 		if (!pos_buffers_.empty()) {
 			pos_ = pos_buffers_.front();
 			pos_buffers_.pop_front();			
-		}		
+		}
+		else {
+			return;
+		}
 		break;
 	}
 	case Velocity: {
@@ -41,7 +44,10 @@ void JointComponent::tick(float delta_time)
 			vel_ = pos_buffers_.front();
 			pos_ += vel_ * delta_time;
 			vel_buffers_.pop_front();
-		}		
+		}	
+		else {
+			return;
+		}
 		break;
 	}
 	case Accel: {
@@ -52,11 +58,14 @@ void JointComponent::tick(float delta_time)
 			pos_ += vel_ * delta_time;
 			acc_buffers_.pop_front();
 		}
+		else {
+			return;
+		}
 		break;
 	}
 	}
 
-	Vec3 cur_pos_	= zero_pos_ + pos_ * axis_;
+	Vec3 cur_pos_	= LogMapSO3Toso3( (Roderigues((pos_ * axis_).eval())* Roderigues(zero_pos_)).eval());
 	switch (type_) {
 	using enum JointType;
 	case Revolute: {

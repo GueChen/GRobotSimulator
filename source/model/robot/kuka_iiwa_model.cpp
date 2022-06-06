@@ -118,8 +118,7 @@ void KUKA_IIWA_MODEL::InitializeModelResource()
     for (int i = 1; i < 8; ++i) {
         joints.push_back(models_tmp[i]->GetComponet<JointComponent>("JointComponent"));
     }
-    RegisterComponent(make_unique<JointGroupComponent>(this, joints));
-             
+    RegisterComponent(make_unique<JointGroupComponent>(this, joints));             
 }
 
 void GComponent::KUKA_IIWA_MODEL::InitializeMeshResource()
@@ -147,7 +146,7 @@ void KUKA_IIWA_MODEL::Move(const IIWAThetas& thetas)
     JointGroupComponent* joints =  GetComponet<JointGroupComponent>("JointGroupComponent");
     for (int index = 0; auto && joint : joints->GetJoints())
     {
-        joint->SetPosition(thetas[index++]);        
+        joint->PushPosBuffer(thetas[index++]);              
     }
 }
 void KUKA_IIWA_MODEL::Move(const IIWAThetav& vthetas)
@@ -171,7 +170,7 @@ void KUKA_IIWA_MODEL::SetThetas(const IIWAThetas& thetas)
 void GComponent::KUKA_IIWA_MODEL::setShaderProperty(MyShader & shader)
 {
     shader.setMat4("model", Conversion::fromMat4f(getModelMatrix()));
-    shader.setVec3("color", _color);
+    shader.setVec3("color", Conversion::fromVec3f(_color));
     shader.setBool("NormReverse", false);
 }
 
@@ -183,7 +182,7 @@ void GComponent::KUKA_IIWA_MODEL::tickImpl(float delta_time)
 /// 图片绘制部分
 void KUKA_IIWA_MODEL::Draw(MyShader * shader)
 {
-    shader->setVec3("color", _color);
+    shader->setVec3("color",Conversion::fromVec3f(_color));
     for (auto& child : children_)
     {
         Draw(shader, child);
@@ -199,7 +198,7 @@ void KUKA_IIWA_MODEL::Draw(MyShader * shader, Model * next)
     }
 }
 
-void KUKA_IIWA_MODEL::setColor(const vec3 &color)
+void KUKA_IIWA_MODEL::setColor(const Vec3 &color)
 {
     _color = color;
 }
@@ -488,11 +487,11 @@ vec7d KUKA_IIWA_MODEL::GetCollisionGrad(const vector<BallObstacle>& obsts, const
         for(int i = 0; i < JointNum; ++i){                                          // 求取当前关节下的      parital T
             if(i < index){
                 if(i > 0) {
-                   dTs[i] = preTs[i-1];
+                   dTs[i] = preTs[i - 1];
                 }
                 dTs[i] = dTSingle[i] * InverseSE3(preTs[i]) * preTs[index];
-            }else
-            {
+            }
+            else{
                 dTs[i] = Matrix4d::Zero();
             }
         }

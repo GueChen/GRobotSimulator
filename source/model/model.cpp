@@ -154,7 +154,7 @@ void Model::appendChild(const _RawPtr pchild, Mat4 transform)
     pchild->setParent(this);
     children_.emplace_back(pchild);
     pchild->setModelMatrix(transform);              
-    updateChildrenMatrix(Scale(scale_)* Shear(shear_));            
+    updateChildrenMatrix(Mat3::Identity()/*Scale(scale_)* Shear(shear_)*/);
 }
 
 int GComponent::Model::getChildIndex(_RawPtr ptr)
@@ -187,7 +187,7 @@ void GComponent::Model::updateModelMatrix()
         shear_part.block(0, 0, 3, 3) = Shear(shear_);
     }
     model_mat_ = af_model.matrix() * scale_part * shear_part;
-    updateChildrenMatrix(scale_part.block(0, 0, 3, 3) * shear_part.block(0, 0, 3, 3));
+    updateChildrenMatrix(Mat3::Identity()/*scale_part.block(0, 0, 3, 3) * shear_part.block(0, 0, 3, 3)*/);
 }
 
 void Model::updateChildrenMatrix(const Mat3& parent_adjoint_mat)
@@ -221,6 +221,3 @@ void GComponent::Model::setShaderProperty(MyShader& shader)
     shader.setMat4("model", Conversion::fromMat4f(getModelMatrix()));
     //shader.setVec3("color", glm::Vec3(1.0f));
 }
-
-
-

@@ -39,7 +39,7 @@ void GComponent::ROBOT_BODY_MODEL::tickImpl(float delta_time)
 void GComponent::ROBOT_BODY_MODEL::setShaderProperty(MyShader& shader)
 {
     shader.setMat4("model", Conversion::fromMat4f(getModelMatrix()));
-    shader.setVec3("color", color_);
+    shader.setVec3("color", Conversion::fromVec3f(color_));
     shader.setBool("NormReverse", false);
 }
 

@@ -34,16 +34,13 @@ using Vec3		 = Eigen::Vector3f;
 using Vec4		 = Eigen::Vector4f;
 using Mat3		 = Eigen::Matrix3f;
 using Mat4		 = Eigen::Matrix4f;
-using _DelFun	 = std::function<void(void)>;
 using _OptDelFun = std::optional<std::function<void(void)>>;
 
 class JointComponent : public Component {
 friend class JointGroupComponent;
 public:
 	JointComponent(Model* ptr_parent, Vec3 bind_axis, _OptDelFun del_fun = std::nullopt);
-	virtual			~JointComponent() { if (opt_del_func_) opt_del_func_.value()(); }
-
-	void			tick(float delta_time) override;
+	virtual			~JointComponent() { if (opt_del_func_) opt_del_func_->operator()(); }
 
 	// 通过 Component 继承
 	virtual const string_view&
@@ -74,6 +71,9 @@ public:
 
 /// Display friend method
 	friend std::ostream& operator<<(std::ostream & o, const JointComponent& joint_component);
+
+protected:
+	void			tickImpl(float delta_time) override;
 
 private:
 	inline void		SetDelFunction(const _DelFun& del_fun) { opt_del_func_ = del_fun; }

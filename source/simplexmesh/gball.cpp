@@ -52,7 +52,7 @@ void GBall::GLBufferInitialize()
 void GBall::Draw(MyShader *shader)
 {
     if(!isInit) return;
-    mat4 model = glm::identity<mat4>();
+    glm::mat4 model = glm::identity<glm::mat4>();
     model = glm::translate(model, center);
     shader->setMat4("model", model);
     mesh.Draw();

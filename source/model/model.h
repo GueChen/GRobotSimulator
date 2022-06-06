@@ -15,10 +15,6 @@
 
 #include <GComponent/GTransform.hpp>
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/norm.hpp>
-#include <glm/glm.hpp>
-
 #include <string>
 #include <memory>
 #include <unordered_map>
@@ -38,9 +34,6 @@ using Vec3 = Eigen::Vector3f;
 using Vec4 = Eigen::Vector4f;
 using Mat3 = Eigen::Matrix3f;
 using Mat4 = Eigen::Matrix4f;
-using vec3 = glm::vec3;
-using mat3 = glm::mat3;
-using mat4 = glm::mat4;
 using std::unordered_map;
 
 class Model
@@ -51,7 +44,7 @@ class Model
     friend class RenderManager;
 public:
     explicit        Model(_RawPtr parent = nullptr, const string & meshKey = "");
-                    Model(const string& name, const string& mesh, const string& shader, const Mat4& model_mat = Mat4(1.0f), _RawPtr parent =nullptr);
+                    Model(const string& name, const string& mesh, const string& shader, const Mat4& model_mat, _RawPtr parent =nullptr);
                     Model(const string& name, const string& mesh, const string& shader, 
                           const Vec3& trans = Vec3::Zero(), const Vec3& rot = Vec3::Zero(), const Vec3& scale = Vec3::Ones(),
                           _RawPtr parent = nullptr);

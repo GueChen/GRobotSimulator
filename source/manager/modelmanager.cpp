@@ -48,11 +48,17 @@ bool ModelManager::DeregisteredModel(size_t model_id)
 {
     auto iter = models_.find(model_id);
     if(iter == models_.end()) return false;
-    /* Derigister Children */  
+
+    /* Derigister all Children */  
+    vector<int> children_id;
     for (auto& child : iter->second->getChildren()) 
     {
-        DeregisteredModel(child->model_id_);
+        children_id.push_back(child->model_id_);       
     }
+    for (auto& id : children_id) {
+        DeregisteredModel(id);
+    }
+
     /* Derigister Model */
     string name = model_handle_to_name_table_[model_id];    
     models_.erase(model_id);

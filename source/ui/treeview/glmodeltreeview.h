@@ -42,6 +42,7 @@ private slots:
 	void SelectionChangeSlot(const QModelIndex& current, const QModelIndex& previous);
 	
 signals:
+	void RobotCreateRequest();
 	void CreateRequest(const string& name);
 	void SelectRequest(const string& name);
 	void DeleteRequest(const string& name);
@@ -49,13 +50,15 @@ signals:
 private:
 	QMenu				 m_basic_menu;
 /*_______________________BASIC MENU ACTIONS_______________________________*/	
-	QAction*			 copy_action_;
-	QAction*			 cut_action_;
-	QAction*			 paste_action_;
-
-	QAction*			 delete_action_;
-	QAction*			 rename_action_;
-	QMenu				 m_add_menu;	
+	QAction*			 copy_action_;			/* copy					  */
+	QAction*			 cut_action_;			/* cut					  */
+	QAction*			 paste_action_;			/* paste				  */
+												/*_______________________ */
+	QAction*			 delete_action_;		/* delete				  */
+	QAction*			 rename_action_;		/* rename				  */
+											    /*_______________________ */
+	QMenu				 m_add_menu;			/* 3D Objects |>		  */	
+	QAction*			 robot_create_action_;	/* robot				  */
 /*________________________________________________________________________*/
 	
 /*_______________________ADD MENU ACTIONS_________________________________*/

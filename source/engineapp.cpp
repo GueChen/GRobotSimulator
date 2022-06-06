@@ -6,6 +6,9 @@
 #include "manager/modelmanager.h"
 #include "manager/resourcemanager.h"
 
+#include "component/joint_component.h"
+#include "component/joint_group_component.h"
+
 #include <iostream>
 #include <format>
 
@@ -32,6 +35,9 @@ void GComponent::EngineApp::Init(int argc, char* argv[])
 	window_ptr_->setWindowIconText("机械臂规划仿真软件");
 	window_ptr_->setWindowFlag(Qt::FramelessWindowHint);
 
+	robot_create_dialog_ptr_ = std::make_unique<RobotCreateDialog>();	
+	robot_create_dialog_ptr_->setWindowTitle("Create Ur Robot(*^_^*)");
+	
 	GLModelTreeView* treeview	  = window_ptr_->getModelTreeView();
 	UIState*		 ui_state_ptr = window_ptr_->getUIState();
 	QComboBox*       obj_display  = window_ptr_->getModelDispaly();
@@ -68,6 +74,8 @@ void GComponent::EngineApp::Init(int argc, char* argv[])
 	/* TREE_VIEW >> OBJECTMANAGER */
     connect(treeview,						 &GLModelTreeView::CreateRequest,
             &ObjectManager::getInstance(),   &ObjectManager::CreateInstance);
+	connect(treeview,						 &GLModelTreeView::RobotCreateRequest,
+			robot_create_dialog_ptr_.get(),  &RobotCreateDialog::show);
 
 	/* ADPATER CONNECTIONS */
 	/* UI_STATE  >> TREEVIEW */
@@ -95,11 +103,16 @@ void GComponent::EngineApp::Init(int argc, char* argv[])
 					obj_display->setCurrentIndex(0);
 				}				
 			});
+
+	/* robotcreatedialog >> ? */
+	connect(robot_create_dialog_ptr_.get(), &RobotCreateDialog::RobotCreateRequestMDH,
+			this,							&EngineApp::TestConversion);
 }
 
 int GComponent::EngineApp::Exec()
 {
 	window_ptr_->show();
+	robot_create_dialog_ptr_->show();
 	if (!gui_app_ptr_) return 0;
 	return gui_app_ptr_->exec();
 		
@@ -113,4 +126,74 @@ void GComponent::EngineApp::LogicTick(float delta_time_ms)
 void GComponent::EngineApp::RenderTick(float delta_time_ms)
 {
 	//SceneManager::getInstance().tick(delta_time_ms);
+}
+
+void GComponent::EngineApp::TestConversion(const vector<vector<float>>& params)
+{
+	LocalTransformsSE3<float> matrices = LocalTransformsSE3<float>::fromMDH(params);
+
+	Model* base = new Model("robot_base", "", "color");
+	vector<JointComponent*> joints;
+	ModelManager::getInstance().RegisteredModel(base->getName(), base);
+
+	vector<Model*> models(matrices.size(), nullptr);
+	string name = "robot_joint_";
+	Eigen::Matrix4f transform_mat;
+	transform_mat.setIdentity();
+	for (int idx = 0; auto& mat : matrices.getMatrices()) 
+	{
+		// Get Neccessary Datas
+		transform_mat = transform_mat * mat;
+		auto [r, t] = rtDecompositionMat4(mat);
+		auto [R, _] = RtDecompositionMat4(mat);
+		std::cout << "the local trans: " << t.transpose() << std::endl;
+		std::cout << "the local rot  : " << r.transpose() << std::endl;
+		Eigen::Vector3f scale = 0.08f * Eigen::Vector3<float>::Ones();
+		models[idx] = new Model(name + std::to_string(idx), 
+								"sphere", 
+								"color",
+								t,
+								r,
+								scale,
+								idx == 0 ? base: models[idx - 1]);										
+		ModelManager::getInstance().RegisteredModel(models[idx]->getName(), models[idx]);
+		
+		// Create Joints Mesh
+		scale = 0.04f * Eigen::Vector3<float>::Ones();
+		scale.z() = 0.15f;
+		Model* 
+		joint_mesh_model = new Model("joint_mesh_" + std::to_string(idx),
+									 "cylinder",
+									 "color",
+							 		 Eigen::Vector3<float>::Zero(),
+									 Eigen::Vector3<float>::Zero(),
+									 scale,
+									 models[idx]);
+		ModelManager::getInstance().RegisteredModel(joint_mesh_model->getName(), joint_mesh_model);
+
+		// Create Link Mesh
+		if (t.norm() > 1e-5) {
+			scale = 0.03f * Eigen::Vector3<float>::Ones();
+			scale.z() = t.norm();
+			Vec3 r_link = GetRotateAxisAngleFrom2Vec(Vec3::UnitZ().eval(), t);
+			Model* 
+			link_mesh_model = new Model("link_mesh_" + std::to_string(idx),
+										"cylinder",
+										"color",
+										t/2,
+										r_link,
+										scale,
+										idx == 0 ? base: models[idx - 1]);
+			ModelManager::getInstance().RegisteredModel(link_mesh_model->getName(), link_mesh_model);
+		}
+		
+		// Register the Joint Component
+		models[idx]->RegisterComponent(std::make_unique<JointComponent>(models[idx], (R * Eigen::Vector3f::UnitZ()).normalized()));
+		joints.push_back(models[idx]->GetComponet<JointComponent>("JointComponent"));
+		++idx;
+	}
+
+	base->RegisterComponent(make_unique<JointGroupComponent>(base, joints));
+
+	auto [twists, T] = matrices.toTwists();	
 }

@@ -6,7 +6,7 @@
 #include "model/robot/kuka_iiwa_model.h"
 #include "model/model.h"
 
-void GComponent::TrackerComponent::tick(float delta_time)
+void GComponent::TrackerComponent::tickImpl(float delta_time)
 {
 	Model* ptr_parent = GetParent();
 	if (!tracked_goal_ || !ptr_parent) return;

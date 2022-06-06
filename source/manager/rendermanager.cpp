@@ -130,7 +130,7 @@ void RenderManager::PassSpecifiedListNormal(std::list<RenderCommand>& list, std:
 		MyShader*      shader	= scene_manager.GetShaderByName(shader_name);	
 		RenderMesh* mesh		= scene_manager.GetMeshByName(mesh_name);
 		Model*         obj		= ObjGetter(obj_name);
-
+		
 		shader->use();
 		obj->setShaderProperty(*shader);
 		if (mesh) mesh->Draw();

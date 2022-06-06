@@ -66,13 +66,14 @@ void GLModelTreeView::keyReleaseEvent(QKeyEvent* event)
 
 void GLModelTreeView::InitMenuActions()
 {
-    m_add_menu.setTitle("create");
+    m_add_menu.setTitle("3D Objects");
 
-    copy_action_    = new QAction("copy");
-    cut_action_     = new QAction("cut");
-    paste_action_   = new QAction("paste");
-    delete_action_  = new QAction("delete");
-    rename_action_  = new QAction("rename");
+    copy_action_         = new QAction("copy");
+    cut_action_          = new QAction("cut");
+    paste_action_        = new QAction("paste");
+    delete_action_       = new QAction("delete");
+    rename_action_       = new QAction("rename");
+    robot_create_action_ = new QAction("Robot");
 
     m_basic_menu.addAction(copy_action_);
     m_basic_menu.addAction(cut_action_);
@@ -82,6 +83,7 @@ void GLModelTreeView::InitMenuActions()
     m_basic_menu.addAction(rename_action_);
     m_basic_menu.addSeparator();
     m_basic_menu.addAction(m_add_menu.menuAction());
+    m_basic_menu.addAction(robot_create_action_);
 
     cube_create_action_     = new QAction("Cube");
     sphere_create_action_   = new QAction("Sphere");
@@ -100,7 +102,8 @@ void GLModelTreeView::InitMenuActions()
     connect(cylinder_create_action_, &QAction::triggered, [this]() { emit CreateRequest("cylinder"); });
     connect(capsule_create_action_,  &QAction::triggered, [this]() { emit CreateRequest("capsule"); });
     connect(plane_create_action_,    &QAction::triggered, [this]() { emit CreateRequest("plane"); });
-    
+    connect(robot_create_action_,    &QAction::triggered, [this]() { emit RobotCreateRequest();});
+
     copy_action_->setEnabled(false);
     cut_action_->setEnabled(false);
     paste_action_->setEnabled(false);

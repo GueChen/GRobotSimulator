@@ -41,8 +41,8 @@ void DUAL_ARM_PLATFORM::InitializeModel()
 
     _left->RegisterComponent(std::make_unique<TrackerComponent>(_left, GComponent::ModelManager::getInstance().GetModelByName("sphere0")));
             
-    _left->setColor(vec3(0.8f, 0.6f, 0.2f));
-    _right->setColor(vec3(0.2f, 0.6f, 0.8f));
+    _left->setColor(Vec3(0.8f, 0.6f, 0.2f));
+    _right->setColor(Vec3(0.2f, 0.6f, 0.8f));
     ModelManager::getInstance().ChangeModelParent(_left->getName(),  _body->getName());
     ModelManager::getInstance().ChangeModelParent(_right->getName(), _body->getName());
 }
@@ -52,12 +52,12 @@ void DUAL_ARM_PLATFORM::Draw(MyShader * shader)
     _body->Draw(shader);
 }
 
-void DUAL_ARM_PLATFORM::setLeftColor(const vec3 &color)
+void DUAL_ARM_PLATFORM::setLeftColor(const Vec3 &color)
 {
     _left->setColor(color);
 }
 
-void DUAL_ARM_PLATFORM::setRightColor(const vec3 &color)
+void DUAL_ARM_PLATFORM::setRightColor(const Vec3 &color)
 {
     _right->setColor(color);
 }

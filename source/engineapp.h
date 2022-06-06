@@ -7,6 +7,8 @@
 #ifndef _MYENGINE_H
 #define _MYENGINE_H
 
+#include "ui/dialog/robotcreatedialog.h"
+
 #include "base/singleton.h"
 #include "base/editortreemodel.h"
 #include "mainwindow.h"
@@ -16,6 +18,13 @@
 
 #include <memory>
 #include <chrono>
+
+#ifdef _DEBUG
+ /*******************/ //DELETE THIS AFTER TEST
+#include "function/adapter/kinematic_adapter.h"
+#include <GComponent/GGeometry.hpp>
+/******************/
+#endif // !_DEBUG
 
 namespace GComponent {
 using namespace std::chrono;
@@ -40,11 +49,13 @@ protected:
 	void LogicTick(float delta_time);
 	void RenderTick(float delta_time);
 
+// FIXME: puts it into a proper position
+	void TestConversion(const vector<vector<float>>& params);
 private:
 	unique_ptr<QApplication>		gui_app_ptr_	 = nullptr;
 	unique_ptr<EditorTreeModel>		model_tree_		 = nullptr;
 	unique_ptr<MainWindow>			window_ptr_		 = nullptr;
-	
+	unique_ptr<RobotCreateDialog>	robot_create_dialog_ptr_ = nullptr;
 	steady_clock::time_point		last_time_point_ = steady_clock::now();
 };
 

@@ -58,7 +58,7 @@ public:
 
 /// 绘图函数 Drawing Functions
     void Draw(MyShader * shader) override;
-    void setColor(const vec3 & color);
+    void setColor(const Vec3 & color);
 
 /// 运动学函数 Kinematic Functions
     SE3d ForwardKinematic();
@@ -150,7 +150,7 @@ private:
 /// 数据域 Fields
 private:
 // 当前单一颜色着色器下的显示颜色
-    vec3            _color     = vec3(1.0f);
+    Vec3            _color     = Vec3::Identity();
 
 // 角度及坐标变换参数
     IIWAThetas      _thetas;

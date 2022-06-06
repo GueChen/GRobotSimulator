@@ -15,11 +15,19 @@
 #include <QtCore/QString>
 
 namespace GComponent {
+enum class LayoutType {
+	Vertical   = 0,
+	Horizontal = 1,
+	Grid	   = 2
+};
+
 class QWidgetBuilder {
 public:
 	QWidgetBuilder(QLayout* layout = new QVBoxLayout) { 
 		widget_paradigm_ = new QWidget; 
 		layout->setParent(widget_paradigm_);
+		//layout->setContentsMargins(QMargins(3, 3, 3, 3));
+		widget_layout_ = layout;
 		widget_paradigm_->setLayout(layout); 
 	}
 	~QWidgetBuilder() { 
@@ -32,27 +40,41 @@ public:
 		is_returned_ = true; 
 		return widget_paradigm_;
 	}
+	
+	QWidgetBuilder& 
+	AddLayout(QLayout * layout) {
+		if (!layout) return *this;
+		dynamic_cast<QBoxLayout*>(widget_layout_)->addLayout(layout);
+		return *this;
+	}
 
-	QWidgetBuilder& AddLabel(const QString& text,	 const QString& obj_name = "") {
-		QLabel *  label = new QLabel(text, widget_paradigm_);
-		label->setObjectName(obj_name);
-		widget_paradigm_->layout()->addWidget(label);
-		return *this;
-	}
-	QWidgetBuilder& AddLineEdit(const QString& text, const QString& obj_name = "") {
-		QLineEdit* edit = new QLineEdit(text, widget_paradigm_);
-		edit->setObjectName(obj_name);
-		widget_paradigm_->layout()->addWidget(edit);
-		return *this;
-	}
+	QWidgetBuilder& 
+	AddLabel(const QString& text,	
+			 const QString& obj_name	= "",	
+			 const QString& qss			= "", 
+			 const QSize &	mini_size	= QSize(0, 0), 
+			 const QSize&	max_size	= QSize(16777215, 16777215), 
+			 Qt::Alignment	align		= Qt::AlignLeft);	
+
+	QWidgetBuilder& 
+	AddLineEdit(const QString& text, 
+				const QString& obj_name  = "", 
+				const QString& qss		 = "",
+				const QSize  & mini_size = QSize(0, 0),
+				const QSize  & max_size	 = QSize(16777215, 16777215),
+				Qt::Alignment  align	 = Qt::AlignLeft);
+
 	QWidgetBuilder& AddSpacer(QSizePolicy::Policy h_policy, QSizePolicy::Policy v_policy) {
 		widget_paradigm_->layout()->addItem(new QSpacerItem(40, 20, h_policy, v_policy));
 		return *this;
 	}
 
+	inline QLayout* GetWidgetLayout() const { return widget_layout_; }
+
 private:
 	bool      is_returned_		= false;
-	QWidget * widget_paradigm_;
+	QWidget * widget_paradigm_	= nullptr;
+	QLayout * widget_layout_	= nullptr;
 };
 }
 

@@ -1,0 +1,515 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" GroupingSetting="Access" MembersFormat="FullSignature">
+  <Class Name="GComponent::EditorTreeModel" Collapsed="true">
+    <Position X="25.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EQEAAAAASAAAAgJAAAwAAEAIAYgBAFAAAAIQBAABAAQ=</HashCode>
+      <FileName>source\base\editortreemodel.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::SingletonBase&lt;T&gt;" Collapsed="true">
+    <Position X="8" Y="0.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAAAAAAAAAAAAAAAAAQAAAAgAAABAAA=</HashCode>
+      <FileName>source\base\singleton.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::TreeItem" Collapsed="true">
+    <Position X="40.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAwAgEADEQAAEAQAAAIAAAIAAIgAQIAAACBgAAYAgCA=</HashCode>
+      <FileName>source\base\treeitem.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::Model" Collapsed="true">
+    <Position X="24.75" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>jyJBgAADBABCAgTIARgAIAQiAAQoAABCkEgEKIRgYIA=</HashCode>
+      <FileName>source\model\model.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::Component" Collapsed="true">
+    <Position X="5" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAFoAAAAAAAAAAAAAAAAAAAAAAAAAgAAAEBAAAQAAAA=</HashCode>
+      <FileName>source\component\component.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::JointComponent" Collapsed="true">
+    <Position X="6" Y="10" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAFCABBEACAAgAiAgAACAGAACAAACkAAgERQEASAAAg=</HashCode>
+      <FileName>source\component\joint_component.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::JointGroupComponent" Collapsed="true">
+    <Position X="8.25" Y="10" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAFIAAAAAAAAAAAAAAAAAAAQAAEAAAAAAACAAABASAg=</HashCode>
+      <FileName>source\component\joint_group_component.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::TrackerComponent" Collapsed="true">
+    <Position X="3.5" Y="10" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAFAAAAAAAAAAAAAAAAAAAABAAAAAAAQAAABAAACAAg=</HashCode>
+      <FileName>source\component\tracker_component.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::Transform" Collapsed="true">
+    <Position X="1.25" Y="10" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIIAAAAAAAAAAAACAIAQCCAAgAAACAAAAAgAAAIA=</HashCode>
+      <FileName>source\component\transform.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::ComponentUIFactory" Collapsed="true">
+    <Position X="39" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAgAAAAAAAEAAAAAAAAAAAAA=</HashCode>
+      <FileName>source\function\adapter\component_ui_factory.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::QGL::ModelLoader" Collapsed="true">
+    <Position X="42.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAABQAAAAAAAQAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>source\function\adapter\modelloader_qgladapter.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Conversion" Collapsed="true">
+    <Position X="40.75" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAFAAAAgAAAAAAAAAAAAAAAAAogAAgAI=</HashCode>
+      <FileName>source\function\conversion.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::ModelLoader" Collapsed="true">
+    <Position X="37.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAABgAAAAAAIAAAAAAAAAAQAAAAAAIQAAIAAAAAA=</HashCode>
+      <FileName>source\function\modelloader.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::PickingController" Collapsed="true">
+    <Position X="39" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAgAAAAAAAKACAAAAAAIAEAgAAAggACAABAAgA=</HashCode>
+      <FileName>source\function\picking_helper.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::PickingGuard" Collapsed="true">
+    <Position X="40.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAgAgAAAAAAAAAAAAAAAAAAAE=</HashCode>
+      <FileName>source\function\picking_helper.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::StringProcessor" Collapsed="true">
+    <Position X="39" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAABQAAAAAAAAAAA=</HashCode>
+      <FileName>source\function\stringprocessor.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::QWidgetBuilder" Collapsed="true">
+    <Position X="42.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAQAAAAgIgAAAAgAAAAAAAAAAAAgBBAAA=</HashCode>
+      <FileName>source\function\widgetbuilder.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::ModelManager" Collapsed="true">
+    <Position X="28" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>FAAwAAgiAKEABQEIGhAAAAEAQAAABAAAgAAAmCMEAwQ=</HashCode>
+      <FileName>source\manager\modelmanager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::ObjectManager" Collapsed="true">
+    <Position X="18" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAIIAAIAQAAAAAAAAECAAAAAAAAIAAAAAAQAAA=</HashCode>
+      <FileName>source\manager\objectmanager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::RenderManager" Collapsed="true">
+    <Position X="10.75" Y="2" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>IABAAAggAERAAAEAAAgAAABEAAAACAEAgAAAARpAAgA=</HashCode>
+      <FileName>source\manager\rendermanager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::MyGL" Collapsed="true">
+    <Position X="1.25" Y="3.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>ADgAAAAAAAAIAQAAAJIICAGAAQAAAAAAAAABACAIAIA=</HashCode>
+      <FileName>source\render\mygl.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::ResourceManager" Collapsed="true">
+    <Position X="7.75" Y="2" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AgBAAAAgAQAAABiIAAAAEAIAAAICAAAEAQAAAIAgAQA=</HashCode>
+      <FileName>source\manager\resourcemanager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::BaseGrid" Collapsed="true">
+    <Position X="37.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ICACAiAAAACAQgAAAQAAAAAAAAAAAAAgAgAAAAAEAiA=</HashCode>
+      <FileName>source\model\basegrid.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::QtGLAbstractAxis" Collapsed="true">
+    <Position X="17.25" Y="14" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AioAAAABAAAAAgAAAAAAAAAAAAgAAAwAEABCAAAjAAA=</HashCode>
+      <FileName>source\model\axis\qtaxis.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::QtGLTranslationAxis" Collapsed="true">
+    <Position X="15" Y="15.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEAAAAAAABAAAAAAAAAAAAACAAABAAAABAAA=</HashCode>
+      <FileName>source\model\axis\qtaxis.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::QtGLRotationAxis" Collapsed="true">
+    <Position X="17.5" Y="15.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAABAAAAAAAAAAAAAgAAQBAAAABAAA=</HashCode>
+      <FileName>source\model\axis\qtaxis.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::QtGLScaleAxis" Collapsed="true">
+    <Position X="20" Y="15.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAhAAAAAAAAAAAAAAAAARAAAABAAA=</HashCode>
+      <FileName>source\model\axis\qtaxis.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::KUKA_IIWA_MODEL" Collapsed="true">
+    <Position X="22.25" Y="14" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AEIQAEAAQMAIAkggBBQKSoAAEAAAAAIAMRpAgAYMIgA=</HashCode>
+      <FileName>source\model\robot\kuka_iiwa_model.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::ROBOT_BODY_MODEL" Collapsed="true">
+    <Position X="27.5" Y="14" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAAAgAABAAAAgAAEAAAAACAEAAEAAAAQAA=</HashCode>
+      <FileName>source\model\robot\robot_body_model.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::DUAL_ARM_PLATFORM" Collapsed="true">
+    <Position X="24.75" Y="14" Width="2" />
+    <TypeIdentifier>
+      <HashCode>BAAAQAAAAQAAAgAAAAAAAAAAAABAAQgAAAAAEACAEAA=</HashCode>
+      <FileName>source\model\robot\dual_arm_platform.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::RenderMesh" Collapsed="true">
+    <Position X="37.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CyBgQACAAAIEAgAAAAAAAAAAAAAkAAAAAAACAAAEAgA=</HashCode>
+      <FileName>source\render\rendermesh.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::MyShader" Collapsed="true">
+    <Position X="22.75" Y="3.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>ADgAAAAAAAAIAAAAIBIACAAAAAAAAAAABAAAAAAAAxA=</HashCode>
+      <FileName>source\render\myshader.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::GBall" Collapsed="true">
+    <Position X="30.25" Y="15.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAggAAFACECAAgAAAAAgAAAAAAAhAAAAIAAgAAAAIAA=</HashCode>
+      <FileName>source\simplexmesh\gball.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::GCurves" Collapsed="true">
+    <Position X="32.5" Y="15.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAACAAgAAAAAAAAAAAQAAAAAAQCAAAAAAAAA=</HashCode>
+      <FileName>source\simplexmesh\gcurves.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::GLine" Collapsed="true">
+    <Position X="34.75" Y="15.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAAQAAAACAAgAAEAAAAAAAAAAAAAQAAAAAAAAAAQA=</HashCode>
+      <FileName>source\simplexmesh\gline.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::SimplexModel" Collapsed="true">
+    <Position X="32.5" Y="14" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQgAAAAAAAAAAAAAAAAAAAAAAQAAgAAAAAAAEAiA=</HashCode>
+      <FileName>source\simplexmesh\simplexmodel.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::CircMotion" Collapsed="true">
+    <Position X="1.25" Y="14" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAIAAAAAIAAAAAABAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>source\motion\circmotion.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::GMotionBase" Collapsed="true">
+    <Position X="6" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAA=</HashCode>
+      <FileName>source\motion\gmotionbase.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::LinMotion" Collapsed="true">
+    <Position X="3.5" Y="14" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAAAgAAAAIAAIAAIQAAFAACAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>source\motion\linmotion.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::PTPMotion" Collapsed="true">
+    <Position X="5.75" Y="14" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAEAAAAAAAAAAAAABAABAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>source\motion\ptpmotion.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::SPlineMotion" Collapsed="true">
+    <Position X="10.5" Y="14" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAEAAAAAAIAAAAAABAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>source\motion\splinemotion.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::SyncDualLineMotion" Collapsed="true">
+    <Position X="8" Y="14" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAwAAIAAAAAABAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>source\motion\syncduallinemotion.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::Viewport" Collapsed="true">
+    <Position X="9.75" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CCAEAIIAAABAEAASACAAICBAAAAQAAAEgAAAAQAAAgA=</HashCode>
+      <FileName>source\ui\widget\viewport.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::GLModelTreeView" Collapsed="true">
+    <Position X="12" Y="11.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>IAAIAAAEIQAACACwRKAAAIBAAIgAAAAAAQIAAIAAAEA=</HashCode>
+      <FileName>source\ui\treeview\glmodeltreeview.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GComponent::EngineApp" Collapsed="true">
+    <Position X="20.25" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IACAAAAAAAgAAgAIAAAAAAAAAAAAARIAAIACAAAgAAA=</HashCode>
+      <FileName>source\engineapp.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QObject" Collapsed="true">
+    <Position X="11" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAgAAAAQQIAAAAVUgYAAEICGAAMQiIIHBEAiIhJGACE=</HashCode>
+      <FileName>D:\programming\Qt\6.2.0\msvc2019_64\include\QtCore\qobject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QOpenGLFunctions_4_5_Core" Collapsed="true">
+    <Position X="1" Y="2" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>/n//vf//6///v29/9//P7/+3X/99///ff/6/v/71/98=</HashCode>
+      <FileName>D:\programming\Qt\6.2.0\msvc2019_64\include\QtOpenGL\qopenglfunctions_4_5_core.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QAbstractOpenGLFunctions" Collapsed="true">
+    <Position X="1" Y="0.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAUAAAAAAAAAAAACAAAAAAAAAAAAAAEAAAEAAAAACA=</HashCode>
+      <FileName>D:\programming\Qt\6.2.0\msvc2019_64\include\QtOpenGL\qopenglversionfunctions.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QTreeView" Collapsed="true">
+    <Position X="12.25" Y="10" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>WNiID1cEIgBkAEEAJGLwZEDtQkQQk6QNRPDCqAmAcJU=</HashCode>
+      <FileName>D:\programming\Qt\6.2.0\msvc2019_64\include\QtWidgets\qtreeview.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QAbstractItemView" Collapsed="true">
+    <Position X="12" Y="8.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>WHpKH14AA1FOD4WooBK68u3nYEFQoKfEBjigok8OwTQ=</HashCode>
+      <FileName>D:\programming\Qt\6.2.0\msvc2019_64\include\QtWidgets\qabstractitemview.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QAbstractScrollArea" Collapsed="true">
+    <Position X="12" Y="7" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>RZqIAAIABFBkAAAQBAiBIAhAAACUNLMAAAAABAMAUAA=</HashCode>
+      <FileName>D:\programming\Qt\6.2.0\msvc2019_64\include\QtWidgets\qabstractscrollarea.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QFrame" Collapsed="true">
+    <Position X="12.25" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CQBIAAAACAAAACBAJAAAAAAAACAEIAYgIgAAYBAAIAA=</HashCode>
+      <FileName>D:\programming\Qt\6.2.0\msvc2019_64\include\QtWidgets\qframe.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QWidget" Collapsed="true">
+    <Position X="11" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>hA6pAGgYqICSoYVAaL8yqpBimu1GwLWO4PBqCgXdwII=</HashCode>
+      <FileName>D:\programming\Qt\6.2.0\msvc2019_64\include\QtWidgets\qwidget.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QPaintDevice" Collapsed="true">
+    <Position X="14" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAAAAAAIAQAQwKAAQEiAIIAAAAAgAiIMAAgAEA=</HashCode>
+      <FileName>D:\programming\Qt\6.2.0\msvc2019_64\include\QtGui\qpaintdevice.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QAbstractItemModel" Collapsed="true">
+    <Position X="25.5" Y="2" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>ElUBCKA9SlxQIgJEkAyFBkCIkMABgE4CooIUCCohURY=</HashCode>
+      <FileName>D:\programming\Qt\6.2.0\msvc2019_64\include\QtCore\qabstractitemmodel.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QOpenGLShaderProgram" Collapsed="true">
+    <Position X="22.5" Y="2" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>FACDQAAQAIAAEAACAAACKAACgQgAhhagQBhAAEAAAkA=</HashCode>
+      <FileName>D:\programming\Qt\6.2.0\msvc2019_64\include\QtOpenGL\qopenglshaderprogram.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QOpenGLWidget" Collapsed="true">
+    <Position X="9.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAJAAAAAKCAAyBCAACJAAAAIAoIKACAiBBAAEAAA=</HashCode>
+      <FileName>D:\programming\Qt\6.2.0\msvc2019_64\include\QtOpenGLWidgets\qopenglwidget.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="GComponent::PickingPixelInfo" Collapsed="true">
+    <Position X="40.75" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEACAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAA=</HashCode>
+      <FileName>source\function\picking_helper.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="GComponent::RenderCommand" Collapsed="true">
+    <Position X="37.25" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAAAgAAAAAAAAEAAAAAAAAAAAABAAAAAAAAAAA=</HashCode>
+      <FileName>source\manager\rendermanager.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="GComponent::RawMesh" Collapsed="true">
+    <Position X="42.5" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAEAAAAAAAAAA=</HashCode>
+      <FileName>source\render\raw_mesh.hpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="GComponent::Line" Collapsed="true">
+    <Position X="39" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAgEAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>source\render\rendering_datastructure.hpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="GComponent::Triangle" Collapsed="true">
+    <Position X="40.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAAAAAAAAAgEAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>source\render\rendering_datastructure.hpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="GComponent::Vertex" Collapsed="true">
+    <Position X="5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAgAAIAAQAAAAAIAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>source\render\rendering_datastructure.hpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="GComponent::ColorVertex" Collapsed="true">
+    <Position X="5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAA=</HashCode>
+      <FileName>source\render\rendering_datastructure.hpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="GComponent::Texture" Collapsed="true">
+    <Position X="39" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAgA=</HashCode>
+      <FileName>source\render\rendering_datastructure.hpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="std::hash&lt;GComponent::Vertex&gt;" Collapsed="true">
+    <Position X="37.25" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>source\render\rendering_datastructure.hpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Enum Name="JointMode" Collapsed="true">
+    <Position X="37.25" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAgAAAAAAAAAAAAIAAAAAAAAAAEAAA=</HashCode>
+      <FileName>source\component\joint_component.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="JointType" Collapsed="true">
+    <Position X="39" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAgAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>source\component\joint_component.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="GComponent::PassType" Collapsed="true">
+    <Position X="40.75" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAA=</HashCode>
+      <FileName>source\manager\rendermanager.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="AxisMode" Collapsed="true">
+    <Position X="37.25" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAIACAAIAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>source\model\axis\qtaxis.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="AxisSelected" Collapsed="true">
+    <Position X="39" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAECAAA=</HashCode>
+      <FileName>source\model\axis\qtaxis.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="GComponent::InterpolationEnum" Collapsed="true">
+    <Position X="42.5" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAAAAAAAAAAAAEAAAAAIAAQAAAAAIAAAAAAAAAA=</HashCode>
+      <FileName>source\motion\gmotionbase.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="GComponent::DrawMode" Collapsed="true">
+    <Position X="40.75" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAIAAAAAEAAAgACBAAAAAAAAAAAAAAgCAAAQAAAAACA=</HashCode>
+      <FileName>source\render\rendermesh.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Microsoft YaHei UI" Size="9" />
+</ClassDiagram>

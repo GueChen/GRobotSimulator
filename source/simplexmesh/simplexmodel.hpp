@@ -5,6 +5,9 @@
 #include "render/rendering_datastructure.hpp"
 #include "render/mygl.hpp"
 
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+
 namespace GComponent{
 
 class MyGL;
