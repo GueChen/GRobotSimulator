@@ -64,12 +64,6 @@ void GComponent::Model::tickImpl(float delta_time)
     RenderManager::getInstance().EmplaceRenderCommand(name_, shader_, mesh_);    
 }
 
-void Model::Draw(MyShader* shader)
-{
-    shader->setMat4("model", Conversion::fromMat4f(getModelMatrix()));
-    /* Draw With Source */
-}
-
 bool GComponent::Model::eraseChild(int idx)
 {
     if (idx < 0 || idx >= children_.size()) return false;

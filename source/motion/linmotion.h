@@ -6,7 +6,7 @@
 
 namespace GComponent {
 
-using BallObst = pair<vec3d, double>;
+using BallObst = pair<Vec3d, double>;
 
 
 // TODO: 抽象出一个大的机器人类替代具体的 KUKA_IIWA_MODEL
@@ -17,12 +17,12 @@ class LinMotion : public GMotionBase
 public:
     explicit LinMotion(const SE3d &);
     // Depriciate Constructor Method
-    explicit LinMotion(const twistd&);
-    explicit LinMotion(const vec3d &, const vec3d& = vec3d::Zero());
+    explicit LinMotion(const Twistd&);
+    explicit LinMotion(const Vec3d &, const Vec3d& = Vec3d::Zero());
 
     // TODO: 该归入一个抽象父类中
     void addObstacle(const string&, BallObst &&);
-    void updateObstacle(const string&, vec3d);
+    void updateObstacle(const string&, Vec3d);
     void deleteObstacle(const string&);
 
     JointCruveMsgPkg

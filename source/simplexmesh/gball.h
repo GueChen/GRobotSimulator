@@ -34,7 +34,7 @@ public:
 
     /* 绘图函数重写 */
     void
-    Draw(MyShader * shader) override;
+    Draw(MyShader * shader);
 
     /* 移动控制接口函数 */
     void

@@ -19,7 +19,7 @@ LocalTransformsSE3<_Scaler> LocalTransformsSE3<_Scaler>::fromMDH(const vector<ve
 	for (int idx = 0; idx < mdh_params.size(); ++idx) 
 	{
 		const vector<_Scaler>& param = mdh_params[idx];
-		transform_matrices[idx] = ModifiedDH(param[0], param[1], param[2], param[3]);
+		transform_matrices[idx] = RobotKinematic::ModifiedDH(param[0], param[1], param[2], param[3]);
 	}
 	return SE3s;
 }
@@ -34,7 +34,7 @@ LocalTransformsSE3<_Scaler> LocalTransformsSE3<_Scaler>::fromSDH(const vector<ve
 	for (int idx = 0; idx < sdh_params.size(); ++idx)
 	{
 		const vector<_Scaler>& param = sdh_params[idx];
-		transform_matrices[idx] = StandardDH(param[0], param[1], param[2], param[3]);
+		transform_matrices[idx] = RobotKinematic::StandardDH(param[0], param[1], param[2], param[3]);
 	}
 	return SE3s;
 }

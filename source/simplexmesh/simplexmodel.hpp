@@ -73,7 +73,7 @@ public:
 
     /* 绘图函数 */
     virtual void
-    Draw(MyShader *shader = nullptr) override = 0;
+    Draw(MyShader *shader = nullptr) = 0;
 protected:
     /* GL 资源初始化函数 */
     virtual void

@@ -5,6 +5,7 @@
 #include "model/robot/kuka_iiwa_model.h"
 #include "model/robot/robot_body_model.h"
 #include "component/tracker_component.h"
+#include "component/kinematic_component.h"
 
 #include <memory>
 
@@ -40,16 +41,17 @@ void DUAL_ARM_PLATFORM::InitializeModel()
     _body->appendChild(_right, right_model_mat.matrix());
 
     _left->RegisterComponent(std::make_unique<TrackerComponent>(_left, GComponent::ModelManager::getInstance().GetModelByName("sphere0")));
-            
+    _left->RegisterComponent(std::make_unique<KinematicComponent>(_left));
+    _left->GetComponet<KinematicComponent>("KinematicComponent")->UpdateExponentialCoordinates();
+    SE3<float> initrans = SE3<float>::Identity();
+    initrans.block(0, 3, 3, 1) = Vec3(0.0f, 0.0f, 1.332f);
+    _left->GetComponet<KinematicComponent>("KinematicComponent")->SetEndTransformInit(initrans);
+
+    _right->RegisterComponent(std::make_unique<KinematicComponent>(_right));
     _left->setColor(Vec3(0.8f, 0.6f, 0.2f));
     _right->setColor(Vec3(0.2f, 0.6f, 0.8f));
     ModelManager::getInstance().ChangeModelParent(_left->getName(),  _body->getName());
     ModelManager::getInstance().ChangeModelParent(_right->getName(), _body->getName());
-}
-
-void DUAL_ARM_PLATFORM::Draw(MyShader * shader)
-{
-    _body->Draw(shader);
 }
 
 void DUAL_ARM_PLATFORM::setLeftColor(const Vec3 &color)

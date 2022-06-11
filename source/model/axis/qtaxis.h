@@ -17,9 +17,10 @@
 #include <vector>
 
 enum class AxisMode {
-	Translation = 0,
-	Rotation    = 1,
-	Scale		= 2
+	None		= 0,
+	Translation = 1,
+	Rotation    = 2,
+	Scale		= 3
 };
 
 enum class AxisSelected {

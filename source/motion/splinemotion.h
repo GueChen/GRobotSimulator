@@ -12,17 +12,17 @@ class KUKA_IIWA_MODEL;
 class SPlineMotion : public GMotionBase
 {
 public:
-    SPlineMotion(const SE3d&, const vector<vec3d>&);
+    SPlineMotion(const SE3d&, const vector<Vec3d>&);
     // Depriciate Constructor Method
-    SPlineMotion(const twistd&, const vector<vec3d>&);
-    SPlineMotion(const vec3d&, const vector<vec3d>&, const vec3d& ori = vec3d::Zero());
+    SPlineMotion(const Twistd&, const vector<Vec3d>&);
+    SPlineMotion(const Vec3d&, const vector<Vec3d>&, const Vec3d& ori = Vec3d::Zero());
 
     JointCruveMsgPkg
     GetCurvesFunction(KUKA_IIWA_MODEL*, const double Max_Vel_Limit = 5, const double Max_Acc_Limit = 5);
 
 private:
     SE3d T_goal;
-    vector<vec3d> posList_mid;
+    vector<Vec3d> posList_mid;
 
 };
 

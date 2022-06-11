@@ -6,9 +6,6 @@
 #include "manager/modelmanager.h"
 #include "manager/resourcemanager.h"
 
-#include "component/joint_component.h"
-#include "component/joint_group_component.h"
-
 #include <iostream>
 #include <format>
 
@@ -107,12 +104,15 @@ void GComponent::EngineApp::Init(int argc, char* argv[])
 	/* robotcreatedialog >> ? */
 	connect(robot_create_dialog_ptr_.get(), &RobotCreateDialog::RobotCreateRequestMDH,
 			this,							&EngineApp::TestConversion);
+	
+	/* close all window */
+	connect(window_ptr_.get(),				&MainWindow::deleteLater,
+			robot_create_dialog_ptr_.get(), &RobotCreateDialog::close);
 }
 
 int GComponent::EngineApp::Exec()
 {
 	window_ptr_->show();
-	robot_create_dialog_ptr_->show();
 	if (!gui_app_ptr_) return 0;
 	return gui_app_ptr_->exec();
 		
@@ -125,7 +125,7 @@ void GComponent::EngineApp::LogicTick(float delta_time_ms)
 
 void GComponent::EngineApp::RenderTick(float delta_time_ms)
 {
-	//SceneManager::getInstance().tick(delta_time_ms);
+	
 }
 
 void GComponent::EngineApp::TestConversion(const vector<vector<float>>& params)
@@ -133,7 +133,7 @@ void GComponent::EngineApp::TestConversion(const vector<vector<float>>& params)
 	LocalTransformsSE3<float> matrices = LocalTransformsSE3<float>::fromMDH(params);
 
 	Model* base = new Model("robot_base", "", "color");
-	vector<JointComponent*> joints;
+	std::vector<JointComponent*> joints;
 	ModelManager::getInstance().RegisteredModel(base->getName(), base);
 
 	vector<Model*> models(matrices.size(), nullptr);

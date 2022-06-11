@@ -3,17 +3,16 @@
 #include "ui_mainwindow.h"
 
 #include "manager/modelmanager.h"
+#include "manager/editor/uistatemanager.h"
 #include "function/adapter/component_ui_factory.h"
 
 #include <QtWidgets/QCombobox>
 
-#define __TEST__PLANNING
+
 #ifdef __TEST__PLANNING
 /// Just for Test Include
-
 #include "motion/GMotion"
 #include "model/robot/kuka_iiwa_model.h"
-#include "component/joint_group_component.h"
 
 #include "function/conversion.hpp"
 
@@ -79,7 +78,7 @@ QComboBox* MainWindow::getModelDispaly() const
 {
     return ui->selected_combo;
 }
-
+#ifdef __TEST__PLANNING
 void MainWindow::on_TestPTPButton_clicked()
 {
     double Bound = 180.0 * 2.0 / 3.0;
@@ -129,7 +128,7 @@ void MainWindow::on_TestLINMotion_clicked()
 
 void MainWindow::on_TestCircMotion_clicked()
 {
-#ifdef __TEST__PLANNING
+
     auto ptr_left = dynamic_cast<GComponent::KUKA_IIWA_MODEL*>(GComponent::ModelManager::getInstance().GetModelByName("kuka_iiwa_robot_0"));
     if (ptr_left) {
         IIWAThetas thetas = GComponent::GenUniformRandom<double, 7>(-3.1415926 * 2.0 / 3.0, 3.1415926 * 2.0 / 3.0);
@@ -151,7 +150,7 @@ void MainWindow::on_TestCircMotion_clicked()
 
         //ui->mainArmView->clearSimplexModel();        
     }
-#endif
+
 }
 
 void MainWindow::on_TestSPLMotion_clicked()
@@ -301,8 +300,46 @@ void MainWindow::on_TestTightCoord_clicked()
     }
 }
 
+void MainWindow::Plot(QChart* chart, double tot, const std::function<vector<double>(double)>& Fun, const std::string& legend, const std::string& title)
+{
+    const int N = Fun(0).size();
+    DataTable myDataLists(N);
+    double maxVal = 0.0;
+    /* Caculated Y Value */
+    for (double t = 0.0; t < tot + 2.0f; t += 0.1f)
+    {
+        auto values = Fun(t);
+        for (int i = 0; i < N; ++i)
+        {
+            maxVal = std::max(std::abs(values[i]), maxVal);
+            QPointF value(t, values[i]);
+            myDataLists[i] << Data(value, QString::number(t));
+        }
+    }
+    maxVal += 0.1 * maxVal;
+    chart->removeAllSeries();
+    int Index = 0;
+    for (auto& datas : myDataLists)
+    {
+        QSplineSeries* series = new QSplineSeries(chart);
+        for (const Data& data : datas)
+        {
+            series->append(data.first);
+        }
+        series->setName(QString::fromStdString(legend) + QString::number(++Index));
+        chart->addSeries(series);
+    }
+
+    chart->setTitle(QString::fromStdString(title));
+    chart->createDefaultAxes();
+    chart->axes(Qt::Horizontal).first()->setRange(0, tot + 2.0);
+    chart->axes(Qt::Vertical).first()->setRange(-maxVal, maxVal);
+}
+#endif
+
 void MainWindow::ConnectionInit()
 {
+    using namespace GComponent;
     connect(this, &QMainWindow::tabifiedDockWidgetActivated, this, &MainWindow::SetTabifyDockerWidgetQSS);
     connect(ui->m_viewport, &Viewport::EmitDeltaTime, this, &MainWindow::ReceiveDeltaTime);           
     /* UI_STATE << TREEVIEW */
@@ -343,41 +380,7 @@ void MainWindow::ConnectionInit()
     
 }
 
-void MainWindow::Plot(QChart* chart, double tot, const std::function<vector<double>(double)>& Fun, const std::string& legend, const std::string& title)
-{
-    const int N = Fun(0).size();
-    DataTable myDataLists(N);
-    double maxVal = 0.0;
-    /* Caculated Y Value */
-    for(double t = 0.0; t < tot + 2.0f; t += 0.1f)
-    {
-        auto values = Fun(t);
-        for(int i = 0; i < N; ++i)
-        {
-            maxVal = std::max(std::abs(values[i]), maxVal);
-            QPointF value(t, values[i]);
-            myDataLists[i] <<  Data(value, QString::number(t));
-        }
-    }
-    maxVal += 0.1 * maxVal;
-    chart->removeAllSeries();
-    int Index =0;
-    for(auto & datas: myDataLists)
-    {
-        QSplineSeries * series = new QSplineSeries(chart);
-        for(const Data& data : datas)
-        {
-            series->append(data.first);
-        }
-        series->setName( QString::fromStdString(legend) + QString::number(++Index));
-        chart->addSeries(series);
-    }
 
-    chart->setTitle(QString::fromStdString(title));
-    chart->createDefaultAxes();
-    chart->axes(Qt::Horizontal).first()->setRange(0, tot + 2.0);
-    chart->axes(Qt::Vertical).first()->setRange(-maxVal, maxVal);
-}
 
 void MainWindow::ReceiveDeltaTime(float delta_time)
 {
@@ -404,8 +407,10 @@ void MainWindow::SetTabifyDockerWidgetQSS(QDockWidget* widget)
     }   
 }
 
+// TODO: remove Model from ui but supply a interface for setting
 void MainWindow::CheckSelected()
 {
+    using namespace GComponent;
     static Model* last_ptr = nullptr;
     Model* selected_obj_ptr = ui->m_viewport->ui_state_.GetSelectedObject();
     
@@ -454,6 +459,11 @@ void MainWindow::CheckSelected()
         }
     }
     last_ptr = selected_obj_ptr;
+}
+
+void MainWindow::on_check_button_clicked()
+{
+    ui->m_viewport->ui_state_.ResponseAxisModeChange(AxisMode::None);
 }
 
 void MainWindow::on_trans_button_clicked()

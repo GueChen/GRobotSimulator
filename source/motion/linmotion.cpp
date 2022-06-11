@@ -25,7 +25,7 @@ JointCruveMsgPkg LinMotion::GetCurvesFunction(KUKA_IIWA_MODEL * robot, const dou
     /* 没有任何连续性考虑的测试 */
     auto PositionFunction = [robot, Max_Vel_Limit, LineFunc, tot, lastJp = lastJoint](double t)mutable{
         double scalered_t  = Clamp(t / tot, 0.0, 1.0);
-        twistd twist_cur   = LineFunc(scalered_t);
+        Twistd twist_cur   = LineFunc(scalered_t);
         IIWAThetav lastJpv =Eigen::Map<IIWAThetav>(lastJp.data(), 7);
         IIWAThetas ret_Pos = robot->BackKinematic(twist_cur, lastJpv);
         lastJp = ret_Pos;
@@ -40,7 +40,7 @@ JointCruveMsgPkg LinMotion::GetCurvesFunction(KUKA_IIWA_MODEL * robot, const dou
     // FIXME: 待实装修改
     auto VelocityFunction = [robot, Max_Vel_Limit, tot, JointNum, PositionFunction](double t){
         if(t <= tot || t >= tot) return vector<double>(7, 0.0);
-        twistd v_thetav;
+        Twistd v_thetav;
         for(int i = 0; i < 6; ++i)
         {
             v_thetav[i] = Max_Vel_Limit;
@@ -59,18 +59,18 @@ LinMotion::GetAvoidObstCurvesFunction(KUKA_IIWA_MODEL* robot, double Padding, co
     const size_t JointNum = robot->GetThetas().size();
 
     auto SimpleLineFunc = GetScrewLineFunction(T_ini, T_goal);
-    auto AvoidOptLineFunc = [obst_Dict = this->obst_Dict, SimpleLineFunc, Padding](double t)->twistd{
+    auto AvoidOptLineFunc = [obst_Dict = this->obst_Dict, SimpleLineFunc, Padding](double t)->Twistd{
 
-        twistd twist_ori = SimpleLineFunc(t);
+        Twistd twist_ori = SimpleLineFunc(t);
         SE3d T           = ExpMapping(twist_ori);
-        const vec3d & pos_Ori = T.block(0, 3, 3, 1);
-        vec3d posNew = vec3d::Zero();
+        const Vec3d & pos_Ori = T.block(0, 3, 3, 1);
+        Vec3d posNew = Vec3d::Zero();
         for(auto & [name, obst]: obst_Dict)
         {
             auto && [center, radius] = obst;
             if((center - pos_Ori).norm() < radius + Padding)
             {
-                vec3d direction  = (pos_Ori - center).normalized();
+                Vec3d direction  = (pos_Ori - center).normalized();
                 double safeDist  = radius + Padding;
                 posNew = center + safeDist * direction;
                 break;
@@ -96,7 +96,7 @@ LinMotion::GetAvoidObstCurvesFunction(KUKA_IIWA_MODEL* robot, double Padding, co
     auto PositionFunction = [robot, obsts = obsts, Max_Vel_Limit, LineFunc = AvoidOptLineFunc, tot](double t){
         double scalered_t  = Clamp(t / tot, 0.0, 1.0);
         // 该 LinFunction 已是末端单点避障的 line function
-        twistd twist_cur   = LineFunc(scalered_t);
+        Twistd twist_cur   = LineFunc(scalered_t);
         // 求逆解求出目标点关节值
         IIWAThetas ret_Pos = robot->BackKinematic(twist_cur);
         // 检测中间是否有避障需求
@@ -139,7 +139,7 @@ LinMotion::GetAvoidObstCurvesFunction(KUKA_IIWA_MODEL* robot, double Padding, co
     // FIXME: 待实装修改
     auto VelocityFunction = [robot, Max_Vel_Limit, tot, JointNum, PositionFunction](double t){
         if(t <= tot || t >= tot) return vector<double>(7, 0.0);
-        twistd v_thetav;
+        Twistd v_thetav;
         for(int i = 0; i < 6; ++i)
         {
             v_thetav[i] = Max_Vel_Limit;
@@ -165,7 +165,7 @@ LinMotion::GetAvoidLimitationCurvesFunction(KUKA_IIWA_MODEL* robot, const double
     /* 没有任何连续性考虑的测试 */
     auto PositionFunction = [robot, Max_Vel_Limit, joint_num = joint_num, LineFunc, tot, last_jp = last_joint, last_gd = last_grad](double t)mutable{
         double scalered_t  = Clamp(t / tot, 0.0, 1.0);
-        twistd twist_cur   = LineFunc(scalered_t);
+        Twistd twist_cur   = LineFunc(scalered_t);
         IIWAThetav lastJpv =Eigen::Map<IIWAThetav>(last_jp.data(), joint_num);
         Matrix<double, 7, 1> grad = robot->GetJointsLimitationGrad();
         Matrix<double, 7, 7> weighted_matrix = Matrix<double, 7, 7>::Identity();
@@ -188,7 +188,7 @@ LinMotion::GetAvoidLimitationCurvesFunction(KUKA_IIWA_MODEL* robot, const double
     };
     auto VelocityFunction = [robot, Max_Vel_Limit, tot, joint_num, PositionFunction](double t){
         if(t <= tot || t >= tot) return vector<double>(7, 0.0);
-        twistd v_thetav;
+        Twistd v_thetav;
         for(int i = 0; i < 6; ++i)
         {
             v_thetav[i] = Max_Vel_Limit;
@@ -205,7 +205,7 @@ void LinMotion::addObstacle(const string & name, BallObst && obst)
     obst_Dict.insert(make_pair(name, forward<BallObst>(obst)));
 }
 
-void LinMotion::updateObstacle(const string & name, vec3d pos_new)
+void LinMotion::updateObstacle(const string & name, Vec3d pos_new)
 {
     if(obst_Dict.count(name))
     {

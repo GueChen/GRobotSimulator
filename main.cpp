@@ -12,13 +12,13 @@ int main(int argc, char *argv[])
     
     GComponent::EngineApp::getInstance().Init(argc, argv);
     GComponent::ObjectManager::getInstance().CreateInstance("plane");
-    //GComponent::ObjectManager::getInstance().CreateInstance("sphere");
+    GComponent::ObjectManager::getInstance().CreateInstance("sphere");
 
-    /*GComponent::Model * sphere = GComponent::ModelManager::getInstance().GetModelByName("sphere0");
+    GComponent::Model * sphere = GComponent::ModelManager::getInstance().GetModelByName("sphere0");
     if (sphere) {
         sphere->setTransLocal(Eigen::Vector3f(0.0f, 1.3f, 2.0f));
         sphere->setScale(0.05f * Eigen::Vector3f::Ones());
-    }*/
+    }
     GComponent::DUAL_ARM_PLATFORM robot;
     GComponent::EngineApp::getInstance().Exec();
     

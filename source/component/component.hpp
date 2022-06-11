@@ -23,6 +23,9 @@ public:
 // Constructor & Destructors		
 	explicit		Component(Model* ptr_parent) : ptr_parent_(ptr_parent) {}
 	virtual			~Component() {
+		// derived class 
+		Derigistered();
+		// external class
 		for (auto& del_fun : delete_functions_)
 		{
 			del_fun();

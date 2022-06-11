@@ -75,7 +75,7 @@ void GComponent::UIState::tick()
 			case Translation:	m_cur_axis = m_translation_axis;break;
 			case Rotation:		m_cur_axis = m_rotation_axis;	break;
 			case Scale:			m_cur_axis = m_scale_axis;		break;	
-			default:			throw std::exception("The AxisMode Not Define!");
+			default:			m_cur_axis = nullptr;
 		}
 	}
 
@@ -124,7 +124,7 @@ void GComponent::UIState::tick()
 		}
 
 	}
-	else if (picking_msg_ && picking_msg_->drawID == static_cast<float>(PassType::AuxiliaryPass)) {
+	else if (picking_msg_ && picking_msg_->drawID == static_cast<float>(PassType::AuxiliaryPass) && m_cur_axis) {
 		if (picking_msg_->primitiveID <= m_cur_axis->GetStridedSize())
 		{
 			m_axis_selected = AxisSelected::xAxis;
@@ -155,12 +155,14 @@ void GComponent::UIState::tick()
 
 		Mat4 scale_mat = Mat4::Identity();
 		scale_mat.block(0, 0, 3, 3) = Scale((Vec3::Ones() * distance * 0.05f).eval());
-
-		m_cur_axis->SetAxisSelected(m_axis_selected);
-		m_cur_axis->setModelMatrix(
-			(m_axis_mode != AxisMode::Scale? selected_obj->getTranslationModelMatrix() : selected_obj->getModelMatrixWithoutScale())
+		
+		if (m_cur_axis) {
+			m_cur_axis->SetAxisSelected(m_axis_selected);
+			m_cur_axis->setModelMatrix(
+				(m_axis_mode != AxisMode::Scale ? selected_obj->getTranslationModelMatrix() : selected_obj->getModelMatrixWithoutScale())
 				* scale_mat);
-		m_cur_axis->tick(0.0f);
+			m_cur_axis->tick(0.0f);
+		}
 	}
 
 }

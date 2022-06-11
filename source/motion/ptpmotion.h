@@ -15,7 +15,7 @@ public:
     explicit PTPMotion(const vector<double>&, InterpolationEnum type = InterpolationEnum::Trapezoid);
     // Depriciate Constructor Method
     explicit PTPMotion(const SE3d&);
-    explicit PTPMotion(const vec3d &);
+    explicit PTPMotion(const Vec3d &);
 
     JointCruveMsgPkg
     GetCurvesFunction(KUKA_IIWA_MODEL*, const double Max_Vel_Limit = 5, const double Max_Acc_Limit = 5);

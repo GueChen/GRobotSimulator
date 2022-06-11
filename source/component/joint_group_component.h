@@ -27,23 +27,25 @@ using _DelFun = std::function<void(void)>;
 
 class JointGroupComponent:public Component {
 public:
-	JointGroupComponent(Model* ptr_parent, const vector<JointComponent*>& joints = {});
+	explicit JointGroupComponent(Model* ptr_parent, const vector<JointComponent*>& joints = {});
 	~JointGroupComponent();
-	
-	// void Derigistered()			override;
-	// 通过 Component 继承
-	virtual const string_view& 
-					GetTypeName()	const override	{ return type_name; }
 
 	bool			RegisterJoint(JointComponent* joint);
+	// void Derigistered()			override;
+
+	virtual const string_view& 
+					GetTypeName()	const override	{ return type_name; }	
 	inline size_t	GetJointsSize()	const			{ return joints_.size(); }
 	inline const vector<JointComponent*>& 
 					GetJoints()		const			{ return joints_; }
 
-	int				SearchJointsInChildren();
+	vector<float>	GetPositions();
+	void			SetPositions(const vector<float>& positions);
 
+	int				SearchJointsInChildren();
+	
 protected:
-	void tickImpl(float delta_time)		override;
+	void tickImpl(float delta_time)		override		   {}
 
 private:
 	vector<JointComponent*>			joints_				 = {};

@@ -101,7 +101,7 @@ protected:
 	size_t		  m_key_state			= static_cast<size_t>(KeyButtonState::None);
 	
 private:
-	AxisMode				m_axis_mode			    = AxisMode::Translation;
+	AxisMode				   m_axis_mode			= AxisMode::Translation;
 	AxisSelected			   m_axis_selected		= AxisSelected::None;
 
 	QtGLAbstractAxis*		   m_cur_axis			= nullptr;

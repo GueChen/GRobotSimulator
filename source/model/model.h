@@ -55,9 +55,6 @@ public:
     virtual
     void            tickImpl(float delta_time);
 
-    virtual 
-    void            Draw(MyShader * shader);
-
     void            appendChild(const _RawPtr pchild, Mat4 transform = Mat4::Identity());
 
     inline const vector<_RawPtr>& 

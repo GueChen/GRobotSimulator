@@ -23,9 +23,7 @@ class DUAL_ARM_PLATFORM: public Model
 public:
     explicit DUAL_ARM_PLATFORM(Mat4 transform = Mat4::Identity());
     ~DUAL_ARM_PLATFORM() = default;
-
-    void Draw(MyShader * shader) override;
-    
+ 
     void setLeftColor(const Vec3 & color);
     void setRightColor(const Vec3 & color);
 

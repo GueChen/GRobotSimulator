@@ -3,6 +3,9 @@
 #include "model/model.h"
 
 #include <stack>
+#include <algorithm>
+#include <execution>
+#include <ranges>
 
 namespace GComponent {
 
@@ -23,6 +26,24 @@ JointGroupComponent::~JointGroupComponent()
 	}
 }
 
+
+vector<float> JointGroupComponent::GetPositions()
+{
+	vector<float> positions(GetJointsSize());
+	std::transform(std::execution::par_unseq,
+		joints_.begin(), joints_.end(), positions.begin(),
+		[](const auto& joint) {
+			return joint->GetPosition();
+		});
+	return positions;
+}
+
+void JointGroupComponent::SetPositions(const vector<float>& positions)
+{
+	for (int i = 0; i < joints_.size(); ++i) {
+		joints_[i]->PushPosBuffer(positions[i]);
+	}
+}
 
 int JointGroupComponent::SearchJointsInChildren()
 {
@@ -55,11 +76,6 @@ int JointGroupComponent::SearchJointsInChildren()
 	}
 
 	return joints_.size();
-}
-
-void JointGroupComponent::tickImpl(float delta_time)
-{
-
 }
 
 bool JointGroupComponent::RegisterJoint(JointComponent* joint)

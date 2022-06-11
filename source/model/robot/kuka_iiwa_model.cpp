@@ -4,7 +4,6 @@
 #include "manager/resourcemanager.h"
 #include "manager/rendermanager.h"
 
-#include "render/mygl.hpp"
 #include "render/myshader.h"
 #include "render/rendermesh.h"
 
@@ -31,7 +30,7 @@ using std::make_unique;
 bool KUKA_IIWA_MODEL::is_init_ = false;
 int KUKA_IIWA_MODEL::count    = 0;
 SE3d KUKA_IIWA_MODEL::M = SE3d();
-array<twistd, 7> KUKA_IIWA_MODEL::expCoords = {};
+array<Twistd, 7> KUKA_IIWA_MODEL::expCoords = {};
 
 //vector<vec3d> KUKA_IIWA_MODEL::CollisionCheckPoints = {};
 
@@ -42,7 +41,7 @@ array<twistd, 7> KUKA_IIWA_MODEL::expCoords = {};
 
 /// 资源管理部分
 KUKA_IIWA_MODEL::KUKA_IIWA_MODEL(Mat4 transform):
-    _thetas({0}), _Ts()
+    _thetas({0})
 {
     shader_ = "color";
     setModelMatrix(transform); 
@@ -179,25 +178,6 @@ void GComponent::KUKA_IIWA_MODEL::tickImpl(float delta_time)
     RenderManager::getInstance().EmplaceRenderCommand(name_, shader_, mesh_);
 }
 
-/// 图片绘制部分
-void KUKA_IIWA_MODEL::Draw(MyShader * shader)
-{
-    shader->setVec3("color",Conversion::fromVec3f(_color));
-    for (auto& child : children_)
-    {
-        Draw(shader, child);
-    }
-}
-void KUKA_IIWA_MODEL::Draw(MyShader * shader, Model * next)
-{
-    shader->setMat4("model", Conversion::fromMat4f(next->getModelMatrix()));
-    ResourceManager::getInstance().GetMeshByName(next->getMesh())->Draw();
-    for(auto & child : next->getChildren())
-    {
-        Draw(shader, child);
-    }
-}
-
 void KUKA_IIWA_MODEL::setColor(const Vec3 &color)
 {
     _color = color;
@@ -296,18 +276,18 @@ IIWAThetas KUKA_IIWA_MODEL::BackKinematic(const SE3d& trans_desire)
     IIWAThetav thetav = Eigen::Map<IIWAThetav>(_thetas.data(), 7);
     return BackKinematic(trans_desire, thetav);
 }
-IIWAThetas KUKA_IIWA_MODEL::BackKinematic(const twistd& t_desire)
+IIWAThetas KUKA_IIWA_MODEL::BackKinematic(const Twistd& t_desire)
 {
     return BackKinematic(ExpMapping(t_desire));
 }
-IIWAThetas KUKA_IIWA_MODEL::BackKinematic(const vec3d& pos, const vec3d& ori)
+IIWAThetas KUKA_IIWA_MODEL::BackKinematic(const Vec3d& pos, const Vec3d& ori)
 {
-    twistd t_desire;
+    Twistd t_desire;
     t_desire.block(0, 0, 3, 1) = ori;
     t_desire.block(3, 0, 3, 1) = pos;
     return BackKinematic(ExpMapping(t_desire));
 }
-IIWAThetas KUKA_IIWA_MODEL::BackKinematic(const twistd& t_desire, const IIWAThetav& initialGuess){
+IIWAThetas KUKA_IIWA_MODEL::BackKinematic(const Twistd& t_desire, const IIWAThetav& initialGuess){
     return BackKinematic(ExpMapping(t_desire), initialGuess);
 }
 IIWAThetas KUKA_IIWA_MODEL::BackKinematic(const SE3d& trans_desire, const IIWAThetav& initialGuess){
@@ -315,7 +295,7 @@ IIWAThetas KUKA_IIWA_MODEL::BackKinematic(const SE3d& trans_desire, const IIWATh
     return BackKinematicIteration(LNSolver, trans_desire, initialGuess);
 }
 
-IIWAThetas KUKA_IIWA_MODEL::WeightedBackKinematic(const Matrix<double, 7, 7> & weighted_matrix, const twistd & twist_desire, const IIWAThetav& initial_guess){
+IIWAThetas KUKA_IIWA_MODEL::WeightedBackKinematic(const Matrix<double, 7, 7> & weighted_matrix, const Twistd & twist_desire, const IIWAThetav& initial_guess){
     return WeightedBackKinematic(weighted_matrix, ExpMapping(twist_desire), initial_guess);
 }
 IIWAThetas KUKA_IIWA_MODEL::WeightedBackKinematic(const Matrix<double, 7, 7> & weighted_matrix, const SE3d & trans_desire, const IIWAThetav& initial_guess){
@@ -330,7 +310,7 @@ IIWAThetas KUKA_IIWA_MODEL::BackKinematicIteration(_LQSolver && solver, const SE
 
     /* 注释部分是 左差运算 现采用右差运算，可以省去一次伴随变换 */
     //twistd t_delta  = LogMapSE3Tose3(InverseSE3(trans_cur) * trans_desire);
-    twistd t_delta  = LogMapSE3Tose3((trans_desire * InverseSE3(trans_cur)).eval());
+    Twistd t_delta  = LogMapSE3Tose3((trans_desire * InverseSE3(trans_cur)).eval());
     double residual = t_delta.norm();
     int iter = 0;
     double decay = 1;
@@ -339,12 +319,12 @@ IIWAThetas KUKA_IIWA_MODEL::BackKinematicIteration(_LQSolver && solver, const SE
 
         /* Get Precondition */
         auto t_cal = decay * t_delta;
-        twistd Vs = t_cal;
+        Twistd Vs = t_cal;
 
         /* Test new Solution is efficient */
         IIWAThetav thetav_new       = thetav +  solver(GetJacobian(thetav), Vs);
         SE3d       trans_new        = ForwardKinematic(thetav_new);
-        twistd     t_delta_new      = LogMapSE3Tose3((trans_desire * InverseSE3(trans_new)).eval());
+        Twistd     t_delta_new      = LogMapSE3Tose3((trans_desire * InverseSE3(trans_new)).eval());
         double     residual_new     = t_delta_new.norm();
 
         if (residual - residual_new < residualDelta)
@@ -502,7 +482,7 @@ vec7d KUKA_IIWA_MODEL::GetCollisionGrad(const vector<BallObstacle>& obsts, const
                 pGradMatrix.row(i) = affineProduct(dTs[i], point).transpose();
             }
 
-            vec3d curPos = affineProduct(preTs[index], point);
+            Vec3d curPos = affineProduct(preTs[index], point);
             for(auto && [center, radObst]: obsts){                                   // 对每个碰撞点求当前梯度值
                 retGrad += weight * pGradMatrix * (curPos - center);
             }
@@ -533,7 +513,7 @@ double KUKA_IIWA_MODEL::GetCollisionVal(const vector<BallObstacle>& obsts, const
     double ret_Val = 0.0;
     for(auto && [index, points]: _checkPointDict){
         for(auto && [point, weight]: points){
-            vec3d curPos = affineProduct(preTs[index], point);
+            Vec3d curPos = affineProduct(preTs[index], point);
             for(auto && [coc, radius]: obsts)
             {
                ret_Val += weight * (curPos-coc).squaredNorm();
@@ -555,14 +535,14 @@ double KUKA_IIWA_MODEL::GetLimitationVal(const IIWAThetas & thetas){
 }
 
 /// 获取碰撞点
-vector<vec3d> KUKA_IIWA_MODEL::GetCollisionPoints(const IIWAThetas& thetas)
+vector<Vec3d> KUKA_IIWA_MODEL::GetCollisionPoints(const IIWAThetas& thetas)
 {
     IIWATransfoms Ts = GetIIWATransformsPreSum(thetas);
     return GetCollisionPoints(Ts);
 }
-vector<vec3d> KUKA_IIWA_MODEL::GetCollisionPoints(const IIWATransfoms &preSumTs)
+vector<Vec3d> KUKA_IIWA_MODEL::GetCollisionPoints(const IIWATransfoms &preSumTs)
 {
-    vector<vec3d> Ret_Points;
+    vector<Vec3d> Ret_Points;
     for(auto && [index, points]: _checkPointDict){
         for(auto && [point, weight]: points){
             Ret_Points.emplace_back(affineProduct(preSumTs[index], point));

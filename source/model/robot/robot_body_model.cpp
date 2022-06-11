@@ -43,14 +43,5 @@ void GComponent::ROBOT_BODY_MODEL::setShaderProperty(MyShader& shader)
     shader.setBool("NormReverse", false);
 }
 
-void ROBOT_BODY_MODEL::Draw(MyShader *shader)
-{
-    shader->setMat4("model", Conversion::fromMat4f(getModelMatrix()));
-    ResourceManager::getInstance().GetMeshByName(mesh_)->Draw();    
-    for(auto & _child : children_)
-    {
-        _child->Draw(shader);
-    }
-}
 
 

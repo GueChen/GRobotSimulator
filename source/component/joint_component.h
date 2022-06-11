@@ -56,6 +56,10 @@ public:
 	inline void		SetAcceleration(float acc)	{ acc_ = acc; }
 	inline float	GetAcceleration() const		{ return acc_; }
 
+	inline void		SetAxis(const Vec3& axis)	{axis_ = axis; }
+	inline const Vec3& 
+					GetAxis()		  const		{return axis_;}
+
 /// Group Setter
 	inline void		PushPosBuffer(float new_pos){ pos_buffers_.push_back(new_pos); }
 	inline const std::list<float>& 

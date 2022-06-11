@@ -74,7 +74,7 @@ void ComponentUIFactory::ConnectJointComponentUI(QWidget* widget, JointComponent
 
 	// Component >> UI
 	joint_component.RegisterUpdateFunction([val, &joint_component](float delta) {
-		val->setText(QString::number(RadiusToDegree(joint_component.GetPosition())));
+		val->setText(QString::number(RadiusToDegree(joint_component.GetPosition()), 10, 2));
 		}
 	);
 	joint_component.RegisterDelFunction([w = widget]() {
@@ -251,7 +251,7 @@ void ComponentUIFactory::ConnectJointGroupComponentUI(QWidget* widget, JointGrou
 
 		// Component >> UI
 		component.RegisterUpdateFunction([val, &joint = *joints[i]](float delta){
-			val->setText(QString::number(RadiusToDegree(joint.GetPosition()), 10, 6));
+			val->setText(QString::number(RadiusToDegree(joint.GetPosition()), 10, 2));
 		});
 		component.RegisterDelFunction([widget]() {
 			widget->disconnect();

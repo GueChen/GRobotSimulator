@@ -30,8 +30,8 @@ using Eigen::Matrix4d;
 /// Type Alias
 using Weight                = double;
 using Radius                = double;
-using vec3d                 = Eigen::Vector3d;
-using vec4d                 = Eigen::Vector4d;
+using Vec3d                 = Eigen::Vector3d;
+using Vec4d                 = Eigen::Vector4d;
 using vec7d                 = Matrix<double, 7, 1>;
 using mat6d                 = Matrix<double, 6, 6>;
 using mat7d                 = Matrix<double, 7, 7>;
@@ -41,9 +41,9 @@ using IIWAGradP             = Matrix<double, 7, 3>;
 using IIWATransfoms         = array<SE3d, 7>;
 using IIWAJacobian          = Matrix<double, 6, 7>;
 using PinvJacobian          = Matrix<double, 7, 6>;
-using IIWAExpCoords         = array<twistd, 7>;
-using BallObstacle          = pair<vec3d, Radius>;
-using WeightedCheckPoint    = pair<vec3d, Weight>;
+using IIWAExpCoords         = array<Twistd, 7>;
+using BallObstacle          = pair<Vec3d, Radius>;
+using WeightedCheckPoint    = pair<Vec3d, Weight>;
 
 class KUKA_IIWA_MODEL:public Model
 {
@@ -57,7 +57,6 @@ public:
     void tickImpl(float delta_time) override;
 
 /// 绘图函数 Drawing Functions
-    void Draw(MyShader * shader) override;
     void setColor(const Vec3 & color);
 
 /// 运动学函数 Kinematic Functions
@@ -78,13 +77,13 @@ public:
     IIWATransfoms GetIIWATransformsDiff(const IIWAThetav&);
 
     IIWAThetas BackKinematic(const SE3d&);
-    IIWAThetas BackKinematic(const twistd&);
-    IIWAThetas BackKinematic(const vec3d&, const vec3d&);
+    IIWAThetas BackKinematic(const Twistd&);
+    IIWAThetas BackKinematic(const Vec3d&, const Vec3d&);
     IIWAThetas BackKinematic(const SE3d&,  const IIWAThetav&);
-    IIWAThetas BackKinematic(const twistd&, const IIWAThetav&);
+    IIWAThetas BackKinematic(const Twistd&, const IIWAThetav&);
 
     IIWAThetas WeightedBackKinematic(const Matrix<double, 7, 7>&, const SE3d&, const IIWAThetav&);
-    IIWAThetas WeightedBackKinematic(const Matrix<double, 7, 7>&, const twistd&, const IIWAThetav&);
+    IIWAThetas WeightedBackKinematic(const Matrix<double, 7, 7>&, const Twistd&, const IIWAThetav&);
 
     IIWAJacobian GetJacobian();
     IIWAJacobian GetJacobian(const IIWAThetav&);
@@ -114,8 +113,8 @@ public:
     double GetLimitationVal(const IIWAThetas&);
 
     // TODO: 把该函数融入连杆的父子关系中，这样可以解决当前 hardcode 的问题
-    vector<vec3d> GetCollisionPoints(const IIWAThetas& thetas);
-    vector<vec3d> GetCollisionPoints(const IIWATransfoms& preSumT);
+    vector<Vec3d> GetCollisionPoints(const IIWAThetas& thetas);
+    vector<Vec3d> GetCollisionPoints(const IIWATransfoms& preSumT);
 
     // 关节极限相关 Joint Limitation Relate
     vec7d GetJointsLimitationGrad(const IIWAThetas&);
@@ -137,8 +136,6 @@ protected:
     void setShaderProperty(MyShader & shader) override;
    
 private:
-    void Draw(MyShader* shader, Model * next);
-
     void InitializeKinematicsParameters();
     void InitializeModelResource();
     void InitializeMeshResource();
@@ -154,7 +151,6 @@ private:
 
 // 角度及坐标变换参数
     IIWAThetas      _thetas;
-    IIWATransfoms   _Ts;
 
 //  限制参数
     IIWAThetas      _thetas_max_limitation;

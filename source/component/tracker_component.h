@@ -17,7 +17,7 @@ using std::string_view;
 class TrackerComponent: public Component {
 
 public:
-	explicit	TrackerComponent(Model* ptr_parent, Model* goal) : Component(ptr_parent), tracked_goal_(goal) {}
+	explicit	TrackerComponent(Model* ptr_parent = nullptr, Model* goal = nullptr) : Component(ptr_parent), tracked_goal_(goal) {}
 	virtual		~TrackerComponent() = default;
 	
 	inline  void SetGoal(Model* goal) { tracked_goal_ = goal; }

@@ -24,7 +24,7 @@ public:
           vec3 color1 = vec3(1.0f), vec3 color2 = vec3(1.0f));
     ~GLine() = default;
 
-    void Draw(MyShader* shader = nullptr) override;
+    void Draw(MyShader* shader = nullptr);
 
 private:
     /* GL 资源初始化函数 */

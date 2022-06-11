@@ -48,9 +48,19 @@ public:
         return Eigen::Vector3d(vec.x, vec.y, vec.z);
     }
     
+    static inline Eigen::Vector3d toVec3d(const Eigen::Vector3f& vec) 
+    {
+        return Eigen::Vector3d(vec.x(), vec.y(), vec.z());
+    }
+
     static inline Eigen::Vector3f toVec3f(const glm::vec3& vec) 
     {
         return Eigen::Vector3f(vec.x, vec.y, vec.z);
+    }
+
+    static inline Eigen::Vector3f toVec3f(const Eigen::Vector3d& vec)
+    {
+        return Eigen::Vector3f(vec.x(), vec.y(), vec.z());
     }
 
     static inline glm::vec3 fromVec3f(const Eigen::Vector3f& vec) 
@@ -94,6 +104,17 @@ public:
     static inline Eigen::Matrix4f toMat4f(const glm::mat4& matrix) 
     {
         return Eigen::Matrix4f(glm::value_ptr(matrix));
+    }
+
+    static inline Eigen::Matrix4f toMat4f(const Eigen::Matrix4d& matrix) 
+    {
+        Eigen::Matrix4f ret_mat = Eigen::Matrix4f::Identity();
+        for(int i = 0; i < 4; ++i)
+        for(int j = 0; j < 4; ++j)
+        {
+            ret_mat(i, j) = matrix(i, j);
+        }                    
+        return ret_mat;
     }
 
     static inline glm::mat4 fromMat4f(const Eigen::Matrix4f& matrix)

@@ -22,7 +22,6 @@ public:
 /// Tick Functions
     void tickImpl(float delta_time) override;
 
-    void Draw(MyShader * shader) override;
 protected:
     void setShaderProperty(MyShader& shader) override;
 
