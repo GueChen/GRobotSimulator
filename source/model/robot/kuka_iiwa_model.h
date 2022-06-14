@@ -28,146 +28,43 @@ using std::shared_ptr;
 using Eigen::Matrix4d;
 
 /// Type Alias
-using Weight                = double;
-using Radius                = double;
-using Vec3d                 = Eigen::Vector3d;
-using Vec4d                 = Eigen::Vector4d;
-using vec7d                 = Matrix<double, 7, 1>;
-using mat6d                 = Matrix<double, 6, 6>;
-using mat7d                 = Matrix<double, 7, 7>;
-using IIWAThetas            = array<double, 7>;
-using IIWAThetav            = Matrix<double, 7, 1>;
-using IIWAGradP             = Matrix<double, 7, 3>;
-using IIWATransfoms         = array<SE3d, 7>;
-using IIWAJacobian          = Matrix<double, 6, 7>;
-using PinvJacobian          = Matrix<double, 7, 6>;
-using IIWAExpCoords         = array<Twistd, 7>;
-using BallObstacle          = pair<Vec3d, Radius>;
-using WeightedCheckPoint    = pair<Vec3d, Weight>;
+using WeightedCheckPoint    = pair<Vec3, double>;
 
 class KUKA_IIWA_MODEL:public Model
 {
-/// 成员函数 Member Functions
+/// ��Ա���� Member Functions
 public:
-/// 构造函数 Constructors
+/// ���캯�� Constructors
     explicit KUKA_IIWA_MODEL(Mat4 transform = Mat4::Identity());
     ~KUKA_IIWA_MODEL() = default;
 
 /// Tick Functions
     void tickImpl(float delta_time) override;
 
-/// 绘图函数 Drawing Functions
+/// ��ͼ���� Drawing Functions
     void setColor(const Vec3 & color);
 
-/// 运动学函数 Kinematic Functions
-    SE3d ForwardKinematic();
-    SE3d ForwardKinematic(const IIWAThetas&);
-    SE3d ForwardKinematic(const IIWAThetav&);
-
-    IIWATransfoms GetIIWATransforms();
-    IIWATransfoms GetIIWATransforms(const IIWAThetas&);
-    IIWATransfoms GetIIWATransforms(const IIWAThetav&);
-
-    IIWATransfoms GetIIWATransformsPreSum();
-    IIWATransfoms GetIIWATransformsPreSum(const IIWAThetas&);
-    IIWATransfoms GetIIWATransformsPreSum(const IIWAThetav&);
-
-    IIWATransfoms GetIIWATransformsDiff();
-    IIWATransfoms GetIIWATransformsDiff(const IIWAThetas&);
-    IIWATransfoms GetIIWATransformsDiff(const IIWAThetav&);
-
-    IIWAThetas BackKinematic(const SE3d&);
-    IIWAThetas BackKinematic(const Twistd&);
-    IIWAThetas BackKinematic(const Vec3d&, const Vec3d&);
-    IIWAThetas BackKinematic(const SE3d&,  const IIWAThetav&);
-    IIWAThetas BackKinematic(const Twistd&, const IIWAThetav&);
-
-    IIWAThetas WeightedBackKinematic(const Matrix<double, 7, 7>&, const SE3d&, const IIWAThetav&);
-    IIWAThetas WeightedBackKinematic(const Matrix<double, 7, 7>&, const Twistd&, const IIWAThetav&);
-
-    IIWAJacobian GetJacobian();
-    IIWAJacobian GetJacobian(const IIWAThetav&);
-    IIWAJacobian GetJacobian(const IIWAThetas&);
-
-    // 零空间 NullSpace
-    mat7d NullSpaceMatrix();
-    mat7d NullSpaceMatrix(const IIWAThetav&);
-    mat7d NullSpaceMatrix(const IIWAThetas&);
-
-    IIWAThetas SelfMotion(const vec7d& arbVec);
-    IIWAThetas SelfMotion(const vec7d& arbVec, const IIWAThetas& thetas);
-    IIWAThetas SelfMotion(const vec7d& arbVec, const IIWAThetav& vthetas);
-
-    // 碰撞相关 Collision
-    bool CheckCollisionSafe(const vector<BallObstacle>&, const IIWAThetas& thetas);
-    bool CheckCollisionSafe(const vector<BallObstacle>&, const IIWAThetav& vthetas);
-    bool CheckCollisionSafe(const vector<BallObstacle>&);
-
-    vec7d GetCollisionGrad(const vector<BallObstacle>&, const IIWAThetas& thetas);
-    vec7d GetCollisionGrad(const vector<BallObstacle>&, const IIWAThetav& vthetas);
-    vec7d GetCollisionGrad(const vector<BallObstacle>&);
-
-    /// 后期删除
-    // 仅作测试使用
-    double GetCollisionVal(const vector<BallObstacle>&, const IIWAThetas&);
-    double GetLimitationVal(const IIWAThetas&);
-
-    // TODO: 把该函数融入连杆的父子关系中，这样可以解决当前 hardcode 的问题
-    vector<Vec3d> GetCollisionPoints(const IIWAThetas& thetas);
-    vector<Vec3d> GetCollisionPoints(const IIWATransfoms& preSumT);
-
-    // 关节极限相关 Joint Limitation Relate
-    vec7d GetJointsLimitationGrad(const IIWAThetas&);
-    vec7d GetJointsLimitationGrad(const IIWAThetav&);
-    vec7d GetJointsLimitationGrad();
-
-/// 操作控制函数 Controller Functions
-    void Move(const IIWAThetas&);
-    void Move(const IIWAThetav&);
-
-/// 设置获取系列 Setter And Getter
-    IIWAThetas GetThetas() const;
-    void SetThetas(const IIWAThetas&);
-
-// 添加检测点辅助函数
+// ���Ӽ��㸨������
     void AddCheckPoint(int idx, const WeightedCheckPoint & p);
 
 protected:
     void setShaderProperty(MyShader & shader) override;
    
 private:
-    void InitializeKinematicsParameters();
     void InitializeModelResource();
     void InitializeMeshResource();
-    void InitializeLimitation();
 
-    template<class _LQSolver>
-    IIWAThetas BackKinematicIteration(_LQSolver&& solver, const SE3d& trans_desire, const IIWAThetav& initialGuess);
-
-/// 数据域 Fields
+/// ������ Fields
 private:
-// 当前单一颜色着色器下的显示颜色
-    Vec3            _color     = Vec3::Identity();
+// ��ǰ��һ��ɫ��ɫ���µ���ʾ��ɫ
+    Vec3            _color     = Vec3::Ones();
 
-// 角度及坐标变换参数
-    IIWAThetas      _thetas;
-
-//  限制参数
-    IIWAThetas      _thetas_max_limitation;
-    IIWAThetas      _thetas_min_limitation;
-
-/// 碰撞检测部分 Collision Part
+/// ��ײ��ⲿ�� Collision Part
     map<int, vector<WeightedCheckPoint>> _checkPointDict;
 
-// FIXME：单一窗口下资源优化的最佳方式，但多窗口下可能会存在隐患
-/// 资源管理部分 Resource Manager
     static bool is_init_;
     static int  count;
 
-/// 运动学部分 Kinematic Part
-    static SE3d M;
-    static IIWAExpCoords expCoords;
-    constexpr static unsigned JointNum = 7;
 };
 
 

@@ -1,4 +1,4 @@
-ï»¿#include "engineapp.h"
+#include "engineapp.h"
 
 #include "ui_mainwindow.h"
 
@@ -29,7 +29,7 @@ void GComponent::EngineApp::Init(int argc, char* argv[])
 
 	// ui initialize
 	window_ptr_ = std::make_unique<MainWindow>();
-	window_ptr_->setWindowIconText("æœºæ¢°è‡‚è§„åˆ’ä»¿çœŸè½¯ä»¶");
+	window_ptr_->setWindowIconText("»úÐµ±Û¹æ»®·ÂÕæÈí¼þ");
 	window_ptr_->setWindowFlag(Qt::FramelessWindowHint);
 
 	robot_create_dialog_ptr_ = std::make_unique<RobotCreateDialog>();	
@@ -146,8 +146,10 @@ void GComponent::EngineApp::TestConversion(const vector<vector<float>>& params)
 		transform_mat = transform_mat * mat;
 		auto [r, t] = rtDecompositionMat4(mat);
 		auto [R, _] = RtDecompositionMat4(mat);
+		
 		std::cout << "the local trans: " << t.transpose() << std::endl;
 		std::cout << "the local rot  : " << r.transpose() << std::endl;
+		std::cout << transform_mat << std::endl;
 		Eigen::Vector3f scale = 0.08f * Eigen::Vector3<float>::Ones();
 		models[idx] = new Model(name + std::to_string(idx), 
 								"sphere", 
@@ -192,8 +194,15 @@ void GComponent::EngineApp::TestConversion(const vector<vector<float>>& params)
 		joints.push_back(models[idx]->GetComponet<JointComponent>("JointComponent"));
 		++idx;
 	}
+	auto [twists, T] = matrices.toTwists();
+	base->RegisterComponent(make_unique<JointGroupComponent>(joints, base));
+	base->RegisterComponent(make_unique<KinematicComponent>(T, base));
+	//base->GetComponet<KinematicComponent>("KinematicComponent")->SetExpCoords(twists);
+	std::cout << "The Init T:\n" << T << std::endl;
+	std::cout << "twists val :\n";
+	for (auto& twist : twists) {
+		std::cout << "twist:" << twist.transpose() << std::endl;
+	}
 
-	base->RegisterComponent(make_unique<JointGroupComponent>(base, joints));
-
-	auto [twists, T] = matrices.toTwists();	
+	base->RegisterComponent(make_unique<TrackerComponent>(base, "sphere0"));
 }

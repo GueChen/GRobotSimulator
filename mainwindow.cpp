@@ -453,8 +453,9 @@ void MainWindow::CheckSelected()
 
         if (last_ptr != selected_obj_ptr) {                
             for (auto& component : selected_obj_ptr->GetComponents()) {
-                const string_view& type_name = component->GetTypeName();
-                ui->componentstoolbox->addItem(ComponentUIFactory::Create(*component), type_name.data());
+                QString type_name(component->GetTypeName().data());
+                type_name =type_name.mid(0, type_name.indexOf("Component"));
+                ui->componentstoolbox->addItem(ComponentUIFactory::Create(*component), type_name);
             }
         }
     }

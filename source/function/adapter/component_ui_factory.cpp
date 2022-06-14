@@ -154,11 +154,11 @@ void GComponent::ComponentUIFactory::CreateJointGroupComponentUI(QWidgetBuilder&
 		joint_slider->setOrientation(Qt::Horizontal);
 		joint_slider->setStyleSheet(QString::fromUtf8(
 			"QSlider::handle:horizontal {\n"
-			"    background:  qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(0, 0, 0, 255), stop:0.2 rgba(240, 175, 255, 185), stop:0.4 rgba(0, 0, 0, 255), stop:0.5 rgba(0, 0, 0, 255), stop:0.8 rgba(155, 155, 255, 150), stop: 1 rgba(100, 180, 100, 180));\n"
-			"\n"
-			"    width: 40px;\n"
-			"    margin: -8px; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */\n"
-			"    border-radius: 5px;\n"
+			"    background:  qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(50, 20, 50, 255), stop: 1 rgba(50, 75, 50, 255));\n"			
+			"    width: 20px;\n"
+			"    margin: -6px; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */\n"
+			"    border-radius: 2px;\n"
+			"	 border: 1px solid rgb(135,135,135);\n"
 			"}\n"
 			"\n"
 			"QSlider::groove:horizontal {\n"
@@ -276,6 +276,47 @@ void ComponentUIFactory::ConnectJointGroupComponentUI(QWidget* widget, JointGrou
 			component.DeregisterDelFunction();
 			});
 	}
+}
+
+/*__________________________Tracker Component UI BUILDER METHODS______________________________________*/
+void GComponent::ComponentUIFactory::ConnectTrackerComponentUI(TrackerComponentWidget* widget, TrackerComponent& component)
+{
+	auto string_to_QString = [](const string& val)->QString {
+		return QString::fromStdString(val);
+	};
+	list<string> trackables = component.GetTrackableNames();
+	QStringList q_trackable_list(trackables.size());
+	std::transform(std::execution::par_unseq, 
+		trackables.begin(), trackables.end(), q_trackable_list.begin(), string_to_QString);
+	widget->AddTrackables(q_trackable_list);
+
+	const list<string>& tracers = component.GetTracerNames();
+	QStringList q_tracer_list(tracers.size());
+	std::transform(std::execution::par_unseq,
+		tracers.begin(), tracers.end(), q_tracer_list.begin(), string_to_QString);
+	widget->AddTracers(q_tracer_list);
+
+	widget->SetGoal(QString::fromStdString(component.GetGoal()));
+
+	widget->SetButtonChecked(static_cast<int>(component.GetState()));
+
+	// Component >> UI
+	component.RegisterDelFunction([widget]() {
+		widget->disconnect();
+		});
+
+	// Component << UI
+	QObject::connect(widget, &TrackerComponentWidget::StateChangedRequest, [&tracker = component](int index) {
+		std::cout << index << std::endl;
+		tracker.SetState(static_cast<TrackerComponent::State>(index));
+		});
+	QObject::connect(widget, &TrackerComponentWidget::TragetSelectedRequest, [&tracker = component](const QString& goal_name) {
+		tracker.SetGoal(goal_name.toStdString());
+		});
+	QObject::connect(widget, &TrackerComponentWidget::destroyed, [&component]() {
+		component.DeregisterUpdateFunction();
+		component.DeregisterDelFunction();
+		});
 }
 
 }

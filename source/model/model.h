@@ -109,17 +109,17 @@ protected:
     virtual void    setShaderProperty(MyShader& shader);
 
 protected:
-    // Components ç»„ä»¶ä½“ç³»
+    // Components ×é¼şÌåÏµ
     vector<_PtrComponent> components_ptrs_;
     vector<string>        components_type_names_;
 
-    /// Transform å˜æ¢ç›¸å…³
+    /// Transform ±ä»»Ïà¹Ø
     Vec3 trans_                     = Vec3::Zero();
     Vec3 rot_                       = Vec3::Zero();
     Vec3 scale_                     = Vec3::Ones();
     Vec3 shear_                     = Vec3::Zero();
 
-    /// Fields æ•°æ®åŸŸ
+    /// Fields Êı¾İÓò
     Mat4 parent_model_mat_          = Mat4::Identity();    
     Mat4 model_mat_                 = Mat4::Identity();
     Mat3 inv_parent_U_mat_          = Mat3::Identity();
@@ -127,7 +127,7 @@ protected:
     _RawPtr         parent_         = nullptr;
     vector<_RawPtr> children_       = {};
 
-    /// Structure ç»“æ„ç›¸å…³
+    /// Structure ½á¹¹Ïà¹Ø
     int     model_id_               = -1;
     string  name_                   = "";
     string  mesh_                   = "";

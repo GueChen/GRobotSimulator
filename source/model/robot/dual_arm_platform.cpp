@@ -40,14 +40,9 @@ void DUAL_ARM_PLATFORM::InitializeModel()
     _body->appendChild(_left,  left_model_mat.matrix());
     _body->appendChild(_right, right_model_mat.matrix());
 
-    _left->RegisterComponent(std::make_unique<TrackerComponent>(_left, GComponent::ModelManager::getInstance().GetModelByName("sphere0")));
-    _left->RegisterComponent(std::make_unique<KinematicComponent>(_left));
-    _left->GetComponet<KinematicComponent>("KinematicComponent")->UpdateExponentialCoordinates();
-    SE3<float> initrans = SE3<float>::Identity();
-    initrans.block(0, 3, 3, 1) = Vec3(0.0f, 0.0f, 1.332f);
-    _left->GetComponet<KinematicComponent>("KinematicComponent")->SetEndTransformInit(initrans);
+    _left->RegisterComponent(std::make_unique<TrackerComponent>(_left));
+    _right->RegisterComponent(std::make_unique<TrackerComponent>(_right));
 
-    _right->RegisterComponent(std::make_unique<KinematicComponent>(_right));
     _left->setColor(Vec3(0.8f, 0.6f, 0.2f));
     _right->setColor(Vec3(0.2f, 0.6f, 0.8f));
     ModelManager::getInstance().ChangeModelParent(_left->getName(),  _body->getName());

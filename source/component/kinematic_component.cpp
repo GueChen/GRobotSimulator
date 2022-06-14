@@ -13,7 +13,19 @@
 namespace GComponent
 {
 KinematicComponent::KinematicComponent(Model* ptr_parent): Component(ptr_parent)
-{}
+{
+	if (GetParent()) {
+		UpdateExponentialCoordinates();
+	}
+}
+
+KinematicComponent::KinematicComponent(const SE3<float>& initial_end_transform, Model* ptr_parent):
+	Component(ptr_parent), end_transform_mat_(initial_end_transform)
+{
+	if (GetParent()) {
+		UpdateExponentialCoordinates();
+	}
+}
 
 bool KinematicComponent::ForwardKinematic(SE3<float>&out_mat, const Thetas<float>&thetas)
 {
@@ -54,41 +66,46 @@ bool KinematicComponent::UpdateExponentialCoordinates()
 		joint_count_ = joints_group->GetJointsSize();
 		exp_coords_.resize(joint_count_);
 		/* This Function used to get parent Transform */
-		auto GetTransformFnc = [](const auto& component)->SE3<float> {
-			//return Conversion::toMat4d(component->GetParent()->getModelMatrixWithoutScale());
+		auto GetTransformFnc = [](const auto& component)->SE3<float> {	
 			return component->GetParent()->getModelMatrixWithoutScale();
 		};
 
 		SE3<float> inv_base_mat = InverseSE3(GetTransformFnc(this));
-
-		/* This Fnc Get the Joint Msg pair [pos, axis] */
-		auto GetJointScrewFnc = [&GetTFnc = GetTransformFnc, &inv_base_mat](const auto& component)->std::pair<Vec3, Vec3> {
-			return std::make_pair(
-				(inv_base_mat * GetTFnc(component)).block(0, 3, 3, 1),
-				//Conversion::toVec3d(component->GetAxis()));
-				component->GetAxis());
-		};
-
+		
 		vector<JointComponent*> joints = joints_group->GetJoints();
-		SE3<float> local = SE3<float>::Identity();
+		SE3<float> local	 = SE3<float>::Identity();		   
+		SO3<float> base_prev = SO3<float>::Identity();
 
 		//FIXME: There is an assumption that the order of joints is in parent to children
 		for (int i = 0; i < joint_count_; ++i)
 		{
-			auto [q, w]		= GetJointScrewFnc(joints[i]);
-			q				= affineProduct(InverseSE3(local), q);
-			exp_coords_[i]	= ScrewToTwist(q, w);
-			if (i < joint_count_ - 1) {
-				local *= ExpMapping(exp_coords_[i], float(joints[i]->GetPosition()));
-			}
-		}
-		end_transform_mat_ = local;
+			SE3<float> inv_local = InverseSE3(local);
+			auto [R, t] = RtDecompositionMat4((inv_base_mat * GetTransformFnc(joints[i])).eval());
+			
+			// Get w_b with R(t) transform
+			// Get q_b with T(t) transform
+			Vec3 w = base_prev * joints[i]->GetAxis();
+			Vec3 q = t;
+			// Transform [q(t), w(t)] to [q(0), w(0)]
+			w	   = inv_local.block(0, 0, 3, 3) * w;
+			q	   = affineProduct(inv_local, q);
 
-		for (auto& exp_coord : exp_coords_) {
-			for (auto& val : exp_coord) {
-				if (abs(val) < 1e-6) val = 0.0;
-			}
+			// Get Twists
+			exp_coords_[i]	= ScrewToTwist(q, w);
+
+			// Get T(t) and store ^{b}_{i-1}R(t)
+			local *= ExpMapping(exp_coords_[i], joints[i]->GetPosition());
+			base_prev = R;
 		}
+
+		std::for_each(std::execution::par_unseq, exp_coords_.begin(), exp_coords_.end(),
+			[](auto& exp_coord) {
+			std::for_each(std::execution::par_unseq, exp_coord.begin(), exp_coord.end(), 
+				[](auto& val) {
+				if (abs(val) < 1e-6) val = 0.0f;
+				});
+			});		
+		
 		return true;
 	}
 	return false;
@@ -96,7 +113,7 @@ bool KinematicComponent::UpdateExponentialCoordinates()
 
 void KinematicComponent::tickImpl(float delta_time)
 {
-		
+	UpdateExponentialCoordinates();
 }
 
 Thetav<float> KinematicComponent::toThetav(const Thetas<float> thetas)

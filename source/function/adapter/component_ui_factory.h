@@ -11,7 +11,10 @@
 
 #include "component/joint_component.h"
 #include "component/joint_group_component.h"
-
+#include "component/kinematic_component.h"
+#include "component/tracker_component.h"
+#include "ui/widget/kinematic_widget.h"
+#include "ui/widget/tracker_widget.h"
 #include <GComponent/GNumerical.hpp>
 
 #include <QtCore/QObject>
@@ -23,12 +26,16 @@
 #include <QtWidgets/QToolButton>
 
 #include <string>
-
+#include <unordered_map>
+#include <functional>
 #ifdef _DEBUG
 #include <iostream>
 #endif
 
 namespace GComponent {
+// TODO: Create a Base Class as Special UI Builder
+// Derived from a parent UI Builder
+
 class ComponentUIFactory {
 public:
 	ComponentUIFactory() = delete;
@@ -61,10 +68,27 @@ public:
 		
 			return builder.GetWidget();
 		}
+		else if (s == "KinematicComponent") {
+			KinematicComponent& kinematic_component = dynamic_cast<KinematicComponent&>(component);
+			KinematicComponentWidget* widget = new KinematicComponentWidget;
+			//widget->Init();
+			return widget;
+		}
+		else if (s == "TrackerComponent") {
+			TrackerComponent& tracker_component = dynamic_cast<TrackerComponent&>(component);
+			TrackerComponentWidget* widget = new TrackerComponentWidget;
+			ConnectTrackerComponentUI(widget, tracker_component);
+			return widget;
+		}
 		return nullptr;
 	}
 
 private:
+	/*_______________________________The UI Table____________________________________________________*/
+	//TODO: as below
+	// std::unoredered_map<std::string, unique_ptr<UI_Builder>> ui_table;
+
+
 	/*_____________________________Joint Component UI Create Methods_________________________________*/
 	static void CreateJointComponentUI(QWidgetBuilder& builder);
 	static void ConnectJointComponentUI(QWidget* widget, JointComponent& joint_component);
@@ -72,6 +96,9 @@ private:
 	/*_______________________Joint Group Component UI Create Methods_________________________________*/
 	static void CreateJointGroupComponentUI(QWidgetBuilder& builder, int joint_count);
 	static void ConnectJointGroupComponentUI(QWidget* widget, JointGroupComponent& component);
+
+	/*___________________________Tracker Component UI Create Methods_________________________________*/
+	static void ConnectTrackerComponentUI(TrackerComponentWidget* widget, TrackerComponent& component);
 private:
 	/*_____________________________Joint Component UI Objects________________________________________*/
 	static constexpr const string_view JointSliderTagText		= "Joint";

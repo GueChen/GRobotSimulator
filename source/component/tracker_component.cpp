@@ -1,7 +1,7 @@
 #include "component/tracker_component.h"
 
 // TODO: Replace it with Kinematic Component
-#include "model/model.h"
+#include "manager/modelmanager.h"
 #include "component/kinematic_component.h"
 #include "component/joint_group_component.h"
 
@@ -10,9 +10,80 @@
 #include <format>
 #endif // _DEBUG
 
+namespace GComponent{
+
+unordered_set<string> TrackerComponent::trackable_table_ = {};
+
+TrackerComponent::TrackerComponent(Model* ptr_parent, const string& goal_name) :
+	Component(ptr_parent)
+{
+	trackable_table_.insert(GetName());
+	SetGoal(goal_name);
+}
+
+TrackerComponent::~TrackerComponent()
+{
+	/* if there is a goal, make sure cleaning possession of self */
+	if (tracked_goal_) {
+		_RawPtr goal_component = tracked_goal_->GetComponet<_Self>(type_name.data());
+		if (goal_component) {
+			goal_component->DeregisterTracer(GetName());
+		}
+	}
+	/* if is tracked, cleaning the possesion of all tracers */
+	ClearTracers();
+	trackable_table_.erase(GetName());
+}
+
+void TrackerComponent::SetGoal(const string& goal_name)
+{
+	if (goal_name.empty() || goal_name == "NULL") {
+		tracked_goal_ = nullptr;
+		return;
+	}
+
+	if (!trackable_table_.count(goal_name)) return;
+	tracked_goal_ = ModelManager::getInstance().GetModelByName(goal_name);
+	if (tracked_goal_) {
+		_RawPtr goal_component = tracked_goal_->GetComponet<_Self>(type_name.data());
+		if (goal_component) {
+			goal_component->RegisterTracer(GetName());
+		}
+	}
+}
+
+void TrackerComponent::RegisterTracer(const string& tracer_name)
+{
+	auto it = tracer_node_map_.find(tracer_name);
+	if (tracer_node_map_.end() != it) return;
+	tracer_list_.push_front(tracer_name);
+	tracer_node_map_.emplace(tracer_name, tracer_list_.begin());
+}
+
+void TrackerComponent::DeregisterTracer(const string& tracer_name)
+{
+	auto it = tracer_node_map_.find(tracer_name);
+	if (tracer_node_map_.end() == it) return;
+	tracer_list_.erase(it->second);
+	tracer_node_map_.erase(it);
+}
+
+void TrackerComponent::ClearTracers()
+{
+	for (auto& tracer_name : tracer_list_) {
+		Model* tracer_ptr = ModelManager::getInstance().GetModelByName(tracer_name);
+		if (tracer_ptr) {
+			_RawPtr tracer_component = tracer_ptr->GetComponet<_Self>(type_name.data());
+			if (tracer_component) {
+				tracer_component->SetGoal("");
+			}
+		}
+	}
+}
 
 void GComponent::TrackerComponent::tickImpl(float delta_time)
 {
+	if (state_ == State::Sleeping) return;
 	static int count = 0;
 	Model* ptr_parent = GetParent();
 	if (!tracked_goal_ || !ptr_parent) return;
@@ -27,15 +98,10 @@ void GComponent::TrackerComponent::tickImpl(float delta_time)
 		bool result  = kinematic_component->InverseKinematic(out_thetas, goal_local_SE3, joint_group_component->GetPositions());
 		std::ranges::transform(out_thetas, out_thetas.begin(), ToStandarAngle);
 		if (result) {
-			joint_group_component->SetPositions(out_thetas);
-			Mat4 cur_trans;
-			kinematic_component->ForwardKinematic(cur_trans, out_thetas);
-			std::cout << std::format("residual: {: <12}\n", LogMapSE3Tose3((InverseSE3(cur_trans) * goal_local_SE3).eval()).norm());
-		}
-		else {
-			std::cout << std::format("failure {: <5}\n", ++count);
+			joint_group_component->SetPositions(out_thetas);				
 		}
 		
 	}
-	
+}
+
 }

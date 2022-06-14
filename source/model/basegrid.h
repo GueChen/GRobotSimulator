@@ -17,39 +17,39 @@ using vec3 = glm::vec3;
 
 
 class MyGL;
-// TODO: ä½¿ç”¨ å•ä¾‹æ¨¡å¼ å¯¹è¯¥å¯¹è±¡è¿›è¡Œæ”¹è¿›
-// TODO: æŠ½è±¡å‡ºä¸€ä¸ªå¤§ç±»æ–¹ä¾¿åç»­ç®¡ç†
+// TODO: Ê¹ÓÃ µ¥ÀıÄ£Ê½ ¶Ô¸Ã¶ÔÏó½øĞĞ¸Ä½ø
+// TODO: ³éÏó³öÒ»¸ö´óÀà·½±ãºóĞø¹ÜÀí
 
 class BaseGrid
 {
 private:
-    /* æ ¼å¼å°ºå¯¸é¡¹ */
+    /* ¸ñÊ½³ß´çÏî */
     int num;
     float gridSize;
 
-    /* èµ„æºç®¡ç†é¡¹ */
+    /* ×ÊÔ´¹ÜÀíÏî */
     unsigned VAO, VBO, EBO;
     shared_ptr<MyGL> gl;
 
-    /* åˆå§‹åŒ–æ ‡å¿— */
+    /* ³õÊ¼»¯±êÖ¾ */
     bool isInit = false;
 
 public:
-    /* æ„é€ å‡½æ•°å’Œææ„å‡½æ•° */
+    /* ¹¹Ôìº¯ÊıºÍÎö¹¹º¯Êı */
     BaseGrid(int n, float size = 0.05f);
     ~BaseGrid() = default;
 
-    /* GL è®¾ç½®å‡½æ•° */
+    /* GL ÉèÖÃº¯Êı */
     void setGL(shared_ptr<MyGL> other);
 
-    /* ç»˜å›¾æ¥å£ */
+    /* »æÍ¼½Ó¿Ú */
     void Draw();
 
 private:
-    /* åˆå§‹åŒ–å‡½æ•° */
+    /* ³õÊ¼»¯º¯Êı */
     void GLBufferInitialize();
 
-    /* ç½‘æ ¼è¾…åŠ©è®¡ç®—å‡½æ•° */
+    /* Íø¸ñ¸¨Öú¼ÆËãº¯Êı */
     static vector<vec3> GetGridVertexLocation(int num , float size);
     static vector<Line> GetGridEdge(int num);
 };

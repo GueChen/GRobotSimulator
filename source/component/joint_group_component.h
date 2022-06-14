@@ -27,7 +27,7 @@ using _DelFun = std::function<void(void)>;
 
 class JointGroupComponent:public Component {
 public:
-	explicit JointGroupComponent(Model* ptr_parent, const vector<JointComponent*>& joints = {});
+	explicit JointGroupComponent(const vector<JointComponent*>& joints = {}, Model* ptr_parent = nullptr);
 	~JointGroupComponent();
 
 	bool			RegisterJoint(JointComponent* joint);

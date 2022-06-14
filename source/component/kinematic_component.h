@@ -34,6 +34,7 @@ using Thetav = Vector<_Scaler, -1>;
 class KinematicComponent :public Component{
 public:
 	explicit KinematicComponent(Model* ptr_parent = nullptr);
+	explicit KinematicComponent(const SE3<float>& initial_end_transform, Model* ptr_parent = nullptr);
 	~KinematicComponent() = default;
 	
 	bool	  ForwardKinematic(SE3<float>&  out_mat, const Thetas<float>&  thetas);
@@ -69,6 +70,7 @@ public:
 	inline SE3<float>
 					GetEndTransformInit() const		{ return end_transform_mat_; }
 
+	inline void		SetExpCoords(const vector<Twist<float>>& exp_coords) { exp_coords_ = exp_coords; }
 protected:
 	void			tickImpl(float delta_time)	override;
 

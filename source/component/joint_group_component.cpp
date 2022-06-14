@@ -11,7 +11,7 @@ namespace GComponent {
 
 using std::stack;
 
-JointGroupComponent::JointGroupComponent(Model* ptr_parent, const vector<JointComponent*>& joints) :
+JointGroupComponent::JointGroupComponent(const vector<JointComponent*>& joints, Model* ptr_parent) :
 	Component(ptr_parent)
 {
 	for (auto& joint : joints) {

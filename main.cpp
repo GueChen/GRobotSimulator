@@ -5,6 +5,7 @@
 #include "model/robot/dual_arm_platform.h"
 #include "manager/objectmanager.h"
 #include "manager/modelmanager.h"
+#include "component/tracker_component.h"
 #include <glm/glm.hpp>
 
 int main(int argc, char *argv[])
@@ -18,6 +19,7 @@ int main(int argc, char *argv[])
     if (sphere) {
         sphere->setTransLocal(Eigen::Vector3f(0.0f, 1.3f, 2.0f));
         sphere->setScale(0.05f * Eigen::Vector3f::Ones());
+        sphere->RegisterComponent(std::make_unique<GComponent::TrackerComponent>(sphere));
     }
     GComponent::DUAL_ARM_PLATFORM robot;
     GComponent::EngineApp::getInstance().Exec();
