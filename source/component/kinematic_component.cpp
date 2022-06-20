@@ -12,19 +12,23 @@
 
 namespace GComponent
 {
+using std::make_unique;
+
 KinematicComponent::KinematicComponent(Model* ptr_parent): Component(ptr_parent)
-{
+{		
 	if (GetParent()) {
 		UpdateExponentialCoordinates();
 	}
+	InitializeIKSolvers();
 }
 
 KinematicComponent::KinematicComponent(const SE3<float>& initial_end_transform, Model* ptr_parent):
 	Component(ptr_parent), end_transform_mat_(initial_end_transform)
-{
+{	
 	if (GetParent()) {
 		UpdateExponentialCoordinates();
 	}
+	InitializeIKSolvers();
 }
 
 bool KinematicComponent::ForwardKinematic(SE3<float>&out_mat, const Thetas<float>&thetas)
@@ -53,10 +57,10 @@ bool KinematicComponent::InverseKinematic(Thetav<float>& out_thetav, const SE3<f
 		exp_coords_, 
 		trans_desire, 
 		init_guess, 
-		*solver_, 
+		*ik_solvers_[ik_solver_enum_],
 		precision_, 
 		max_iteration_, 
-		decay_scaler_);;
+		decay_scaler_);
 }
 
 bool KinematicComponent::UpdateExponentialCoordinates()
@@ -114,6 +118,16 @@ bool KinematicComponent::UpdateExponentialCoordinates()
 void KinematicComponent::tickImpl(float delta_time)
 {
 	UpdateExponentialCoordinates();
+}
+
+void KinematicComponent::InitializeIKSolvers()
+{
+	using enum IKSolverEnum;
+	ik_solvers_.emplace(LeastNorm,						make_unique<DynamicLeastNormSolver<float>>());
+	ik_solvers_.emplace(DampedLeastSquare,				make_unique<DynamicDampedLeastSquareSolver<float>>(0.05f));
+	ik_solvers_.emplace(JacobianTranspose,				make_unique<DynamicJacobianTransposeSolver<float>>());
+	ik_solvers_.emplace(AdaptiveDampedLeastSquare,		make_unique<DynamicAdaptiveDampedLeastSquareSolver<float>>());
+	ik_solvers_.emplace(SelectivelyDampedLeastSquare,	make_unique<DynamicSelectivelyDampedLeastSquareSolver<float>>());
 }
 
 Thetav<float> KinematicComponent::toThetav(const Thetas<float> thetas)

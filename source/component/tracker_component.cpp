@@ -100,7 +100,7 @@ void GComponent::TrackerComponent::tickImpl(float delta_time)
 		if (result) {
 			joint_group_component->SetPositions(out_thetas);				
 		}
-		
+
 	}
 }
 

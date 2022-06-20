@@ -31,7 +31,18 @@ using Transforms = vector<Matrix<_Scaler, 4, 4>>;
 template<class _Scaler>
 using Thetav = Vector<_Scaler, -1>;
 
+enum class IKSolverEnum {
+	LeastNorm						= 0,
+	DampedLeastSquare				= 1,
+	JacobianTranspose				= 2,
+	AdaptiveDampedLeastSquare		= 3,
+	SelectivelyDampedLeastSquare	= 4
+};
+
 class KinematicComponent :public Component{
+public:	
+	using IKSolverTable = unordered_map <IKSolverEnum, unique_ptr<RobotKinematic::IKSolver<float>>>;
+
 public:
 	explicit KinematicComponent(Model* ptr_parent = nullptr);
 	explicit KinematicComponent(const SE3<float>& initial_end_transform, Model* ptr_parent = nullptr);
@@ -53,8 +64,11 @@ public:
 	virtual const string_view& 
 					GetTypeName() const override	{ return type_name; }
 	// TODO: using enum not direct pointer
-	inline void		SetIKSolver(RobotKinematic::IKSolver<float>* solver) 
-													{ solver_ = solver; }
+	inline void		SetIKSolver(IKSolverEnum solver_enum) 
+													{ ik_solver_enum_ = solver_enum; }
+	inline IKSolverEnum
+					GetIKEnum()		const			{ return ik_solver_enum_; }
+	inline unsigned GetJointCount() const			{ return joint_count_; }
 
 	inline void		SetPrecision(double prececion)	{ precision_ = prececion; }
 	inline double	GetPrecision()	const			{ return precision_; }
@@ -75,6 +89,7 @@ protected:
 	void			tickImpl(float delta_time)	override;
 
 private:
+	void			InitializeIKSolvers();
 	inline JointGroupComponent* 
 					GetJointsGroup() { return ptr_parent_->GetComponet<JointGroupComponent>("JointGroupComponent"); }
 
@@ -86,13 +101,16 @@ private:
 	vector<Twist<float>>	exp_coords_			  = {};
 	SE3<float>				end_transform_mat_	  = SE3<float>::Identity();
 
+	IKSolverEnum			ik_solver_enum_		  = IKSolverEnum::LeastNorm;
 	RobotKinematic::IKSolver<float>*
-							solver_				  = new DynamicLeastNormSolver<float>{};
+							solver_				  = nullptr;
 	double					precision_			  = 1e-6f;
 	int						max_iteration_		  = 50;
 	double					decay_scaler_		  = 0.3f;
+	IKSolverTable			ik_solvers_			  = {};
 
-	constexpr static const string_view type_name = "KinematicComponent";
+/*________________________________Static Fields______________________________________________________________________*/						
+	constexpr static const	string_view		type_name = "KinematicComponent";
 };
 }
 

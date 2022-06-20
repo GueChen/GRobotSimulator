@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>270</width>
-    <height>442</height>
+    <width>230</width>
+    <height>392</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,103 +25,6 @@ font: 9pt &quot;Microsoft YaHei UI&quot;;</string>
    <property name="rowWrapPolicy">
     <enum>QFormLayout::WrapAllRows</enum>
    </property>
-   <item row="0" column="0">
-    <widget class="QLabel" name="joint_count_tag">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">color: rgb(255, 255, 255);</string>
-     </property>
-     <property name="text">
-      <string>joint count</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="solver_tag">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">color: rgb(255, 255, 255);</string>
-     </property>
-     <property name="text">
-      <string>IK solver</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="precision_tag">
-     <property name="styleSheet">
-      <string notr="true">color: rgb(255, 255, 255);</string>
-     </property>
-     <property name="text">
-      <string>precesion</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0">
-    <widget class="QLabel" name="max_iterations_tag">
-     <property name="styleSheet">
-      <string notr="true">color: rgb(255, 255, 255);</string>
-     </property>
-     <property name="text">
-      <string>max iterations</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0">
-    <widget class="QLabel" name="decay_tag">
-     <property name="styleSheet">
-      <string notr="true">color: rgb(255, 255, 255);</string>
-     </property>
-     <property name="text">
-      <string>step decay</string>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="0">
-    <widget class="QLabel" name="position_tag">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">color: rgb(255, 255, 255);</string>
-     </property>
-     <property name="text">
-      <string>position</string>
-     </property>
-    </widget>
-   </item>
-   <item row="12" column="0">
-    <widget class="QLabel" name="rotation_tag">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">color: rgb(255, 255, 255);</string>
-     </property>
-     <property name="text">
-      <string>rotation</string>
-     </property>
-    </widget>
-   </item>
    <item row="9" column="0" colspan="2">
     <widget class="QLineEdit" name="decay_val">
      <property name="styleSheet">
@@ -291,14 +194,12 @@ QComboBox QAbstractItemView {
     selection-background-color: lightgray;
 }</string>
      </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
      <item>
       <property name="text">
-       <string>Persudo-Inverse Solver</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Weighted Persudo-Inverse Solver</string>
+       <string>Persudo-Inverse</string>
       </property>
      </item>
      <item>
@@ -308,22 +209,17 @@ QComboBox QAbstractItemView {
      </item>
      <item>
       <property name="text">
+       <string>Jacobian Transpose</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Adaptive Damped Least Squared</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
        <string>Selevtively Damped Least Squared</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Jacobi Transpose Solver</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>CCD</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>FABRIK</string>
       </property>
      </item>
     </widget>
@@ -641,6 +537,103 @@ QComboBox QAbstractItemView {
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="joint_count_tag">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>joint count</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QLabel" name="solver_tag">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>IK solver</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QLabel" name="precision_tag">
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>precesion</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" colspan="2">
+    <widget class="QLabel" name="max_iterations_tag">
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>max iterations</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0" colspan="2">
+    <widget class="QLabel" name="decay_tag">
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>step decay</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0" colspan="2">
+    <widget class="QLabel" name="position_tag">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>position</string>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="0" colspan="2">
+    <widget class="QLabel" name="rotation_tag">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>rotation</string>
+     </property>
+    </widget>
    </item>
    <item row="14" column="0" colspan="2">
     <spacer name="verticalSpacer">

@@ -6,9 +6,9 @@
 
 #include <string>
 
-#define cPathModel(name)("./modifyCoordinate/" name)
-#define PathModel(name) ("./modifyCoordinate/"#name)
-#define sPathModel(name) ("./modifyCoordinate/" + name)
+#define cPathModel(name)("./asset/stls/" name)
+#define PathModel(name) ("./asset/stls/"#name)
+#define sPathModel(name) ("./asset/stls/" + name)
 
 namespace GComponent {
 namespace QGL {

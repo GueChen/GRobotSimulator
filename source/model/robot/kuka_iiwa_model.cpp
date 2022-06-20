@@ -8,10 +8,9 @@
 #include "component/joint_component.h"
 #include "component/joint_group_component.h"
 #include "component/kinematic_component.h"
+#include "component/tracker_component.h"
 
 #include "function/adapter/modelloader_qgladapter.h"
-
-#include <iostream>
 
 #define IIWASource(name) "iiwa14_"#name".STL"
 
@@ -77,7 +76,7 @@ void KUKA_IIWA_MODEL::InitializeModelResource()
 
     RegisterComponent(make_unique<JointGroupComponent>(joints, this));
     RegisterComponent(make_unique<KinematicComponent>(init_end_trans_mat, this));
-    
+    RegisterComponent(make_unique<TrackerComponent>(this));
 }
 
 void GComponent::KUKA_IIWA_MODEL::InitializeMeshResource()

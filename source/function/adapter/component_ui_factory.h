@@ -71,12 +71,13 @@ public:
 		else if (s == "KinematicComponent") {
 			KinematicComponent& kinematic_component = dynamic_cast<KinematicComponent&>(component);
 			KinematicComponentWidget* widget = new KinematicComponentWidget;
-			//widget->Init();
+			ConnectKinematicComponentUI(widget, kinematic_component);
 			return widget;
 		}
 		else if (s == "TrackerComponent") {
 			TrackerComponent& tracker_component = dynamic_cast<TrackerComponent&>(component);
 			TrackerComponentWidget* widget = new TrackerComponentWidget;
+
 			ConnectTrackerComponentUI(widget, tracker_component);
 			return widget;
 		}
@@ -99,6 +100,10 @@ private:
 
 	/*___________________________Tracker Component UI Create Methods_________________________________*/
 	static void ConnectTrackerComponentUI(TrackerComponentWidget* widget, TrackerComponent& component);
+
+	/*_________________________Kinematic Component UI Create Methods_________________________________*/
+	static void ConnectKinematicComponentUI(KinematicComponentWidget* widget, KinematicComponent& component);
+
 private:
 	/*_____________________________Joint Component UI Objects________________________________________*/
 	static constexpr const string_view JointSliderTagText		= "Joint";

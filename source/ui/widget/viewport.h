@@ -1,4 +1,10 @@
-ï»¿#ifndef _VIEWPORT_H
+/**
+ *  @file  	viewport.h
+ *  @brief 	This class is use opengl function to create an observer environment UI bind with a manager UIState.
+ *  @author Gue Chen<guechen@buaa.edu.cn>
+ *  @date 	May 19th, 2022
+ **/
+#ifndef _VIEWPORT_H
 #define _VIEWPORT_H
 #include "function/picking_helper.h"
 
@@ -30,7 +36,7 @@ namespace GComponent {
 	private:
 		void RegisteredShader();
 
-		/// Event Definitions äº‹ä»¶å®šä¹‰
+		/// Event Definitions ÊÂ¼þ¶¨Òå
 	protected:
 		void keyPressEvent(QKeyEvent* event)		override;
 		void keyReleaseEvent(QKeyEvent* event)		override;
