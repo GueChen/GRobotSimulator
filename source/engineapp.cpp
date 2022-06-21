@@ -30,7 +30,7 @@ void GComponent::EngineApp::Init(int argc, char* argv[])
 	// ui initialize
 	window_ptr_ = std::make_unique<MainWindow>();
 	window_ptr_->setWindowIconText("机械臂规划仿真软件");
-	window_ptr_->setWindowFlag(Qt::FramelessWindowHint);
+	//window_ptr_->setWindowFlag(Qt::FramelessWindowHint);
 
 	robot_create_dialog_ptr_ = std::make_unique<RobotCreateDialog>();	
 	robot_create_dialog_ptr_->setWindowTitle("Create Ur Robot(*^_^*)");
@@ -197,12 +197,6 @@ void GComponent::EngineApp::TestConversion(const vector<vector<float>>& params)
 	auto [twists, T] = matrices.toTwists();
 	base->RegisterComponent(make_unique<JointGroupComponent>(joints, base));
 	base->RegisterComponent(make_unique<KinematicComponent>(T, base));
-	//base->GetComponet<KinematicComponent>("KinematicComponent")->SetExpCoords(twists);
-	std::cout << "The Init T:\n" << T << std::endl;
-	std::cout << "twists val :\n";
-	for (auto& twist : twists) {
-		std::cout << "twist:" << twist.transpose() << std::endl;
-	}
-
+		
 	base->RegisterComponent(make_unique<TrackerComponent>(base, "sphere0"));
 }

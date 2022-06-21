@@ -72,6 +72,7 @@ public:
 			KinematicComponent& kinematic_component = dynamic_cast<KinematicComponent&>(component);
 			KinematicComponentWidget* widget = new KinematicComponentWidget;
 			ConnectKinematicComponentUI(widget, kinematic_component);
+			widget->setGeometry(QRect(0, 0, 300, 600));
 			return widget;
 		}
 		else if (s == "TrackerComponent") {

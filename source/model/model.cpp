@@ -201,9 +201,11 @@ void Model::updateChildrenMatrix(const Mat3& parent_adjoint_mat)
 
         child->parent_model_mat_     = getModelMatrixWithoutScale();
         child->trans_                = parent_adjoint_mat * child->inv_parent_U_mat_ * child->trans_;
-        child->rot_                  = LogMapSO3Toso3(Q_new);        
-        std::tie(child->scale_, child->shear_)
-                                     = SSDecompositionMat3(upper_triangle_mat_new);
+        child->rot_                  = LogMapSO3Toso3(Q_new);
+        if (!std::isnan(upper_triangle_mat_new(0, 0))) {
+            std::tie(child->scale_, child->shear_)
+                = SSDecompositionMat3(upper_triangle_mat_new);
+        }
         child->inv_parent_U_mat_     = parent_adjoint_mat.inverse();
 
         child->updateModelMatrix();        
