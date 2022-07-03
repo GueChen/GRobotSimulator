@@ -83,7 +83,7 @@ void TrackerComponentWidget::on_tracking_button_clicked()
 void TrackerComponentWidget::on_target_selector_currentTextChanged(const QString& goal_name)
 {
 	emit TragetSelectedRequest(goal_name);
-	std::cout << std::format("{:} goal request selected\n", goal_name.toStdString());
+	//std::cout << std::format("{:} goal request selected\n", goal_name.toStdString());
 }
 
 }

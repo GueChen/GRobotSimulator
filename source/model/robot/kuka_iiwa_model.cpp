@@ -84,14 +84,14 @@ void GComponent::KUKA_IIWA_MODEL::InitializeMeshResource()
     if (!is_init_)
     {
         ResourceManager& scene_manager = ResourceManager::getInstance();
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_0", QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(base))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_1", QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_1))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_2", QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_2))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_3", QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_3))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_4", QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_4))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_5", QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_5))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_6", QGL::ModelLoader::getMeshPtr(cPathModel(IIWASource(link_6))));
-        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_7", QGL::ModelLoader::getMeshPtr(cPathModel("flanschExten.STL")));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_0", QGL::ModelLoader::getMeshPtr(cPathModel("binary/iiwa14_base_binary.STL")));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_1", QGL::ModelLoader::getMeshPtr(cPathModel("binary/iiwa14_link_1_binary.STL")));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_2", QGL::ModelLoader::getMeshPtr(cPathModel("binary/iiwa14_link_2_binary.STL")));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_3", QGL::ModelLoader::getMeshPtr(cPathModel("binary/iiwa14_link_3_binary.STL")));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_4", QGL::ModelLoader::getMeshPtr(cPathModel("binary/iiwa14_link_4_binary.STL")));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_5", QGL::ModelLoader::getMeshPtr(cPathModel("binary/iiwa14_link_5_binary.STL")));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_6", QGL::ModelLoader::getMeshPtr(cPathModel("binary/iiwa14_link_6_binary.STL")));
+        scene_manager.RegisteredMesh("kuka_iiwa_robot_link_7", QGL::ModelLoader::getMeshPtr(cPathModel("binary/flansch_extern_binary.STL")));
         is_init_ = true;
     }
 }

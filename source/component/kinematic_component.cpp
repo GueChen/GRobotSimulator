@@ -92,7 +92,7 @@ bool KinematicComponent::UpdateExponentialCoordinates()
 			Vec3 q = t;
 			// Transform [q(t), w(t)] to [q(0), w(0)]
 			w	   = inv_local.block(0, 0, 3, 3) * w;
-			q	   = affineProduct(inv_local, q);
+			q	   = AffineProduct(inv_local, q);
 
 			// Get Twists
 			exp_coords_[i]	= ScrewToTwist(q, w);

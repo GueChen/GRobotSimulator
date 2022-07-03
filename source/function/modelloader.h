@@ -15,20 +15,69 @@
 
 #include <string>
 #include <vector>
+#include <fstream>
 
 namespace GComponent {
-    
+
+using std::tuple;
+using std::vector;
+using std::string;
+
 class ModelLoader
 {
+    using _ModelInfo = tuple<vector<Vertex>, vector<Triangle>>;
+public:
+    // file encoding format
+    enum class Encoding {
+        ASCII   = 0,
+        Binary  = 1
+    };
 public:
     ModelLoader() = delete;
-    static std::tuple<std::vector<Vertex>, std::vector<Triangle>> readFile(const std::string& file_path);
-    static std::tuple<std::vector<Vertex>, std::vector<Triangle>> readPlyFile(const std::string& file_path);
-    static std::tuple<std::vector<Vertex>, std::vector<Triangle>> readSTLFile(const std::string& file_path);
-    static std::tuple<std::vector<Vertex>, std::vector<Triangle>> readOBJFile(const std::string& file_path);
-    static std::string getFileContent(const std::string& file_path);
-    static std::vector<float> vStringToFloat(const std::vector<std::string> & vs);
+    
+    /// <summary>
+    /// Load model from file acording to file format
+    /// <para>
+    /// 根据文件类型从文件中获取模型
+    /// </para>
+    /// </summary>
+    /// <param name="file_path">    cref {string}               [in]  file_path                                     文件路径    </param>
+    /// <returns>                        {Vertexs, Triangles}   [out] arrays tuple of vertex and triangle index     顶点数组    </returns>
+    static _ModelInfo ReadFile(const string& file_path);
 
+    /// <summary>
+    /// Load model from ply-file
+    /// <para>
+    /// 从 ply 文件中读取模型
+    /// </para>
+    /// </summary>
+    /// <param name="file_path">    cref {string}               [in]  file_path                                     文件路径    </param>
+    /// <returns>                        {Vertexs, Triangles}   [out] arrays tuple of vertex and triangle index     顶点数组    </returns>
+    static _ModelInfo ReadPlyFile(const string& file_path);
+
+    /// <summary>
+    /// Load model from stl-file
+    /// <para>
+    /// 从 STL 文件中读取模型
+    /// </para>
+    /// </summary>
+    /// <param name="file_path">    cref {string}               [in]  file_path                                     文件路径    </param>
+    /// <returns>                        {Vertexs, Triangles}   [out] arrays tuple of vertex and triangle index     顶点数组    </returns>
+    static _ModelInfo ReadSTLFile(const string& file_path);
+
+    /// <summary>
+    /// Load model from obj-file
+    /// <para>
+    /// 从 obj 文件中读取模型
+    /// </para>
+    /// </summary>
+    /// <param name="file_path">    cref {string}               [in]  file_path                                     文件路径    </param>
+    /// <returns>                        {Vertexs, Triangles}   [out] arrays tuple of vertex and triangle index     顶点数组    </returns>
+    static _ModelInfo ReadOBJFile(const string& file_path);
+
+protected:
+    static _ModelInfo ReadSTLAscii(std::ifstream& file_stream);
+    static _ModelInfo ReadSTLBinary(std::ifstream& file_stream);
 };
 
 }

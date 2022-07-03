@@ -22,7 +22,7 @@ Viewport::Viewport(QWidget* parent) :
 {
 	qRegisterMetaType<Viewport>("viewport");
 	setFocusPolicy(Qt::StrongFocus);
-	ModelManager::getInstance().RegisteredAuxiModel("skybox", sky_box_);
+	//ModelManager::getInstance().RegisteredModel("skybox", sky_box_);
 }
 
 Viewport::~Viewport() {}
@@ -64,7 +64,7 @@ void Viewport::paintGL()
 	Camera* camera_ptr = ModelManager::getInstance().GetCameraByHandle(camera_handle);
 	// Process Input
 	ui_state_.tick();
-	sky_box_->tick(delta);
+	//sky_box_->tick(delta);
 	// Set global parameters
 	ModelManager::getInstance().SetProjectViewMatrices(
 		perspective(radians(camera_ptr->Zoom), static_cast<float>(width()) / height(), 0.1f, 1000.0f),

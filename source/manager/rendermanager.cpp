@@ -104,6 +104,28 @@ void RenderManager::PickingPass()
 	});
 }
 
+void RenderManager::RenderingPass()
+{
+	PassSpecifiedListNormal(render_list_, [](const std::string& name) {
+		return ModelManager::getInstance().GetModelByName(name);
+		});
+}
+void RenderManager::AuxiliaryPass()
+{
+	DisableGuard guard(gl_.get(), GL_DEPTH_TEST);
+	PassSpecifiedListNormal(axui_render_list_, [](const std::string& name) {
+		return ModelManager::getInstance().GetAuxiModelByName(name);
+		});
+}
+
+void RenderManager::PostProcessPass()
+{
+	//TODO: add some postprocess effect
+	// 1. draw selected object
+	// 2. tone mapping & color grading
+	// 3. ambient occlusion
+}
+
 void RenderManager::PassSpecifiedListPicking(PassType draw_index_type, list<RenderCommand>& list, function<Model* (const std::string&)> ObjGetter)
 {
 	ResourceManager& scene_manager = ResourceManager::getInstance();
@@ -137,25 +159,4 @@ void RenderManager::PassSpecifiedListNormal(std::list<RenderCommand>& list, std:
 	}
 }
 
-void RenderManager::RenderingPass()
-{
-	PassSpecifiedListNormal(render_list_, [](const std::string& name) {
-		return ModelManager::getInstance().GetModelByName(name);
-		});
-}
-void RenderManager::AuxiliaryPass()
-{
-	DisableGuard guard(gl_.get(), GL_DEPTH_TEST);
-	PassSpecifiedListNormal(axui_render_list_, [](const std::string& name) {
-		return ModelManager::getInstance().GetAuxiModelByName(name);
-		});
-}
-
-void RenderManager::PostProcessPass()
-{
-	//TODO: add some postprocess effect
-	// 1. draw selected object
-	// 2. tone mapping & color grading
-	// 3. ambient occlusion
-}
 }

@@ -34,7 +34,8 @@ SkyBox::SkyBox()
 
 void SkyBox::tickImpl(float delta_time)
 {
-    RenderManager::getInstance().EmplaceAuxiRenderCommand(name_, shader_, mesh_);
+    //RenderManager::getInstance().EmplaceAuxiRenderCommand(name_, shader_, mesh_);
+    RenderManager::getInstance().EmplaceRenderCommand(name_, shader_, mesh_);
 }
 
 void SkyBox::setShaderProperty(MyShader& shader)

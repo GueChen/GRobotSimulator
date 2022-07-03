@@ -19,15 +19,15 @@
 #include <memory>
 #include <chrono>
 
-
-#ifdef _DEBUG
- /*******************/ //DELETE THIS AFTER TEST
 #include "component/joint_component.h"
 #include "component/joint_group_component.h"
 #include "component/kinematic_component.h"
 #include "component/tracker_component.h"
 #include "function/adapter/kinematic_adapter.h"
 #include <GComponent/GGeometry.hpp>
+#ifdef _DEBUG
+ /*******************/ //DELETE THIS AFTER TEST
+
 /******************/
 #endif // !_DEBUG
 
