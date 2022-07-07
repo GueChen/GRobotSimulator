@@ -55,9 +55,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>debug\</OutDir>
     <IntDir>debug\</IntDir>
-    <TargetName>FinalProj</TargetName>
+    <TargetName>GSimulator</TargetName>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
-    <IncludePath>$(ProjectDir)\source;$(MyCppLib);$(QT_INCLUDE);$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)source;$(MyCppLib);$(QT_INCLUDE);$(IncludePath)</IncludePath>
     <LibraryPath>$(QT_LIBS);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -141,7 +141,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;$(OPGL_INCLUDE);debug;/include;.\UI\treeview;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;debug;/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -permissive- -Zc:__cplusplus -Zc:externConstexpr -utf-8 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 /bigobj %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -162,13 +162,13 @@
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;$(OPGL_LIB)\glfw3.lib;$(QTDIR)\lib\Qt6OpenGLWidgetsd.lib;$(QTDIR)\lib\Qt6QuickWidgetsd.lib;$(QTDIR)\lib\Qt6Quickd.lib;$(QTDIR)\lib\Qt6OpenGLd.lib;$(QTDIR)\lib\Qt6Widgetsd.lib;$(QTDIR)\lib\Qt6Guid.lib;$(QTDIR)\lib\Qt6QmlModelsd.lib;$(QTDIR)\lib\Qt6Qmld.lib;$(QTDIR)\lib\Qt6Networkd.lib;$(QTDIR)\lib\Qt6Cored.lib;$(QTDIR)\lib\Qt6EntryPointd.lib;$(QTDIR)\lib\Qt6Chartsd.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OPGL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;$(QTDIR)\lib\Qt6OpenGLWidgetsd.lib;$(QTDIR)\lib\Qt6QuickWidgetsd.lib;$(QTDIR)\lib\Qt6Quickd.lib;$(QTDIR)\lib\Qt6OpenGLd.lib;$(QTDIR)\lib\Qt6Widgetsd.lib;$(QTDIR)\lib\Qt6Guid.lib;$(QTDIR)\lib\Qt6QmlModelsd.lib;$(QTDIR)\lib\Qt6Qmld.lib;$(QTDIR)\lib\Qt6Networkd.lib;$(QTDIR)\lib\Qt6Cored.lib;$(QTDIR)\lib\Qt6EntryPointd.lib;$(QTDIR)\lib\Qt6Chartsd.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreImportLibrary>true</IgnoreImportLibrary>
-      <OutputFile>$(OutDir)\FinalProj.exe</OutputFile>
+      <OutputFile>$(OutDir)\GSimulator.exe</OutputFile>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <SubSystem>Console</SubSystem>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -197,6 +197,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic.cpp" />
+    <ClCompile Include="source\3rdparty\stb\stb_image.c" />
+    <ClCompile Include="source\model\basic\postprocess_quads.cpp" />
     <ClCompile Include="source\component\joint_component.cpp" />
     <ClCompile Include="source\component\joint_group_component.cpp" />
     <ClCompile Include="source\component\kinematic_component.cpp" />
@@ -219,6 +221,7 @@
     <ClCompile Include="source\base\treeitem.cpp" />
     <ClCompile Include="source\manager\modelmanager.cpp" />
     <ClCompile Include="source\manager\resourcemanager.cpp" />
+    <ClCompile Include="source\render\framebufferobject.cpp" />
     <ClCompile Include="source\simplexmesh\gball.cpp" />
     <ClCompile Include="source\simplexmesh\gcurves.cpp" />
     <ClCompile Include="source\simplexmesh\gline.cpp" />
@@ -268,6 +271,7 @@
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\Concept\gconcept.hpp" />
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic-inl.hpp" />
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\heuristic_ik_solver.hpp" />
+    <ClInclude Include="source\model\basic\postprocess_quads.h" />
     <ClInclude Include="source\base\global\global_qss.h" />
     <ClInclude Include="source\component\kinematic_component.h" />
     <ClInclude Include="source\function\adapter\kinematic_adapter.h" />
@@ -275,6 +279,7 @@
     <QtMoc Include="source\ui\widget\kinematic_widget.h" />
     <QtMoc Include="source\ui\widget\tracker_widget.h" />
     <ClInclude Include="source\model\basic\skybox.h" />
+    <ClInclude Include="source\render\framebufferobject.h" />
     <ClInclude Include="source\ui\wrapper\extensiblelist.h" />
     <QtMoc Include="source\ui\widget\viewport.h" />
     <QtMoc Include="source\ui\treeview\glmodeltreeview.h" />
@@ -360,9 +365,11 @@
     <None Include="ClassDiagram.cd" />
     <None Include="Shader\Fragment\axisFrag.frag" />
     <None Include="Shader\Fragment\pickingFrag.frag" />
+    <None Include="Shader\Fragment\postprocessFrag.frag" />
     <None Include="Shader\Fragment\skyboxFrag.frag" />
     <None Include="Shader\Vertex\axisVert.vert" />
     <None Include="Shader\Vertex\pickingVert.vert" />
+    <None Include="Shader\Vertex\postprocessVert.vert" />
     <None Include="Shader\Vertex\skyboxVert.vert" />
     <None Include="source\simplexmesh\GBasicMesh" />
     <None Include="source\motion\GMotion">

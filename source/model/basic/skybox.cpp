@@ -3,54 +3,97 @@
 #include "manager/rendermanager.h"
 #include "manager/resourcemanager.h"
 
+#define CubemapPrefix(path) "asset/textures/skybox/"#path
+
 namespace GComponent{
 
-const vector<float> SkyBox::VertexData = {
+const vector<float> SkyBox::Vertices = {
     // positions      triangle order: 0->1->2   |   2->3->0     every stride add 4
     -1.0f,  1.0f, -1.0f,    -1.0f, -1.0f, -1.0f,    1.0f, -1.0f, -1.0f,     1.0f,  1.0f, -1.0f,
-
     -1.0f, -1.0f,  1.0f,    -1.0f, -1.0f, -1.0f,    -1.0f,  1.0f, -1.0f,    -1.0f,  1.0f,  1.0f,
-
      1.0f, -1.0f, -1.0f,    1.0f, -1.0f,  1.0f,     1.0f,  1.0f,  1.0f,     1.0f,  1.0f, -1.0f, 
-
     -1.0f, -1.0f,  1.0f,    -1.0f,  1.0f,  1.0f,    1.0f,  1.0f,  1.0f,     1.0f, -1.0f,  1.0f,
-
     -1.0f,  1.0f, -1.0f,    1.0f,  1.0f, -1.0f,     1.0f,  1.0f,  1.0f,     -1.0f,  1.0f,  1.0f,
-
-    -1.0f, -1.0f, -1.0f,    -1.0f, -1.0f,  1.0f,    1.0f, -1.0f, -1.0f,     -1.0f, -1.0f,  1.0f,
-};
-const vector<string_view> SkyBox::TexturePath = {
-    "right.jpg",    "left.jpg",     "top.jpg",
-    "bottom.jpg",   "front.jpg",    "back.jpg"
+    -1.0f, -1.0f,  1.0f,    -1.0f, -1.0f, -1.0f,    1.0f, -1.0f, -1.0f,     1.0f, -1.0f,  1.0f,
 };
 
+const vector<string_view> SkyBox::Textures = {
+    CubemapPrefix(right.jpg),    CubemapPrefix(left.jpg),     CubemapPrefix(top.jpg),
+    CubemapPrefix(bottom.jpg),   CubemapPrefix(front.jpg),    CubemapPrefix(back.jpg)
+};
+
+unsigned SkyBox::count = 0;
+
+
+/*_______________________________________Constructors and Destructors_________________________________*/
 SkyBox::SkyBox()
 {
     name_   = "skybox";
     mesh_   = "skybox";
     shader_ = "skybox";
-    ResourceManager::getInstance().RegisteredMesh(mesh_, new RenderMesh(SetupVertexData(), SetupTrangle(), {}));
+    CheckAndRegisteredResource();
+   
+    ++count;
+}
+
+SkyBox::~SkyBox()
+{
+    --count;
+    if (not count && cube_texture_id_) {
+        ResourceManager::getInstance().DeregisteredTexture("skybox");
+    }
+}
+
+/*_________________________________________Methods*/
+void SkyBox::CheckAndRegisteredResource()
+{
+    if (not ResourceManager::getInstance().GetMeshByName(mesh_))
+    {
+        ResourceManager::getInstance().RegisteredMesh(mesh_, new RenderMesh(SetupVertexData(), SetupTrangle(), {}));
+    }
+    if (count == 0) {
+        ResourceManager::getInstance().RegisteredCubemap({ "skybox", Textures, "irradiance", &cube_texture_id_ });
+    }
+  /*  if (not ResourceManager::getInstance().GetShaderByName(shader_))
+    {
+        ResourceManager::getInstance().RegisteredShader(shader_, new GComponent::MyShader(nullptr, PathVert(skybox), PathFrag(skybox)));
+    }*/
+}
+
+void SkyBox::Draw()
+{
+    ResourceManager& resource_manager = ResourceManager::getInstance();
+    if (MyShader* shader = resource_manager.GetShaderByName(shader_); shader) {
+        shader->link();
+        shader->use();
+        setShaderProperty(*shader);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cube_texture_id_);
+    }
+    if (RenderMesh* mesh = resource_manager.GetMeshByName(mesh_); mesh) {
+        mesh->Draw();
+    }
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
 void SkyBox::tickImpl(float delta_time)
 {
-    //RenderManager::getInstance().EmplaceAuxiRenderCommand(name_, shader_, mesh_);
     RenderManager::getInstance().EmplaceRenderCommand(name_, shader_, mesh_);
 }
 
 void SkyBox::setShaderProperty(MyShader& shader)
 {
+    shader.setInt("cubemap_texture", 0);
     shader.setMat4("model", glm::mat4(1.0f));
-    shader.setVec3("color", glm::vec3(1.0f, 0.0f, 0.0f));
+    //shader.setVec3("color", glm::vec3(1.0f, 0.0f, 0.0f));
 }
 
 vector<Vertex> SkyBox::SetupVertexData()
 {
-    vector<Vertex> vertices(VertexData.size() / 3);
-    for (int i = 0, idx = 0; i < vertices.size(); ++i, idx+= 3) {        
-        vertices[i].Position  = glm::vec3(VertexData[idx], VertexData[idx + 1], VertexData[idx + 2]);
-        vertices[i].Normal    = glm::vec3(0.0f);
-        vertices[i].TexCoords = glm::vec3(0.0f);
+    vector<Vertex> vertices(Vertices.size() / 3);
+    for (int i = 0, idx = 0; i < vertices.size(); ++i, idx+= 3) {
+        vertices[i].position  = glm::vec3(Vertices[idx], Vertices[idx + 1], Vertices[idx + 2]);
+        vertices[i].normal    = glm::vec3(0.0f);
+        vertices[i].texcoords = glm::vec3(0.0f);
     }
     return vertices;
 }

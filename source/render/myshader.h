@@ -40,7 +40,7 @@ namespace GComponent {
         /// 调用 bind 直接使用 继承的 QOpenGLShaderProgram::bind() 效果相同
         void use() noexcept;
 
-        void setGL(std::shared_ptr<MyGL> other);
+        void SetGL(std::shared_ptr<MyGL> other);
 
         /// Set 系列函数，使用前请先使用 MyShader::use
         void setBool(const std::string & name, bool value) noexcept;

@@ -90,12 +90,9 @@ public:
 
     void Move(float x, float y, float z)
     {
-       /* Position += Front * z;
+        Position += Front * z;
         Position += Right * x;
-        Position += Up * y;*/
-        Position += Front.x;
-        Position += Right.y;
-        Position += Up.z;
+        Position += Up * y;
     }
     void ProcessKeyMovementCommand(CameraMoveMent direction, float delta_time) {
         float velocity = MovementSpeed * (delta_time < 1e-5 ? 0.05 : delta_time);

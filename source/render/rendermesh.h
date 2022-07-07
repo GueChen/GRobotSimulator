@@ -25,32 +25,59 @@ Polygon                         = 0x0009
 class RenderMesh
 {
     /// 数据域 Fields
+
     protected:
         RawMesh mesh_datas_;
 
-        unsigned VAO_, VBO_, EBO_;
-        bool     is_setup_ = false;
+        unsigned VAO_               = 0;
+        unsigned VBO_               = 0;
+        unsigned EBO_               = 0;
+        bool     is_setup_          = false;
 
-        DrawMode draw_mode_ = DrawMode::Triangles;
+        DrawMode draw_mode_         = DrawMode::Triangles;
+        std::shared_ptr<MyGL> gl_   = nullptr;
+
+    /// 成员函数 Methods
     public:
         RenderMesh() = default;
-        RenderMesh(std::vector<Vertex>   vertices,
-                      std::vector<Triangle> indices,
-                      std::vector<Texture>  textures);
+        RenderMesh(const std::vector<Vertex>&   vertices,
+                   const std::vector<Triangle>& indices,
+                   const std::vector<Texture>&  textures);
         virtual ~RenderMesh();
 
         virtual void Draw();
         
-        void setGL(const std::shared_ptr<MyGL> & other);
+        void SetupRawMesh(const std::vector<Vertex>&   vertices,
+                          const std::vector<Triangle>& indices,
+                          const std::vector<Texture>&  textures);
+        void SetupRawMesh(RawMesh&& raw_mesh_datas);
 
-        inline size_t getElementSize() const { return mesh_datas_.Indices.size(); }
-        inline size_t getVertexSize()  const { return mesh_datas_.Vertices.size(); }
-        inline size_t getTextureSize() const { return mesh_datas_.Textures.size(); }
+        void SetGL(const std::shared_ptr<MyGL> & other);
+        
+        /// <summary>
+        /// 获取所持有的渲染单纯形的数目（通常为三角形）
+        /// </summary>
+        /// <returns></returns>
+        inline size_t GetElementSize() const { return mesh_datas_.indices.size(); }
 
+        /// <summary>
+        /// 获取所持有的顶点数目
+        /// </summary>
+        /// <returns></returns>
+        inline size_t GetVertexSize()  const { return mesh_datas_.vertices.size(); }
+
+        /// <summary>
+        /// 获取所持有的渲染纹理的数目
+        /// </summary>
+        /// <returns></returns>
+        inline size_t GetTextureSize() const { return mesh_datas_.textures.size(); }
+                    
+        inline std::vector<Vertex>& GetVertexData() { return mesh_datas_.vertices; }
+        
     private:
         void CheckClearGL();
-        void setupMesh();
-        std::shared_ptr<MyGL> gl;
+        void SetupMesh();
+       
 };
 
 }

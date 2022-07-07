@@ -6,16 +6,12 @@
  **/
 #ifndef _VIEWPORT_H
 #define _VIEWPORT_H
-#include "function/picking_helper.h"
 
 #include "manager/editor/uistatemanager.h"
 
 #include "render/mygl.hpp"
 #include "render/myshader.h"
 #include "render/camera.hpp"
-#include "model/axis/qtaxis.h"
-#include "model/basegrid.h"
-#include "model/basic/skybox.h"
 
 #include <QtOpenGLWidgets/QOpenGLWidget>
 #include <QtCore/QTimer>
@@ -56,8 +52,6 @@ namespace GComponent {
 
 	private:		
 		std::shared_ptr<MyGL>							gl_;
-		std::unique_ptr<BaseGrid>						grid_;
-		SkyBox*											sky_box_ = nullptr;
 
 		QPoint											mouse_right_pressed;
 		size_t										    camera_handle = 0;

@@ -141,6 +141,15 @@
     <ClCompile Include="source\model\basic\skybox.cpp">
       <Filter>model\basic</Filter>
     </ClCompile>
+    <ClCompile Include="source\render\framebufferobject.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
+    <ClCompile Include="source\model\basic\postprocess_quads.cpp">
+      <Filter>model\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="source\3rdparty\stb\stb_image.c">
+      <Filter>3rdparty\stb</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\motion\gmotionbase.h">
@@ -302,6 +311,12 @@
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\Concept\gconcept.hpp">
       <Filter>base\mylib\Concept</Filter>
     </ClInclude>
+    <ClInclude Include="source\render\framebufferobject.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="source\model\basic\postprocess_quads.h">
+      <Filter>model\basic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="mainwindow.h">
@@ -401,6 +416,12 @@
       <Filter>shader\vert</Filter>
     </None>
     <None Include="Shader\Fragment\skyboxFrag.frag">
+      <Filter>shader\frag</Filter>
+    </None>
+    <None Include="Shader\Vertex\postprocessVert.vert">
+      <Filter>shader\vert</Filter>
+    </None>
+    <None Include="Shader\Fragment\postprocessFrag.frag">
       <Filter>shader\frag</Filter>
     </None>
   </ItemGroup>
@@ -504,6 +525,12 @@
     </Filter>
     <Filter Include="base\mylib\Concept">
       <UniqueIdentifier>{3c1d756b-79ae-4c2b-b84d-5470cd43a1d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rdparty">
+      <UniqueIdentifier>{90fdacc7-9883-4a19-b76c-b03fc727fdd8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rdparty\stb">
+      <UniqueIdentifier>{70183788-499f-4ec2-86d1-3db3b25af4ab}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

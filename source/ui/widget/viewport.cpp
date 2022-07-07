@@ -16,13 +16,10 @@ namespace GComponent {
 Viewport::Viewport(QWidget* parent) :
 	QOpenGLWidget(parent),
 	ui_state_(width(), height()),
-	gl_(std::make_shared<GComponent::MyGL>()),
-	grid_(std::make_unique<BaseGrid>(50, 0.1f)),
-	sky_box_(new SkyBox)
+	gl_(std::make_shared<GComponent::MyGL>())
 {
 	qRegisterMetaType<Viewport>("viewport");
 	setFocusPolicy(Qt::StrongFocus);
-	//ModelManager::getInstance().RegisteredModel("skybox", sky_box_);
 }
 
 Viewport::~Viewport() {}
@@ -36,7 +33,6 @@ void Viewport::initializeGL()
 		camera_handle = GComponent::ModelManager::getInstance().RegisteredCamera();
 	GComponent::ResourceManager::getInstance().DeregisteredUIHandle("viewport");
 	
-	grid_->setGL(gl_);
 	ui_state_.SetGL(gl_);
 	GComponent::ModelManager::getInstance().SetGL(gl_);
 	GComponent::ResourceManager::getInstance().SetGL(gl_);
@@ -63,8 +59,7 @@ void Viewport::paintGL()
 
 	Camera* camera_ptr = ModelManager::getInstance().GetCameraByHandle(camera_handle);
 	// Process Input
-	ui_state_.tick();
-	//sky_box_->tick(delta);
+	ui_state_.tick();	
 	// Set global parameters
 	ModelManager::getInstance().SetProjectViewMatrices(
 		perspective(radians(camera_ptr->Zoom), static_cast<float>(width()) / height(), 0.1f, 1000.0f),
@@ -76,14 +71,6 @@ void Viewport::paintGL()
 	ResourceManager::getInstance().tick(gl_);
 	// Draw all renderable process Passes
 	RenderManager::getInstance().tick();
-
-	MyShader* shader = ResourceManager::getInstance().GetShaderByName("base");
-	shader->use();
-	shader->setMat4("model", glm::mat4(1.0f));
-	shader->setBool("colorReverse", false);
-	grid_->Draw();
-
-	
 
 	std::chrono::time_point now = std::chrono::steady_clock::now();
 	delta_time = std::chrono::duration_cast<std::chrono::duration<float>>(now - last_point);
@@ -200,12 +187,13 @@ void Viewport::leaveEvent(QEvent* event)
 
 void Viewport::RegisteredShader()
 {
-	GComponent::ResourceManager::getInstance().RegisteredShader("skybox",	 new GComponent::MyShader(nullptr, PathVert(skybox),	 PathFrag(skybox)));
-	GComponent::ResourceManager::getInstance().RegisteredShader("color",     new GComponent::MyShader(nullptr, PathVert(Color),      PathFrag(Color)));
-    GComponent::ResourceManager::getInstance().RegisteredShader("axis",      new GComponent::MyShader(nullptr, PathVert(axis),       PathFrag(axis)));
-    GComponent::ResourceManager::getInstance().RegisteredShader("picking",   new GComponent::MyShader(nullptr, PathVert(picking),    PathFrag(picking)));
-    GComponent::ResourceManager::getInstance().RegisteredShader("base",      new GComponent::MyShader(nullptr, PathVert(Base),       PathFrag(Base)));
-    GComponent::ResourceManager::getInstance().RegisteredShader("linecolor", new GComponent::MyShader(nullptr, PathVert(LineColor),  PathFrag(LineColor)));
+	GComponent::ResourceManager::getInstance().RegisteredShader("skybox",		new GComponent::MyShader(nullptr, PathVert(skybox), PathFrag(skybox)));
+	GComponent::ResourceManager::getInstance().RegisteredShader("postprocess",	new GComponent::MyShader(nullptr, PathVert(postprocess), PathFrag(postprocess)));
+	GComponent::ResourceManager::getInstance().RegisteredShader("color",		new GComponent::MyShader(nullptr, PathVert(Color),      PathFrag(Color)));
+    GComponent::ResourceManager::getInstance().RegisteredShader("axis",			new GComponent::MyShader(nullptr, PathVert(axis),       PathFrag(axis)));
+    GComponent::ResourceManager::getInstance().RegisteredShader("picking",		new GComponent::MyShader(nullptr, PathVert(picking),    PathFrag(picking)));
+    GComponent::ResourceManager::getInstance().RegisteredShader("base",			new GComponent::MyShader(nullptr, PathVert(Base),       PathFrag(Base)));
+    GComponent::ResourceManager::getInstance().RegisteredShader("linecolor",	new GComponent::MyShader(nullptr, PathVert(LineColor),  PathFrag(LineColor)));
 }
 
 }

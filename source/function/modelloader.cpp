@@ -125,20 +125,20 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::ReadPlyFile(
     // 填充法向量
     for (int i = 0; i < Indices.size(); i += 3)
     {
-        vec3 _edge1 = vertices[Indices[i].third].Position  - vertices[Indices[i].first].Position;
-        vec3 _edge2 = vertices[Indices[i].second].Position - vertices[Indices[i].first].Position;
+        vec3 _edge1 = vertices[Indices[i].third].position  - vertices[Indices[i].first].position;
+        vec3 _edge2 = vertices[Indices[i].second].position - vertices[Indices[i].first].position;
 
         auto norm = glm::normalize(glm::cross(_edge1, _edge2));
 
-        vertices[Indices[i].first].Normal  += norm;
-        vertices[Indices[i].second].Normal += norm;
-        vertices[Indices[i].third].Normal  += norm;
+        vertices[Indices[i].first].normal  += norm;
+        vertices[Indices[i].second].normal += norm;
+        vertices[Indices[i].third].normal  += norm;
     }
 
     // 法向量正则化 
     for (auto& vert : vertices)
     {
-        vert.Normal = glm::normalize(vert.Normal);
+        vert.normal = glm::normalize(vert.normal);
     }
 
     return {vertices, Indices };
@@ -227,9 +227,9 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> GComponent::ModelLoader::
         for (auto& index : shape.mesh.indices)
         {
             Vertex      vertex;
-            glm::vec3 & pos   = vertex.Position,
-                      & norm  = vertex.Normal;
-            glm::vec2 & coord = vertex.TexCoords;
+            glm::vec3 & pos   = vertex.position,
+                      & norm  = vertex.normal;
+            glm::vec2 & coord = vertex.texcoords;
             /* Process Position */
             pos.x = attrib.vertices[3 * index.vertex_index + 0];
             pos.y = attrib.vertices[3 * index.vertex_index + 1];
@@ -359,11 +359,11 @@ ModelLoader::_ModelInfo ModelLoader::ReadSTLBinary(std::ifstream& file_stream)
             file_stream.read(reinterpret_cast<char*>(vecs.data()), sizeof vecs);
 
 			/* fill vertex */
-            vertices[count + 0].Normal = vertices[count + 1].Normal = vertices[count + 2].Normal
+            vertices[count + 0].normal = vertices[count + 1].normal = vertices[count + 2].normal
                                          = vecs[0];
-            vertices[count + 0].Position = 0.001f * vecs[1];
-			vertices[count + 1].Position = 0.001f * vecs[2];
-			vertices[count + 2].Position = 0.001f * vecs[3];
+            vertices[count + 0].position = 0.001f * vecs[1];
+			vertices[count + 1].position = 0.001f * vecs[2];
+			vertices[count + 2].position = 0.001f * vecs[3];
             
             /* fill index */
             indices[i]  = Triangle(count, count + 1, count + 2);

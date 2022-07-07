@@ -26,12 +26,12 @@ void GComponent::QtGLAbstractAxis::Init(int segments, float radius)
 
 unsigned GComponent::QtGLAbstractAxis::GetStridedSize()
 {
-	return ResourceManager::getInstance().GetMeshByName(mesh_)->getElementSize() / 3;
+	return ResourceManager::getInstance().GetMeshByName(mesh_)->GetElementSize() / 3;
 }
 
 void GComponent::QtGLAbstractAxis::tickImpl(float delta_time)
 {
-	RenderManager::getInstance().EmplaceAuxiRenderCommand(name_, shader_, mesh_);
+	RenderManager::getInstance().EmplacePostProcessRenderCommand(name_, shader_, mesh_);
 }
 
 void GComponent::QtGLAbstractAxis::Draw()
@@ -49,9 +49,9 @@ void GComponent::QtGLAbstractAxis::SetupXaxisCircle(int segments, float radius, 
 {
 	for (int i = 0; i < segments; ++i) {
 		Vertex		temp;
-		glm::vec3&	pos		= temp.Position,
-				 &	norm	= temp.Normal;
-		glm::vec2&	coord	= temp.TexCoords;
+		glm::vec3&	pos		= temp.position,
+				 &	norm	= temp.normal;
+		glm::vec2&	coord	= temp.texcoords;
 
 		pos.x = fixed_x;
 		pos.y = sin(i * 2 * MyPI / segments) * radius;
@@ -68,11 +68,11 @@ void GComponent::QtGLAbstractAxis::SetupYaxisVertex(const int count, vector<Vert
 	for (int i = 0; i < count; ++i) {
 		Vertex			temp,
 					&	ref			= vertices[i];
-		glm::vec3	&	pos			= temp.Position,
-					&	norm		= temp.Normal,
-					&	ref_pos		= ref.Position,
-					&	ref_norm	= ref.Normal;
-		glm::vec2	&	coord		= temp.TexCoords;
+		glm::vec3	&	pos			= temp.position,
+					&	norm		= temp.normal,
+					&	ref_pos		= ref.position,
+					&	ref_norm	= ref.normal;
+		glm::vec2	&	coord		= temp.texcoords;
 
 		pos.z = ref_pos.y; 
 		pos.x = ref_pos.z;
@@ -93,11 +93,11 @@ void GComponent::QtGLAbstractAxis::SetupZaxisVertex(const int count, vector<Vert
 	for (int i = 0; i < count; ++i) {
 		Vertex			temp,
 					&	ref			= vertices[i];
-		glm::vec3	&	pos			= temp.Position,
-					&	norm		= temp.Normal,
-					&	ref_pos		= ref.Position,
-					&	ref_norm	= ref.Normal;
-		glm::vec2	&	coord		= temp.TexCoords;
+		glm::vec3	&	pos			= temp.position,
+					&	norm		= temp.normal,
+					&	ref_pos		= ref.position,
+					&	ref_norm	= ref.normal;
+		glm::vec2	&	coord		= temp.texcoords;
 
 		pos.z = ref_pos.x;
 		pos.y = ref_pos.z;
@@ -147,9 +147,9 @@ std::vector<GComponent::Vertex> GComponent::QtGLTranslationAxis::SetupVertexData
 	/* the Cone Conical Point */
 	{
 		Vertex		temp;
-		glm::vec3&	pos		= temp.Position,
-				 &	norm	= temp.Normal;
-		glm::vec2&	coord	= temp.TexCoords;
+		glm::vec3&	pos		= temp.position,
+				 &	norm	= temp.normal;
+		glm::vec2&	coord	= temp.texcoords;
 
 		pos.x = 1.5f + 10.0f * radius;
 		pos.y = pos.z = 0.0f;
@@ -255,9 +255,9 @@ std::vector<GComponent::Vertex> GComponent::QtGLScaleAxis::SetupVertexData(int s
 	float half = radius * 3.0f;
 	auto emplace_vertex_in_x = [&vertices = vertices, &base_pos = base_pos](float x, float y, float z) {
 		Vertex		temp;
-		glm::vec3&	pos		= temp.Position,
-				 &	norm	= temp.Normal;
-		glm::vec2&	coord	= temp.TexCoords;
+		glm::vec3&	pos		= temp.position,
+				 &	norm	= temp.normal;
+		glm::vec2&	coord	= temp.texcoords;
 
 		pos = base_pos + glm::vec3(x, y, z);
 		norm.x  = norm.y  = norm.z = 

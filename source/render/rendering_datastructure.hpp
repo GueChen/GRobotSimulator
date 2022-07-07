@@ -32,12 +32,12 @@ struct Triangle {
 };
 
 struct Vertex {
-    vec3 Position;
-    vec3 Normal;
-    vec2 TexCoords;
+    vec3 position;
+    vec3 normal;
+    vec2 texcoords;
 
     bool operator==(const Vertex& other) const {
-        return Position == other.Position && Normal == other.Normal && TexCoords == other.TexCoords;
+        return position == other.position && normal == other.normal && texcoords == other.texcoords;
     }
 };
 
@@ -46,8 +46,8 @@ struct ColorVertex :public Vertex {
 };
 
 struct Texture {
-    unsigned id;
-    std::string type;
+    unsigned    id      = 0;
+    std::string type    = "";
 };
 
 }
@@ -57,9 +57,9 @@ template<>
 struct hash<GComponent::Vertex> {
     size_t operator()(GComponent::Vertex const& vertex) const
     {
-        return ((hash<glm::vec3>()(vertex.Position) ^
-                (hash<glm::vec3>()(vertex.Normal) << 1)) >> 1) ^
-                (hash<glm::vec2>()(vertex.TexCoords) << 1);
+        return ((hash<glm::vec3>()(vertex.position) ^
+                (hash<glm::vec3>()(vertex.normal) << 1)) >> 1) ^
+                (hash<glm::vec2>()(vertex.texcoords) << 1);
     }
 };
 

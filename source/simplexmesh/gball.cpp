@@ -46,7 +46,7 @@ GBall & GBall::operator=(GBall && other)
 
 void GBall::GLBufferInitialize()
 {
-    mesh.setGL(gl);
+    mesh.SetGL(gl);
 }
 
 void GBall::Draw(MyShader *shader)

@@ -83,7 +83,7 @@ protected:
 public:
     /* GL 资源管理函数 */
     void
-    setGL(const shared_ptr<MyGL> & other)
+    SetGL(const shared_ptr<MyGL> & other)
     {
         gl = other;
         ClearGLScreenBuffer();

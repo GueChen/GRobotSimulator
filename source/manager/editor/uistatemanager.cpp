@@ -27,6 +27,11 @@ GComponent::UIState::UIState(unsigned w, unsigned h, int segments, float radius)
 	ModelManager::getInstance().RegisteredAuxiModel(m_scale_axis->getName(),       m_scale_axis);
 
 	Init(segments, radius);
+
+	RenderManager& render_manager = RenderManager::getInstance();
+	render_manager.m_width  = m_width;
+	render_manager.m_height = m_height;
+
 }
 
 GComponent::UIState::~UIState()
@@ -171,6 +176,7 @@ void GComponent::UIState::SetGL(const shared_ptr<MyGL>& gl)
 {
 	picking_controller.SetGL(gl);
 	picking_controller.Init(m_width, m_height);	
+	
 }
 
 GComponent::PickingPixelInfo GComponent::UIState::GetPickingPixelInfo()
@@ -291,6 +297,11 @@ void GComponent::UIState::OnResize(int w, int h)
 	m_width = w, m_height = h;
 	m_aspect = static_cast<float>(w) / h;
 	picking_controller.Init(m_width, m_height);
+
+	RenderManager& render_manager = RenderManager::getInstance();
+	render_manager.m_width  = w;
+	render_manager.m_height = h;
+	render_manager.InitFrameBuffer();
 }
 
 /*_____________________________________SLOT FUNCTIONS________________________________________________*/

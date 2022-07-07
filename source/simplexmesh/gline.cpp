@@ -8,10 +8,10 @@ namespace GComponent {
 
 GLine::GLine(vec3 p1, vec3 p2, vec3 c1, vec3 c2)
 {
-    vert_begin.Position = p1;
+    vert_begin.position = p1;
     vert_begin.Color    = c1;
 
-    vert_end.Position   = p2;
+    vert_end.position   = p2;
     vert_end.Color      = c2;
     std::cout << p1.x << ", " << p1.y << ", " << p1.z << std::endl;
 }

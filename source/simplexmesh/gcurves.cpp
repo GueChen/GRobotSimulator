@@ -19,7 +19,7 @@ GCurves::GCurves(vector<vec3> poses, vec3 c1, vec3 c2)
     {
         ColorVertex vertex;
 
-        vertex.Position = input;
+        vertex.position = input;
         vertex.Color = glm::mix(c1, c2, t);
         t += step;
         return vertex;
