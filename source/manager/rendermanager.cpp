@@ -25,17 +25,19 @@ bool RenderManager::InitFrameBuffer()
 
 	if (not depth_FBO_) 
 	{
+		ResourceManager::getInstance().RegisteredShader("depth_map",	new MyShader(nullptr, PathVert(depthOrtho),		PathFrag(depthOrtho)));
+		ResourceManager::getInstance().RegisteredShader("shadow_color", new MyShader(nullptr, PathVert(shadowOrtho),	PathFrag(shadowOrtho)));
 		gl_->glGenFramebuffers(1, &depth_FBO_);
 		gl_->glGenTextures(1, &depth_texture_);
 		
 		// Configure Texture Properties
 		gl_->glBindTexture(GL_TEXTURE_2D, depth_texture_);
-		gl_->glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		gl_->glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 4096, 4096, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 		gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		gl_->glBindTexture(GL_TEXTURE_2D, 0);
+		//gl_->glBindTexture(GL_TEXTURE_2D, 0);
 
 		// Bind Texture on Frame Buffer
 		gl_->glBindFramebuffer(GL_FRAMEBUFFER, depth_FBO_);
@@ -154,9 +156,15 @@ void RenderManager::PickingPass()
 }
 
 void RenderManager::ShadowPass()
-{
+{	
+	gl_->glViewport(0, 0, 4096, 4096);
+	gl_->glBindFramebuffer(GL_FRAMEBUFFER, depth_FBO_);
+	ClearGLScreenBuffer(0.0f, 0.0f, 0.0f, 1.0f);
+	PassSpecifiedListDepth(render_list_, [](const std::string& name) {
+		return ModelManager::getInstance().GetModelByName(name);
+	});	
+	gl_->glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	gl_->glViewport(0, 0, m_width, m_height);
-	
 }
 
 void RenderManager::NormalPass()
@@ -177,9 +185,14 @@ void RenderManager::NormalPass()
 
 void RenderManager::RenderingPass()
 {
-	PassSpecifiedListNormal(render_list_, [](const std::string& name) {
+	// with shadow
+	PassSpecifiedListShadow(render_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetModelByName(name);
 		});
+	// without shadow
+	/*PassSpecifiedListNormal(render_list_, [](const std::string& name) {
+		return ModelManager::getInstance().GetModelByName(name);
+		});*/
 }
 void RenderManager::AuxiliaryPass()
 {
@@ -196,8 +209,8 @@ void RenderManager::PostProcessPass()
 	// 3. ambient occlusion
 	ClearGLScreenBuffer(0.0f, 0.0f, 0.05f, 1.0f);
 	{
-		FBOTextureGuard guard(&FBO_.value());
-		screen_quad_.Draw();
+		FBOTextureGuard guard(&FBO_.value());		
+		screen_quad_.Draw();		
 	}
 
 	PassSpecifiedListNormal(post_process_list_, [](const std::string& name) {
@@ -206,32 +219,84 @@ void RenderManager::PostProcessPass()
 
 }
 
-void RenderManager::PassSpecifiedListPicking(PassType draw_index_type, list<RenderCommand>& list, function<Model* (const std::string&)> ObjGetter)
+void RenderManager::PassSpecifiedListPicking(PassType draw_index_type, RenderList& list, function<Model* (const std::string&)> ObjGetter)
 {
-	ResourceManager& scene_manager = ResourceManager::getInstance();
-	ModelManager& model_manager = ModelManager::getInstance();
-	for (auto& [obj_name, shader_name, mesh_name, uniform_name] : list) {
-		MyShader*		picking_shader	= scene_manager.GetShaderByName("picking");
-		RenderMesh*	mesh			= scene_manager.GetMeshByName(mesh_name);
-		Model*			obj				= ObjGetter(obj_name);
+	ResourceManager& scene_manager	= ResourceManager::getInstance();
+	ModelManager&	 model_manager	= ModelManager::getInstance();
 
-		picking_shader->use();
-		picking_shader->setUint("gDrawIndex",  static_cast<unsigned>(draw_index_type));
+	// Universal Shader Uniform Attribute Settings
+	MyShader*		 picking_shader = scene_manager.GetShaderByName("picking"); picking_shader->use();
+
+	picking_shader->setUint("gDrawIndex", static_cast<unsigned>(draw_index_type));
+	
+	//  Pass Normally
+	for (auto& [obj_name, shader_name, mesh_name, uniform_name] : list) 
+	{		
+		RenderMesh*		mesh			= scene_manager.GetMeshByName(mesh_name);
+		Model*			obj				= ObjGetter(obj_name);
+		
 		picking_shader->setUint("gModelIndex", obj->model_id_);
 		obj->setShaderProperty(*picking_shader);
 		if (mesh) mesh->Draw();
 	}
 }
 
-void RenderManager::PassSpecifiedListNormal(std::list<RenderCommand>& list, std::function<Model* (const std::string&)> ObjGetter)
+void RenderManager::PassSpecifiedListDepth(RenderList& list, function<Model* (const std::string&)> ObjGetter)
 {
 	ResourceManager& scene_manager = ResourceManager::getInstance();
-	ModelManager& model_manager = ModelManager::getInstance();
-	for (auto& [obj_name, shader_name, mesh_name, uniform_name] : list) {
+	ModelManager&	 model_manager = ModelManager::getInstance();
 
-		MyShader*      shader	= scene_manager.GetShaderByName(shader_name);	
-		RenderMesh* mesh		= scene_manager.GetMeshByName(mesh_name);
-		Model*         obj		= ObjGetter(obj_name);
+	MyShader*		 depth_shader = scene_manager.GetShaderByName("depth_map"); depth_shader->use();
+
+	glm::mat4 light_view	= glm::lookAt(vec3(0.5f, 1.0f, 1.0f), vec3(0.0f), vec3(0.0f, 0.0f, 1.0f));
+	glm::mat4 light_proj	= glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
+	glm::mat4 light_space	= light_proj * light_view;
+	depth_shader->setMat4("light_space_matrix", light_space);
+
+	for (auto& [obj_name, shader_name, mesh_name, uniform_name] : list) 
+	{		
+		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
+		Model* obj = ObjGetter(obj_name);
+
+		obj->setShaderProperty(*depth_shader);
+		if (mesh) mesh->Draw();
+	}
+}
+
+void RenderManager::PassSpecifiedListShadow(RenderList& list, function<RawptrModel(const std::string&)> ObjGetter)
+{
+	ResourceManager& scene_manager	= ResourceManager::getInstance();
+	ModelManager&	 model_manager	= ModelManager::getInstance();
+
+	MyShader* shadow_shader			= scene_manager.GetShaderByName("shadow_color"); shadow_shader->use();
+
+	glm::mat4 light_view	= glm::lookAt(vec3(0.5f, 1.0f, 1.0f), vec3(0.0f), vec3(0.0f, 0.0f, 1.0f));
+	glm::mat4 light_proj	= glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
+	glm::mat4 light_space	= light_proj * light_view;
+	shadow_shader->setMat4("light_space_matrix", light_space);
+	shadow_shader->setInt("shadow_map", 0);
+
+	gl_->glBindTexture(GL_TEXTURE_2D, depth_texture_);
+	for (auto& [obj_name, shader_name, mesh_name, uniform_name] : list)
+	{
+		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
+		Model*		obj	 = ObjGetter(obj_name);
+
+		obj->setShaderProperty(*shadow_shader);
+		if (mesh) mesh->Draw();
+	}
+	gl_->glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void RenderManager::PassSpecifiedListNormal(RenderList& list, std::function<Model* (const std::string&)> ObjGetter)
+{
+	ResourceManager& scene_manager = ResourceManager::getInstance();
+	ModelManager&	 model_manager = ModelManager::getInstance();
+	for (auto& [obj_name, shader_name, mesh_name, uniform_name] : list) 
+	{
+		MyShader*		shader	= scene_manager.GetShaderByName(shader_name);	
+		RenderMesh*		mesh	= scene_manager.GetMeshByName(mesh_name);
+		Model*			obj		= ObjGetter(obj_name);
 		
 		shader->use();
 		obj->setShaderProperty(*shader);

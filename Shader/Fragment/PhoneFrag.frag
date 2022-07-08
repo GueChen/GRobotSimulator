@@ -29,7 +29,8 @@ void main(void)
 
     result += CalcLight(light, norm, viewDir);
 
-    FragColor = vec4(result, 1.0f);
+    //FragColor = vec4(result, 1.0f);
+    FragColor = vec4(vec3(gl_FragDepth), 1.0f);
 }
 
 vec3 CalcLight(DirLight light, vec3 norm, vec3 viewDir)

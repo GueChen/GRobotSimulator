@@ -147,7 +147,7 @@ void Model::appendChild(const _RawPtr pchild, Mat4 transform)
 {
     pchild->setParent(this);
     children_.emplace_back(pchild);
-    pchild->setModelMatrix(transform);              
+    pchild->setModelMatrix(transform);
     updateChildrenMatrix(Mat3::Identity()/*Scale(scale_)* Shear(shear_)*/);
 }
 

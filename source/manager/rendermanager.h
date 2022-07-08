@@ -51,6 +51,11 @@ struct RenderCommand {
 
 class RenderManager : public SingletonBase<RenderManager>, public QObject 
 {
+/// type alias
+	using RenderList  = list<RenderCommand>;
+	using RawptrModel = Model*;
+
+/// friends and macro
 	friend class SingletonBase<RenderManager>;
 	NonCoyable(RenderManager)
 public:
@@ -95,8 +100,11 @@ private:
 	void AuxiliaryPass();
 	
 
-	void PassSpecifiedListPicking(PassType draw_index_type, list<RenderCommand>&, function<Model* (const std::string&)>ObjGetter);
-	void PassSpecifiedListNormal(list<RenderCommand>&,  function<Model*(const std::string&)>ObjGetter);
+	void PassSpecifiedListPicking(PassType draw_index_type, 
+								 RenderList&,	function<RawptrModel(const std::string&)>ObjGetter);
+	void PassSpecifiedListDepth(RenderList&,	function<RawptrModel(const std::string&)>ObjGetter);	
+	void PassSpecifiedListShadow(RenderList&,	function<RawptrModel(const std::string&)>ObjGetter);
+	void PassSpecifiedListNormal(RenderList&,	function<RawptrModel(const std::string&)>ObjGetter);
 
 public:
 	unsigned						m_width						= 0;

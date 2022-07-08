@@ -424,6 +424,18 @@
     <None Include="Shader\Fragment\postprocessFrag.frag">
       <Filter>shader\frag</Filter>
     </None>
+    <None Include="Shader\Vertex\depthOrthoVert.vert">
+      <Filter>shader\vert</Filter>
+    </None>
+    <None Include="Shader\Fragment\depthOrthoFrag.frag">
+      <Filter>shader\frag</Filter>
+    </None>
+    <None Include="Shader\Vertex\shadowOrthoVert.vert">
+      <Filter>shader\vert</Filter>
+    </None>
+    <None Include="Shader\Fragment\shadowOrthoFrag.frag">
+      <Filter>shader\frag</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ui_surface">
