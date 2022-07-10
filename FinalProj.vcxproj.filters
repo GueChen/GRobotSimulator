@@ -436,6 +436,21 @@
     <None Include="Shader\Fragment\shadowOrthoFrag.frag">
       <Filter>shader\frag</Filter>
     </None>
+    <None Include="Shader\Vertex\csm_depth_orthoVert.vert">
+      <Filter>shader\vert</Filter>
+    </None>
+    <None Include="Shader\Fragment\csm_depth_orthoFrag.frag">
+      <Filter>shader\frag</Filter>
+    </None>
+    <None Include="Shader\Geom\csm_depth_orthoGeom.geom">
+      <Filter>shader\geom</Filter>
+    </None>
+    <None Include="Shader\Vertex\cascade_shadow_orthoVert.vert">
+      <Filter>shader\vert</Filter>
+    </None>
+    <None Include="Shader\Fragment\cascade_shadow_orthoFrag.frag">
+      <Filter>shader\frag</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ui_surface">
@@ -543,6 +558,9 @@
     </Filter>
     <Filter Include="3rdparty\stb">
       <UniqueIdentifier>{70183788-499f-4ec2-86d1-3db3b25af4ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader\geom">
+      <UniqueIdentifier>{1db897e4-b46e-4e78-90d3-ded98adb6fac}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

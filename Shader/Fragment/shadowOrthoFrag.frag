@@ -25,7 +25,7 @@ uniform sampler2D   shadow_map;
 uniform vec3        color;
 
 vec3    CalcLight(DirLight light, vec3 norm, vec3 viewDir);
-float   ShadowCalculation(vec4 frag_pos_light_space);
+float   ShadowCalculation(vec4 frag_pos_light_space, float bias);
 
 void main(void)
 {
@@ -42,22 +42,25 @@ void main(void)
 vec3 CalcLight(DirLight light, vec3 norm, vec3 viewDir)
 {
     vec3 halfWayDir = normalize(light.dir + viewDir);
-
+    // lightting part
     vec3 ambient    = vec3(Ambient);
     vec3 diffuse    = vec3(Diffuse)  * max( dot( light.dir, norm), 0.0f);
     vec3 specular   = vec3(Specular) * pow( max( dot( norm, halfWayDir), 0.0f), 55.0f);
-    float shadow    = ShadowCalculation(FragPosLightSpace);
+    
+    // shadow part
+    float bias      = max(0.005 * (1.0 - dot(norm, light.dir)), 0.0005f);
+    float shadow    = ShadowCalculation(FragPosLightSpace, bias);
+
     return (ambient + (1.0 - shadow) * (diffuse + specular)) * light.color * color;
 }
 
-float ShadowCalculation(vec4 frag_pos_light_space)
+float ShadowCalculation(vec4 frag_pos_light_space, float bias)
 {
     vec3 proj_coords    = frag_pos_light_space.xyz / frag_pos_light_space.w;
     proj_coords         = proj_coords * 0.5f + 0.5f;    
     float current_depth = proj_coords.z;
 
-    float shadow        = 0;
-    float bias          = 0.001f;
+    float shadow        = 0;    
     vec2  texel_size     = 1.0 / textureSize(shadow_map, 0);
     for(int x = -1; x <= 1; ++x)for(int y = - 1; y <= 1; ++y)
     {

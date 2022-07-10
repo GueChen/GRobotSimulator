@@ -61,32 +61,35 @@ public:
 
     void EnablePickingMode();
 
-    void RegisteredMesh(const string& name, RenderMesh* raw_ptr_mesh);
-    inline void DeregisteredMesh(const string& name)    { DeregisteredSpecificMapElement(mesh_map_, name); }
-    RenderMesh* GetMeshByName(const string& name);
+    void            RegisteredMesh(const string& name, RenderMesh* raw_ptr_mesh);
+    inline void     DeregisteredMesh(const string& name)    { DeregisteredSpecificMapElement(mesh_map_, name); }
+    RenderMesh*     GetMeshByName(const string& name);
 
-    void RegisteredShader(const string& name, MyShader* raw_ptr_shader);
-    inline void DeregisteredShader(const string& name)  { DeregisteredSpecificMapElement(shader_map_, name); }
-    MyShader* GetShaderByName(const string& name);
+    void            RegisteredShader(const string& name, MyShader* raw_ptr_shader);
+    inline void     DeregisteredShader(const string& name)  { DeregisteredSpecificMapElement(shader_map_, name); }
+    MyShader*       GetShaderByName(const string& name);
     
-    void RegisteredUIHandle(const string& name, QOpenGLWidget* ui_handle);
-    void DeregisteredUIHandle(const string& name);
-    QOpenGLWidget* GetUISurfaceByName(const string& name);
+    void            RegisteredUIHandle(const string& name, QOpenGLWidget* ui_handle);
+    void            DeregisteredUIHandle(const string& name);
+    QOpenGLWidget*  GetUISurfaceByName(const string& name);
     
     // TODO: reconstructor texture structure
-    void RegisteredTexture(const TextureMsg& msg);
-    void RegisteredCubemap(const CubemapMsg& msg);
-    void DeregisteredTexture(const string& name);
-    Texture GetTextureByName(const string& name);
+    void            RegisteredTexture(const TextureMsg& msg);
+    void            RegisteredCubemap(const CubemapMsg& msg);
+    void            DeregisteredTexture(const string& name);
+    Texture         GetTextureByName(const string& name);
 
-    void SetGL(const shared_ptr<MyGL>& gl);
+    void            SetGL(const shared_ptr<MyGL>& gl);
 
-    void tick(const shared_ptr<MyGL>& gl);
+    void            tick(const shared_ptr<MyGL>& gl);
 protected:
     ResourceManager();
     template <class _Map> 
     requires std::_Is_specialization_v<_Map, unordered_map> &&  std::same_as<typename _Map::key_type, string>
-    void DeregisteredSpecificMapElement(_Map& map, const string& name);
+    void            DeregisteredSpecificMapElement(_Map& map, const string& name);
+
+
+/// Fields 数据域
 private:
     shared_ptr<MyGL>                                        gl_                  = nullptr;
 

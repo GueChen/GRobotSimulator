@@ -10,6 +10,7 @@
 
 #define PathVert(name) ("./Shader/Vertex/"#name"Vert.vert")
 #define PathFrag(name) ("./Shader/Fragment/"#name"Frag.frag")
+#define PathGeom(name) ("./Shader/Geom/"#name"Geom.geom")
 #define PathVertString(name) ("./Shader/Vertex/"+ name +"Vert.vert")
 #define PathFragString(name) ("./Shader/Fragment/" + name +"Frag.frag")
 

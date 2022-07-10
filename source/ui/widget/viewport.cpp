@@ -33,12 +33,11 @@ void Viewport::initializeGL()
 		camera_handle = GComponent::ModelManager::getInstance().RegisteredCamera();
 	GComponent::ResourceManager::getInstance().DeregisteredUIHandle("viewport");
 	
-	ui_state_.SetGL(gl_);
-	GComponent::ModelManager::getInstance().SetGL(gl_);
+	ui_state_.SetGL(gl_);	
 	GComponent::ResourceManager::getInstance().SetGL(gl_);
 	GComponent::RenderManager::getInstance().SetGL(gl_);
 
-	GComponent::ResourceManager::getInstance().RegisteredUIHandle("viewport", this);
+	//GComponent::ResourceManager::getInstance().RegisteredUIHandle("viewport", this);
 	QOpenGLContext::currentContext()->format().setSwapInterval(0);
 }
 
@@ -52,19 +51,28 @@ void Viewport::paintGL()
 {
 	using namespace glm;
 	using namespace GComponent;
-	using enum AxisSelected;
-
 	static std::chrono::time_point last_point = std::chrono::steady_clock::now();
 	static float delta = 0.0f;
-
+	
+	/*_________________________________Paint Main Loop________________________________________________________________________________________________*/
 	Camera* camera_ptr = ModelManager::getInstance().GetCameraByHandle(camera_handle);
+
 	// Process Input
-	ui_state_.tick();	
+	ui_state_.tick();
+
 	// Set global parameters
-	ModelManager::getInstance().SetProjectViewMatrices(
-		perspective(radians(camera_ptr->Zoom), static_cast<float>(width()) / height(), 0.1f, 1000.0f),
-		camera_ptr->GetViewMatrix());
-	ModelManager::getInstance().SetDirLightViewPosition(vec3(0.5f, 1.0f, 1.0f), vec3(1.0f), camera_ptr->Position);
+	RenderManager::getInstance().m_projction_mat = perspective(
+		radians(camera_ptr->Zoom), 
+		static_cast<float>(width()) / height(), 
+		RenderManager::getInstance().m_camera_near_plane, 
+		RenderManager::getInstance().m_camera_far_plane);
+	RenderManager::getInstance().m_aspect		 = width() / height();
+	RenderManager::getInstance().m_camera_zoom   = camera_ptr->Zoom;
+	RenderManager::getInstance().m_view_mat      = camera_ptr->GetViewMatrix();
+	RenderManager::getInstance().m_view_pos		 = camera_ptr->Position;
+	RenderManager::getInstance().m_light_dir     = vec3(0.5f, 1.0f, 1.0f);
+	RenderManager::getInstance().m_light_color   = vec3(1.0f);
+		
 	// Adjust all component
 	ModelManager::getInstance().tickAll(delta_time.count());
 	// Adjust all resources
@@ -72,10 +80,12 @@ void Viewport::paintGL()
 	// Draw all renderable process Passes
 	RenderManager::getInstance().tick();
 
+	// Time statics rendering over
 	std::chrono::time_point now = std::chrono::steady_clock::now();
 	delta_time = std::chrono::duration_cast<std::chrono::duration<float>>(now - last_point);
 	last_point = now;
 	emit EmitDeltaTime(delta_time.count());
+	update();
 }
 
 /*________________________________Events Implementations_____________________________________________*/
