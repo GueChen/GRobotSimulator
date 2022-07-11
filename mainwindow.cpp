@@ -10,85 +10,95 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    , ui_(new Ui::MainWindow)
+    , component_menu_(this)
 {
-    ui->setupUi(this);    
-    updated_timer_ptr = new QTimer;
+    ui_->setupUi(this);    
+    updated_timer_ptr_ = new QTimer;
     this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::West);
-    ui->logger->setContextMenuPolicy(Qt::CustomContextMenu);
-    ConnectionInit();
-   
+    ui_->logger->setContextMenuPolicy(Qt::CustomContextMenu);    
+    ui_->componentstoolbox->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    ConnectionInit();   
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+    delete ui_;
 }
 
 GComponent::UIState* MainWindow::getUIState() const
 {
-    return &ui->m_viewport->ui_state_;
+    return &ui_->m_viewport->ui_state_;
 }
 
 GComponent::GLModelTreeView* MainWindow::getModelTreeView() const
 {
-    return ui->treeView;
+    return ui_->treeView;
 }
 
 QComboBox* MainWindow::getModelDispaly() const
 {
-    return ui->selected_combo;
+    return ui_->selected_combo;
 }
 
 void MainWindow::ConnectionInit()
 {
     using namespace GComponent;
     connect(this, &QMainWindow::tabifiedDockWidgetActivated, this, &MainWindow::SetTabifyDockerWidgetQSS);
-    connect(ui->m_viewport, &Viewport::EmitDeltaTime, this, &MainWindow::ReceiveDeltaTime);           
+    connect(ui_->m_viewport, &Viewport::EmitDeltaTime, this, &MainWindow::ReceiveDeltaTime);           
     /* UI_STATE << TREEVIEW */
-    connect(ui->treeView,               &GComponent::GLModelTreeView::SelectRequest,
-            &ui->m_viewport->ui_state_, &GComponent::UIState::ResponseSelectRequest); 
-    connect(ui->treeView,               &GComponent::GLModelTreeView::SelectRequest,
+    connect(ui_->treeView,               &GComponent::GLModelTreeView::SelectRequest,
+            &ui_->m_viewport->ui_state_, &GComponent::UIState::ResponseSelectRequest); 
+    connect(ui_->treeView,               &GComponent::GLModelTreeView::SelectRequest,
             this,                       &MainWindow::CheckSelected);
 
     /* UI_STATE >> QComboBox */
-    connect(&ui->m_viewport->ui_state_, &UIState::SelectRequest,
-		    [obj_display = ui->selected_combo](const std::string& name) {		
+    connect(&ui_->m_viewport->ui_state_, &UIState::SelectRequest,
+		    [obj_display = ui_->selected_combo](const std::string& name) {		
 			    if (int index = obj_display->findText(QString::fromStdString(name));
 				    index != -1) {
 				    obj_display->setCurrentIndex(index);
 			    }
             });	   
-    connect(&ui->m_viewport->ui_state_, &UIState::SelectRequest,
+    connect(&ui_->m_viewport->ui_state_, &UIState::SelectRequest,
             this,                       &MainWindow::CheckSelected);
 
     /* UI_STATE << QComboBox */
-    connect(ui->selected_combo,         &QComboBox::textActivated,
-            [&ui_state = ui->m_viewport->ui_state_](const QString& name){
+    connect(ui_->selected_combo,         &QComboBox::textActivated,
+            [&ui_state = ui_->m_viewport->ui_state_](const QString& name){
                 ui_state.ResponseSelectRequest(name.toStdString());
             });
 
     /* QComboBox <<  TREEVIEW */    
-    connect(ui->treeView,               &GComponent::GLModelTreeView::SelectRequest,
-            [obj_display = ui->selected_combo](const std::string& name) {
+    connect(ui_->treeView,               &GComponent::GLModelTreeView::SelectRequest,
+            [obj_display = ui_->selected_combo](const std::string& name) {
 			    if (int index = obj_display->findText(QString::fromStdString(name));
 				    index != -1) {
 				    obj_display->setCurrentIndex(index);
 			    }
             });
 
-    connect(updated_timer_ptr, &QTimer::timeout, this, &MainWindow::CheckSelected);
-    updated_timer_ptr->start(100);
+    connect(updated_timer_ptr_, &QTimer::timeout, this, &MainWindow::CheckSelected);
+    updated_timer_ptr_->start(100);    
 
-    
+    /* component tool box */
+    connect(component_menu_.m_remove_component_action, &QAction::triggered, [this]() {
+        if (int idx = ui_->componentstoolbox->currentIndex(); idx > 1) 
+        {
+            ui_->componentstoolbox->setCurrentIndex(idx - 1);
+            ui_->componentstoolbox->removeItem(idx);
+        }
+        std::cout << ui_->componentstoolbox->currentIndex() << std::endl;
+    });
 }
 
 
-
+/*___________________SLOTS METHODS_____________________________________________________________*/
 void MainWindow::ReceiveDeltaTime(float delta_time)
 {
-    ui->spanTimeData->setText(QString::number(delta_time, 10, 4));
-    ui->FPSData->setText(QString::number(1.f / delta_time, 10, 2));
+    ui_->spanTimeData->setText(QString::number(delta_time, 10, 4));
+    ui_->FPSData->setText(QString::number(1.f / delta_time, 10, 2));
 }
 
 void MainWindow::SetTabifyDockerWidgetQSS(QDockWidget* widget)
@@ -115,19 +125,19 @@ void MainWindow::CheckSelected()
 {
     using namespace GComponent;
     static Model* last_ptr = nullptr;
-    Model* selected_obj_ptr = ui->m_viewport->ui_state_.GetSelectedObject();
+    Model* selected_obj_ptr = ui_->m_viewport->ui_state_.GetSelectedObject();
     
     if (last_ptr != selected_obj_ptr) {
-        while (ui->componentstoolbox->count() > 2) {
-            QWidget* w = ui->componentstoolbox->widget(2);
-            ui->componentstoolbox->removeItem(2);
+        while (ui_->componentstoolbox->count() > 2) {
+            QWidget* w = ui_->componentstoolbox->widget(2);
+            ui_->componentstoolbox->removeItem(2);
             delete w;
         }
     }
 
     if (!selected_obj_ptr) {
         if (last_ptr != selected_obj_ptr) {            
-            for (QString text = "NULL"; auto& edit : ui->component_observer->findChildren<QLineEdit*>()) {
+            for (QString text = "NULL"; auto& edit : ui_->component_observer->findChildren<QLineEdit*>()) {
                 edit->setText(text);
             }
         }
@@ -135,30 +145,30 @@ void MainWindow::CheckSelected()
     else {
         // Setting Properties
         Model* parent_ptr = selected_obj_ptr->getParent();
-        ui->name_edit->setText(QString::fromStdString(selected_obj_ptr->getName()));
-        ui->mesh_edit->setText(QString::fromStdString(selected_obj_ptr->getMesh()));
-        ui->shader_edit->setText(QString::fromStdString(selected_obj_ptr->getShader()));
-        ui->parent_edit->setText(QString::fromStdString(parent_ptr ? parent_ptr->getName() : "None"));
+        ui_->name_edit->setText(QString::fromStdString(selected_obj_ptr->getName()));
+        ui_->mesh_edit->setText(QString::fromStdString(selected_obj_ptr->getMesh()));
+        ui_->shader_edit->setText(QString::fromStdString(selected_obj_ptr->getShader()));
+        ui_->parent_edit->setText(QString::fromStdString(parent_ptr ? parent_ptr->getName() : "None"));
 
         // Setting Transforms
         Vec3 trans = selected_obj_ptr->getTransGlobal();        
-        ui->trans_x_edit->setText(QString::number(trans.x(), 10, 2));
-        ui->trans_y_edit->setText(QString::number(trans.y(), 10, 2));
-        ui->trans_z_edit->setText(QString::number(trans.z(), 10, 2));
+        ui_->trans_x_edit->setText(QString::number(trans.x(), 10, 2));
+        ui_->trans_y_edit->setText(QString::number(trans.y(), 10, 2));
+        ui_->trans_z_edit->setText(QString::number(trans.z(), 10, 2));
         Vec3 rot = selected_obj_ptr->getRotGlobal();
-        ui->rot_x_edit->setText(QString::number(rot.x(), 10, 2));
-        ui->rot_y_edit->setText(QString::number(rot.y(), 10, 2));
-        ui->rot_z_edit->setText(QString::number(rot.z(), 10, 2));
+        ui_->rot_x_edit->setText(QString::number(rot.x(), 10, 2));
+        ui_->rot_y_edit->setText(QString::number(rot.y(), 10, 2));
+        ui_->rot_z_edit->setText(QString::number(rot.z(), 10, 2));
         Vec3 scale = selected_obj_ptr->getScale();
-        ui->scale_x_edit->setText(QString::number(scale.x(), 10, 2));
-        ui->scale_y_edit->setText(QString::number(scale.y(), 10, 2));
-        ui->scale_z_edit->setText(QString::number(scale.z(), 10, 2));
+        ui_->scale_x_edit->setText(QString::number(scale.x(), 10, 2));
+        ui_->scale_y_edit->setText(QString::number(scale.y(), 10, 2));
+        ui_->scale_z_edit->setText(QString::number(scale.z(), 10, 2));
 
         if (last_ptr != selected_obj_ptr) {                
             for (auto& component : selected_obj_ptr->GetComponents()) {
                 QString type_name(component->GetTypeName().data());
                 type_name =type_name.mid(0, type_name.indexOf("Component"));
-                ui->componentstoolbox->addItem(ComponentUIFactory::Create(*component), type_name);
+                ui_->componentstoolbox->addItem(ComponentUIFactory::Create(*component), type_name);
             }
         }
     }
@@ -167,21 +177,27 @@ void MainWindow::CheckSelected()
 
 void MainWindow::on_check_button_clicked()
 {
-    ui->m_viewport->ui_state_.ResponseAxisModeChange(AxisMode::None);
+    ui_->m_viewport->ui_state_.ResponseAxisModeChange(AxisMode::None);
 }
 
 void MainWindow::on_trans_button_clicked()
 {
-    ui->m_viewport->ui_state_.ResponseAxisModeChange(AxisMode::Translation);
+    ui_->m_viewport->ui_state_.ResponseAxisModeChange(AxisMode::Translation);
 }
 
 void MainWindow::on_rot_button_clicked()
 {
-    ui->m_viewport->ui_state_.ResponseAxisModeChange(AxisMode::Rotation);
+    ui_->m_viewport->ui_state_.ResponseAxisModeChange(AxisMode::Rotation);
 }
 
 void MainWindow::on_scale_button_clicked()
 {
-    ui->m_viewport->ui_state_.ResponseAxisModeChange(AxisMode::Scale);
+    ui_->m_viewport->ui_state_.ResponseAxisModeChange(AxisMode::Scale);
+}
+
+void MainWindow::on_componentstoolbox_customContextMenuRequested(const QPoint& pos)
+{
+    std::cout << "good pop\n";
+    component_menu_.popup(ui_->componentstoolbox->mapToGlobal(pos));
 }
 

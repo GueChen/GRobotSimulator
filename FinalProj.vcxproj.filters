@@ -150,6 +150,9 @@
     <ClCompile Include="source\3rdparty\stb\stb_image.c">
       <Filter>3rdparty\stb</Filter>
     </ClCompile>
+    <ClCompile Include="source\ui\menu\componentmenu.cpp">
+      <Filter>ui_surface\menu</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\motion\gmotionbase.h">
@@ -316,6 +319,9 @@
     </ClInclude>
     <ClInclude Include="source\model\basic\postprocess_quads.h">
       <Filter>model\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="source\ui\menu\componentmenu.h">
+      <Filter>ui_surface\menu</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -561,6 +567,9 @@
     </Filter>
     <Filter Include="shader\geom">
       <UniqueIdentifier>{1db897e4-b46e-4e78-90d3-ded98adb6fac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui_surface\menu">
+      <UniqueIdentifier>{b6e07489-2237-44c5-8b4e-22dd40974d0f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -146,10 +146,7 @@ void GComponent::EngineApp::TestConversion(const vector<vector<float>>& params)
 		transform_mat = transform_mat * mat;
 		auto [r, t] = rtDecompositionMat4(mat);
 		auto [R, _] = RtDecompositionMat4(mat);
-		
-		std::cout << "the local trans: " << t.transpose() << std::endl;
-		std::cout << "the local rot  : " << r.transpose() << std::endl;
-		std::cout << transform_mat << std::endl;
+				
 		Eigen::Vector3f scale = 0.08f * Eigen::Vector3<float>::Ones();
 		models[idx] = new Model(name + std::to_string(idx), 
 								"sphere", 
@@ -195,8 +192,8 @@ void GComponent::EngineApp::TestConversion(const vector<vector<float>>& params)
 		++idx;
 	}
 	auto [twists, T] = matrices.toTwists();
+
 	base->RegisterComponent(make_unique<JointGroupComponent>(joints, base));
-	base->RegisterComponent(make_unique<KinematicComponent>(T, base));
-		
-	base->RegisterComponent(make_unique<TrackerComponent>(base, "sphere0"));
+	base->RegisterComponent(make_unique<KinematicComponent>(T, base));		
+	base->RegisterComponent(make_unique<TrackerComponent>(base, ""));
 }

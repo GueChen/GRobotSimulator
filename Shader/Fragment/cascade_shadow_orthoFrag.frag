@@ -69,7 +69,7 @@ vec3 CalcLight(DirLight light, vec3 norm, vec3 view_dir)
     vec3 specular   = vec3(Specular) * pow( max( dot( norm, half_way_dir), 0.0f), 55.0f);
     
     // shadow part
-    float bias      = max(0.05 * (1.0 - dot(norm, light.dir)), 0.005f);
+    float bias      = max(0.0015 * (1.0 - dot(norm, light.dir)), 0.001f);
     int   layer     = GetShadowLayer(FragPos);
     vec4  frag_pos_light_space 
                     = light_space_matrices[layer] * vec4(FragPos, 1.0);
@@ -115,11 +115,11 @@ float ShadowCaculation(vec4 frag_pos_light_space, float bias, int layer)
     // percentage closest filter
     float shadow     = 0.0f;
     vec2  texel_size = 1.0 / vec2(textureSize(shadow_map, 0));
-    for(int x = -1; x <= 1; ++x)for(int y = - 1; y <= 1; ++y)
+    for(int x = -2; x <= 2; ++x)for(int y = - 2; y <= 2; ++y)
     {
         float pcf_depth = texture(shadow_map, vec3(proj_coords.xy + vec2(x, y) * texel_size, layer)).r;
         shadow += current_depth - bias > pcf_depth ? 1.0 : 0.0;
     }
 
-    return shadow / 9.0f;
+    return shadow / 25.0f;
 }

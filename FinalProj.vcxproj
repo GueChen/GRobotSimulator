@@ -250,6 +250,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="source\ui\dialog\robotcreatedialog.cpp" />
+    <ClCompile Include="source\ui\menu\componentmenu.cpp" />
     <ClCompile Include="source\ui\widget\kinematic_widget.cpp" />
     <ClCompile Include="source\ui\widget\tracker_widget.cpp" />
     <ClCompile Include="source\ui\widget\viewport.cpp" />
@@ -280,6 +281,7 @@
     <QtMoc Include="source\ui\widget\tracker_widget.h" />
     <ClInclude Include="source\model\basic\skybox.h" />
     <ClInclude Include="source\render\framebufferobject.h" />
+    <ClInclude Include="source\ui\menu\componentmenu.h" />
     <ClInclude Include="source\ui\wrapper\extensiblelist.h" />
     <QtMoc Include="source\ui\widget\viewport.h" />
     <QtMoc Include="source\ui\treeview\glmodeltreeview.h" />

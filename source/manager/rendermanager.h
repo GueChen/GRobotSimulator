@@ -98,6 +98,7 @@ private:
 	void SetProjectViewMatrices();
 	void SetDirLightViewPosition();
 
+/*_______________________Cascade Shadow Map Helper Methods_________________________________*/
 	std::vector<glm::vec4> GetFrustumCornersWorldSpace(const glm::mat4& projection, const glm::mat4& view);
 	glm::mat4 GetLightViewProjMatrix(const float near_plane, const float far_plane);
 	std::vector<glm::mat4> GetLightViewProjMatrices();
@@ -125,11 +126,11 @@ private:
 public:
 	unsigned						m_width						= 0;
 	unsigned						m_height					= 0;
-	
+	unsigned						m_selected_id				= 0;
+
 	float							m_camera_near_plane			= 0.1f;
 	float							m_camera_far_plane			= 1000.0f;
-	std::vector<float>				m_csm_cascade_planes		= {};
-
+	
 	// try to remove this part after consideration over the design
 	glm::mat4						m_projction_mat				= glm::mat4(1.0f);
 	glm::mat4						m_view_mat					= glm::mat4(1.0f);
@@ -139,6 +140,8 @@ public:
 	float							m_camera_zoom				= 0.0f;
 	float							m_aspect					= 0.0f;
 
+/*______________________Cascade Shadow Map____________________________________________________*/
+	std::vector<float>				m_csm_cascade_planes		= {};
 	unsigned						m_csm_matrices_UBO			= 0;
 	unsigned						m_csm_depth_FBO				= 0;
 	unsigned						m_csm_depth_texture			= 0;

@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "ui/menu/componentmenu.h"
+
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QComboBox>
 
@@ -38,24 +40,26 @@ public:
 
 private:
     void ConnectionInit();
-
-    void Plot(QChart*, double, const std::function<vector<double>(double)>&, const std::string& legend = " ", const std::string& title = "");
-  
+      
 private slots:
     void ReceiveDeltaTime(float delta_time);
     void SetTabifyDockerWidgetQSS(QDockWidget* widget);
     void CheckSelected();
 
+/*_________________________Button Click______________________________________________________*/
     void on_check_button_clicked();
     void on_trans_button_clicked();
     void on_rot_button_clicked();
     void on_scale_button_clicked();
 
-private:
-    Ui::MainWindow*     ui;
-    QTimer*             updated_timer_ptr;
-    QChartView*         m_chart;
-    QChartView*         m_vel_chart;
-   
+/*_________________________Menu Popup_________________________________________________________*/
+    void on_componentstoolbox_customContextMenuRequested(const QPoint& pos);
+
+private: 
+    Ui::MainWindow*     ui_;
+    QTimer*             updated_timer_ptr_;
+
+/*_______________________Components MENU______________________________________________________*/
+    GComponent::ComponentMenu component_menu_;    
 };
 #endif // MAINWINDOW_H

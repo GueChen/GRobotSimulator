@@ -54,8 +54,13 @@ Model::~Model()
 void GComponent::Model::tick(float delta_time)
 {
     tickImpl(delta_time);
+    // tick all components
     for (auto& component : components_ptrs_) {
         component->tick(delta_time);
+    }
+    // tick all children
+    for (auto& child : children_) {
+        child->tick(delta_time);
     }
 }
 
@@ -215,5 +220,7 @@ void Model::updateChildrenMatrix(const Mat3& parent_adjoint_mat)
 void GComponent::Model::setShaderProperty(MyShader& shader)
 {
     shader.setMat4("model", Conversion::fromMat4f(getModelMatrix()));
-    //shader.setVec3("color", glm::Vec3(1.0f));
+    if (not parent_) {
+        shader.setVec3("color", glm::vec3(1.0f));
+    }
 }

@@ -154,7 +154,9 @@ void ModelManager::tickAll(float delta_time)
     /* Tick The Rest Models */
     for(auto && [id, model]: models_)
     {
-        model->tick(delta_time);
+        if (not model->parent_) {
+            model->tick(delta_time);
+        }
     }
 }
 

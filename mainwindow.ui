@@ -757,6 +757,12 @@ QLineEdit[readOnly=&quot;true&quot;]{}
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="attributionsdocker">
+   <property name="minimumSize">
+    <size>
+     <width>180</width>
+     <height>199</height>
+    </size>
+   </property>
    <property name="styleSheet">
     <string notr="true">font: 900 11pt &quot;微软雅黑&quot;;</string>
    </property>
@@ -894,7 +900,7 @@ color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(125, 100,
 font: 9pt &quot;Fixedsys&quot;;</string>
             </property>
             <property name="currentIndex">
-             <number>1</number>
+             <number>0</number>
             </property>
             <property name="tabSpacing">
              <number>1</number>
@@ -904,7 +910,7 @@ font: 9pt &quot;Fixedsys&quot;;</string>
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>150</width>
+               <width>156</width>
                <height>594</height>
               </rect>
              </property>
@@ -1231,8 +1237,8 @@ border-radius: 3px;
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>502</width>
-               <height>594</height>
+               <width>226</width>
+               <height>189</height>
               </rect>
              </property>
              <property name="styleSheet">
@@ -1260,7 +1266,7 @@ font: 9pt &quot;Microsoft YaHei UI&quot;;</string>
                   <item>
                    <widget class="QLabel" name="trans_x_label">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -1352,7 +1358,7 @@ border-radius: 3px;
                   <item>
                    <widget class="QLabel" name="trans_y_label">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -1444,7 +1450,7 @@ border-radius: 3px;
                   <item>
                    <widget class="QLabel" name="trans_z_label">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -1551,7 +1557,7 @@ font: 9pt &quot;Microsoft YaHei UI&quot;;</string>
                   <item>
                    <widget class="QLabel" name="rot_x_label">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -1643,7 +1649,7 @@ border-radius: 3px;
                   <item>
                    <widget class="QLabel" name="rot_y_label">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -1735,7 +1741,7 @@ border-radius: 3px;
                   <item>
                    <widget class="QLabel" name="rot_z_label">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -1842,7 +1848,7 @@ font: 9pt &quot;Microsoft YaHei UI&quot;;</string>
                   <item>
                    <widget class="QLabel" name="scale_x_label">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -1934,7 +1940,7 @@ border-radius: 3px;
                   <item>
                    <widget class="QLabel" name="scale_y_label">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -2023,7 +2029,7 @@ border-radius: 3px;
                   <item>
                    <widget class="QLabel" name="scale_z_label">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>

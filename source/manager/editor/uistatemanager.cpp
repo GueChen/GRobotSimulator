@@ -150,6 +150,8 @@ void GComponent::UIState::tick()
 	if (Model* selected_obj = ModelManager::getInstance().GetModelByHandle(selected_id);
 		selected_obj)
 	{
+		RenderManager::getInstance().m_selected_id = selected_id;
+
 		Camera* camera = ModelManager::getInstance().GetCameraByHandle(1);
 		Mat4 view	   = Conversion::toMat4f(camera->GetViewMatrix());
 		Vec4 glb_pos   = Vec4::Ones();

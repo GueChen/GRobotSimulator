@@ -44,7 +44,6 @@ bool RenderManager::InitFrameBuffer()
 		gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		//gl_->glBindTexture(GL_TEXTURE_2D, 0);
 
 		// Bind Texture on Frame Buffer
 		gl_->glBindFramebuffer(GL_FRAMEBUFFER, depth_FBO_);
@@ -333,7 +332,7 @@ void RenderManager::DepthMapPass()
 	gl_->glViewport(0, 0, m_csm_texture_resolusion, m_csm_texture_resolusion);
 	ClearGLScreenBuffer(0.0f, 0.0f, 0.0f, 1.0f);
 	gl_->glCullFace(GL_FRONT);
-	PassSpecifiedListDepth(render_list_, [](const std::string& name) {
+	PassSpecifiedListCSMDepth(render_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetModelByName(name);
 	});
 	gl_->glCullFace(GL_BACK);
@@ -363,7 +362,7 @@ void RenderManager::NormalPass()
 
 	AuxiliaryPass();
 	
-	// TODO: not so good try to solve it
+	// TODO: not so good try to hide it
 	grid_.SetGL(gl_);
 	grid_.Draw();
 
@@ -411,7 +410,6 @@ void RenderManager::PostProcessPass()
 	PassSpecifiedListNormal(post_process_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetAuxiModelByName(name);
 		});
-
 }
 
 void RenderManager::PassSpecifiedListPicking(PassType draw_index_type, RenderList& list, function<Model* (const std::string&)> ObjGetter)
