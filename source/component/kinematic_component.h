@@ -91,7 +91,7 @@ protected:
 private:
 	void			InitializeIKSolvers();
 	inline JointGroupComponent* 
-					GetJointsGroup() { return ptr_parent_->GetComponet<JointGroupComponent>("JointGroupComponent"); }
+					GetJointsGroup() { return ptr_parent_->GetComponent<JointGroupComponent>("JointGroupComponent"); }
 
 	Thetav<float>			toThetav(const Thetas<float> thetas);
 	Thetas<float>			fromThetav(const Thetav<float> thetav);
@@ -110,6 +110,7 @@ private:
 	IKSolverTable			ik_solvers_			  = {};
 
 /*________________________________Static Fields______________________________________________________________________*/						
+public:
 	constexpr static const	string_view		type_name = "KinematicComponent";
 };
 }

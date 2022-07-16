@@ -19,10 +19,10 @@ public:
     QAction*    m_paste_component_action;
     QAction*    m_properties_action;
     QMenu*      m_add_component_menu;
-    QAction*    m_joint_component;
-    QAction*    m_joint_group_component;
-    QAction*    m_kinematic_component;
-    QAction*    m_tracker_component;
+    QAction*    m_add_joint_component;
+    QAction*    m_add_joint_group_component;
+    QAction*    m_add_kinematic_component;
+    QAction*    m_add_tracker_component;
 };
 
 } // !namespace GComponent

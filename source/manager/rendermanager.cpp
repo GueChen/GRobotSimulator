@@ -21,7 +21,9 @@ RenderManager::~RenderManager() = default;
 
 bool RenderManager::InitFrameBuffer()
 {	
-	FBO_ = FrameBufferObject(m_width, m_height, gl_);
+	FBO_ = FrameBufferObject(m_render_sharing_msg.viewport.window_size.x,		// window width
+							 m_render_sharing_msg.viewport.window_size.y,		// window height
+							 gl_);
 	
 	if (depth_FBO_) {
 		gl_->glDeleteFramebuffers(1, &depth_FBO_);
@@ -183,8 +185,11 @@ void RenderManager::tick()
 {
 	SetProjectViewMatrices();
 	SetDirLightViewPosition();
-	// setting light matrices UBO	
-	m_csm_cascade_planes = { m_camera_far_plane / 50.0f, m_camera_far_plane / 25.0f, m_camera_far_plane / 10.0f, m_camera_far_plane / 2.0f };
+	// setting light matrices UBO
+	m_csm_cascade_planes = { m_render_sharing_msg.projection_info.far_plane / 50.0f, 
+							 m_render_sharing_msg.projection_info.far_plane / 25.0f, 
+							 m_render_sharing_msg.projection_info.far_plane / 10.0f, 
+							 m_render_sharing_msg.projection_info.far_plane / 2.0f };
 	const auto light_view_proj_matrices = GetLightViewProjMatrices();
 	gl_->glBindBuffer(GL_UNIFORM_BUFFER, m_csm_matrices_UBO);
 	for (size_t i = 0; i < light_view_proj_matrices.size(); ++i) {
@@ -213,12 +218,17 @@ RenderManager::RenderManager() :grid_(50, 0.20f)
 //_____________________________Datas Setting______________________________________________________//
 void RenderManager::SetProjectViewMatrices()
 {
-	gl_->setMatrices(matrices_UBO_, m_projction_mat, m_view_mat);
+	gl_->setMatrices(matrices_UBO_, 
+					 m_render_sharing_msg.projection_mat, 
+					 m_render_sharing_msg.view_mat);
 }
 
 void RenderManager::SetDirLightViewPosition()
 {
-	gl_->setDirLightViewPos(ambient_observer_UBO_, m_light_dir, m_light_color, m_view_pos);
+	gl_->setDirLightViewPos(ambient_observer_UBO_, 
+							m_render_sharing_msg.dir_light.dir, 
+							m_render_sharing_msg.dir_light.color,
+							m_render_sharing_msg.view_pos);
 }
 
 std::vector<glm::vec4> RenderManager::GetFrustumCornersWorldSpace(const glm::mat4& projection, const glm::mat4& view)
@@ -240,14 +250,19 @@ std::vector<glm::vec4> RenderManager::GetFrustumCornersWorldSpace(const glm::mat
 
 glm::mat4 RenderManager::GetLightViewProjMatrix(const float near_plane, const float far_plane)
 {
-	const auto proj_mat		= glm::perspective(glm::radians(m_camera_zoom), m_aspect, near_plane, far_plane);
-	const auto frust_points	= GetFrustumCornersWorldSpace(proj_mat, m_view_mat);
+	const auto proj_mat		= glm::perspective(glm::radians(m_render_sharing_msg.projection_info.fov), 
+											   m_render_sharing_msg.projection_info.aspect, 
+											   near_plane, 
+											   far_plane);
+	const auto frust_points	= GetFrustumCornersWorldSpace(proj_mat, m_render_sharing_msg.view_mat);
 	// get the center
 	glm::vec3 center  = glm::vec3(0.0f);
 	std::for_each(frust_points.begin(), frust_points.end(), [size = frust_points.size(), &center](auto& p) {
 		center += 1.0f / size * glm::vec3(p);
 	});
-	const glm::mat4 light_view = glm::lookAt(center + m_light_dir, center, glm::vec3(0.0f, 0.0f, 1.0f));
+	const glm::mat4 light_view = glm::lookAt(center + m_render_sharing_msg.dir_light.dir, 
+											 center, 
+											 m_render_sharing_msg.GlobalUp);
 
 	// get a bounding box to fit the frustum
 	float min_x = std::numeric_limits<float>::max(), min_y = std::numeric_limits<float>::max(), min_z = std::numeric_limits<float>::max(),
@@ -279,8 +294,8 @@ std::vector<glm::mat4> RenderManager::GetLightViewProjMatrices()
 	for (size_t i = 0; i <= n; ++i) 
 	{		
 		ret.push_back(GetLightViewProjMatrix(
-			i == 0 ? m_camera_near_plane : m_csm_cascade_planes[i - 1],		// near plane
-			i == n ? m_camera_far_plane : m_csm_cascade_planes[i]));		// far plane
+			i == 0 ? m_render_sharing_msg.projection_info.near_plane : m_csm_cascade_planes[i - 1],		// near plane
+			i == n ? m_render_sharing_msg.projection_info.far_plane  : m_csm_cascade_planes[i]));		// far plane
 	}
 	return ret;
 }
@@ -337,7 +352,10 @@ void RenderManager::DepthMapPass()
 	});
 	gl_->glCullFace(GL_BACK);
 	gl_->glBindFramebuffer(GL_FRAMEBUFFER, QOpenGLContext::currentContext()->defaultFramebufferObject());
-	gl_->glViewport(0, 0, m_width, m_height);
+	gl_->glViewport(m_render_sharing_msg.viewport.window_pos.x,
+					m_render_sharing_msg.viewport.window_pos.y, 
+					m_render_sharing_msg.viewport.window_size.x, 
+					m_render_sharing_msg.viewport.window_size.y);
 
 	// Shadow Pass
 	/*gl_->glViewport(0, 0, 4096, 4096);
@@ -522,7 +540,7 @@ void RenderManager::PassSpecifiedListCSMShadow(RenderList& list, function<Rawptr
 	MyShader* shadow_shader			= scene_manager.GetShaderByName("cascade_shadow_ortho"); shadow_shader->use();
 
 	shadow_shader->setInt("shadow_map", 0);
-	shadow_shader->setFloat("far_plane",   m_camera_far_plane);
+	shadow_shader->setFloat("far_plane",   m_render_sharing_msg.projection_info.far_plane);
 	shadow_shader->setInt("csm_levels",	   m_csm_cascade_planes.size());
 	for (size_t i = 0; i < m_csm_cascade_planes.size(); ++i) {
 		shadow_shader->setFloat("cascade_plane[" + std::to_string(i) + "]", m_csm_cascade_planes[i]);

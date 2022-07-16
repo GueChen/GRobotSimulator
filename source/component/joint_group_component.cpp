@@ -11,7 +11,7 @@ namespace GComponent {
 
 using std::stack;
 
-JointGroupComponent::JointGroupComponent(const vector<JointComponent*>& joints, Model* ptr_parent) :
+JointGroupComponent::JointGroupComponent(Model* ptr_parent, const vector<JointComponent*>& joints) :
 	Component(ptr_parent)
 {
 	for (auto& joint : joints) {
@@ -25,7 +25,6 @@ JointGroupComponent::~JointGroupComponent()
 		joint->opt_del_func_ = std::nullopt;
 	}
 }
-
 
 vector<float> JointGroupComponent::GetPositions()
 {
@@ -58,7 +57,7 @@ int JointGroupComponent::SearchJointsInChildren()
 		search_stack.pop();
 		for (auto& child : cur->getChildren()) 
 		{
-			JointComponent* joint = child->GetComponet<JointComponent>("JointComponent");
+			JointComponent* joint = child->GetComponent<JointComponent>("JointComponent");
 			if (joint && !record_table_.count(joint))
 			{
 				joinable_joints_.push_back(joint);

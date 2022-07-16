@@ -198,6 +198,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic.cpp" />
     <ClCompile Include="source\3rdparty\stb\stb_image.c" />
+    <ClCompile Include="source\component\component_factory.cpp" />
     <ClCompile Include="source\model\basic\postprocess_quads.cpp" />
     <ClCompile Include="source\component\joint_component.cpp" />
     <ClCompile Include="source\component\joint_group_component.cpp" />
@@ -222,6 +223,7 @@
     <ClCompile Include="source\manager\modelmanager.cpp" />
     <ClCompile Include="source\manager\resourcemanager.cpp" />
     <ClCompile Include="source\render\framebufferobject.cpp" />
+    <ClCompile Include="source\render\rhi\render_global_info.cpp" />
     <ClCompile Include="source\simplexmesh\gball.cpp" />
     <ClCompile Include="source\simplexmesh\gcurves.cpp" />
     <ClCompile Include="source\simplexmesh\gline.cpp" />
@@ -272,6 +274,7 @@
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\Concept\gconcept.hpp" />
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic-inl.hpp" />
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\heuristic_ik_solver.hpp" />
+    <ClInclude Include="source\component\component_factory.h" />
     <ClInclude Include="source\model\basic\postprocess_quads.h" />
     <ClInclude Include="source\base\global\global_qss.h" />
     <ClInclude Include="source\component\kinematic_component.h" />
@@ -281,6 +284,7 @@
     <QtMoc Include="source\ui\widget\tracker_widget.h" />
     <ClInclude Include="source\model\basic\skybox.h" />
     <ClInclude Include="source\render\framebufferobject.h" />
+    <ClInclude Include="source\render\rhi\render_global_info.h" />
     <ClInclude Include="source\ui\menu\componentmenu.h" />
     <ClInclude Include="source\ui\wrapper\extensiblelist.h" />
     <QtMoc Include="source\ui\widget\viewport.h" />

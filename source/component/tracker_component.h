@@ -37,7 +37,7 @@ public:
 	};
 
 public:
-	explicit		TrackerComponent(Model* ptr_parent, const string& goal_name = "");
+	explicit		TrackerComponent(Model* ptr_parent = nullptr, const string& goal_name = "");
 	virtual			~TrackerComponent();
 	
 	void			SetGoal(const string & goal_name);
@@ -71,11 +71,16 @@ private:
 	unordered_map<string, list<string>::iterator> 
 					tracer_node_map_			= {};
 
+	
+/*_________STATIC FIELDS______________________________________________________________________________*/	
+public:
+	static constexpr 
+	const string_view type_name = "TrackerComponent";	
+
+private:
 	// TODO: add a bias trans and rot
 	static 
 	unordered_set<string> trackable_table_;
-	static constexpr 
-	const string_view type_name = "TrackerComponent";	
 };
 
 

@@ -35,6 +35,8 @@ namespace GComponent {
 using namespace std::chrono;
 using std::unique_ptr;
 
+class Component;
+
 class EngineApp : public QObject
 {
 	Q_OBJECT
@@ -51,17 +53,18 @@ protected:
 	template<class _TimeScale>
 	duration<float, _TimeScale> GetSpanTime();	
 
-	void LogicTick(float delta_time);
-	void RenderTick(float delta_time);
-
 // FIXME: puts it into a proper position
 	void TestConversion(const vector<vector<float>>& params);
+
+signals:
+	void RequestCreateComponentUI(Component* component_ptr, const QString& com_name);
+
 private:
-	unique_ptr<QApplication>		gui_app_ptr_	 = nullptr;
-	unique_ptr<EditorTreeModel>		model_tree_		 = nullptr;
-	unique_ptr<MainWindow>			window_ptr_		 = nullptr;
+	unique_ptr<QApplication>		gui_app_ptr_			 = nullptr;
+	unique_ptr<EditorTreeModel>		model_tree_				 = nullptr;
+	unique_ptr<MainWindow>			window_ptr_				 = nullptr;
 	unique_ptr<RobotCreateDialog>	robot_create_dialog_ptr_ = nullptr;
-	steady_clock::time_point		last_time_point_ = steady_clock::now();
+	steady_clock::time_point		last_time_point_		 = steady_clock::now();
 };
 
 }

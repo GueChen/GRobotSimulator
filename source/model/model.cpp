@@ -143,9 +143,17 @@ bool GComponent::Model::RegisterComponent(_PtrComponent&& component_ptr)
 {
     // TODO: Add a hash Set to fillter the same type component
     component_ptr->SetParent(this);
-    components_type_names_.push_back(component_ptr->GetTypeName().data());
     components_ptrs_.push_back(std::move(component_ptr));    
     return true;
+}
+
+bool GComponent::Model::DeregisterComponent(const string& component_name)
+{
+    size_t size = components_ptrs_.size();
+    std::erase_if(components_ptrs_, [&component_name](auto& com) {
+        return com->GetTypeName() == component_name;
+    });     
+    return size == components_ptrs_.size();
 }
 
 void Model::appendChild(const _RawPtr pchild, Mat4 transform)

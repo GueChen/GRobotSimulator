@@ -1,8 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "ui/menu/componentmenu.h"
-
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QComboBox>
 
@@ -25,6 +23,8 @@ QT_END_NAMESPACE
 namespace GComponent{
 class UIState;
 class GLModelTreeView;
+class ComponentMenu;
+class Component;
 }
 
 class MainWindow : public QMainWindow
@@ -37,10 +37,14 @@ public:
     GComponent::UIState*         getUIState()       const;
     GComponent::GLModelTreeView* getModelTreeView() const; 
     QComboBox*                   getModelDispaly()  const;
+    GComponent::ComponentMenu*   getComponentMenu() const;
 
 private:
     void ConnectionInit();
-      
+
+public slots:    
+    void ResponseComponentCreateRequest(GComponent::Component* component_ptr, const QString& type_name);
+
 private slots:
     void ReceiveDeltaTime(float delta_time);
     void SetTabifyDockerWidgetQSS(QDockWidget* widget);
@@ -55,11 +59,14 @@ private slots:
 /*_________________________Menu Popup_________________________________________________________*/
     void on_componentstoolbox_customContextMenuRequested(const QPoint& pos);
 
+signals:
+    void RequestDeleteComponent(const QString& component_name);
+    void RequestAddComponent(const QString& component_name);
 private: 
-    Ui::MainWindow*     ui_;
-    QTimer*             updated_timer_ptr_;
+    Ui::MainWindow*             ui_;
+    QTimer*                     updated_timer_ptr_;
 
 /*_______________________Components MENU______________________________________________________*/
-    GComponent::ComponentMenu component_menu_;    
+    GComponent::ComponentMenu*  component_menu_;    
 };
 #endif // MAINWINDOW_H

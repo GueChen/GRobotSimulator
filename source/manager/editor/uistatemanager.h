@@ -42,9 +42,9 @@ enum class KeyButtonState: size_t
 	KeyDelete		= 0x1 << 30
 };
 
-enum {
-	NoneSelected	 = 0,
-	BufferNoValue	 = -1
+enum ModelSelectedEnum {
+	NoneSelected = 0,
+	BufferNoValue = -1	
 };
 
 class UIState : public QObject	
@@ -87,8 +87,8 @@ protected:
 	int			  m_last_mouse_pos_y    = -1;
 	int			  m_mouse_delta_x		= 0;
 	int			  m_mouse_delta_y       = 0;
-	int			  selected_id			= NoneSelected;
-	int			  selected_id_buffer	= BufferNoValue;
+	int			  selected_id			= ModelSelectedEnum::NoneSelected;
+	int			  selected_id_buffer	= ModelSelectedEnum::BufferNoValue;
 
 	bool		  is_draged				= false;
 	bool		  is_enter_area			= false;

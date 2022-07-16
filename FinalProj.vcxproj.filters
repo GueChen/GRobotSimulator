@@ -153,6 +153,12 @@
     <ClCompile Include="source\ui\menu\componentmenu.cpp">
       <Filter>ui_surface\menu</Filter>
     </ClCompile>
+    <ClCompile Include="source\render\rhi\render_global_info.cpp">
+      <Filter>render\rhi</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\component_factory.cpp">
+      <Filter>component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\motion\gmotionbase.h">
@@ -322,6 +328,12 @@
     </ClInclude>
     <ClInclude Include="source\ui\menu\componentmenu.h">
       <Filter>ui_surface\menu</Filter>
+    </ClInclude>
+    <ClInclude Include="source\render\rhi\render_global_info.h">
+      <Filter>render\rhi</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\component_factory.h">
+      <Filter>component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -570,6 +582,9 @@
     </Filter>
     <Filter Include="ui_surface\menu">
       <UniqueIdentifier>{b6e07489-2237-44c5-8b4e-22dd40974d0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="render\rhi">
+      <UniqueIdentifier>{c97e31fa-c4c1-45c5-a4aa-8486bbe71c19}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

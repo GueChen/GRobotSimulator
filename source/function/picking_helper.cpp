@@ -4,7 +4,7 @@
 
 #include <QtGui/QOpenGLContext>
 
-GComponent::PickingController::PickingController() = default;
+GComponent::PickingController::PickingController()  = default;
 
 GComponent::PickingController::~PickingController() = default;
 

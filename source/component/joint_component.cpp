@@ -14,11 +14,15 @@ JointComponent::JointComponent(Model* ptr_parent, Vec3 bind_axis, _OptDelFun del
 	switch (type_) {
 		using enum JointType;
 	case Revolute: {
-		zero_pos_ = ptr_parent_->getRotLocal();
+		if (ptr_parent) {
+			zero_pos_ = ptr_parent_->getRotLocal();
+		}
 		break;
 	}
 	case Prismatic: {
-		zero_pos_ = ptr_parent_->getTransLocal();
+		if (ptr_parent) {
+			zero_pos_ = ptr_parent_->getTransLocal();
+		}
 		break;
 	}
 	}

@@ -2,6 +2,7 @@
 
 #include "ui_mainwindow.h"
 
+#include "component/component_factory.h"
 #include "manager/objectmanager.h"
 #include "manager/modelmanager.h"
 #include "manager/resourcemanager.h"
@@ -38,6 +39,7 @@ void GComponent::EngineApp::Init(int argc, char* argv[])
 	GLModelTreeView* treeview	  = window_ptr_->getModelTreeView();
 	UIState*		 ui_state_ptr = window_ptr_->getUIState();
 	QComboBox*       obj_display  = window_ptr_->getModelDispaly();
+	ComponentMenu*	 com_menu_ptr = window_ptr_->getComponentMenu();
 
 	// model initialize
 	GComponent::ObjectManager::getInstance().Initialize();
@@ -108,6 +110,26 @@ void GComponent::EngineApp::Init(int argc, char* argv[])
 	/* close all window */
 	connect(window_ptr_.get(),				&MainWindow::deleteLater,
 			robot_create_dialog_ptr_.get(), &RobotCreateDialog::close);
+
+	/* component tool box */
+	connect(window_ptr_.get(),				&MainWindow::RequestDeleteComponent,
+			[&model_manager = ModelManager::getInstance(), ui_state_ptr](const QString& com_name)
+	{
+		Model* model = ui_state_ptr->GetSelectedObject();
+		if (model) model->DeregisterComponent(com_name.toStdString() + "Component");
+		
+	});
+
+	connect(window_ptr_.get(), &MainWindow::RequestAddComponent,
+		[window_ptr = window_ptr_.get(), ui_state_ptr](const QString& com_name) {
+			Model* model = ui_state_ptr->GetSelectedObject();
+			if (model) {
+				if (model->RegisterComponent(ComponentFactory::GetComponent(com_name.toStdString(), model))) {
+					Component* component = model->GetComponent<Component>(com_name.toStdString());
+					window_ptr->ResponseComponentCreateRequest(component, com_name);
+				}
+			}
+	});
 }
 
 int GComponent::EngineApp::Exec()
@@ -116,16 +138,6 @@ int GComponent::EngineApp::Exec()
 	if (!gui_app_ptr_) return 0;
 	return gui_app_ptr_->exec();
 		
-}
-
-void GComponent::EngineApp::LogicTick(float delta_time_ms)
-{
-
-}
-
-void GComponent::EngineApp::RenderTick(float delta_time_ms)
-{
-	
 }
 
 void GComponent::EngineApp::TestConversion(const vector<vector<float>>& params)
@@ -188,12 +200,12 @@ void GComponent::EngineApp::TestConversion(const vector<vector<float>>& params)
 		
 		// Register the Joint Component
 		models[idx]->RegisterComponent(std::make_unique<JointComponent>(models[idx], (R * Eigen::Vector3f::UnitZ()).normalized()));
-		joints.push_back(models[idx]->GetComponet<JointComponent>("JointComponent"));
+		joints.push_back(models[idx]->GetComponent<JointComponent>("JointComponent"));
 		++idx;
 	}
 	auto [twists, T] = matrices.toTwists();
 
-	base->RegisterComponent(make_unique<JointGroupComponent>(joints, base));
+	base->RegisterComponent(make_unique<JointGroupComponent>(base, joints));
 	base->RegisterComponent(make_unique<KinematicComponent>(T, base));		
 	base->RegisterComponent(make_unique<TrackerComponent>(base, ""));
 }

@@ -71,10 +71,10 @@ void KUKA_IIWA_MODEL::InitializeModelResource()
 
     vector<JointComponent*> joints;
     for (int i = 1; i < 8; ++i) {
-        joints.push_back(models_tmp[i]->GetComponet<JointComponent>("JointComponent"));
+        joints.push_back(models_tmp[i]->GetComponent<JointComponent>("JointComponent"));
     }
 
-    RegisterComponent(make_unique<JointGroupComponent>(joints, this));
+    RegisterComponent(make_unique<JointGroupComponent>(this, joints));
     RegisterComponent(make_unique<KinematicComponent>(init_end_trans_mat, this));
     RegisterComponent(make_unique<TrackerComponent>(this));
 }

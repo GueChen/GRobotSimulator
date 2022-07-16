@@ -77,13 +77,13 @@ public:
 
     /// 成员函数 Methods
 public:
-    mat4 GetViewMatrix()
+    mat4 GetViewMatrix() const
     {
         return MyLookAt(Position, Position + Front, Up);
 
     }
 
-    mat4 GetProjection(float aspect, float z_near = 0.001f, float z_far = 1000.0f)
+    mat4 GetProjection(float aspect, float z_near = 0.001f, float z_far = 1000.0f) const
     {
         return glm::perspective(radians(ZOOM), aspect, z_near, z_far);
     }
@@ -203,7 +203,7 @@ private:
      * @param target {vec3} 视线看向的方向
      * @param up {vec3} 上向量方向
      * */
-    mat4 MyLookAt(vec3 pos, vec3 target, vec3 up)
+    mat4 MyLookAt(vec3 pos, vec3 target, vec3 up) const
     {
         mat4 Result = mat4(1.0f);
 

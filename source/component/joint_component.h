@@ -39,10 +39,10 @@ using _OptDelFun = std::optional<std::function<void(void)>>;
 class JointComponent : public Component {
 friend class JointGroupComponent;
 public:
-	JointComponent(Model* ptr_parent, Vec3 bind_axis, _OptDelFun del_fun = std::nullopt);
+	explicit		JointComponent(Model* ptr_parent = nullptr, Vec3 bind_axis = Vec3::Zero(), _OptDelFun del_fun = std::nullopt);
 	virtual			~JointComponent() { if (opt_del_func_) opt_del_func_->operator()(); }
 
-	// 通过 Component 继承
+/// 通过 Component 继承
 	virtual const string_view&
 					GetTypeName() const override{ return type_name; }
 
@@ -99,7 +99,7 @@ protected:
 	
 	_OptDelFun		 opt_del_func_  = std::nullopt;			// [Temp, Maybe D/M Later] Used for Group Component
 
-private:
+public:
 	constexpr static const std::string_view type_name = "JointComponent";
 };
 

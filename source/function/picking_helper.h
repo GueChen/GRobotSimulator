@@ -30,6 +30,10 @@ class PickingGuard {
 public:
 	PickingGuard(PickingController & controller);
 	~PickingGuard();
+
+	PickingGuard(const PickingGuard& other)				= delete;
+	PickingGuard& operator=(const PickingGuard& other)	= delete;
+
 private:
 	PickingController& controller_;
 };

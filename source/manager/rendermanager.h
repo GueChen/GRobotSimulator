@@ -9,6 +9,7 @@
 
 #include "base/singleton.h"
 
+#include "render/rhi/render_global_info.h"
 #include "render/rendermesh.h"
 #include "render/framebufferobject.h"
 #include "render/myshader.h"
@@ -99,9 +100,9 @@ private:
 	void SetDirLightViewPosition();
 
 /*_______________________Cascade Shadow Map Helper Methods_________________________________*/
-	std::vector<glm::vec4> GetFrustumCornersWorldSpace(const glm::mat4& projection, const glm::mat4& view);
-	glm::mat4 GetLightViewProjMatrix(const float near_plane, const float far_plane);
-	std::vector<glm::mat4> GetLightViewProjMatrices();
+	std::vector<glm::vec4>	GetFrustumCornersWorldSpace(const glm::mat4& projection, const glm::mat4& view);
+	glm::mat4				GetLightViewProjMatrix(const float near_plane, const float far_plane);
+	std::vector<glm::mat4>	GetLightViewProjMatrices();
 
 /*_______________________Rendering Passsing________________________________________________*/
 	void Clear();
@@ -124,22 +125,9 @@ private:
 	void PassSpecifiedListCSMShadow(RenderList&, function<RawptrModel(const std::string&)>ObjGetter);
 /*________________________FIELDS_____________________________________________________________*/
 public:
-	unsigned						m_width						= 0;
-	unsigned						m_height					= 0;
+	RenderGlobalInfo				m_render_sharing_msg;
 	unsigned						m_selected_id				= 0;
-
-	float							m_camera_near_plane			= 0.1f;
-	float							m_camera_far_plane			= 1000.0f;
 	
-	// try to remove this part after consideration over the design
-	glm::mat4						m_projction_mat				= glm::mat4(1.0f);
-	glm::mat4						m_view_mat					= glm::mat4(1.0f);
-	glm::vec3						m_light_dir					= glm::vec3(0.0f);
-	glm::vec3						m_light_color				= glm::vec3(1.0f);
-	glm::vec3						m_view_pos					= glm::vec3(0.0f);
-	float							m_camera_zoom				= 0.0f;
-	float							m_aspect					= 0.0f;
-
 /*______________________Cascade Shadow Map____________________________________________________*/
 	std::vector<float>				m_csm_cascade_planes		= {};
 	unsigned						m_csm_matrices_UBO			= 0;

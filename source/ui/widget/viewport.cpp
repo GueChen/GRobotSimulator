@@ -27,7 +27,7 @@ Viewport::~Viewport() {}
 void Viewport::initializeGL()
 {
 	gl_->initializeOpenGLFunctions();
-
+	
 	RegisteredShader();
 	if (!camera_handle)
 		camera_handle = GComponent::ModelManager::getInstance().RegisteredCamera();
@@ -43,7 +43,7 @@ void Viewport::initializeGL()
 
 void Viewport::resizeGL(int w, int h)
 {
-	gl_->glViewport(0.0f, 0.0f, w, h);
+	//gl_->glViewport(0.0f, 0.0f, w, h);
 	ui_state_.OnResize(w, h);
 }
 
@@ -60,19 +60,13 @@ void Viewport::paintGL()
 	// Process Input
 	ui_state_.tick();
 
-	// Set global parameters
-	RenderManager::getInstance().m_projction_mat = perspective(
-		radians(camera_ptr->Zoom), 
-		static_cast<float>(width()) / height(), 
-		RenderManager::getInstance().m_camera_near_plane, 
-		RenderManager::getInstance().m_camera_far_plane);
-	RenderManager::getInstance().m_aspect		 = width() / height();
-	RenderManager::getInstance().m_camera_zoom   = camera_ptr->Zoom;
-	RenderManager::getInstance().m_view_mat      = camera_ptr->GetViewMatrix();
-	RenderManager::getInstance().m_view_pos		 = camera_ptr->Position;
-	RenderManager::getInstance().m_light_dir     = vec3(0.5f, 1.0f, 1.0f);
-	RenderManager::getInstance().m_light_color   = vec3(1.0f);
-		
+	// Set global Render parameters
+	RenderGlobalInfo&  render_info =  RenderManager::getInstance().m_render_sharing_msg;
+	render_info.SetSimpleDirLight(vec3(0.5f, 1.0f, 1.0f), vec3(1.0f));
+	render_info.SetCameraInfo(*camera_ptr);
+	render_info.SetProjectionPlane(0.001f, 1000.0f);
+	render_info.UpdateProjectionMatrix();
+
 	// Adjust all component
 	ModelManager::getInstance().tickAll(delta_time.count());
 	// Adjust all resources

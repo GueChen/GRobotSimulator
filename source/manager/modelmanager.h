@@ -31,6 +31,17 @@ using std::unique_ptr;
 using std::shared_ptr;
 using std::unordered_map;
 
+class ComponentDeleter {
+public:
+    ComponentDeleter(Model& model) : model(model) {}
+
+    void Invoke(const string& component_name) {
+        model.DeregisterComponent(component_name);
+    }
+private:
+    Model& model;
+};
+
 class ModelManager: public QObject
 {
     Q_OBJECT
@@ -79,7 +90,7 @@ public slots:
     // TODO: 实现该槽函数
     //void ResponseParentChangeRequest(const string& model_name, const string& new_parent_name);
 
-private:    
+private:
     /* Model Realated Terms 实例管理相关项 */
     size_t                                    next_model_id_                        = 1;
     unordered_map<size_t, unique_ptr<Model>>  models_                               = {};

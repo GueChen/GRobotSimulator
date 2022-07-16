@@ -1,5 +1,7 @@
 #include "ui/treeview/glmodeltreeview.h"
 
+#include "base/global/global_qss.h"
+
 #include <QtGui/QMouseEvent>
 #include <QtGui/QkeyEvent>
 
@@ -14,23 +16,8 @@ GLModelTreeView::GLModelTreeView(QWidget *parent)
     InitMenuActions();
    
     /* Set Style Sheet */
-    QString m_qss =
-            "QMenu{\n"
-                "\tbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(0, 0, 0, 200), stop:1 rgba(50, 50, 75, 200));\n"
-                "\tcolor: white;\n"
-            "}\n"
-            "QMenu::item{\n"
-                "\tfont: 9pt \"Î¢ÈíÑÅºÚ\";\n"
-            "}\n"
-            "QMenu::indicator:exclusive:checked:selected{\n"
-                "\tborder-color: darkblue;\n"
-                "\tbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6ea1f1, stop:1 #567dbc);\n"
-            "}\n"
-            "QMenu::separator{\n"
-                "\thight: 0.2pt;\n"
-            "}";   
-    m_basic_menu.setStyleSheet(m_qss);
-    m_add_menu.setStyleSheet(m_qss);
+    m_basic_menu.setStyleSheet(menu_qss.data());
+    m_add_menu.setStyleSheet(menu_qss.data());
    
 }   
 

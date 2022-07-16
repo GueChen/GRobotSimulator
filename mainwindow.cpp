@@ -1,30 +1,33 @@
 #include "mainwindow.h"
 
 #include "ui_mainwindow.h"
-
+#include "base/global/global_qss.h"
+#include "ui/menu/componentmenu.h"
 #include "manager/modelmanager.h"
 #include "manager/editor/uistatemanager.h"
 #include "function/adapter/component_ui_factory.h"
 
 #include <QtWidgets/QCombobox>
 
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui_(new Ui::MainWindow)
-    , component_menu_(this)
+    , component_menu_(new GComponent::ComponentMenu(this))
 {
     ui_->setupUi(this);    
     updated_timer_ptr_ = new QTimer;
     this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::West);
     ui_->logger->setContextMenuPolicy(Qt::CustomContextMenu);    
     ui_->componentstoolbox->setContextMenuPolicy(Qt::CustomContextMenu);
-
+    component_menu_->setStyleSheet(menu_qss.data());
     ConnectionInit();   
 }
 
 MainWindow::~MainWindow()
 {
     delete ui_;
+    delete component_menu_;
 }
 
 GComponent::UIState* MainWindow::getUIState() const
@@ -40,6 +43,11 @@ GComponent::GLModelTreeView* MainWindow::getModelTreeView() const
 QComboBox* MainWindow::getModelDispaly() const
 {
     return ui_->selected_combo;
+}
+
+GComponent::ComponentMenu* MainWindow::getComponentMenu() const
+{
+    return component_menu_;
 }
 
 void MainWindow::ConnectionInit()
@@ -83,18 +91,41 @@ void MainWindow::ConnectionInit()
     updated_timer_ptr_->start(100);    
 
     /* component tool box */
-    connect(component_menu_.m_remove_component_action, &QAction::triggered, [this]() {
-        if (int idx = ui_->componentstoolbox->currentIndex(); idx > 1) 
+    connect(component_menu_->m_remove_component_action, &QAction::triggered, [this]() {        
+        if (int idx = ui_->componentstoolbox->currentIndex(); idx > 1)
         {
+            emit RequestDeleteComponent(ui_->componentstoolbox->itemText(idx));
             ui_->componentstoolbox->setCurrentIndex(idx - 1);
-            ui_->componentstoolbox->removeItem(idx);
-        }
-        std::cout << ui_->componentstoolbox->currentIndex() << std::endl;
+            ui_->componentstoolbox->removeItem(idx);                        
+        }}
+    );
+
+    // TODO: FIX hard-code by reflect? methods 
+    connect(component_menu_->m_add_joint_component,       &QAction::triggered, [this](){
+        emit RequestAddComponent("JointComponent");
+    });
+    connect(component_menu_->m_add_joint_group_component, &QAction::triggered, [this]() {
+        emit RequestAddComponent("JointGroupComponent");
+    });
+    connect(component_menu_->m_add_kinematic_component,   &QAction::triggered, [this]() {
+        emit RequestAddComponent("KinematicComponent");
+    });
+    connect(component_menu_->m_add_tracker_component,     &QAction::triggered, [this]() {
+        emit RequestAddComponent("TrackerComponent");
     });
 }
 
 
 /*___________________SLOTS METHODS_____________________________________________________________*/
+/*___________________PUBLIC SLOTS METHODS______________________________________________________*/
+void MainWindow::ResponseComponentCreateRequest(GComponent::Component* component_ptr, const QString& type_name)
+{
+    if (component_ptr) {
+        ui_->componentstoolbox->addItem(GComponent::ComponentUIFactory::Create(*component_ptr), type_name);
+    }
+}
+
+/*___________________PRAVITE SLOTS METHODS_____________________________________________________*/
 void MainWindow::ReceiveDeltaTime(float delta_time)
 {
     ui_->spanTimeData->setText(QString::number(delta_time, 10, 4));
@@ -105,18 +136,7 @@ void MainWindow::SetTabifyDockerWidgetQSS(QDockWidget* widget)
 {
     QTabBar * tabar = widget->parent()->findChild<QTabBar*>();
     if (tabar) {
-        tabar->setStyleSheet(
-            "QTabBar::tab{"
-            "   min-width: 35px;"
-            "}"
-            "QTabBar::tab::selected{"
-            "   background: rgb(50, 50, 50);"
-            "   color: qlineargradient(spread:pad, x0: 0, y0: 0, x1: 1, y1: 1, stop: 0 rgb(125, 230, 175), stop: 1 rgb(75, 150, 150));"
-            "}"
-            "QTabBar::tab::!selected{"
-            "   background: rgb(40, 40, 40);"
-            "}"
-        );
+        tabar->setStyleSheet(tabify_dockwidget_qss.data());
     }   
 }
 
@@ -197,7 +217,6 @@ void MainWindow::on_scale_button_clicked()
 
 void MainWindow::on_componentstoolbox_customContextMenuRequested(const QPoint& pos)
 {
-    std::cout << "good pop\n";
-    component_menu_.popup(ui_->componentstoolbox->mapToGlobal(pos));
+    component_menu_->popup(ui_->componentstoolbox->mapToGlobal(pos));
 }
 

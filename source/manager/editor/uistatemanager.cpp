@@ -28,10 +28,7 @@ GComponent::UIState::UIState(unsigned w, unsigned h, int segments, float radius)
 
 	Init(segments, radius);
 
-	RenderManager& render_manager = RenderManager::getInstance();
-	render_manager.m_width  = m_width;
-	render_manager.m_height = m_height;
-
+	RenderManager::getInstance().m_render_sharing_msg.SetViewportSize(m_width, m_height);
 }
 
 GComponent::UIState::~UIState()
@@ -296,13 +293,12 @@ void GComponent::UIState::OnKeyRelease(size_t key_state)
 
 void GComponent::UIState::OnResize(int w, int h)
 {
-	m_width = w, m_height = h;
+	m_width  = w, m_height = h;
 	m_aspect = static_cast<float>(w) / h;
 	picking_controller.Init(m_width, m_height);
 
 	RenderManager& render_manager = RenderManager::getInstance();
-	render_manager.m_width  = w;
-	render_manager.m_height = h;
+	render_manager.m_render_sharing_msg.SetViewportSize(w, h);
 	render_manager.InitFrameBuffer();
 }
 

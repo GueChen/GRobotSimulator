@@ -96,11 +96,11 @@ public:
     //vec3          getScaleGlobal() const;
 
     bool            RegisterComponent(_PtrComponent && component_ptr);
-    // bool            DerigisterComponent();
+    bool            DeregisterComponent(const string& component_name);
     inline const vector<_PtrComponent>&
                     GetComponents()  const              { return components_ptrs_;}
     template<class _TypeComponent> requires std::is_base_of_v<Component, _TypeComponent>
-    _TypeComponent* GetComponet(const string & component_name);
+    _TypeComponent* GetComponent(const string & component_name);
     
 protected:
     int             getChildIndex(_RawPtr ptr);
@@ -111,7 +111,6 @@ protected:
 protected:
     // Components 组件体系
     vector<_PtrComponent> components_ptrs_;
-    vector<string>        components_type_names_;
 
     /// Transform 变换相关
     Vec3 trans_                     = Vec3::Zero();
@@ -136,9 +135,9 @@ protected:
 };
 
 template<class _TypeComponent> requires std::is_base_of_v<Component, _TypeComponent>
-_TypeComponent* Model::GetComponet(const string& component_name) {
-    for (int i = 0; i < components_type_names_.size(); ++i) {
-        if (components_type_names_[i] == component_name) {
+_TypeComponent* Model::GetComponent(const string& component_name) {
+    for (int i = 0; i < components_ptrs_.size(); ++i) {
+        if (components_ptrs_[i]->GetTypeName() == component_name) {
             return dynamic_cast<_TypeComponent*>(components_ptrs_[i].get());
         }
     }
