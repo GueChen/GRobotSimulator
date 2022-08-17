@@ -1,5 +1,7 @@
 #include "linmotion.h"
-#include "model/robot/kuka_iiwa_model.h"
+
+#include "component/kinematic_component.h"
+//#include "model/robot/kuka_iiwa_model.h"
 
 #include <memory>
 using std::forward;
@@ -13,7 +15,6 @@ LinMotion::LinMotion(const SE3d & T):
 
 JointCruveMsgPkg LinMotion::GetCurvesFunction(KUKA_IIWA_MODEL * robot, const double Max_Vel_Limit, const double Max_Acc_Limit)
 {
-
     SE3d T_ini = robot->ForwardKinematic();
     IIWAThetas lastJoint = robot->GetThetas();
     const size_t JointNum = robot->GetThetas().size();

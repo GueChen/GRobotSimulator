@@ -5,10 +5,12 @@
 #include "manager/rendermanager.h"
 #include "render/myshader.h"
 #include "render/rendermesh.h"
+
 #include "component/joint_component.h"
 #include "component/joint_group_component.h"
 #include "component/kinematic_component.h"
 #include "component/tracker_component.h"
+#include "component/rigidbody_component.h"
 
 #include "function/adapter/modelloader_qgladapter.h"
 
@@ -32,7 +34,7 @@ KUKA_IIWA_MODEL::KUKA_IIWA_MODEL(Mat4 transform)
 void KUKA_IIWA_MODEL::InitializeModelResource()
 {            
     ModelManager&       model_manager = ModelManager::getInstance();
-    array<Model*, 8>    models_tmp;
+    array<Model*, 8>    models_tmp  = {nullptr};
     array<Vec3, 8>      local_trans =
     {
         Vec3(0.0f, 0.0f, 0.0f),
@@ -54,19 +56,33 @@ void KUKA_IIWA_MODEL::InitializeModelResource()
     for(int i = 0; i < 8; ++i)
     {
         string count_name = "kuka_iiwa_robot_link_" + std::to_string(i);
-        models_tmp[i] = new Model(count_name + count_str, 
-                                  count_name, 
-                                  "color",
-                                  local_trans[i], 
-                                  Vec3::Zero(), 
-                                  Vec3::Ones(),
-                                  i > 0 ? models_tmp[i - 1] :this);
+        models_tmp[i]     = new Model(count_name + count_str, 
+                                      count_name, 
+                                      "color",
+                                      local_trans[i], 
+                                      Vec3::Zero(), 
+                                      Vec3::Ones(),
+                                      i > 0 ? models_tmp[i - 1] :this);
         model_manager.RegisteredModel(models_tmp[i]->getName(), models_tmp[i]);
     }
                 
     vector<Vec3> axis_binds = { Vec3::UnitZ(), Vec3::UnitY(),Vec3::UnitZ(), -Vec3::UnitY(), Vec3::UnitZ(), Vec3::UnitY(), Vec3::UnitZ() };
     for (int i = 1; i < 8; ++i) {
-        models_tmp[i]->RegisterComponent(make_unique<JointComponent>(models_tmp[i], axis_binds[i - 1]));
+        models_tmp[i]->RegisterComponent(make_unique<JointComponent>(models_tmp[i], axis_binds[i - 1]));        
+    }
+
+    for (int i = 0; i < 8; ++i) {
+        Eigen::Affine3f local_transform = Eigen::Affine3f::Identity();        
+        local_transform.translate(local_trans[i] * 0.5f).
+                        rotate(Eigen::AngleAxisf(EIGEN_PI * 0.5f, Vec3::UnitY()));        
+
+        models_tmp[i]->RegisterComponent(make_unique<RigidbodyComponent>(
+                                            models_tmp[i], 
+                                            local_transform.matrix(),
+                                            /*ShapeEnum::Capsule,*/
+                                            0.10f, 
+                                            0.07f,
+                                            CollisionGroup{1, 0, 0, 0}));
     }
 
     vector<JointComponent*> joints;

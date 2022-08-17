@@ -54,7 +54,11 @@ protected:
 	duration<float, _TimeScale> GetSpanTime();	
 
 // FIXME: puts it into a proper position
-	void TestConversion(const vector<vector<float>>& params);
+	void CreateRobotWithParams(const vector<vector<float>>& params);
+
+private:
+	void ConnectModules();
+	void InitializeMembers(int argc, char* argv[]);
 
 signals:
 	void RequestCreateComponentUI(Component* component_ptr, const QString& com_name);

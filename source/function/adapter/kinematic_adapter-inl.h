@@ -7,7 +7,6 @@
 #ifndef _KINEMATIC_ADAPTER_INL_H
 #define _KINEMATIC_ADAPTER_INL_H
 #include "function/adapter/kinematic_adapter.h"
-#include <iostream>
 
 namespace GComponent {
 template<class _Scaler>
@@ -48,7 +47,6 @@ pair<vector<Twist<_Scaler>>, SE3<_Scaler>> LocalTransformsSE3<_Scaler>::toTwists
 	transform_matrix.setIdentity();
 	for (int idx = 0; idx < matrices_.size(); ++idx) {
 		transform_matrix = transform_matrix * matrices_[idx];
-		std::cout << transform_matrix << std::endl;
 		auto [R, p] = RtDecompositionMat4(transform_matrix);
 		Vector<_Scaler, 3> w = R * Vector<_Scaler, 3>::UnitZ();
 		twists[idx] = ScrewToTwist(p, w);	

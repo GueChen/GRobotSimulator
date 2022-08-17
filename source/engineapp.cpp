@@ -6,9 +6,12 @@
 #include "manager/objectmanager.h"
 #include "manager/modelmanager.h"
 #include "manager/resourcemanager.h"
+#include "manager/physicsmanager.h"
 
+#ifndef _DEBUG
 #include <iostream>
 #include <format>
+#endif // !_DEBUG
 
 GComponent::EngineApp& GComponent::EngineApp::getInstance()
 {
@@ -18,118 +21,26 @@ GComponent::EngineApp& GComponent::EngineApp::getInstance()
 
 template<class _TimeScale>
 std::chrono::duration<float, _TimeScale> GComponent::EngineApp::GetSpanTime() {	
-	steady_clock::time_point tick_now = steady_clock::now();
-	duration<float, _TimeScale> time_span = duration_cast<microseconds>(tick_now - last_time_point_);
+	steady_clock::time_point	tick_now	= steady_clock::now();
+	duration<float, _TimeScale> time_span	= duration_cast<microseconds>(tick_now - last_time_point_);
 	last_time_point_ = tick_now;
 	return time_span;
 }
 
 void GComponent::EngineApp::Init(int argc, char* argv[])
 {
-	gui_app_ptr_ = std::make_unique<QApplication>(argc, argv);
+	// Manger Initializations
+	PhysicsManager::getInstance().Initialize();
+	ObjectManager::getInstance().Initialize();
 
-	// ui initialize
-	window_ptr_ = std::make_unique<MainWindow>();
-	window_ptr_->setWindowIconText("机械臂规划仿真软件");
-	//window_ptr_->setWindowFlag(Qt::FramelessWindowHint);
+	PhysicsManager::getInstance().SetActivateScene(PhysicsManager::getInstance().CreatePhysicsScene());
 
-	robot_create_dialog_ptr_ = std::make_unique<RobotCreateDialog>();	
-	robot_create_dialog_ptr_->setWindowTitle("Create Ur Robot(*^_^*)");
-	
-	GLModelTreeView* treeview	  = window_ptr_->getModelTreeView();
-	UIState*		 ui_state_ptr = window_ptr_->getUIState();
-	QComboBox*       obj_display  = window_ptr_->getModelDispaly();
-	ComponentMenu*	 com_menu_ptr = window_ptr_->getComponentMenu();
-
-	// model initialize
-	GComponent::ObjectManager::getInstance().Initialize();
-	model_tree_ = std::make_unique<EditorTreeModel>("");	
-	
-	// cross settings 
-	treeview->setModel(model_tree_.get());
-	
-	// connections
-	/* uimodel  >> treemodel */
-	connect(treeview,						&GLModelTreeView::DeleteRequest,
-			model_tree_.get(),				&EditorTreeModel::removeData);
-
-	connect(model_tree_.get(),				&EditorTreeModel::DataDeletedNotice,
-			treeview,						&GLModelTreeView::ResponseDataDeleted);
-	connect(ui_state_ptr,					&UIState::DeleteRequest,
-            model_tree_.get(),				&EditorTreeModel::ResponseDeleteRequest);
-	
-	 /* modelmanager >> treemodel */
-    connect(&ModelManager::getInstance(),   &ModelManager::ModelRegisterNotice,
-            model_tree_.get(),				&EditorTreeModel::ResponseCreateRequest);
-    connect(&ModelManager::getInstance(),   &ModelManager::ModelParentChangeNotice,
-            model_tree_.get(),				&EditorTreeModel::ResponseParentChangeRequest);
-
-	 /* uimodel >> MODELMANAGER */
-    connect(treeview,						 &GLModelTreeView::DeleteRequest,
-            &ModelManager::getInstance(),    &ModelManager::ResponseDeleteRequest);                
-    connect(ui_state_ptr,					 &UIState::DeleteRequest,
-            &ModelManager::getInstance(),    &ModelManager::ResponseDeleteRequest);
-
-	/* TREE_VIEW >> OBJECTMANAGER */
-    connect(treeview,						 &GLModelTreeView::CreateRequest,
-            &ObjectManager::getInstance(),   &ObjectManager::CreateInstance);
-	connect(treeview,						 &GLModelTreeView::RobotCreateRequest,
-			robot_create_dialog_ptr_.get(),  &RobotCreateDialog::show);
-
-	/* ADPATER CONNECTIONS */
-	/* UI_STATE  >> TREEVIEW */
-	connect(ui_state_ptr,		&UIState::SelectRequest,
-			[treeview = treeview, &tree = model_tree_](const string& name) {
-				treeview->ResponseSelectRequest(tree->getIndexByName(name));
-			});
-	/* ComboBox >> TREEVIEW */
-	connect(obj_display,		&QComboBox::textActivated,
-			[treeview = treeview, &tree = model_tree_](const QString& name) {
-				treeview->ResponseSelectRequest(tree->getIndexByName(name.toStdString()));
-			});
-
-	/* uimodel << MODELMANAGER */
-	connect(&ModelManager::getInstance(), &ModelManager::ModelRegisterNotice,
-			[obj_display = obj_display](const std::string& name, const std::string& _){
-				obj_display->addItem(QString::fromStdString(name));
-			});
-	/* uimodel  << MODELMANAGER */
-	connect(&ModelManager::getInstance(), &ModelManager::ModelDeregisterNotice,
-			[obj_display = obj_display](const std::string& name){
-				if (int index = obj_display->findText(QString::fromStdString(name));
-					!name.empty() && index != -1) {
-					obj_display->removeItem(index);
-					obj_display->setCurrentIndex(0);
-				}				
-			});
-
-	/* robotcreatedialog >> ? */
-	connect(robot_create_dialog_ptr_.get(), &RobotCreateDialog::RobotCreateRequestMDH,
-			this,							&EngineApp::TestConversion);
-	
-	/* close all window */
-	connect(window_ptr_.get(),				&MainWindow::deleteLater,
-			robot_create_dialog_ptr_.get(), &RobotCreateDialog::close);
-
-	/* component tool box */
-	connect(window_ptr_.get(),				&MainWindow::RequestDeleteComponent,
-			[&model_manager = ModelManager::getInstance(), ui_state_ptr](const QString& com_name)
-	{
-		Model* model = ui_state_ptr->GetSelectedObject();
-		if (model) model->DeregisterComponent(com_name.toStdString() + "Component");
+	InitializeMembers(argc, argv);
 		
-	});
-
-	connect(window_ptr_.get(), &MainWindow::RequestAddComponent,
-		[window_ptr = window_ptr_.get(), ui_state_ptr](const QString& com_name) {
-			Model* model = ui_state_ptr->GetSelectedObject();
-			if (model) {
-				if (model->RegisterComponent(ComponentFactory::GetComponent(com_name.toStdString(), model))) {
-					Component* component = model->GetComponent<Component>(com_name.toStdString());
-					window_ptr->ResponseComponentCreateRequest(component, com_name);
-				}
-			}
-	});
+	// cross settings 
+	window_ptr_->getModelTreeView()->setModel(model_tree_.get());
+	
+	ConnectModules();	
 }
 
 int GComponent::EngineApp::Exec()
@@ -140,7 +51,7 @@ int GComponent::EngineApp::Exec()
 		
 }
 
-void GComponent::EngineApp::TestConversion(const vector<vector<float>>& params)
+void GComponent::EngineApp::CreateRobotWithParams(const vector<vector<float>>& params)
 {
 	LocalTransformsSE3<float> matrices = LocalTransformsSE3<float>::fromMDH(params);
 
@@ -209,3 +120,113 @@ void GComponent::EngineApp::TestConversion(const vector<vector<float>>& params)
 	base->RegisterComponent(make_unique<KinematicComponent>(T, base));		
 	base->RegisterComponent(make_unique<TrackerComponent>(base, ""));
 }
+
+/*_________________________________________PRIVATE METHODS______________________________________________________*/
+void GComponent::EngineApp::ConnectModules()
+{
+	// connections
+	GLModelTreeView* treeview	  = window_ptr_->getModelTreeView();
+	UIState*		 ui_state_ptr = window_ptr_->getUIState();
+	QComboBox*       obj_display  = window_ptr_->getModelDispaly();
+	ComponentMenu*	 com_menu_ptr = window_ptr_->getComponentMenu();
+	
+	/* uimodel  >> treemodel */
+	connect(treeview,						&GLModelTreeView::DeleteRequest,
+			model_tree_.get(),				&EditorTreeModel::removeData);
+
+	connect(model_tree_.get(),				&EditorTreeModel::DataDeletedNotice,
+			treeview,						&GLModelTreeView::ResponseDataDeleted);
+	connect(ui_state_ptr,					&UIState::DeleteRequest,
+            model_tree_.get(),				&EditorTreeModel::ResponseDeleteRequest);
+	
+	 /* modelmanager >> treemodel */
+    connect(&ModelManager::getInstance(),   &ModelManager::ModelRegisterNotice,
+            model_tree_.get(),				&EditorTreeModel::ResponseCreateRequest);
+    connect(&ModelManager::getInstance(),   &ModelManager::ModelParentChangeNotice,
+            model_tree_.get(),				&EditorTreeModel::ResponseParentChangeRequest);
+
+	 /* uimodel >> MODELMANAGER */
+    connect(treeview,						 &GLModelTreeView::DeleteRequest,
+            &ModelManager::getInstance(),    &ModelManager::ResponseDeleteRequest);                
+    connect(ui_state_ptr,					 &UIState::DeleteRequest,
+            &ModelManager::getInstance(),    &ModelManager::ResponseDeleteRequest);
+
+	/* TREE_VIEW >> OBJECTMANAGER */
+    connect(treeview,						 &GLModelTreeView::CreateRequest,
+            &ObjectManager::getInstance(),   &ObjectManager::CreateInstance);
+	connect(treeview,						 &GLModelTreeView::RobotCreateRequest,
+			robot_create_dialog_ptr_.get(),  &RobotCreateDialog::show);
+
+	/* ADPATER CONNECTIONS */
+	/* UI_STATE  >> TREEVIEW */
+	connect(ui_state_ptr,		&UIState::SelectRequest,
+			[treeview = treeview, &tree = model_tree_](const string& name) {
+				treeview->ResponseSelectRequest(tree->getIndexByName(name));
+			});
+	/* ComboBox >> TREEVIEW */
+	connect(obj_display,		&QComboBox::textActivated,
+			[treeview = treeview, &tree = model_tree_](const QString& name) {
+				treeview->ResponseSelectRequest(tree->getIndexByName(name.toStdString()));
+			});
+
+	/* uimodel << MODELMANAGER */
+	connect(&ModelManager::getInstance(), &ModelManager::ModelRegisterNotice,
+			[obj_display = obj_display](const std::string& name, const std::string& _){
+				obj_display->addItem(QString::fromStdString(name));
+			});
+	/* uimodel  << MODELMANAGER */
+	connect(&ModelManager::getInstance(), &ModelManager::ModelDeregisterNotice,
+			[obj_display = obj_display](const std::string& name){
+				if (int index = obj_display->findText(QString::fromStdString(name));
+					!name.empty() && index != -1) {
+					obj_display->removeItem(index);
+					obj_display->setCurrentIndex(0);
+				}				
+			});
+
+	/* robotcreatedialog >> ? */
+	connect(robot_create_dialog_ptr_.get(), &RobotCreateDialog::RobotCreateRequestMDH,
+			this,							&EngineApp::CreateRobotWithParams);
+	
+	/* close all window */
+	connect(window_ptr_.get(),				&MainWindow::deleteLater,
+			robot_create_dialog_ptr_.get(), &RobotCreateDialog::close);
+
+	/* component tool box */
+	connect(window_ptr_.get(),				&MainWindow::RequestDeleteComponent,
+			[&model_manager = ModelManager::getInstance(), ui_state_ptr](const QString& com_name)
+	{
+		Model* model = ui_state_ptr->GetSelectedObject();
+		if (model) model->DeregisterComponent(com_name.toStdString() + "Component");
+		
+	});
+
+	connect(window_ptr_.get(), &MainWindow::RequestAddComponent,
+		[window_ptr = window_ptr_.get(), ui_state_ptr](const QString& com_name) {
+			Model* model = ui_state_ptr->GetSelectedObject();
+			if (model) {
+				if (model->RegisterComponent(ComponentFactory::GetComponent(com_name.toStdString(), model))) {
+					Component* component = model->GetComponent<Component>(com_name.toStdString());
+					window_ptr->ResponseComponentCreateRequest(component, com_name);
+				}
+			}
+	});
+}
+
+void GComponent::EngineApp::InitializeMembers(int argc, char* argv[])
+{
+	// QApplication initialize
+	gui_app_ptr_ = std::make_unique<QApplication>(argc, argv);
+
+	// ui initialize
+	window_ptr_ = std::make_unique<MainWindow>();
+	window_ptr_->setWindowIconText("机械臂规划仿真软件");
+	//window_ptr_->setWindowFlag(Qt::FramelessWindowHint);
+
+	robot_create_dialog_ptr_ = std::make_unique<RobotCreateDialog>();
+	robot_create_dialog_ptr_->setWindowTitle("Create Ur Robot(*^_^*)");
+
+	// model initialize	
+	model_tree_ = std::make_unique<EditorTreeModel>("");
+}
+

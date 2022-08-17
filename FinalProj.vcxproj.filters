@@ -56,18 +56,9 @@
     <ClCompile Include="source\function\modelloader.cpp">
       <Filter>function</Filter>
     </ClCompile>
-    <ClCompile Include="source\manager\modelmanager.cpp">
-      <Filter>manager</Filter>
-    </ClCompile>
-    <ClCompile Include="source\manager\resourcemanager.cpp">
-      <Filter>manager</Filter>
-    </ClCompile>
     <ClCompile Include="source\engineapp.cpp" />
     <ClCompile Include="source\component\transform.cpp">
       <Filter>component</Filter>
-    </ClCompile>
-    <ClCompile Include="source\manager\rendermanager.cpp">
-      <Filter>manager</Filter>
     </ClCompile>
     <ClCompile Include="source\function\picking_helper.cpp">
       <Filter>function</Filter>
@@ -80,9 +71,6 @@
     </ClCompile>
     <ClCompile Include="source\function\adapter\modelloader_qgladapter.cpp">
       <Filter>function\adapter</Filter>
-    </ClCompile>
-    <ClCompile Include="source\manager\objectmanager.cpp">
-      <Filter>manager</Filter>
     </ClCompile>
     <ClCompile Include="source\model\basegrid.cpp">
       <Filter>model\basic</Filter>
@@ -159,6 +147,36 @@
     <ClCompile Include="source\component\component_factory.cpp">
       <Filter>component</Filter>
     </ClCompile>
+    <ClCompile Include="source\physics\physx\physx_utils.cpp">
+      <Filter>physics\physx</Filter>
+    </ClCompile>
+    <ClCompile Include="source\physics\physics_scene.cpp">
+      <Filter>physics</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\rigidbody_component.cpp">
+      <Filter>component</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\collider_component.cpp">
+      <Filter>component</Filter>
+    </ClCompile>
+    <ClCompile Include="source\physics\rigidbody_actor.cpp">
+      <Filter>physics</Filter>
+    </ClCompile>
+    <ClCompile Include="source\manager\modelmanager.cpp">
+      <Filter>manager\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\manager\objectmanager.cpp">
+      <Filter>manager\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\manager\physicsmanager.cpp">
+      <Filter>manager\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\manager\rendermanager.cpp">
+      <Filter>manager\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\manager\resourcemanager.cpp">
+      <Filter>manager\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\motion\gmotionbase.h">
@@ -233,17 +251,11 @@
     <ClInclude Include="source\component\transform.h">
       <Filter>component</Filter>
     </ClInclude>
-    <ClInclude Include="source\manager\resourcemanager.h">
-      <Filter>manager</Filter>
-    </ClInclude>
     <ClInclude Include="source\base\singleton.h">
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="source\render\raw_mesh.hpp">
       <Filter>render</Filter>
-    </ClInclude>
-    <ClInclude Include="source\manager\rendermanager.h">
-      <Filter>manager</Filter>
     </ClInclude>
     <ClInclude Include="source\function\picking_helper.h">
       <Filter>function</Filter>
@@ -335,6 +347,30 @@
     <ClInclude Include="source\component\component_factory.h">
       <Filter>component</Filter>
     </ClInclude>
+    <ClInclude Include="source\physics\physics_scene.h">
+      <Filter>physics</Filter>
+    </ClInclude>
+    <ClInclude Include="source\physics\physx\physx_utils.h">
+      <Filter>physics\physx</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\rigidbody_component.h">
+      <Filter>component</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\collider_component.h">
+      <Filter>component</Filter>
+    </ClInclude>
+    <ClInclude Include="source\physics\rigidbody_actor.h">
+      <Filter>physics</Filter>
+    </ClInclude>
+    <ClInclude Include="source\physics\abstract_shape.hpp">
+      <Filter>physics</Filter>
+    </ClInclude>
+    <ClInclude Include="source\manager\rendermanager.h">
+      <Filter>manager\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\manager\resourcemanager.h">
+      <Filter>manager\inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="mainwindow.h">
@@ -346,14 +382,8 @@
     <QtMoc Include="source\manager\editor\uistatemanager.h">
       <Filter>manager\editor</Filter>
     </QtMoc>
-    <QtMoc Include="source\manager\modelmanager.h">
-      <Filter>manager</Filter>
-    </QtMoc>
     <QtMoc Include="source\ui\treeview\glmodeltreeview.h">
       <Filter>ui_surface\treeview</Filter>
-    </QtMoc>
-    <QtMoc Include="source\manager\objectmanager.h">
-      <Filter>manager</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\viewport.h">
       <Filter>ui_surface\openglwidget</Filter>
@@ -367,6 +397,15 @@
     </QtMoc>
     <QtMoc Include="source\ui\widget\tracker_widget.h">
       <Filter>ui_surface\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="source\manager\modelmanager.h">
+      <Filter>manager\inc</Filter>
+    </QtMoc>
+    <QtMoc Include="source\manager\objectmanager.h">
+      <Filter>manager\inc</Filter>
+    </QtMoc>
+    <QtMoc Include="source\manager\physicsmanager.h">
+      <Filter>manager\inc</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -469,6 +508,7 @@
     <None Include="Shader\Fragment\cascade_shadow_orthoFrag.frag">
       <Filter>shader\frag</Filter>
     </None>
+    <None Include="C:\Users\Administrator\Documents\Visual Studio 2022\My Exported Templates\GComponentClass.zip" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ui_surface">
@@ -585,6 +625,18 @@
     </Filter>
     <Filter Include="render\rhi">
       <UniqueIdentifier>{c97e31fa-c4c1-45c5-a4aa-8486bbe71c19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="physics">
+      <UniqueIdentifier>{ff1b089b-377b-490a-99ba-11ae86d9c241}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="physics\physx">
+      <UniqueIdentifier>{bd151ad2-4f2a-41e2-8083-e09e827fed34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="manager\src">
+      <UniqueIdentifier>{5a909fc1-8ee5-4356-bba9-bc8d13e74b4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="manager\inc">
+      <UniqueIdentifier>{9d6185fe-8456-4fe8-a0c9-7e4df371e015}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

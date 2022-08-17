@@ -21,7 +21,6 @@
 
 namespace GComponent {
 
-class Model;
 class MyGL;
 class MyShader;
 
@@ -30,18 +29,24 @@ using std::string;
 using std::pair;
 using std::shared_ptr;
 using std::unique_ptr;
+using std::unordered_map;
+
 using Vec3 = Eigen::Vector3f;
 using Vec4 = Eigen::Vector4f;
 using Mat3 = Eigen::Matrix3f;
 using Mat4 = Eigen::Matrix4f;
-using std::unordered_map;
 
 class Model
 {
-    using _RawPtr = Model*;   
+/// Type Alias
+    using _RawPtr       = Model*;   
     using _PtrComponent = unique_ptr<Component>;
+
+/// Friends
     friend class ModelManager;
     friend class RenderManager;
+
+/// Class Methods
 public:
     explicit        Model(_RawPtr parent = nullptr, const string & meshKey = "");
                     Model(const string& name, const string& mesh, const string& shader, const Mat4& model_mat, _RawPtr parent =nullptr);
@@ -108,32 +113,37 @@ protected:
     void            updateChildrenMatrix(const Mat3& parent_scale_mat);
     virtual void    setShaderProperty(MyShader& shader);
 
+/// Fields 数据域
 protected:
     // Components 组件体系
-    vector<_PtrComponent> components_ptrs_;
+    vector<_PtrComponent>   components_ptrs_        = {};
 
     /// Transform 变换相关
-    Vec3 trans_                     = Vec3::Zero();
-    Vec3 rot_                       = Vec3::Zero();
-    Vec3 scale_                     = Vec3::Ones();
-    Vec3 shear_                     = Vec3::Zero();
+    Vec3                    trans_                  = Vec3::Zero();
+    Vec3                    rot_                    = Vec3::Zero();
+    Vec3                    scale_                  = Vec3::Ones();
+    Vec3                    shear_                  = Vec3::Zero();
+    Mat4                    parent_model_mat_       = Mat4::Identity();    
+    Mat4                    model_mat_              = Mat4::Identity();
+    Mat3                    inv_parent_U_mat_       = Mat3::Identity();
 
-    /// Fields 数据域
-    Mat4 parent_model_mat_          = Mat4::Identity();    
-    Mat4 model_mat_                 = Mat4::Identity();
-    Mat3 inv_parent_U_mat_          = Mat3::Identity();
-
-    _RawPtr         parent_         = nullptr;
-    vector<_RawPtr> children_       = {};
+    // Relationships 父子关系
+    _RawPtr                 parent_                 = nullptr;
+    vector<_RawPtr>         children_               = {};
 
     /// Structure 结构相关
-    int     model_id_               = -1;
-    string  name_                   = "";
-    string  mesh_                   = "";
-    string  shader_                 = "";
-
+    int                     model_id_               = -1;
+    string                  name_                   = "";
+    string                  mesh_                   = "";
+    string                  shader_                 = "";
 };
 
+/// <summary>
+/// This functions is used to get the specify Type Component from a model object
+/// </summary>
+/// <typeparam name="_TypeComponent">component type</typeparam>
+/// <param name="component_name">the key to find the component</param>
+/// <returns>the specify type component</returns>
 template<class _TypeComponent> requires std::is_base_of_v<Component, _TypeComponent>
 _TypeComponent* Model::GetComponent(const string& component_name) {
     for (int i = 0; i < components_ptrs_.size(); ++i) {

@@ -26,11 +26,11 @@ using std::map;
 using std::vector;
 using std::unordered_map;
 
-using Time = double;
-using JointPos = vector<double>;
-using JointVel = vector<double>;
-using JointPair = pair<JointPos, JointVel>;
-using JointPosPair = pair<JointPos, JointPos>;
+using Time             = double;
+using JointPos         = vector<double>;
+using JointVel         = vector<double>;
+using JointPair        = pair<JointPos, JointVel>;
+using JointPosPair     = pair<JointPos, JointPos>;
 
 using DualJointsPosFun = function<JointPosPair(Time)>;
 using JointPosMsgFun   = function<JointPos(Time)>;

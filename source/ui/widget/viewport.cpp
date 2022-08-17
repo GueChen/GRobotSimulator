@@ -3,13 +3,18 @@
 #include "manager/resourcemanager.h"
 #include "manager/modelmanager.h"
 #include "manager/rendermanager.h"
+#include "manager/physicsmanager.h"
 
 #include <QtGui/QMouseEvent>
 #include <QtGUI/QKeyEvent>
 #include <QtCore/QmetaType>
 
+#ifdef _DEBUG
 #include <iostream>
 #include <format>
+
+#endif
+#include "component/rigidbody_component.h"
 
 namespace GComponent {
 
@@ -24,6 +29,7 @@ Viewport::Viewport(QWidget* parent) :
 
 Viewport::~Viewport() {}
 
+
 void Viewport::initializeGL()
 {
 	gl_->initializeOpenGLFunctions();
@@ -31,12 +37,12 @@ void Viewport::initializeGL()
 	RegisteredShader();
 	if (!camera_handle)
 		camera_handle = GComponent::ModelManager::getInstance().RegisteredCamera();
-	GComponent::ResourceManager::getInstance().DeregisteredUIHandle("viewport");
 	
 	ui_state_.SetGL(gl_);	
 	GComponent::ResourceManager::getInstance().SetGL(gl_);
 	GComponent::RenderManager::getInstance().SetGL(gl_);
 
+	//GComponent::ResourceManager::getInstance().DeregisteredUIHandle("viewport");
 	//GComponent::ResourceManager::getInstance().RegisteredUIHandle("viewport", this);
 	QOpenGLContext::currentContext()->format().setSwapInterval(0);
 }
@@ -56,30 +62,53 @@ void Viewport::paintGL()
 	
 	/*_________________________________Paint Main Loop________________________________________________________________________________________________*/
 	Camera* camera_ptr = ModelManager::getInstance().GetCameraByHandle(camera_handle);
-
-	// Process Input
-	ui_state_.tick();
-
 	// Set global Render parameters
-	RenderGlobalInfo&  render_info =  RenderManager::getInstance().m_render_sharing_msg;
+	RenderGlobalInfo& render_info = RenderManager::getInstance().m_render_sharing_msg;
 	render_info.SetSimpleDirLight(vec3(0.5f, 1.0f, 1.0f), vec3(1.0f));
 	render_info.SetCameraInfo(*camera_ptr);
 	render_info.SetProjectionPlane(0.001f, 1000.0f);
 	render_info.UpdateProjectionMatrix();
+	
+	// custom definition update method
+	CustomUpdateImpl();
 
+	// Process Input
+	ui_state_.tick();
+	
 	// Adjust all component
 	ModelManager::getInstance().tickAll(delta_time.count());
 	// Adjust all resources
 	ResourceManager::getInstance().tick(gl_);
+	// Adjust all the physics actors
+	PhysicsManager::getInstance().tick(delta_time.count());
 	// Draw all renderable process Passes
 	RenderManager::getInstance().tick();
-
+	
 	// Time statics rendering over
 	std::chrono::time_point now = std::chrono::steady_clock::now();
 	delta_time = std::chrono::duration_cast<std::chrono::duration<float>>(now - last_point);
 	last_point = now;
 	emit EmitDeltaTime(delta_time.count());
 	update();
+}
+
+void Viewport::CustomUpdateImpl()
+{
+	Model* sphere_collider = ModelManager::getInstance().GetModelByName("sphere1");
+	if (sphere_collider) {
+		
+		float time_point = std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::steady_clock::now().time_since_epoch()).count();
+		sphere_collider->setTransLocal(Eigen::Vector3f(
+								0.25f + 0.3f   * sin(time_point), 
+								0.85f + 0.125f * cos(0.33f * time_point), 
+								1.75f + 0.2f   * sin(3.714f * time_point)));
+	}
+	std::shared_ptr<PhysicsScene> scene = PhysicsManager::getInstance().GetActivateScene().lock();
+	auto rigid_com = sphere_collider->GetComponent<RigidbodyComponent>(RigidbodyComponent::type_name.data());
+	vector<OverlapHitInfo> hits_info;
+	scene->Overlap(rigid_com->GetActor(), 10, hits_info);
+
+
 }
 
 /*________________________________Events Implementations_____________________________________________*/

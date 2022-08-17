@@ -77,6 +77,9 @@
     <QtInstall>6.2.0_msvc2019_64</QtInstall>
     <QtModules>core;opengl;network;gui;widgets;qml;quickwidgets;quick</QtModules>
   </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <VcpkgConfiguration>Release</VcpkgConfiguration>
+  </PropertyGroup>
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
     <Import Project="$(QtMsBuild)\qt.props" />
   </ImportGroup>
@@ -87,7 +90,7 @@
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4577;4467;4828%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ObjectFileName>release\</ObjectFileName>
@@ -146,7 +149,7 @@
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4828;4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4828;4577;4467;4244;26495%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ObjectFileName>debug\</ObjectFileName>
@@ -198,7 +201,10 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic.cpp" />
     <ClCompile Include="source\3rdparty\stb\stb_image.c" />
+    <ClCompile Include="source\component\collider_component.cpp" />
     <ClCompile Include="source\component\component_factory.cpp" />
+    <ClCompile Include="source\component\rigidbody_component.cpp" />
+    <ClCompile Include="source\manager\physicsmanager.cpp" />
     <ClCompile Include="source\model\basic\postprocess_quads.cpp" />
     <ClCompile Include="source\component\joint_component.cpp" />
     <ClCompile Include="source\component\joint_group_component.cpp" />
@@ -222,6 +228,9 @@
     <ClCompile Include="source\base\treeitem.cpp" />
     <ClCompile Include="source\manager\modelmanager.cpp" />
     <ClCompile Include="source\manager\resourcemanager.cpp" />
+    <ClCompile Include="source\physics\physics_scene.cpp" />
+    <ClCompile Include="source\physics\physx\physx_utils.cpp" />
+    <ClCompile Include="source\physics\rigidbody_actor.cpp" />
     <ClCompile Include="source\render\framebufferobject.cpp" />
     <ClCompile Include="source\render\rhi\render_global_info.cpp" />
     <ClCompile Include="source\simplexmesh\gball.cpp" />
@@ -274,7 +283,10 @@
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\Concept\gconcept.hpp" />
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic-inl.hpp" />
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\heuristic_ik_solver.hpp" />
+    <ClInclude Include="source\component\collider_component.h" />
     <ClInclude Include="source\component\component_factory.h" />
+    <ClInclude Include="source\component\rigidbody_component.h" />
+    <QtMoc Include="source\manager\physicsmanager.h" />
     <ClInclude Include="source\model\basic\postprocess_quads.h" />
     <ClInclude Include="source\base\global\global_qss.h" />
     <ClInclude Include="source\component\kinematic_component.h" />
@@ -283,6 +295,10 @@
     <QtMoc Include="source\ui\widget\kinematic_widget.h" />
     <QtMoc Include="source\ui\widget\tracker_widget.h" />
     <ClInclude Include="source\model\basic\skybox.h" />
+    <ClInclude Include="source\physics\abstract_shape.hpp" />
+    <ClInclude Include="source\physics\physics_scene.h" />
+    <ClInclude Include="source\physics\physx\physx_utils.h" />
+    <ClInclude Include="source\physics\rigidbody_actor.h" />
     <ClInclude Include="source\render\framebufferobject.h" />
     <ClInclude Include="source\render\rhi\render_global_info.h" />
     <ClInclude Include="source\ui\menu\componentmenu.h" />
@@ -368,6 +384,7 @@
     <QtUic Include="UI\widget\tracker_component_ui_widget.ui" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="C:\Users\Administrator\Documents\Visual Studio 2022\My Exported Templates\GComponentClass.zip" />
     <None Include="ClassDiagram.cd" />
     <None Include="Shader\Fragment\axisFrag.frag" />
     <None Include="Shader\Fragment\cascade_shadow_orthoFrag.frag" />

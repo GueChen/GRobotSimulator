@@ -13,6 +13,8 @@
 #include "component/joint_group_component.h"
 #include "component/kinematic_component.h"
 #include "component/tracker_component.h"
+#include "component/rigidbody_component.h"
+
 #include "ui/widget/kinematic_widget.h"
 #include "ui/widget/tracker_widget.h"
 #include <GComponent/GNumerical.hpp>
@@ -82,6 +84,12 @@ public:
 			ConnectTrackerComponentUI(widget, tracker_component);
 			return widget;
 		}
+		else{
+			// TODO: add the widget
+			QWidget* widget = new QWidget;
+			return   widget;
+		}
+		
 		return nullptr;
 	}
 
