@@ -26,6 +26,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    updated_timer_ptr_->stop();
+    delete updated_timer_ptr_;
     delete ui_;
     delete component_menu_;
 }
@@ -113,6 +115,14 @@ void MainWindow::ConnectionInit()
     connect(component_menu_->m_add_tracker_component,     &QAction::triggered, [this]() {
         emit RequestAddComponent("TrackerComponent");
     });
+
+    // TODO: add the complete menu action
+    connect(ui_->planning_module_action,                  &QAction::triggered, [this]() {
+        emit RequestShowDialog("PlanningDialog");
+    });
+
+    connect(ui_->quit_action,                             &QAction::triggered,
+            this,                                         &MainWindow::close);
 }
 
 

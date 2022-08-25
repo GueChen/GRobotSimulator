@@ -15,15 +15,7 @@ int main(int argc, char *argv[])
     GComponent::EngineApp::getInstance().Init(argc, argv);
     
     GComponent::ObjectManager::getInstance().CreateInstance("sphere");
-    GComponent::Model * sphere = GComponent::ModelManager::getInstance().GetModelByName("sphere0");
-    if (sphere) {
-        sphere->setTransLocal(Eigen::Vector3f(0.0f, 1.3f, 2.0f));
-        sphere->setScale(0.05f * Eigen::Vector3f::Ones());
-        sphere->RegisterComponent(std::make_unique<GComponent::TrackerComponent>(sphere));
-    }
-
-    GComponent::ObjectManager::getInstance().CreateInstance("sphere");
-    GComponent::Model* sphere_collider = GComponent::ModelManager::getInstance().GetModelByName("sphere1");
+    GComponent::Model* sphere_collider = GComponent::ModelManager::getInstance().GetModelByName("sphere0");
     if (sphere_collider) {
         sphere_collider->setTransLocal(Eigen::Vector3f(0.25f, 0.85f, 1.75f));
         sphere_collider->setScale(0.1f * Eigen::Vector3f::Ones());

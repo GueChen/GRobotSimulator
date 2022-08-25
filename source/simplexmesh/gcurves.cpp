@@ -1,7 +1,5 @@
 #include "gcurves.h"
 
-
-
 #include <algorithm>
 #include <execution>
 

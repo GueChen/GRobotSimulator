@@ -12,7 +12,6 @@
 
 #include "model/model.h"
 
-#include <GComponent/GTransform.hpp>
 #include <GComponent/grobotkinematic.h>
 
 #include <optional>
@@ -25,11 +24,11 @@ using std::vector;
 template<class _Scaler>
 using Thetas = vector<_Scaler>;
 template<class _Scaler>
-using Jacobian = Matrix<_Scaler, 6, -1>;
-template<class _Scaler>
 using Transforms = vector<Matrix<_Scaler, 4, 4>>;
 template<class _Scaler>
 using Thetav = Vector<_Scaler, -1>;
+template<class _Scaler>
+using Jacobi = Matrix<_Scaler, Eigen::Dynamic, Eigen::Dynamic>;
 
 enum class IKSolverEnum {
 	LeastNorm						= 0,
@@ -48,6 +47,7 @@ public:
 	explicit KinematicComponent(const SE3<float>& initial_end_transform, Model* ptr_parent = nullptr);
 	~KinematicComponent() = default;
 	
+	bool	  ForwardKinematic(SE3<float>& out_mat);
 	bool	  ForwardKinematic(SE3<float>&  out_mat, const Thetas<float>&  thetas);
 	bool	  ForwardKinematic(SE3<float>&	out_mat, const Thetav<float>&  thetav);
 
@@ -55,8 +55,11 @@ public:
 							   const SE3<float>&	 trans_desire,
 							   const Thetas<float>&  init_guess);
 	bool	  InverseKinematic(Thetav<float>&		 out_thetas,
-							   const SE3<float>&	 init_guess,
-							   const Thetav<float>&  trans_desire);
+							   const SE3<float>&	 trans_desire,
+							   const Thetav<float>&  init_guess);
+	
+	bool	  Jacobian(Jacobi<float>& out_mat, const Thetas<float>& thetas);
+	bool	  Jacobian(Jacobi<float>& out_mat, const Thetav<float>& thetav);
 
 	bool	  UpdateExponentialCoordinates();
 
@@ -69,6 +72,8 @@ public:
 	inline IKSolverEnum
 					GetIKEnum()		const			{ return ik_solver_enum_; }
 	inline unsigned GetJointCount() const			{ return joint_count_; }
+	
+	vector<float>   GetJointsPos() const;
 
 	inline void		SetPrecision(double prececion)	{ precision_ = prececion; }
 	inline double	GetPrecision()	const			{ return precision_; }
@@ -91,7 +96,7 @@ protected:
 private:
 	void			InitializeIKSolvers();
 	inline JointGroupComponent* 
-					GetJointsGroup() { return ptr_parent_->GetComponent<JointGroupComponent>("JointGroupComponent"); }
+					GetJointsGroup() const { return ptr_parent_->GetComponent<JointGroupComponent>("JointGroupComponent"); }
 
 	Thetav<float>			toThetav(const Thetas<float> thetas);
 	Thetas<float>			fromThetav(const Thetav<float> thetav);

@@ -145,7 +145,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>.;debug;/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -permissive- -Zc:__cplusplus -Zc:externConstexpr -utf-8 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 /bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -permissive- -Zc:__cplusplus -Zc:externConstexpr -utf-8 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -205,6 +205,7 @@
     <ClCompile Include="source\component\component_factory.cpp" />
     <ClCompile Include="source\component\rigidbody_component.cpp" />
     <ClCompile Include="source\manager\physicsmanager.cpp" />
+    <ClCompile Include="source\manager\planningmanager.cpp" />
     <ClCompile Include="source\model\basic\postprocess_quads.cpp" />
     <ClCompile Include="source\component\joint_component.cpp" />
     <ClCompile Include="source\component\joint_group_component.cpp" />
@@ -217,6 +218,9 @@
     <ClCompile Include="source\function\builder\robotbuilder.cpp" />
     <ClCompile Include="source\function\picking_helper.cpp" />
     <ClCompile Include="source\model\basic\skybox.cpp" />
+    <ClCompile Include="source\motion\dualsynccirclemotion.cpp" />
+    <ClCompile Include="source\motion\gmotionbase.cpp" />
+    <ClCompile Include="source\motion\trajectory.cpp" />
     <ClCompile Include="source\pattern\widgetbuilder.cpp" />
     <ClCompile Include="source\manager\editor\uistatemanager.cpp" />
     <ClCompile Include="source\manager\rendermanager.cpp" />
@@ -236,29 +240,32 @@
     <ClCompile Include="source\simplexmesh\gball.cpp" />
     <ClCompile Include="source\simplexmesh\gcurves.cpp" />
     <ClCompile Include="source\simplexmesh\gline.cpp" />
-    <ClCompile Include="source\motion\gmotionbase.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="source\motion\circmotion.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="source\motion\linmotion.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="source\motion\ptpmotion.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="source\motion\splinemotion.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="source\motion\syncduallinemotion.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    <ClCompile Include="source\motion\dualsynclinemotion.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="source\system\planningsystem.cpp" />
+    <ClCompile Include="source\ui\dialog\planningdialog.cpp">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
     </ClCompile>
     <ClCompile Include="source\ui\dialog\robotcreatedialog.cpp" />
     <ClCompile Include="source\ui\menu\componentmenu.cpp" />
@@ -287,6 +294,10 @@
     <ClInclude Include="source\component\component_factory.h" />
     <ClInclude Include="source\component\rigidbody_component.h" />
     <QtMoc Include="source\manager\physicsmanager.h" />
+    <ClInclude Include="source\manager\planningmanager.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="source\model\basic\postprocess_quads.h" />
     <ClInclude Include="source\base\global\global_qss.h" />
     <ClInclude Include="source\component\kinematic_component.h" />
@@ -295,12 +306,29 @@
     <QtMoc Include="source\ui\widget\kinematic_widget.h" />
     <QtMoc Include="source\ui\widget\tracker_widget.h" />
     <ClInclude Include="source\model\basic\skybox.h" />
+    <ClInclude Include="source\motion\dualsynccirclemotion.h">
+      <SubType>
+      </SubType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="source\motion\trajectory.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="source\physics\abstract_shape.hpp" />
     <ClInclude Include="source\physics\physics_scene.h" />
     <ClInclude Include="source\physics\physx\physx_utils.h" />
     <ClInclude Include="source\physics\rigidbody_actor.h" />
     <ClInclude Include="source\render\framebufferobject.h" />
     <ClInclude Include="source\render\rhi\render_global_info.h" />
+    <QtMoc Include="source\ui\dialog\planningdialog.h">
+      <SubType>
+      </SubType>
+    </QtMoc>
+    <QtMoc Include="source\system\planningsystem.h">
+      <SubType>
+      </SubType>
+    </QtMoc>
     <ClInclude Include="source\ui\menu\componentmenu.h" />
     <ClInclude Include="source\ui\wrapper\extensiblelist.h" />
     <QtMoc Include="source\ui\widget\viewport.h" />
@@ -342,28 +370,28 @@
     <ClInclude Include="source\simplexmesh\gline.h" />
     <ClInclude Include="source\simplexmesh\simplexmodel.hpp" />
     <ClInclude Include="source\motion\gmotionbase.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="source\motion\circmotion.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="source\motion\linmotion.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="source\motion\ptpmotion.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="source\motion\splinemotion.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="source\motion\syncduallinemotion.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    <ClInclude Include="source\motion\dualsynclinemotion.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="source\model\robot\dual_arm_platform.h" />
     <ClInclude Include="source\model\robot\kuka_iiwa_model.h" />
@@ -378,13 +406,13 @@
   <ItemGroup>
     <QtUic Include="mainwindow.ui">
     </QtUic>
+    <QtUic Include="UI\Dialog\planningdialog.ui" />
     <QtUic Include="UI\Dialog\robotcreatedialog.ui" />
     <QtUic Include="UI\Display\widget_qss_playground.ui" />
     <QtUic Include="UI\widget\kinematic_component_ui_widget.ui" />
     <QtUic Include="UI\widget\tracker_component_ui_widget.ui" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="C:\Users\Administrator\Documents\Visual Studio 2022\My Exported Templates\GComponentClass.zip" />
     <None Include="ClassDiagram.cd" />
     <None Include="Shader\Fragment\axisFrag.frag" />
     <None Include="Shader\Fragment\cascade_shadow_orthoFrag.frag" />
@@ -405,8 +433,8 @@
     <None Include="Shader\Vertex\skyboxVert.vert" />
     <None Include="source\simplexmesh\GBasicMesh" />
     <None Include="source\motion\GMotion">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </None>
     <None Include="Shader\Fragment\BaseFrag.frag" />
     <None Include="Shader\Vertex\BaseVert.vert" />

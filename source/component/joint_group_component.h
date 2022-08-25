@@ -39,7 +39,7 @@ public:
 	inline const vector<JointComponent*>& 
 					GetJoints()		const			{ return joints_; }
 
-	vector<float>	GetPositions();
+	vector<float>	GetPositions()  const;
 	void			SetPositions(const vector<float>& positions);
 
 	int				SearchJointsInChildren();

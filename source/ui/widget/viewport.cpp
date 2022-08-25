@@ -12,7 +12,6 @@
 #ifdef _DEBUG
 #include <iostream>
 #include <format>
-
 #endif
 #include "component/rigidbody_component.h"
 
@@ -42,8 +41,6 @@ void Viewport::initializeGL()
 	GComponent::ResourceManager::getInstance().SetGL(gl_);
 	GComponent::RenderManager::getInstance().SetGL(gl_);
 
-	//GComponent::ResourceManager::getInstance().DeregisteredUIHandle("viewport");
-	//GComponent::ResourceManager::getInstance().RegisteredUIHandle("viewport", this);
 	QOpenGLContext::currentContext()->format().setSwapInterval(0);
 }
 
@@ -94,21 +91,20 @@ void Viewport::paintGL()
 
 void Viewport::CustomUpdateImpl()
 {
-	Model* sphere_collider = ModelManager::getInstance().GetModelByName("sphere1");
+	Model* sphere_collider = ModelManager::getInstance().GetModelByName("sphere0");
 	if (sphere_collider) {
 		
 		float time_point = std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::steady_clock::now().time_since_epoch()).count();
 		sphere_collider->setTransLocal(Eigen::Vector3f(
-								0.25f + 0.3f   * sin(time_point), 
-								0.85f + 0.125f * cos(0.33f * time_point), 
-								1.75f + 0.2f   * sin(3.714f * time_point)));
+								0.25f + 0.3f   * sin(0.5f * time_point), 
+								0.85f + 0.125f * cos(0.5f * 0.33f * time_point), 
+								1.75f + 0.2f   * sin(0.5f * 3.714f * time_point)));
+		std::shared_ptr<PhysicsScene> scene = PhysicsManager::getInstance().GetActivateScene().lock();
+		auto rigid_com = sphere_collider->GetComponent<RigidbodyComponent>(RigidbodyComponent::type_name.data());
+		vector<OverlapHitInfo> hits_info;
+		scene->Overlap(rigid_com->GetActor(), 10, hits_info);
 	}
-	std::shared_ptr<PhysicsScene> scene = PhysicsManager::getInstance().GetActivateScene().lock();
-	auto rigid_com = sphere_collider->GetComponent<RigidbodyComponent>(RigidbodyComponent::type_name.data());
-	vector<OverlapHitInfo> hits_info;
-	scene->Overlap(rigid_com->GetActor(), 10, hits_info);
-
-
+	
 }
 
 /*________________________________Events Implementations_____________________________________________*/
@@ -145,17 +141,6 @@ void Viewport::keyPressEvent(QKeyEvent* event)
 	}
 
 	ui_state_.OnKeyPress(key_state);
-
-#ifdef  _DEBUG
-	static std::chrono::time_point last_point = std::chrono::steady_clock::now();
-	static float input_delta_time = 0.0f;
-	std::chrono::time_point now = std::chrono::steady_clock::now();
-	input_delta_time = std::chrono::duration_cast<std::chrono::duration<float>>(now - last_point).count();
-	last_point = now;
-	std::cout << "Input delta time: " << input_delta_time << std::endl;
-	std::cout << event->text().toStdString() << std::endl;
-#endif //  _DEBUG
-
 }
 
 void Viewport::keyReleaseEvent(QKeyEvent* event)

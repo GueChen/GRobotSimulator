@@ -1,51 +1,24 @@
 #include "circmotion.h"
-#include "model/robot/kuka_iiwa_model.h"
 
 using namespace GComponent;
 
-CircMotion::CircMotion(const SE3d& T, const Vec3d& pos):
-    T_goal(T), pos_mid(pos)
+CircMotion::CircMotion(const SE3f& mat, const Vec3f& pos):
+    CMotionBase(mat), pos_mid_(pos)
 {}
 
-JointCruveMsgPkg
-CircMotion::GetCurvesFunction(KUKA_IIWA_MODEL* robot, double Max_Vel_Limit, double Max_Acc_Limit)
+PathFunc GComponent::CircMotion::PathFuncImpl(const SE3f & mat_ini, const SE3f & mat_end)
 {
-    SE3d  T_ini = robot->ForwardKinematic();
-    Vec3d p_ini = T_ini.block(0, 3, 3, 1);
-    Vec3d p_end = T_goal.block(0, 3, 3, 1);
-    const size_t JointNum = robot->GetThetas().size();
-
-    double radius = GetRadiusOfCircle(p_ini, pos_mid, p_end);
-    double angle  = GetArcDeltaOfCircle(p_ini, pos_mid, p_end);
-    auto CircFunc = GetCircleFunction(LogMapSE3Tose3(T_ini), LogMapSE3Tose3(T_goal), pos_mid);
-    double scaler = angle * radius;
-    double tot    = scaler / Max_Vel_Limit;
-
-    /* 没有任何连续性考虑的测试 */
-    auto PositionFunction = [robot, Max_Vel_Limit, CircFunc, tot](double t){
-        double scalered_t  = Clamp(t / tot, 0.0, 1.0);
-        Twistd twist_cur   = CircFunc(scalered_t);
-        IIWAThetas ret_Pos = robot->BackKinematic(twist_cur);
-        std::for_each(ret_Pos.begin(), ret_Pos.end(),[](auto & num)
-        {
-            num = ToStandarAngle(num);
-            num = RadiusToDegree(num);
-        });
-        return vector<double>(ret_Pos.cbegin(), ret_Pos.cend());
-    };
-
-    // FIXME: 待实装修改
-    auto VelocityFunction = [robot, Max_Vel_Limit, tot, JointNum, PositionFunction](double t){
-        if(t <= tot || t >= tot) return vector<double>(7, 0.0);
-        Twistd v_thetav;
-        for(int i = 0; i < 6; ++i)
-        {
-            v_thetav[i] = Max_Vel_Limit;
-        }
-
-        return vector<double>(7, Max_Vel_Limit);
-    };
-    return {tot, PositionFunction, VelocityFunction};
+    return GetCircleFunction(mat_ini, mat_end, pos_mid_);
 }
 
+float GComponent::CircMotion::ExecutionTimeImpl(const SE3f& mat_ini, const SE3f& mat_end)
+{
+    Vec3f pos_ini    = mat_ini.block(0, 3, 3, 1),
+          pos_goal   = mat_end.block(0, 3, 3, 1);
+    float radius     = GetRadiusOfCircle(pos_ini, pos_mid_, pos_goal),
+          angle      = GetArcDeltaOfCircle(pos_ini, pos_mid_, pos_goal);  
+    float lin_dist   = angle * radius;    
+    float ang_dist   = (LogMapSO3Toso3(mat_ini.block(0, 0, 3, 3).inverse() * goal_.block(0, 0, 3, 3))).norm();   
+    return std::max(lin_dist / max_vel_, ang_dist / max_ang_vel_);
+}
 

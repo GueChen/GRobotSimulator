@@ -3,26 +3,18 @@
 
 #include "motion/gmotionbase.h"
 
-
 namespace GComponent {
 
-// TODO: 抽象出一个大的机器人类替代具体的 KUKA_IIWA_MODEL
-class KUKA_IIWA_MODEL;
-
-class PTPMotion : public GMotionBase
+class PTPMotion : public JMotionBase
 {
 public:
-    explicit PTPMotion(const vector<double>&, InterpolationEnum type = InterpolationEnum::Trapezoid);
-    // Depriciate Constructor Method
-    explicit PTPMotion(const SE3d&);
-    explicit PTPMotion(const Vec3d &);
+    explicit PTPMotion(const vector<float>&, InterpolationEnum type = InterpolationEnum::Trapezoid);
+    ~PTPMotion() = default;
 
-    JointCruveMsgPkg
-    GetCurvesFunction(KUKA_IIWA_MODEL*, const double Max_Vel_Limit = 5, const double Max_Acc_Limit = 5);
-
+    virtual JTrajFunc operator()(Model* robot) override;
+       
 private:
-    vector<double> thetas_goal;
-
+    vector<float> jgoals_;
 };
 
 }

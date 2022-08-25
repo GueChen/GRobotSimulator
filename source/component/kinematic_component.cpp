@@ -31,6 +31,11 @@ KinematicComponent::KinematicComponent(const SE3<float>& initial_end_transform, 
 	InitializeIKSolvers();
 }
 
+bool KinematicComponent::ForwardKinematic(SE3<float>& out_mat)
+{
+	return ForwardKinematic(out_mat, GetJointsPos());
+}
+
 bool KinematicComponent::ForwardKinematic(SE3<float>&out_mat, const Thetas<float>&thetas)
 {
 	return ForwardKinematic(out_mat, toThetav(thetas));
@@ -63,6 +68,16 @@ bool KinematicComponent::InverseKinematic(Thetav<float>& out_thetav, const SE3<f
 		decay_scaler_);
 }
 
+bool KinematicComponent::Jacobian(Jacobi<float>& out_mat, const Thetas<float>& thetas)
+{
+	return RobotKinematic::Jacobian(out_mat, exp_coords_, toThetav(thetas));
+}
+
+bool KinematicComponent::Jacobian(Jacobi<float>& out_mat, const Thetav<float>& thetav)
+{
+	return RobotKinematic::Jacobian(out_mat, exp_coords_, thetav);
+}
+
 bool KinematicComponent::UpdateExponentialCoordinates()
 {
 	JointGroupComponent* joints_group = GetJointsGroup();
@@ -90,6 +105,7 @@ bool KinematicComponent::UpdateExponentialCoordinates()
 			// Get q_b with T(t) transform
 			Vec3 w = base_prev * joints[i]->GetAxis();
 			Vec3 q = t;
+
 			// Transform [q(t), w(t)] to [q(0), w(0)]
 			w	   = inv_local.block(0, 0, 3, 3) * w;
 			q	   = AffineProduct(inv_local, q);
@@ -113,6 +129,11 @@ bool KinematicComponent::UpdateExponentialCoordinates()
 		return true;
 	}
 	return false;
+}
+
+vector<float> KinematicComponent::GetJointsPos() const
+{	
+	return GetJointsGroup()->GetPositions();
 }
 
 void KinematicComponent::tickImpl(float delta_time)

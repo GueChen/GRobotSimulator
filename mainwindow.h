@@ -21,9 +21,11 @@ class QChart;
 QT_END_NAMESPACE
 
 namespace GComponent{
-class UIState;
+// UI Related Class
 class GLModelTreeView;
 class ComponentMenu;
+// Function Related Class
+class UIState;
 class Component;
 }
 
@@ -62,7 +64,10 @@ private slots:
 signals:
     void RequestDeleteComponent(const QString& component_name);
     void RequestAddComponent(const QString& component_name);
-private: 
+    void RequestShowDialog(const QString& dialog_name);
+
+private:
+
     Ui::MainWindow*             ui_;
     QTimer*                     updated_timer_ptr_;
 

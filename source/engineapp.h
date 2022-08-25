@@ -7,17 +7,15 @@
 #ifndef _MYENGINE_H
 #define _MYENGINE_H
 
-#include "ui/dialog/robotcreatedialog.h"
 
 #include "base/singleton.h"
-#include "base/editortreemodel.h"
-#include "mainwindow.h"
 
 #include <QtCore/QObject>
 #include <QtWidgets/QApplication>
 
 #include <memory>
 #include <chrono>
+#include <functional>
 
 #include "component/joint_component.h"
 #include "component/joint_group_component.h"
@@ -31,14 +29,30 @@
 /******************/
 #endif // !_DEBUG
 
+class MainWindow;
+
+namespace GComponent{
+// Function Related Class
+class Component;
+// UI Ralated Class
+class PlanningDialog;
+class EditorTreeModel;
+class RobotCreateDialog;
+
+}
+
 namespace GComponent {
+
 using namespace std::chrono;
 using std::unique_ptr;
 
-class Component;
-
 class EngineApp : public QObject
 {
+	template<class T>
+	using _Deleter    = std::function<void(T*)>;
+	template<class T>
+	using _PtrWithDel = unique_ptr<T, _Deleter<T>>;
+
 	Q_OBJECT
 	NonCoyable(EngineApp)
 public:
@@ -65,9 +79,12 @@ signals:
 
 private:
 	unique_ptr<QApplication>		gui_app_ptr_			 = nullptr;
-	unique_ptr<EditorTreeModel>		model_tree_				 = nullptr;
-	unique_ptr<MainWindow>			window_ptr_				 = nullptr;
-	unique_ptr<RobotCreateDialog>	robot_create_dialog_ptr_ = nullptr;
+	_PtrWithDel<EditorTreeModel>	model_tree_				 = nullptr;
+	_PtrWithDel<MainWindow>			window_ptr_				 = nullptr;
+	_PtrWithDel<RobotCreateDialog>  robot_create_dialog_ptr_ = nullptr;
+	_PtrWithDel<PlanningDialog>		planning_dialog_ptr_	 = nullptr;
+
+	//unique_ptr<>
 	steady_clock::time_point		last_time_point_		 = steady_clock::now();
 };
 

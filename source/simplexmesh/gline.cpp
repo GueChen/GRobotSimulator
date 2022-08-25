@@ -2,8 +2,6 @@
 
 #include "render/mygl.hpp"
 
-#include <iostream>
-
 namespace GComponent {
 
 GLine::GLine(vec3 p1, vec3 p2, vec3 c1, vec3 c2)
@@ -13,7 +11,7 @@ GLine::GLine(vec3 p1, vec3 p2, vec3 c1, vec3 c2)
 
     vert_end.position   = p2;
     vert_end.Color      = c2;
-    std::cout << p1.x << ", " << p1.y << ", " << p1.z << std::endl;
+   
 }
 
 void GLine::Draw(MyShader * shader)

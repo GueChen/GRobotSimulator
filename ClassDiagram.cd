@@ -291,7 +291,7 @@
     <Position X="8" Y="14" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAwAAIAAAAAABAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>source\motion\syncduallinemotion.h</FileName>
+      <FileName>source\motion\dualsynclinemotion.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GComponent::Viewport" Collapsed="true">

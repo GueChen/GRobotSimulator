@@ -6,6 +6,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/glm.hpp>
 
+#include <vector>
+
 #ifdef _DEBUG
 #include <iostream>
 #endif // !
@@ -124,6 +126,28 @@ public:
 					     matrix(0, 2), matrix(1, 2), matrix(2, 2), matrix(3, 2),
 					     matrix(0, 3), matrix(1, 3), matrix(2, 3), matrix(3, 3));
     }
+
+   
+};
+
+class STLUtils {
+public:
+    static Eigen::Matrix4f toMat4f(const std::vector<float>& t3_so3) {
+        assert(t3_so3.size() == 6 && "STLUtils::toMat4f Input Size Not Match\n");
+        Eigen::Affine3f mat = Eigen::Affine3f::Identity();
+        Eigen::Vector3f t3(t3_so3[0], t3_so3[1], t3_so3[2]), so3(t3_so3[3], t3_so3[4], t3_so3[5]);
+        mat.translate(t3).rotate(Eigen::AngleAxisf(so3.norm(), so3.normalized()));
+        return mat.matrix();
+    }
+
+    static inline Eigen::Vector3f toVec3f(const std::vector<float>& v3) {
+        assert(v3.size() == 3 && "STLUtils::toVec3 Input Size Not Match\n");
+        return Eigen::Vector3f(v3[0], v3[1], v3[2]);
+    }
+
+private:
+    STLUtils()  = delete;
+    ~STLUtils() = delete;
 };
 
 

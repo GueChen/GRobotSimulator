@@ -6,24 +6,18 @@
 
 namespace GComponent {
 
-// TODO: 抽象出一个大的机器人类替代具体的 KUKA_IIWA_MODEL
-class KUKA_IIWA_MODEL;
-
-class CircMotion : public GMotionBase
+class CircMotion : public CMotionBase
 {
 public:
-    CircMotion(const SE3d&, const Vec3d&);
-    // Depriciate Constructor Method
-    CircMotion(const Twistd&, const Vec3d&);
-    CircMotion(const Vec3d&,  const Vec3d&, const Vec3d& = Vec3d::Zero());
+    CircMotion(const SE3f&, const Vec3f&);
+    ~CircMotion() = default;
 
-    JointCruveMsgPkg
-    GetCurvesFunction(KUKA_IIWA_MODEL*, double Max_Vel_Limit = 5, double Max_Acc_Limit = 5);
+protected:
+    virtual PathFunc PathFuncImpl(const SE3f& mat_ini, const SE3f& mat_end)      override;
+    virtual float    ExecutionTimeImpl(const SE3f& mat_ini, const SE3f& mat_end) override;
 
 private:
-    Vec3d pos_mid;
-    SE3d  T_goal;
-
+    Vec3f pos_mid_;
 };
 
 }

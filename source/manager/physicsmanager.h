@@ -4,8 +4,6 @@
  *  @author Gue Chen<guechen@buaa.edu.cn>
  *  @date 	Aug 8th, 2022
  **/
-
-
 #ifndef __PHYSICS_MANAGER_H
 #define __PHYSICS_MANAGER_H
 

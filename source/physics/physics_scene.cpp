@@ -64,7 +64,6 @@ struct PhysicsImpl
 	PxCpuDispatcher* m_cpu_dispatcher = nullptr;	
 };
 
-
 PhysicsScene::PhysicsScene():
 	physics_impl_(std::make_shared<PhysicsImpl>())
 {
@@ -81,7 +80,7 @@ PhysicsScene::PhysicsScene():
 }
 
 PhysicsScene::~PhysicsScene()
-{
+{	
 	physics_impl_->m_scene->release();
 }
 
@@ -209,7 +208,9 @@ bool PhysicsScene::Sweep(RigidBodyActor& actor, const Vec3& dir, float dist, vec
 								   hit_info);
 		hit_any		|= result;
 		if (result){
+#ifdef _DEBUG
 			std::cout << "Sweep there\n";
+#endif
 		}
 	}
 	return hit_any;

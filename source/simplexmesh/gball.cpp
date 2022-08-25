@@ -10,7 +10,6 @@ GBall::GBall(vec3 o, float r, int resolution):
     center(o), radius(r), mesh({},{},{})
 {
     setupMesh(resolution, 2 * resolution);
-
 }
 
 GBall::GBall(GBall && other):
@@ -32,7 +31,7 @@ GBall & GBall::operator=(GBall && other)
     VAO = other.VAO;
     VBO = other.VBO;
     EBO = other.EBO;
-    gl = other.gl;
+    gl  = other.gl;
     isInit = other.isInit;
 
     std::swap(mesh, other.mesh);

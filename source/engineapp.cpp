@@ -1,5 +1,10 @@
 #include "engineapp.h"
 
+#include "ui/dialog/robotcreatedialog.h"
+#include "ui/dialog/planningdialog.h"
+#include "base/editortreemodel.h"
+#include "mainwindow.h"
+
 #include "ui_mainwindow.h"
 
 #include "component/component_factory.h"
@@ -8,10 +13,16 @@
 #include "manager/resourcemanager.h"
 #include "manager/physicsmanager.h"
 
+#include "system/planningsystem.h"
+
+#include <unordered_map>
+
 #ifndef _DEBUG
 #include <iostream>
 #include <format>
 #endif // !_DEBUG
+
+std::unordered_map<QString, QDialog*> dialog_table;
 
 GComponent::EngineApp& GComponent::EngineApp::getInstance()
 {
@@ -51,6 +62,7 @@ int GComponent::EngineApp::Exec()
 		
 }
 
+// TODO: find a better place not in the engine, maybe object manager related
 void GComponent::EngineApp::CreateRobotWithParams(const vector<vector<float>>& params)
 {
 	LocalTransformsSE3<float> matrices = LocalTransformsSE3<float>::fromMDH(params);
@@ -189,16 +201,23 @@ void GComponent::EngineApp::ConnectModules()
 			this,							&EngineApp::CreateRobotWithParams);
 	
 	/* close all window */
-	connect(window_ptr_.get(),				&MainWindow::deleteLater,
-			robot_create_dialog_ptr_.get(), &RobotCreateDialog::close);
+	/*connect(window_ptr_.get(),				&MainWindow::deleteLater,
+			robot_create_dialog_ptr_.get(), &RobotCreateDialog::close);*/
+
+	/* main_window >> planning_dialog */
+	connect(window_ptr_.get(),				&MainWindow::RequestShowDialog,
+			[this](const QString& dialog_name) 
+		{
+			dialog_table[dialog_name]->show();
+		}
+	);
 
 	/* component tool box */
 	connect(window_ptr_.get(),				&MainWindow::RequestDeleteComponent,
 			[&model_manager = ModelManager::getInstance(), ui_state_ptr](const QString& com_name)
 	{
 		Model* model = ui_state_ptr->GetSelectedObject();
-		if (model) model->DeregisterComponent(com_name.toStdString() + "Component");
-		
+		if (model) model->DeregisterComponent(com_name.toStdString() + "Component");		
 	});
 
 	connect(window_ptr_.get(), &MainWindow::RequestAddComponent,
@@ -211,22 +230,52 @@ void GComponent::EngineApp::ConnectModules()
 				}
 			}
 	});
+
+	/* planning usage */
+	// JPTP
+	connect(planning_dialog_ptr_.get(),			&PlanningDialog::RequestPTPMotionJSpace,
+			&PlanningSystem::getInstance(),		&PlanningSystem::ResponsePTPMotionJSpace);
+	// CPTP
+	connect(planning_dialog_ptr_.get(),			&PlanningDialog::RequestPTPMotionCSpace,
+			&PlanningSystem::getInstance(),		&PlanningSystem::ResponsePTPMotionCSpace);
+	// Line
+	connect(planning_dialog_ptr_.get(),			&PlanningDialog::RequestLineMotion,
+			&PlanningSystem::getInstance(),		&PlanningSystem::ResponseLineMotion);
+	// Circle
+	connect(planning_dialog_ptr_.get(),			&PlanningDialog::RequestCircleMotion,
+			&PlanningSystem::getInstance(),		&PlanningSystem::ResponseCircleMotion);
+	// Spline
+	connect(planning_dialog_ptr_.get(),			&PlanningDialog::RequestSplineMotion,
+			&PlanningSystem::getInstance(),		&PlanningSystem::ResponseSplineMotion);
+	// Line Sync
+	connect(planning_dialog_ptr_.get(),			&PlanningDialog::RequestDualSyncLineMotion,
+			&PlanningSystem::getInstance(),		&PlanningSystem::ResponseDualSyncLineMotion);
+	// Circle Sync
+	connect(planning_dialog_ptr_.get(),			&PlanningDialog::RequestDualSyncCircleMotion,
+			&PlanningSystem::getInstance(),		&PlanningSystem::ResponseDualSyncCircleMotion);
+
 }
 
 void GComponent::EngineApp::InitializeMembers(int argc, char* argv[])
 {
+	auto deleter = [](auto ptr) {delete ptr; };
 	// QApplication initialize
 	gui_app_ptr_ = std::make_unique<QApplication>(argc, argv);
 
 	// ui initialize
-	window_ptr_ = std::make_unique<MainWindow>();
+	window_ptr_ = _PtrWithDel<MainWindow>(new MainWindow, deleter);
 	window_ptr_->setWindowIconText("机械臂规划仿真软件");
 	//window_ptr_->setWindowFlag(Qt::FramelessWindowHint);
 
-	robot_create_dialog_ptr_ = std::make_unique<RobotCreateDialog>();
+	robot_create_dialog_ptr_ = _PtrWithDel<RobotCreateDialog>(new RobotCreateDialog(window_ptr_.get()), deleter);
 	robot_create_dialog_ptr_->setWindowTitle("Create Ur Robot(*^_^*)");
+	dialog_table.emplace(QString("RobotCreatorDialog"), robot_create_dialog_ptr_.get());
+
+	planning_dialog_ptr_	 = _PtrWithDel<PlanningDialog>(new PlanningDialog(window_ptr_.get()), deleter);
+	planning_dialog_ptr_->setWindowTitle("Planning As ur Wish");
+	dialog_table.emplace(QString("PlanningDialog"), planning_dialog_ptr_.get());
 
 	// model initialize	
-	model_tree_ = std::make_unique<EditorTreeModel>("");
+	model_tree_ = _PtrWithDel<EditorTreeModel>(new EditorTreeModel(""), deleter);
 }
 

@@ -1,0 +1,86 @@
+/**
+ *  @file  	planningsystem.h
+ *  @brief 	This class is a bridge to link planning inteface and ui.
+ *  @author Gue Chen<guechen@buaa.edu.cn>
+ *  @date 	Aug 22th, 2022
+ **/
+#ifndef __PLANNING_SYSTEM_H
+#define __PLANNING_SYSTEM_H
+
+#include "base/singleton.h"
+#include "function/conversion.hpp"
+
+#include <QtCore/QObject>
+
+#include <vector>
+#include <string>
+
+namespace GComponent {
+enum TrajDisplayFlag {
+	InitPoint  = (1 << 0),
+	GoalPoint  = (1 << 1),
+	WayPoints  = (1 << 2),
+	TrajSample = (1 << 3),
+	TrajPath   = (1 << 30),
+
+	AllConfig  = (TrajPath | InitPoint | GoalPoint)
+};
+
+class PlanningSystem : public QObject{
+	Q_OBJECT
+
+	NonCoyable(PlanningSystem)
+
+public:
+	static PlanningSystem& getInstance();
+	~PlanningSystem();
+
+	inline int  GetDisplayFlags() const	   { return display_flag; }
+	inline void SetDisplayFlags(int flags) { display_flag = flags; }
+
+protected:
+	PlanningSystem() = default;
+
+/// TEST_USE
+	std::string SimpleGetObjName(const QString& obj_name);
+
+public slots:
+	void ResponsePTPMotionJSpace(const QString& obj_name, 
+								 float max_vel,		float max_acc, 
+								 std::vector<float> target_joints);
+	void ResponsePTPMotionCSpace(const QString& obj_name,
+								 float max_vel,		float max_acc,
+								 std::vector<float> target_descarte);
+	void ResponseLineMotion		(const QString& obj_name,
+								 float max_vel,		float max_acc,
+								 float max_ang_vel,	float max_ang_acc,
+								 std::vector<float> target_descarte);
+	void ResponseCircleMotion   (const QString& obj_name, 
+								 float max_vel,		float max_acc, 
+								 float max_ang_vel,	float max_ang_acc,
+								 std::vector<float> target_descarte,
+								 std::vector<float> waypoint);
+	void ResponseSplineMotion   (const QString& obj_name,
+							     float max_vel,		float max_acc,
+								 float max_ang_vel,	float max_ang_acc,
+							     std::vector<float> target_descarte,
+							     std::vector<std::vector<float>> waypoints);
+	void ResponseDualSyncLineMotion
+							   (const std::vector<QString>& obj_names, 
+								std::vector<float> max_vels,  std::vector<float> max_accs, 
+								std::vector<float> target,   
+								std::vector<std::vector<float>> bias);
+	void ResponseDualSyncCircleMotion
+							   (const std::vector<QString>& obj_names, 
+								std::vector<float> max_vels,  std::vector<float> max_accs, 
+								std::vector<float> target,    
+								std::vector<std::vector<float>> bias,
+								std::vector<float> waypoint);
+
+private:
+	int display_flag = 0;
+};
+
+} // !namespace GComponent
+
+#endif // !__PLANNING_SYSTEM_H

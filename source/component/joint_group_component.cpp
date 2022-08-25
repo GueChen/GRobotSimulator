@@ -26,7 +26,7 @@ JointGroupComponent::~JointGroupComponent()
 	}
 }
 
-vector<float> JointGroupComponent::GetPositions()
+vector<float> JointGroupComponent::GetPositions() const
 {
 	vector<float> positions(GetJointsSize());
 	std::transform(std::execution::par_unseq,

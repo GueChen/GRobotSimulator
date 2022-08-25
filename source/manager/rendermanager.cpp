@@ -213,7 +213,6 @@ void RenderManager::tick()
 RenderManager::RenderManager() :grid_(50, 0.20f)
 {}
 
-
 /*_____________________________PRIVATE METHODS____________________________________________*/
 //_____________________________Datas Setting______________________________________________________//
 void RenderManager::SetProjectViewMatrices()

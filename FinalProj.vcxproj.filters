@@ -2,9 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="source\motion\gmotionbase.cpp">
-      <Filter>motion</Filter>
-    </ClCompile>
     <ClCompile Include="source\simplexmesh\gball.cpp">
       <Filter>model\simplexmesh</Filter>
     </ClCompile>
@@ -29,21 +26,6 @@
     <ClCompile Include="source\base\treeitem.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="source\motion\circmotion.cpp">
-      <Filter>motion</Filter>
-    </ClCompile>
-    <ClCompile Include="source\motion\linmotion.cpp">
-      <Filter>motion</Filter>
-    </ClCompile>
-    <ClCompile Include="source\motion\ptpmotion.cpp">
-      <Filter>motion</Filter>
-    </ClCompile>
-    <ClCompile Include="source\motion\splinemotion.cpp">
-      <Filter>motion</Filter>
-    </ClCompile>
-    <ClCompile Include="source\motion\syncduallinemotion.cpp">
-      <Filter>motion</Filter>
-    </ClCompile>
     <ClCompile Include="source\model\robot\dual_arm_platform.cpp">
       <Filter>model\robot</Filter>
     </ClCompile>
@@ -57,9 +39,6 @@
       <Filter>function</Filter>
     </ClCompile>
     <ClCompile Include="source\engineapp.cpp" />
-    <ClCompile Include="source\component\transform.cpp">
-      <Filter>component</Filter>
-    </ClCompile>
     <ClCompile Include="source\function\picking_helper.cpp">
       <Filter>function</Filter>
     </ClCompile>
@@ -81,20 +60,11 @@
     <ClCompile Include="source\ui\widget\viewport.cpp">
       <Filter>ui_surface\openglwidget</Filter>
     </ClCompile>
-    <ClCompile Include="source\component\joint_component.cpp">
-      <Filter>component</Filter>
-    </ClCompile>
     <ClCompile Include="source\render\rendermesh.cpp">
       <Filter>render</Filter>
     </ClCompile>
-    <ClCompile Include="source\component\joint_group_component.cpp">
-      <Filter>component</Filter>
-    </ClCompile>
     <ClCompile Include="source\function\adapter\component_ui_factory.cpp">
       <Filter>function\adapter</Filter>
-    </ClCompile>
-    <ClCompile Include="source\component\tracker_component.cpp">
-      <Filter>component</Filter>
     </ClCompile>
     <ClCompile Include="source\ui\wrapper\extensiblelist.cpp">
       <Filter>ui_surface\wrapper</Filter>
@@ -116,9 +86,6 @@
     </ClCompile>
     <ClCompile Include="source\function\builder\robotbuilder.cpp">
       <Filter>function\builder</Filter>
-    </ClCompile>
-    <ClCompile Include="source\component\kinematic_component.cpp">
-      <Filter>component</Filter>
     </ClCompile>
     <ClCompile Include="source\ui\widget\kinematic_widget.cpp">
       <Filter>ui_surface\widget</Filter>
@@ -144,20 +111,11 @@
     <ClCompile Include="source\render\rhi\render_global_info.cpp">
       <Filter>render\rhi</Filter>
     </ClCompile>
-    <ClCompile Include="source\component\component_factory.cpp">
-      <Filter>component</Filter>
-    </ClCompile>
     <ClCompile Include="source\physics\physx\physx_utils.cpp">
       <Filter>physics\physx</Filter>
     </ClCompile>
     <ClCompile Include="source\physics\physics_scene.cpp">
       <Filter>physics</Filter>
-    </ClCompile>
-    <ClCompile Include="source\component\rigidbody_component.cpp">
-      <Filter>component</Filter>
-    </ClCompile>
-    <ClCompile Include="source\component\collider_component.cpp">
-      <Filter>component</Filter>
     </ClCompile>
     <ClCompile Include="source\physics\rigidbody_actor.cpp">
       <Filter>physics</Filter>
@@ -176,6 +134,63 @@
     </ClCompile>
     <ClCompile Include="source\manager\resourcemanager.cpp">
       <Filter>manager\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\collider_component.cpp">
+      <Filter>component\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\component_factory.cpp">
+      <Filter>component\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\joint_group_component.cpp">
+      <Filter>component\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\kinematic_component.cpp">
+      <Filter>component\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\rigidbody_component.cpp">
+      <Filter>component\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\tracker_component.cpp">
+      <Filter>component\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\transform.cpp">
+      <Filter>component\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\joint_component.cpp">
+      <Filter>component\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\ptpmotion.cpp">
+      <Filter>motion\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\gmotionbase.cpp">
+      <Filter>motion</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\linmotion.cpp">
+      <Filter>motion\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\circmotion.cpp">
+      <Filter>motion\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\splinemotion.cpp">
+      <Filter>motion\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\dualsynclinemotion.cpp">
+      <Filter>motion\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\manager\planningmanager.cpp">
+      <Filter>manager\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\dialog\planningdialog.cpp">
+      <Filter>ui_surface\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="source\system\planningsystem.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\dualsynccirclemotion.cpp">
+      <Filter>motion\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\trajectory.cpp">
+      <Filter>motion</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -218,21 +233,6 @@
     <ClInclude Include="source\base\treeitem.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="source\motion\circmotion.h">
-      <Filter>motion</Filter>
-    </ClInclude>
-    <ClInclude Include="source\motion\linmotion.h">
-      <Filter>motion</Filter>
-    </ClInclude>
-    <ClInclude Include="source\motion\ptpmotion.h">
-      <Filter>motion</Filter>
-    </ClInclude>
-    <ClInclude Include="source\motion\splinemotion.h">
-      <Filter>motion</Filter>
-    </ClInclude>
-    <ClInclude Include="source\motion\syncduallinemotion.h">
-      <Filter>motion</Filter>
-    </ClInclude>
     <ClInclude Include="source\model\robot\dual_arm_platform.h">
       <Filter>model\robot</Filter>
     </ClInclude>
@@ -246,9 +246,6 @@
       <Filter>function</Filter>
     </ClInclude>
     <ClInclude Include="source\component\component.hpp">
-      <Filter>component</Filter>
-    </ClInclude>
-    <ClInclude Include="source\component\transform.h">
       <Filter>component</Filter>
     </ClInclude>
     <ClInclude Include="source\base\singleton.h">
@@ -269,20 +266,11 @@
     <ClInclude Include="source\model\axis\qtaxis.h">
       <Filter>model\basic</Filter>
     </ClInclude>
-    <ClInclude Include="source\component\joint_component.h">
-      <Filter>component</Filter>
-    </ClInclude>
     <ClInclude Include="source\render\rendermesh.h">
       <Filter>render</Filter>
     </ClInclude>
-    <ClInclude Include="source\component\joint_group_component.h">
-      <Filter>component</Filter>
-    </ClInclude>
     <ClInclude Include="source\function\adapter\component_ui_factory.h">
       <Filter>function\adapter</Filter>
-    </ClInclude>
-    <ClInclude Include="source\component\tracker_component.h">
-      <Filter>component</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GGeometry.hpp">
       <Filter>base\mylib\GComponent</Filter>
@@ -317,9 +305,6 @@
     <ClInclude Include="source\function\builder\robotbuilder.h">
       <Filter>function\builder</Filter>
     </ClInclude>
-    <ClInclude Include="source\component\kinematic_component.h">
-      <Filter>component</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic-inl.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
@@ -344,20 +329,11 @@
     <ClInclude Include="source\render\rhi\render_global_info.h">
       <Filter>render\rhi</Filter>
     </ClInclude>
-    <ClInclude Include="source\component\component_factory.h">
-      <Filter>component</Filter>
-    </ClInclude>
     <ClInclude Include="source\physics\physics_scene.h">
       <Filter>physics</Filter>
     </ClInclude>
     <ClInclude Include="source\physics\physx\physx_utils.h">
       <Filter>physics\physx</Filter>
-    </ClInclude>
-    <ClInclude Include="source\component\rigidbody_component.h">
-      <Filter>component</Filter>
-    </ClInclude>
-    <ClInclude Include="source\component\collider_component.h">
-      <Filter>component</Filter>
     </ClInclude>
     <ClInclude Include="source\physics\rigidbody_actor.h">
       <Filter>physics</Filter>
@@ -370,6 +346,54 @@
     </ClInclude>
     <ClInclude Include="source\manager\resourcemanager.h">
       <Filter>manager\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\collider_component.h">
+      <Filter>component\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\component_factory.h">
+      <Filter>component\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\joint_component.h">
+      <Filter>component\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\joint_group_component.h">
+      <Filter>component\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\kinematic_component.h">
+      <Filter>component\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\rigidbody_component.h">
+      <Filter>component\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\tracker_component.h">
+      <Filter>component\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\transform.h">
+      <Filter>component\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\ptpmotion.h">
+      <Filter>motion\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\linmotion.h">
+      <Filter>motion\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\circmotion.h">
+      <Filter>motion\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\splinemotion.h">
+      <Filter>motion\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\dualsynclinemotion.h">
+      <Filter>motion\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\manager\planningmanager.h">
+      <Filter>manager\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\dualsynccirclemotion.h">
+      <Filter>motion\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\trajectory.h">
+      <Filter>motion</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -407,6 +431,12 @@
     <QtMoc Include="source\manager\physicsmanager.h">
       <Filter>manager\inc</Filter>
     </QtMoc>
+    <QtMoc Include="source\ui\dialog\planningdialog.h">
+      <Filter>ui_surface\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="source\system\planningsystem.h">
+      <Filter>system</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="mainwindow.ui">
@@ -422,6 +452,9 @@
       <Filter>ui</Filter>
     </QtUic>
     <QtUic Include="UI\widget\tracker_component_ui_widget.ui">
+      <Filter>ui</Filter>
+    </QtUic>
+    <QtUic Include="UI\Dialog\planningdialog.ui">
       <Filter>ui</Filter>
     </QtUic>
   </ItemGroup>
@@ -508,7 +541,6 @@
     <None Include="Shader\Fragment\cascade_shadow_orthoFrag.frag">
       <Filter>shader\frag</Filter>
     </None>
-    <None Include="C:\Users\Administrator\Documents\Visual Studio 2022\My Exported Templates\GComponentClass.zip" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ui_surface">
@@ -637,6 +669,21 @@
     </Filter>
     <Filter Include="manager\inc">
       <UniqueIdentifier>{9d6185fe-8456-4fe8-a0c9-7e4df371e015}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="motion\src">
+      <UniqueIdentifier>{8dd0a7de-2e3f-483f-9620-9ba0f6cfaeee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="component\src">
+      <UniqueIdentifier>{b3cec5f3-1958-4611-b9f9-cd31617bc52e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="component\inc">
+      <UniqueIdentifier>{485f2077-82b0-45c5-9c57-6eef65bf26b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="motion\inc">
+      <UniqueIdentifier>{118face9-30f5-4791-bd96-177b676773cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="system">
+      <UniqueIdentifier>{2544af4a-fe80-4433-adbd-7bc9179800dc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
