@@ -1,5 +1,6 @@
 #include "gline.h"
 
+#include "manager/resourcemanager.h"
 #include "render/mygl.hpp"
 
 namespace GComponent {
@@ -14,11 +15,13 @@ GLine::GLine(vec3 p1, vec3 p2, vec3 c1, vec3 c2)
    
 }
 
-void GLine::Draw(MyShader * shader)
+void GLine::Draw(MyShader *)
 {
     // TODO: 考虑抛出异常提示初始化？
     if(!isInit) return;
-
+    MyShader* shader = ResourceManager::getInstance().GetShaderByName("linecolor");
+    shader->use();
+    shader->setMat4("model", glm::mat4(1.0f));
     gl->glBindVertexArray(VAO);
     gl->glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, 0);
 }
@@ -32,9 +35,7 @@ void GLine::GLBufferInitialize()
 
     /* 申请 GPU 内存区 */
     std::tie(VAO, VBO) = gl->genVABO(nullptr, ColorVert_SIZE * VertNum);
-    std::cout << "GLines:\n"
-                 "VAO:= " << VAO << ", VBO:= " << VBO << std::endl;
-
+    
     /* 填充数据 */
     gl->glBindVertexArray(VAO);
     gl->glBufferSubData(GL_ARRAY_BUFFER,              0, ColorVert_SIZE, &vert_end);
@@ -42,7 +43,7 @@ void GLine::GLBufferInitialize()
 
     /* 生成元素映射 */
     EBO = gl->genEBO(vector{line});
-    std::cout << "EBO:= " << EBO << std::endl;
+    
     /* 激活顶点数据 */
     gl->EnableVertexAttribArrays(3, 3, 2, 3);
 }

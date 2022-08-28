@@ -78,6 +78,23 @@ bool KinematicComponent::Jacobian(Jacobi<float>& out_mat, const Thetav<float>& t
 	return RobotKinematic::Jacobian(out_mat, exp_coords_, thetav);
 }
 
+bool KinematicComponent::ZeroProjection(ZeroProj<float>& zero_mat, const Thetas<float>& thetas)
+{
+	
+	Jacobi<float> jaco; 
+	bool result = Jacobian(jaco, thetas);
+	if (result) zero_mat = jaco.transpose() * jaco;
+	return result;	
+}
+
+bool KinematicComponent::ZeroProjection(ZeroProj<float>& zero_mat, const Thetav<float>& thetav)
+{
+	Jacobi<float> jaco;
+	bool result = Jacobian(jaco, thetav);
+	if (result) zero_mat = jaco.transpose() * jaco;
+	return result;
+}
+
 bool KinematicComponent::UpdateExponentialCoordinates()
 {
 	JointGroupComponent* joints_group = GetJointsGroup();

@@ -159,6 +159,20 @@ void RenderManager::EmplaceFrontPostProcessRenderCommand(string obj_name, string
 	post_process_list_.emplace_front(obj_name, shader_name, mesh_name, uniform_name);
 }
 
+void RenderManager::EmplaceAuxiliaryObj(shared_ptr<SimplexModel>&& obj)
+{
+	// Notice May Exist Concurrency Problems //
+	std::lock_guard<std::mutex> lock(planning_lock);
+	planning_aux_lists_.emplace_back(std::forward<decltype(obj)>(obj));
+}
+
+void RenderManager::ClearAuxiliaryObj()
+{
+	// Notice May Exist Concurrency Problems //
+	std::lock_guard<std::mutex> lock(planning_lock);
+	planning_aux_lists_.clear();
+}
+
 void RenderManager::SetPickingController(PickingController& controller)
 {
 	picking_controller_handle_ = controller;
@@ -379,6 +393,8 @@ void RenderManager::NormalPass()
 
 	AuxiliaryPass();
 	
+	SimplexMeshPass();
+	
 	// TODO: not so good try to hide it
 	grid_.SetGL(gl_);
 	grid_.Draw();
@@ -555,6 +571,17 @@ void RenderManager::PassSpecifiedListCSMShadow(RenderList& list, function<Rawptr
 		if (mesh) mesh->Draw();
 	}
 	gl_->glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void RenderManager::SimplexMeshPass()
+{
+	std::lock_guard<std::mutex> lock(planning_lock);
+	gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	for (auto& obj : planning_aux_lists_) {
+		obj->SetGL(gl_);
+		obj->Draw(nullptr);
+	}
+	gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 }

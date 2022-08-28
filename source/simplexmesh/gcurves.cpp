@@ -1,5 +1,7 @@
 #include "gcurves.h"
 
+#include "manager/resourcemanager.h"
+
 #include <algorithm>
 #include <execution>
 
@@ -25,9 +27,12 @@ GCurves::GCurves(vector<vec3> poses, vec3 c1, vec3 c2)
 
 }
 
-void GCurves::Draw(MyShader *shader)
+void GCurves::Draw(MyShader *)
 {
     if(!isInit) return;
+    MyShader* shader = ResourceManager::getInstance().GetShaderByName("linecolor");
+    shader->use();
+    shader->setMat4("model", glm::mat4(1.0f));
     gl->glBindVertexArray(VAO);
     gl->glDrawArrays(GL_LINE_STRIP, 0, verteces.size());
 

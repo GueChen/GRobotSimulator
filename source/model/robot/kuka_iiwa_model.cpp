@@ -82,7 +82,7 @@ void KUKA_IIWA_MODEL::InitializeModelResource()
                                             /*ShapeEnum::Capsule,*/
                                             0.10f, 
                                             0.07f,
-                                            CollisionGroup{1, 0, 0, 0}));
+                                            CollisionGroup{0, 0, 0, 0}));
     }
 
     vector<JointComponent*> joints;

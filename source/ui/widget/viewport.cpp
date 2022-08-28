@@ -4,6 +4,7 @@
 #include "manager/modelmanager.h"
 #include "manager/rendermanager.h"
 #include "manager/physicsmanager.h"
+#include "manager/planningmanager.h"
 
 #include <QtGui/QMouseEvent>
 #include <QtGUI/QKeyEvent>
@@ -72,6 +73,9 @@ void Viewport::paintGL()
 	// Process Input
 	ui_state_.tick();
 	
+	// Adjust the planning
+	PlanningManager::getInstance().tick(delta_time.count());
+	
 	// Adjust all component
 	ModelManager::getInstance().tickAll(delta_time.count());
 	// Adjust all resources
@@ -92,7 +96,7 @@ void Viewport::paintGL()
 void Viewport::CustomUpdateImpl()
 {
 	Model* sphere_collider = ModelManager::getInstance().GetModelByName("sphere0");
-	if (sphere_collider) {
+	/*if (sphere_collider) {
 		
 		float time_point = std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::steady_clock::now().time_since_epoch()).count();
 		sphere_collider->setTransLocal(Eigen::Vector3f(
@@ -103,7 +107,7 @@ void Viewport::CustomUpdateImpl()
 		auto rigid_com = sphere_collider->GetComponent<RigidbodyComponent>(RigidbodyComponent::type_name.data());
 		vector<OverlapHitInfo> hits_info;
 		scene->Overlap(rigid_com->GetActor(), 10, hits_info);
-	}
+	}*/
 	
 }
 

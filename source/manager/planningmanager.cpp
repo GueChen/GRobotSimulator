@@ -34,7 +34,7 @@ void PlanningManager::RegisterPlanningTask(Model * robot, JTrajFunc func, float 
 		}
 
 		{													// RAII scope
-		std::lock_guard<std::mutex> lock(m_locks[m_key]);	// guaranted there is only one task posses the ownership of robot
+		std::lock_guard<std::mutex> lock(m_locks[m_key]);	// guaranted only one task possessing the ownership of robot
 
 		float elapsed = 0.0f;
 		std::chrono::time_point start_time = std::chrono::steady_clock::now();
@@ -133,6 +133,11 @@ void PlanningManager::RegisterDualPlanningTask(std::vector<Model*> robots, std::
 	QThreadPool::globalInstance()->start(task);
 	// consider how to process the concurrency for dual situation
 	// std::cout << "RegisterDualPlanningTask NO IMPLEMENTATIONS\n";
+}
+
+void PlanningManager::tick(float delta_time)
+{
+
 }
 
 }

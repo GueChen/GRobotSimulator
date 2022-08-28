@@ -34,12 +34,12 @@ public:
 
 	void RegisterDualPlanningTask(std::vector<Model*> robots, std::vector<JTrajFunc> funcs, float time_total, uint32_t interval_ms);
 	
-
+	void tick(float delta_time);
 protected:
 	PlanningManager() = default;
 
 private:
-	std::unordered_map<Model*, std::mutex>			 lock_map;
+	std::unordered_map<Model*, std::mutex>						  lock_map;
 	std::unordered_map<Model*, std::queue<std::function<void()>>> task_queue_map;
 	
 };

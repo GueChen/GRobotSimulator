@@ -23,7 +23,8 @@ int main(int argc, char *argv[])
             sphere_collider,
             Eigen::Matrix4f::Identity(),
             /*GComponent::ShapeEnum::Sphere,*/
-            sphere_collider->getScale().x()));
+            sphere_collider->getScale().x(),
+            GComponent::CollisionGroup(1u, 0u, 0u, 0u)));
     }
 
     GComponent::DUAL_ARM_PLATFORM robot;

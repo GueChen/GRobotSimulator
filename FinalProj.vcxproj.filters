@@ -138,9 +138,6 @@
     <ClCompile Include="source\component\collider_component.cpp">
       <Filter>component\src</Filter>
     </ClCompile>
-    <ClCompile Include="source\component\component_factory.cpp">
-      <Filter>component\src</Filter>
-    </ClCompile>
     <ClCompile Include="source\component\joint_group_component.cpp">
       <Filter>component\src</Filter>
     </ClCompile>
@@ -191,6 +188,12 @@
     </ClCompile>
     <ClCompile Include="source\motion\trajectory.cpp">
       <Filter>motion</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\optimization\trajectory_optimization.cpp">
+      <Filter>motion\optimization</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\component_factory.cpp">
+      <Filter>component</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -350,9 +353,6 @@
     <ClInclude Include="source\component\collider_component.h">
       <Filter>component\inc</Filter>
     </ClInclude>
-    <ClInclude Include="source\component\component_factory.h">
-      <Filter>component\inc</Filter>
-    </ClInclude>
     <ClInclude Include="source\component\joint_component.h">
       <Filter>component\inc</Filter>
     </ClInclude>
@@ -394,6 +394,15 @@
     </ClInclude>
     <ClInclude Include="source\motion\trajectory.h">
       <Filter>motion</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\optimization\trajectory_optimization.h">
+      <Filter>motion\optimization</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\component_factory.h">
+      <Filter>component</Filter>
+    </ClInclude>
+    <ClInclude Include="source\physics\physics_datastructure.hpp">
+      <Filter>physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -457,9 +466,12 @@
     <QtUic Include="UI\Dialog\planningdialog.ui">
       <Filter>ui</Filter>
     </QtUic>
+    <QtUic Include="UI\Dialog\networkdialog.ui">
+      <Filter>ui</Filter>
+    </QtUic>
   </ItemGroup>
   <ItemGroup>
-    <None Include="source\simplexmesh\GBasicMesh">
+    <None Include="source\simplexmesh\basicmesh">
       <Filter>model\simplexmesh</Filter>
     </None>
     <None Include="source\motion\GMotion">
@@ -539,6 +551,12 @@
       <Filter>shader\vert</Filter>
     </None>
     <None Include="Shader\Fragment\cascade_shadow_orthoFrag.frag">
+      <Filter>shader\frag</Filter>
+    </None>
+    <None Include="Shader\Vertex\LineColorVert.vert">
+      <Filter>shader\vert</Filter>
+    </None>
+    <None Include="Shader\Fragment\LineColorFrag.frag">
       <Filter>shader\frag</Filter>
     </None>
   </ItemGroup>
@@ -684,6 +702,9 @@
     </Filter>
     <Filter Include="system">
       <UniqueIdentifier>{2544af4a-fe80-4433-adbd-7bc9179800dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="motion\optimization">
+      <UniqueIdentifier>{d860b26e-7b28-4fd8-a1b5-94e106cb3d5e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
