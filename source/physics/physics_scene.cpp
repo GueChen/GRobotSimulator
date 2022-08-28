@@ -86,12 +86,14 @@ PhysicsScene::~PhysicsScene()
 
 void PhysicsScene::tick(float time_step)
 {
+	std::lock_guard<std::mutex> lock(mutex_lock_);
 	physics_impl_->m_scene->simulate(time_step);
 	physics_impl_->m_scene->fetchResults(true);
 }
 
 RigidBodyActor* PhysicsScene::CreateRigidBodyActor(const Mat4& global_mat, const Mat4& local_mat, AbstractShape& shape_res, CollisionGroup group)
 {
+	std::lock_guard<std::mutex> lock(mutex_lock_);
 	// the meterial paramters in the scene about shapes
 	const float			kDensity			= 1.0f, 
 						kStaticFriction		= 0.5f,
@@ -126,6 +128,7 @@ RigidBodyActor* PhysicsScene::CreateRigidBodyActor(const Mat4& global_mat, const
 
 void PhysicsScene::RemoveRigidBodyActor(RigidBodyActor* actor)
 {
+	std::lock_guard<std::mutex> lock(mutex_lock_);
 	PxActorTypeFlags	actor_type_flag = PxActorTypeFlag::eRIGID_DYNAMIC;
 	PxScene&			scene			= *physics_impl_->m_scene;
 	// get all actor from scene
@@ -141,6 +144,7 @@ void PhysicsScene::RemoveRigidBodyActor(RigidBodyActor* actor)
 
 void PhysicsScene::UpdateRigidBodyActorTransfrom(RigidBodyActor* actor, const Mat4& mat)
 {
+	std::lock_guard<std::mutex> lock(mutex_lock_);
 	PxActorTypeFlags	actor_type_flag = PxActorTypeFlag::eRIGID_DYNAMIC;
 	PxScene&			scene			= *physics_impl_->m_scene;
 	// get all actor from scene
@@ -157,6 +161,7 @@ void PhysicsScene::UpdateRigidBodyActorTransfrom(RigidBodyActor* actor, const Ma
 
 bool PhysicsScene::Overlap(RigidBodyActor& actor, uint32_t max_hits, vector<OverlapHitInfo>& out_hits)
 {
+	std::lock_guard<std::mutex> lock(mutex_lock_);
 	PhysicsManager&	glb_manager = PhysicsManager::getInstance();
 	PxScene&		scene		= *physics_impl_->m_scene;
 	bool			hit_any		= false;
@@ -197,6 +202,7 @@ bool PhysicsScene::Overlap(RigidBodyActor& actor, uint32_t max_hits, vector<Over
 
 bool PhysicsScene::Sweep(RigidBodyActor& actor, const Vec3& dir, float dist, vector<SweepHitInfo>& hits)
 {
+	std::lock_guard<std::mutex> lock(mutex_lock_);
 	PxScene& scene	= *physics_impl_->m_scene;
 	bool			hit_any = false;
 	for (auto & shape : actor.actor_shapes_ ) {
@@ -219,6 +225,8 @@ bool PhysicsScene::Sweep(RigidBodyActor& actor, const Vec3& dir, float dist, vec
 
 bool PhysicsScene::Raycast(Vec3 ori, Vec3 dir, float max_dist, vector<RaycastHitInfo>& hits)
 {
+	std::lock_guard<std::mutex> lock(mutex_lock_);
+	// TODO: add method to this class for mutex lock checking
 	return false;
 }
 

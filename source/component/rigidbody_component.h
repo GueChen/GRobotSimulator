@@ -23,7 +23,7 @@ class RigidbodyComponent : public Component {
 // 2. Support mass and innertial computation from triangle mesh or particle system
 // 3. Physics Material properties Setter and Getter
 public:
-	/// TODO: consider whether there is a better solution for the constructor ?
+	/// TODO: consider whether exsiting a better solution for the constructor ?
 	// Sphere  Version
 	explicit		RigidbodyComponent(Model* ptr_parent, const Mat4& local_mat, float radius, CollisionGroup group = {});
 	// Capsule Version

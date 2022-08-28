@@ -145,6 +145,14 @@ public:
         return Eigen::Vector3f(v3[0], v3[1], v3[2]);
     }
 
+    static inline glm::vec3 toGlmVec3(const std::vector<float>& v3) {
+        assert(v3.size() == 3 && "STLUtils::toGlmVec3 Input Size Not Match\n");
+        return glm::vec3(v3[0], v3[1], v3[2]);
+    }
+
+    static inline std::vector<float> fromDynVecf(const Eigen::Vector<float, Eigen::Dynamic>& vec) {
+        return std::vector<float>{vec.begin(), vec.end()};
+    }
 private:
     STLUtils()  = delete;
     ~STLUtils() = delete;

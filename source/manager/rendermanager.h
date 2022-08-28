@@ -19,12 +19,15 @@
 #include "model/basic/postprocess_quads.h"
 #include "model/basic/skybox.h"
 
+#include "simplexmesh/basicmesh"
+
 #include <QtCore/QObject>
 #include <QtOpenGL/QOpenGLFramebufferObjectFormat>
 #include <glm/glm.hpp>
 
 #include <functional>
 #include <optional>
+#include <thread>
 #include <memory>
 #include <string>
 
@@ -91,6 +94,10 @@ public:
 							  string obj_name,	string shader_name,
 							  string mesh_name, string uniform_name = "");
 
+//_______________Planing Relate Auxiliry Inteface_______________________________________________//
+	void EmplaceAuxiliaryObj(shared_ptr<SimplexModel>&& obj);
+	void ClearAuxiliaryObj();
+
 protected:
 	RenderManager();
 
@@ -123,6 +130,10 @@ private:
 	void PassSpecifiedListShadow(RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);
 	void PassSpecifiedListCSMDepth(RenderList&,  function<RawptrModel(const std::string&)>ObjGetter);
 	void PassSpecifiedListCSMShadow(RenderList&, function<RawptrModel(const std::string&)>ObjGetter);
+
+/*_______________________Planning Simplex Render_____________________________________________*/
+	void SimplexMeshPass();
+
 /*________________________FIELDS_____________________________________________________________*/
 public:
 	RenderGlobalInfo				m_render_sharing_msg;
@@ -154,6 +165,11 @@ private:
 
 	size_t                          matrices_UBO_				= 0;
 	size_t                          ambient_observer_UBO_		= 0;
+
+/*________________________Planning Display Related_____________________________________________*/
+	list<std::shared_ptr<SimplexModel>> 
+									planning_aux_lists_;
+	std::mutex						planning_lock;
 
 /*________________________PROXY CLASS_______________________________________________________*/
 private:

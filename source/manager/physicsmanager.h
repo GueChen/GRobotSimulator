@@ -14,6 +14,7 @@
 
 #include <unordered_map>
 #include <functional>
+#include <mutex>
 #include <vector>
 #include <memory>
 
@@ -69,6 +70,8 @@ public:
 //	PxParamters*						 m_params;
 	
 protected:
+	std::mutex																		    lock_;
+
 	/// table to query objects
 	unordered_map<uint64_t, RigidBodyActor*>											actor_id_to_model_id_table_;	
 

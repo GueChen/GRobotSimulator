@@ -13,6 +13,7 @@
 
 #include <functional>
 #include <optional>
+#include <mutex>
 #include <list>
 
 enum class JointMode {
@@ -61,15 +62,15 @@ public:
 					GetAxis()		  const		{return axis_;}
 
 /// Group Setter
-	inline void		PushPosBuffer(float new_pos){ pos_buffers_.push_back(new_pos); }
+	void			PushPosBuffer(float new_pos);
 	inline const std::list<float>& 
 					GetPosBuffer() const		{ return pos_buffers_;}
 
-	inline void		PushVelBuffer(float new_vel){ vel_buffers_.push_back(new_vel); }
+	void			PushVelBuffer(float new_vel);
 	inline const std::list<float>&
 					GetVelBuffer() const		{ return vel_buffers_;}
 
-	inline void		PushAccBuffer(float new_acc){ acc_buffers_.push_back(new_acc); }
+	void			PushAccBuffer(float new_acc);
 	inline const std::list<float>&
 					GetAccBuffer() const		{ return acc_buffers_;}
 
@@ -96,7 +97,9 @@ protected:
 	std::list<float> pos_buffers_	= {};
 	std::list<float> vel_buffers_	= {};
 	std::list<float> acc_buffers_	= {};
-	
+	std::mutex		 pos_lock_;
+	std::mutex       vel_lock_;
+	std::mutex		 acc_lock_;
 	_OptDelFun		 opt_del_func_  = std::nullopt;			// [Temp, Maybe D/M Later] Used for Group Component
 
 public:

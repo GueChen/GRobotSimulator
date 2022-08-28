@@ -9,31 +9,19 @@
 #define __PHYSICS_SCENE
 
 #include "physics/abstract_shape.hpp"
+#include "physics/physics_datastructure.hpp"
 #include "physics/rigidbody_actor.h"
 
 #include <Eigen/Dense>
 #include <memory>
 #include <vector>
+#include <mutex>
 
 namespace GComponent {
 
 using std::vector;
 
 struct PhysicsImpl;
-
-///TODO: consider putting hit info to a proper place
-struct OverlapHitInfo {
-	uint64_t	actor_id;
-	Vec3		penetration_vec;
-};
-
-struct SweepHitInfo {
-
-};
-
-struct RaycastHitInfo {
-
-};
 
 class PhysicsScene {
 public:
@@ -52,6 +40,7 @@ public:
 	bool			Raycast(Vec3 ori, Vec3 dir, float max_dist, vector<RaycastHitInfo>& hits);
 protected:
 	shared_ptr<PhysicsImpl>	physics_impl_	= nullptr;	
+	std::mutex				mutex_lock_;
 };
 
 

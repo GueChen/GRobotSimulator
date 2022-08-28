@@ -2,6 +2,7 @@
 
 #include "manager/planningmanager.h"
 #include "manager/modelmanager.h"
+#include "manager/rendermanager.h"
 
 #include "component/kinematic_component.h"
 
@@ -86,6 +87,16 @@ void PlanningSystem::ResponseLineMotion(const QString& obj_name, float max_vel, 
 		   SetMaxAngVel(max_ang_vel).SetMaxAngAcc(max_ang_acc);
 
 	Trajectory func = motion(robot);
+
+	Vec3 ini  = func.GetInitialPoint().block(0, 3, 3, 1),
+		 goal = func.GetGoalPoint().block(0, 3, 3, 1);
+	RenderManager& render = RenderManager::getInstance();
+	render.ClearAuxiliaryObj();
+	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(ini),  0.010f, kRed));
+	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(goal), 0.010f, kBlue));
+	render.EmplaceAuxiliaryObj(std::make_shared<GLine>(Conversion::fromVec3f(ini), Conversion::fromVec3f(goal),
+													   kRed, kBlue));
+	func.SetTargetOptimizer(TargetOptimizer{});
 	PlanningManager::getInstance().RegisterPlanningTask(robot, func, func.GetTimeTotal(), 40);
 	
 }
@@ -103,6 +114,19 @@ void PlanningSystem::ResponseCircleMotion(const QString& obj_name, float max_vel
 
 	Trajectory func = motion(robot);
 
+	
+	Vec3 ini  = func.GetInitialPoint().block(0, 3, 3, 1),
+		 goal = func.GetGoalPoint().block(0, 3, 3, 1);	
+	RenderManager& render = RenderManager::getInstance();
+	render.ClearAuxiliaryObj();
+	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(ini),		0.010f, kRed));
+	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(goal),		0.010f, kBlue));
+	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(mid_pos),	0.010f, kPurple));
+	auto samples_stl = func.GetSampleFromPathFunc(0.05f);
+	std::vector<glm::vec3> samples(samples_stl.size());
+	std::transform(samples_stl.begin(), samples_stl.end(), samples.begin(), STLUtils::toGlmVec3);
+	render.EmplaceAuxiliaryObj(std::make_shared<GCurves>(samples, kRed, kBlue));
+
 	PlanningManager::getInstance().RegisterPlanningTask(robot, func, func.GetTimeTotal(), 40);
 }
 
@@ -118,6 +142,20 @@ void PlanningSystem::ResponseSplineMotion(const QString& obj_name, float max_vel
 		   SetMaxAngVel(max_ang_vel).SetMaxAngAcc(max_ang_acc);
 
 	Trajectory func = motion(robot);
+
+	Vec3 ini  = func.GetInitialPoint().block(0, 3, 3, 1),
+		 goal = func.GetGoalPoint().block(0, 3, 3, 1);
+	RenderManager& render = RenderManager::getInstance();
+	render.ClearAuxiliaryObj();
+	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(ini),	0.010f, kRed));
+	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(goal), 0.010f, kBlue));
+	for (auto& waypoint : way_vecs) {
+		render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(waypoint), 0.010f, kPurple));
+	}
+	auto samples_stl = func.GetSampleFromPathFunc(0.05f);
+	std::vector<glm::vec3> samples(samples_stl.size());
+	std::transform(samples_stl.begin(), samples_stl.end(), samples.begin(), STLUtils::toGlmVec3);
+	render.EmplaceAuxiliaryObj(std::make_shared<GCurves>(samples, kRed, kBlue));
 
 	PlanningManager::getInstance().RegisterPlanningTask(robot, func, func.GetTimeTotal(), 40);
 }
@@ -141,6 +179,21 @@ void PlanningSystem::ResponseDualSyncLineMotion(const std::vector<QString>& obj_
 	funcs.emplace_back(l_func);
 	funcs.emplace_back(r_func);
 	
+	Vec3 l_ini  = l_func.GetInitialPoint().block(0, 3, 3, 1),
+		 l_goal = l_func.GetGoalPoint().block(0, 3, 3, 1),
+		 r_ini  = r_func.GetInitialPoint().block(0, 3, 3, 1),
+		 r_goal = r_func.GetGoalPoint().block(0, 3, 3, 1);
+	RenderManager& render = RenderManager::getInstance();
+	render.ClearAuxiliaryObj();
+	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(l_ini),  0.010f, kRed));
+	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(l_goal), 0.010f, kBlue));
+	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(r_ini),  0.010f, kRed));
+	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(r_goal), 0.010f, kBlue));
+	render.EmplaceAuxiliaryObj(std::make_shared<GLine>(Conversion::fromVec3f(l_ini), Conversion::fromVec3f(l_goal),
+		kRed, kYellow));
+	render.EmplaceAuxiliaryObj(std::make_shared<GLine>(Conversion::fromVec3f(r_ini), Conversion::fromVec3f(r_goal),
+		kRed, kYellow));
+
 	PlanningManager::getInstance().RegisterDualPlanningTask(robots, funcs, l_func.GetTimeTotal(), 40);
 }
 

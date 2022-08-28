@@ -1,13 +1,14 @@
 #include "gball.h"
 
 #include "render/myshader.h"
+#include "manager/resourcemanager.h"
 
 #include <iostream>
 
 namespace GComponent {
 
-GBall::GBall(vec3 o, float r, int resolution):
-    center(o), radius(r), mesh({},{},{})
+GBall::GBall(vec3 o, float r, vec3 color, int resolution):
+    center(o), radius(r), color(color), mesh({},{},{})
 {
     setupMesh(resolution, 2 * resolution);
 }
@@ -48,12 +49,15 @@ void GBall::GLBufferInitialize()
     mesh.SetGL(gl);
 }
 
-void GBall::Draw(MyShader *shader)
+void GBall::Draw(MyShader *)
 {
     if(!isInit) return;
+    MyShader* shader = ResourceManager::getInstance().GetShaderByName("color");
+    shader->use();
     glm::mat4 model = glm::identity<glm::mat4>();
     model = glm::translate(model, center);
     shader->setMat4("model", model);
+    shader->setVec3("color", color);
     mesh.Draw();
 }
 

@@ -21,14 +21,16 @@ namespace GComponent {
 
 using std::optional;
 using std::vector;
-template<class _Scaler>
-using Thetas = vector<_Scaler>;
-template<class _Scaler>
-using Transforms = vector<Matrix<_Scaler, 4, 4>>;
-template<class _Scaler>
-using Thetav = Vector<_Scaler, -1>;
-template<class _Scaler>
-using Jacobi = Matrix<_Scaler, Eigen::Dynamic, Eigen::Dynamic>;
+template<class _Scalar>
+using Thetas = vector<_Scalar>;
+template<class _Scalar>
+using Transforms = vector<Matrix<_Scalar, 4, 4>>;
+template<class _Scalar>
+using Thetav = Vector<_Scalar, -1>;
+template<class _Scalar>
+using Jacobi   = Matrix<_Scalar, Eigen::Dynamic, Eigen::Dynamic>;
+template<class _Scalar>
+using ZeroProj = Matrix<_Scalar, Eigen::Dynamic, Eigen::Dynamic>;
 
 enum class IKSolverEnum {
 	LeastNorm						= 0,
@@ -47,7 +49,7 @@ public:
 	explicit KinematicComponent(const SE3<float>& initial_end_transform, Model* ptr_parent = nullptr);
 	~KinematicComponent() = default;
 	
-	bool	  ForwardKinematic(SE3<float>& out_mat);
+	bool	  ForwardKinematic(SE3<float>&  out_mat);
 	bool	  ForwardKinematic(SE3<float>&  out_mat, const Thetas<float>&  thetas);
 	bool	  ForwardKinematic(SE3<float>&	out_mat, const Thetav<float>&  thetav);
 
@@ -61,12 +63,15 @@ public:
 	bool	  Jacobian(Jacobi<float>& out_mat, const Thetas<float>& thetas);
 	bool	  Jacobian(Jacobi<float>& out_mat, const Thetav<float>& thetav);
 
+	bool	  ZeroProjection(ZeroProj<float>& zero_mat, const Thetas<float>& thetas);
+	bool	  ZeroProjection(ZeroProj<float>& zero_mat, const Thetav<float>& thetav);
+
 	bool	  UpdateExponentialCoordinates();
 
 /// Getter & Setter
 	virtual const string_view& 
 					GetTypeName() const override	{ return type_name; }
-	// TODO: using enum not direct pointer
+
 	inline void		SetIKSolver(IKSolverEnum solver_enum) 
 													{ ik_solver_enum_ = solver_enum; }
 	inline IKSolverEnum

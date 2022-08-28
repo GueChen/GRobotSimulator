@@ -220,6 +220,7 @@
     <ClCompile Include="source\model\basic\skybox.cpp" />
     <ClCompile Include="source\motion\dualsynccirclemotion.cpp" />
     <ClCompile Include="source\motion\gmotionbase.cpp" />
+    <ClCompile Include="source\motion\optimization\trajectory_optimization.cpp" />
     <ClCompile Include="source\motion\trajectory.cpp" />
     <ClCompile Include="source\pattern\widgetbuilder.cpp" />
     <ClCompile Include="source\manager\editor\uistatemanager.cpp" />
@@ -311,11 +312,19 @@
       </SubType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="source\motion\optimization\trajectory_optimization.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="source\motion\trajectory.h">
       <SubType>
       </SubType>
     </ClInclude>
     <ClInclude Include="source\physics\abstract_shape.hpp" />
+    <ClInclude Include="source\physics\physics_datastructure.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="source\physics\physics_scene.h" />
     <ClInclude Include="source\physics\physx\physx_utils.h" />
     <ClInclude Include="source\physics\rigidbody_actor.h" />
@@ -406,6 +415,7 @@
   <ItemGroup>
     <QtUic Include="mainwindow.ui">
     </QtUic>
+    <QtUic Include="UI\Dialog\networkdialog.ui" />
     <QtUic Include="UI\Dialog\planningdialog.ui" />
     <QtUic Include="UI\Dialog\robotcreatedialog.ui" />
     <QtUic Include="UI\Display\widget_qss_playground.ui" />
@@ -418,6 +428,7 @@
     <None Include="Shader\Fragment\cascade_shadow_orthoFrag.frag" />
     <None Include="Shader\Fragment\csm_depth_orthoFrag.frag" />
     <None Include="Shader\Fragment\depthOrthoFrag.frag" />
+    <None Include="Shader\Fragment\LineColorFrag.frag" />
     <None Include="Shader\Fragment\pickingFrag.frag" />
     <None Include="Shader\Fragment\postprocessFrag.frag" />
     <None Include="Shader\Fragment\shadowOrthoFrag.frag" />
@@ -427,11 +438,12 @@
     <None Include="Shader\Vertex\cascade_shadow_orthoVert.vert" />
     <None Include="Shader\Vertex\csm_depth_orthoVert.vert" />
     <None Include="Shader\Vertex\depthOrthoVert.vert" />
+    <None Include="Shader\Vertex\LineColorVert.vert" />
     <None Include="Shader\Vertex\pickingVert.vert" />
     <None Include="Shader\Vertex\postprocessVert.vert" />
     <None Include="Shader\Vertex\shadowOrthoVert.vert" />
     <None Include="Shader\Vertex\skyboxVert.vert" />
-    <None Include="source\simplexmesh\GBasicMesh" />
+    <None Include="source\simplexmesh\basicmesh" />
     <None Include="source\motion\GMotion">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>

@@ -13,6 +13,7 @@ class GBall : public GComponent::SimplexModel
 public:
     vec3    center;
     float   radius;
+    vec3    color = vec3(1.0f);
 
 private:
     RenderMesh    mesh;
@@ -20,7 +21,7 @@ private:
 /// 成员函数 Member Functions
 public:
     GBall() = delete;
-    GBall(vec3 o, float r, int resolution = 36);
+    GBall(vec3 o, float r, vec3 color = vec3(1.0f), int resolution = 10);
     ~GBall() = default;
 
     /* 删除拷贝函数 */

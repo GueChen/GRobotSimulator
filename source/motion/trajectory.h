@@ -7,11 +7,12 @@
 #ifndef __TRAJECTORY_H
 #define __TRAJECTORY_H
 
-#include "model/model.h"
+#include "motion/optimization/trajectory_optimization.h"
 
 #include <GComponent/GTransform.hpp>
 
 #include <functional>
+#include <optional>
 #include <vector>
 #include <memory>
 
@@ -19,6 +20,7 @@ namespace GComponent {
 
 struct TrajectoryImpl;
 class  Trajectory;
+class  Model;
 
 using PathFunc		 = std::function<Twistf(float)>;
 using JointPair      = std::pair<float, float>;            
@@ -42,15 +44,19 @@ public:
 	inline SE3f     GetGoalPoint()	  const	 { return ExpMapping(path_func_(1)); }
 
 	std::vector<std::vector<float>>
-					SampleFromPathFunc(float interval);
-					
-
-	Model&	 GetModel();
-	PathFunc GetPathFunction();
+					GetSampleFromPathFunc(float interval);
+	
+	inline void		SetTargetOptimizer(TargetOptimizer optimizer)		  { target_opt_ = optimizer; }
+	inline void		SetSelfMotionOptimizer(SelfmotionOptimizer optimizer) { self_opt_ = optimizer; }
+	Model&			GetModel();
+	PathFunc		GetPathFunction();
 
 protected:
-	std::shared_ptr<TrajectoryImpl> impl_		= nullptr;
-	PathFunc						path_func_;
+	std::shared_ptr<TrajectoryImpl>		impl_		= nullptr;
+	PathFunc							path_func_;
+
+	std::optional<TargetOptimizer>		target_opt_ = std::nullopt;
+	std::optional<SelfmotionOptimizer>	self_opt_	= std::nullopt;
 
 };	// !class Trajectory
 
