@@ -34,9 +34,10 @@ class PlanningSystem : public QObject{
 public:
 	static PlanningSystem& getInstance();
 	~PlanningSystem();
-
+	
 	inline int  GetDisplayFlags() const	   { return display_flag; }
 	inline void SetDisplayFlags(int flags) { display_flag = flags; }
+	void		BroadcastJointsAngle(const std::string& name, std::vector<float> joints);
 
 protected:
 	PlanningSystem() = default;
@@ -76,6 +77,11 @@ public slots:
 								std::vector<float> target,    
 								std::vector<std::vector<float>> bias,
 								std::vector<float> waypoint);
+
+
+signals:
+	void		NotifyNewJointsAngle
+							   (const QString& obj_name, std::vector<float> joints);
 
 private:
 	int display_flag = 0;

@@ -34,8 +34,8 @@ KUKA_IIWA_MODEL::KUKA_IIWA_MODEL(Mat4 transform)
 void KUKA_IIWA_MODEL::InitializeModelResource()
 {            
     ModelManager&       model_manager = ModelManager::getInstance();
-    array<Model*, 8>    models_tmp  = {nullptr};
-    array<Vec3, 8>      local_trans =
+    array<Model*, 8>    models_tmp    = {nullptr};
+    array<Vec3, 8>      local_trans   =
     {
         Vec3(0.0f, 0.0f, 0.0f),
         Vec3(0.0f, 0.0f, 0.1575f),
@@ -47,9 +47,7 @@ void KUKA_IIWA_MODEL::InitializeModelResource()
         Vec3(0.0f, 0.0607f, 0.0809f)
     };
 
-    // HARD-CODE PART
-    SE3<float> init_end_trans_mat        = SE3<float>::Identity();
-    init_end_trans_mat.block(0, 3, 3, 1) = Vec3(0.0f, 0.0f, 1.332f);
+    // HARD-CODE PART    
 
     string count_str = "_" + std::to_string(count);
     model_manager.RegisteredModel("kuka_iiwa_robot" + count_str, this);
@@ -71,6 +69,7 @@ void KUKA_IIWA_MODEL::InitializeModelResource()
         models_tmp[i]->RegisterComponent(make_unique<JointComponent>(models_tmp[i], axis_binds[i - 1]));        
     }
 
+    const float kRadius = 0.10f, kHalfHeight = 0.07f;
     for (int i = 0; i < 8; ++i) {
         Eigen::Affine3f local_transform = Eigen::Affine3f::Identity();        
         local_transform.translate(local_trans[i] * 0.5f).
@@ -78,18 +77,31 @@ void KUKA_IIWA_MODEL::InitializeModelResource()
 
         models_tmp[i]->RegisterComponent(make_unique<RigidbodyComponent>(
                                             models_tmp[i], 
-                                            local_transform.matrix(),
-                                            /*ShapeEnum::Capsule,*/
-                                            0.10f, 
-                                            0.07f,
+                                            local_transform.matrix(),                                            
+                                            kRadius, 
+                                            kHalfHeight,
                                             CollisionGroup{0, 0, 0, 0}));
     }
 
+    constexpr const float klimitTable[][2] = {
+        {DegreeToRadius(-170.0f), DegreeToRadius(180.0f)},
+        {DegreeToRadius(-120.0f), DegreeToRadius(120.0f)},
+        {DegreeToRadius(-170.0f), DegreeToRadius(170.0f)},
+        {DegreeToRadius(-120.0f), DegreeToRadius(120.0f)},
+        {DegreeToRadius(-170.0f), DegreeToRadius(170.0f)},
+        {DegreeToRadius(-118.0f), DegreeToRadius(118.0f)},
+        {DegreeToRadius(-175.0f), DegreeToRadius(175.0f)},
+    };
+
     vector<JointComponent*> joints;
     for (int i = 1; i < 8; ++i) {
-        joints.push_back(models_tmp[i]->GetComponent<JointComponent>("JointComponent"));
+        JointComponent* joint = models_tmp[i]->GetComponent<JointComponent>("JointComponent");
+        joint->SetPosLimit(klimitTable[i - 1][0], klimitTable[i - 1][1]);
+        joints.push_back(joint);
     }
-
+    
+    SE3<float> init_end_trans_mat        = SE3<float>::Identity();
+    init_end_trans_mat.block(0, 3, 3, 1) = Vec3(0.0f, 0.0f, 1.332f);
     RegisterComponent(make_unique<JointGroupComponent>(this, joints));
     RegisterComponent(make_unique<KinematicComponent>(init_end_trans_mat, this));
     RegisterComponent(make_unique<TrackerComponent>(this));

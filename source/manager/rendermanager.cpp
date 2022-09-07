@@ -162,15 +162,15 @@ void RenderManager::EmplaceFrontPostProcessRenderCommand(string obj_name, string
 void RenderManager::EmplaceAuxiliaryObj(shared_ptr<SimplexModel>&& obj)
 {
 	// Notice May Exist Concurrency Problems //
-	std::lock_guard<std::mutex> lock(planning_lock);
+	std::lock_guard<std::mutex> lock(planning_lock_);
 	planning_aux_lists_.emplace_back(std::forward<decltype(obj)>(obj));
 }
 
 void RenderManager::ClearAuxiliaryObj()
 {
 	// Notice May Exist Concurrency Problems //
-	std::lock_guard<std::mutex> lock(planning_lock);
-	planning_aux_lists_.clear();
+	std::lock_guard<std::mutex> lock(planning_lock_);
+	delete_count_ = planning_aux_lists_.size();
 }
 
 void RenderManager::SetPickingController(PickingController& controller)
@@ -575,13 +575,19 @@ void RenderManager::PassSpecifiedListCSMShadow(RenderList& list, function<Rawptr
 
 void RenderManager::SimplexMeshPass()
 {
-	std::lock_guard<std::mutex> lock(planning_lock);
+	std::lock_guard<std::mutex> lock(planning_lock_);
+	/* clean up before draw */
+	for (int i = 0; i < delete_count_; ++i) {
+		planning_aux_lists_.pop_front();
+	}
+	delete_count_ = 0;
 	gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	for (auto& obj : planning_aux_lists_) {
 		obj->SetGL(gl_);
 		obj->Draw(nullptr);
 	}
 	gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	
 }
 
 }

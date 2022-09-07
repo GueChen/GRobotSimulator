@@ -36,7 +36,7 @@ using std::vector;
 using std::unordered_map;
 
 enum class InterpolationEnum{
-    Simple,
+    Simple      = 0,
     Quadratic,
     Cubic,
     Quintic,

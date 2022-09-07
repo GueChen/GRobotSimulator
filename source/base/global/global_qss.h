@@ -70,4 +70,20 @@ constexpr std::string_view tabify_dockwidget_qss =
 "   background: rgb(40, 40, 40);"
 "}";
 
+constexpr std::string_view normal_button_qss =
+"QWidget{"
+"background-color: qlineargradient(spread:pad, x1:0, y1:0.75, x2:0, y2:1,"
+"stop: 0 rgba(20, 20, 20, 255), stop:1 rgba(45, 45, 65, 255));"
+"color:white;"
+"}";
+
+constexpr std::string_view red_button_qss =
+"QWidget{"
+"background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0,"
+"stop: 0 	 rgba(175, 0, 40, 255),"
+"stop: 0.85  rgb(175, 0 ,40),"
+"stop: 0.90  rgb(155, 25, 55),"
+"stop: 1 	 rgba(155, 25, 55, 255));"
+"color:rgb(255, 255, 255);"
+"}";
 #endif

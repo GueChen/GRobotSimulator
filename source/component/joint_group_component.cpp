@@ -44,6 +44,37 @@ void JointGroupComponent::SetPositions(const vector<float>& positions)
 	}
 }
 
+bool JointGroupComponent::SafetyCheck(const std::vector<float>& positions) const
+{
+	assert(positions.size() <= joints_.size() && 
+		   "JointGroupComponent::SafetyCheck::checking joints count greater than configure count\n");
+	for (int i = 0; i < positions.size(); ++i) {
+		if (!joints_[i]->CheckEffective(positions[i])) {
+			return false;
+		}
+	}
+	return true;
+}
+
+void JointGroupComponent::SetLimitations(const std::vector<float>& min_lims, const std::vector<float>& max_lims)
+{
+	assert(min_lims.size() == joints_.size() && max_lims.size() == joints_.size() &&
+		   "JointGroupComponent::SetLimitations::the limits count not match to joints size\n");
+	for (int i = 0; i < joints_.size(); ++i) {
+		JointComponent& joint = *joints_[i];
+		joint.SetPosLimit(min_lims[i], max_lims[i]);
+	}
+}
+
+std::vector<JointGroupComponent::Limit> JointGroupComponent::GetLimitations() const
+{
+	std::vector<Limit> ret(joints_.size());
+	for (int i = 0; i < joints_.size(); ++i) {
+		ret[i] = joints_[i]->GetPosLimit();
+	}
+	return ret;
+}
+
 int JointGroupComponent::SearchJointsInChildren()
 {
 	Model* parent = GetParent();

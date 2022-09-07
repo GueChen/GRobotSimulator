@@ -1,8 +1,8 @@
 #include "manager/planningmanager.h"
-
-#include "component/joint_group_component.h"
+#include "system/planningsystem.h"
 #include "motion/GMotion"
 
+#include "component/joint_group_component.h"
 #include <QtCore/QThreadPool>
 
 #include <chrono>
@@ -26,9 +26,9 @@ PlanningManager::~PlanningManager() = default;
 void PlanningManager::RegisterPlanningTask(Model * robot, JTrajFunc func, float time_total, uint32_t interval)
 {	
 	auto task = [func, time_total, interval, m_key = robot, &m_locks = lock_map, &m_que = task_queue_map]() {
-		if (isinf(time_total)) {
+		if (isinf(time_total) || isnan(time_total)) {
 #ifdef _DEBUG
-			std::cout << "Time Is Infinity, Speed Divide Zero!\n";
+			std::cout << "Time Is Infinity or nan val, Speed Divide Zero!\n";
 #endif
 			return;
 		}
@@ -41,19 +41,24 @@ void PlanningManager::RegisterPlanningTask(Model * robot, JTrajFunc func, float 
 		while (elapsed < time_total) {
 			elapsed = std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::steady_clock::now() - start_time).count();
 			auto j_pairs = func(elapsed);
-
-			if (!j_pairs.empty()) {
-				JointGroupComponent& joints_sdk = *m_key->GetComponent<JointGroupComponent>(JointGroupComponent::type_name.data());
-				vector<float> joints(j_pairs.size());
-				std::transform(j_pairs.begin(), j_pairs.end(), joints.begin(), [](auto&& p) {return p.first; });
-				joints_sdk.SetPositions(joints);
+			if (!j_pairs.first.empty()) {
+				vector<float>& joints = j_pairs.first;				
+				JointGroupComponent* jsdk = m_key->GetComponent<JointGroupComponent>(JointGroupComponent::type_name.data());
+				if(jsdk->SafetyCheck(joints)){
+					PlanningSystem::getInstance().BroadcastJointsAngle(m_key->getName(), joints);
+				}
+#ifdef _DEBUG
+				else {
+					std::cout << "Safety check failed for limitation resaon\n";
+				}
+#endif // _DEBUG
 			}
 
 #ifdef _DEBUG
 			std::cout << "_____________________________________\n";
 			std::cout << "elapsed: " << elapsed << std::endl;
-			for (auto& [x, v] : j_pairs) {
-				std::cout << std::format("x val:{: >10}, v val:{: >10}\n", x, v);
+			for (int i = 0; i < j_pairs.first.size(); ++i) {
+				std::cout << std::format("x val:{: >10}, v val:{: >10}\n", j_pairs.first[i], j_pairs.second[i]);
 			}
 			std::cout << "_____________________________________\n";
 #endif
@@ -100,27 +105,21 @@ void PlanningManager::RegisterDualPlanningTask(std::vector<Model*> robots, std::
 			auto l = funcs[0](elapsed);
 			auto r = funcs[1](elapsed);
 
-			if (!l.empty()) {
-				JointGroupComponent& joints_sdk = *m_keys[0]->GetComponent<JointGroupComponent>(JointGroupComponent::type_name.data());
-				vector<float> joints(l.size());
-				std::transform(l.begin(), l.end(), joints.begin(), [](auto&& p) {return p.first; });
-				joints_sdk.SetPositions(joints);
+			if (!l.first.empty()) {								
+				PlanningSystem::getInstance().BroadcastJointsAngle(m_keys[0]->getName(), l.first);
 			}
-			if (!r.empty()) {
-				JointGroupComponent& joints_sdk = *m_keys[1]->GetComponent<JointGroupComponent>(JointGroupComponent::type_name.data());
-				vector<float> joints(r.size());
-				std::transform(r.begin(), r.end(), joints.begin(), [](auto&& p) {return p.first; });
-				joints_sdk.SetPositions(joints);
+			if (!r.first.empty()) {								
+				PlanningSystem::getInstance().BroadcastJointsAngle(m_keys[1]->getName(), r.first);
 			}
 #ifdef  _DEBUG
 			std::cout << "_____________________________________\n";
 			std::cout << "elapsed: " << elapsed << std::endl;
 
-			for (auto& [x, v] : l) {
-				std::cout << std::format("x val:{: >10}, v val:{: >10}\n", x, v);
+			for (int i = 0; i < l.first.size(); ++i) {
+				std::cout << std::format("x val:{: >10}, v val:{: >10}\n", l.first[i], l.second[i]);
 			}
-			for (auto& [x, v] : r) {
-				std::cout << std::format("x val:{: >10}, v val:{: >10}\n", x, v);
+			for (int i = 0; i < r.first.size(); ++i) {
+				std::cout << std::format("x val:{: >10}, v val:{: >10}\n", r.first[i], r.second[i]);
 			}
 			std::cout << "_____________________________________\n";
 #endif //  _DEBUG

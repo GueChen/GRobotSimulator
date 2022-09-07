@@ -23,6 +23,17 @@ PlanningSystem& PlanningSystem::getInstance()
 
 PlanningSystem::~PlanningSystem() = default;
 
+void PlanningSystem::BroadcastJointsAngle(const std::string& name, std::vector<float> joints) {
+	QString emit_obj;
+	if (name == "kuka_iiwa_robot_0") {
+		emit_obj = "left";
+	}
+	else if (name == "kuka_iiwa_robot_1") {
+		emit_obj = "right";
+	}
+	emit NotifyNewJointsAngle(emit_obj, joints);
+}
+
 /*___________________________________PROTECTED METHODS___________________________________________________*/
 std::string PlanningSystem::SimpleGetObjName(const QString& obj_name)
 {
@@ -43,8 +54,26 @@ void PlanningSystem::ResponsePTPMotionJSpace(const QString& obj_name, float max_
 		PTPMotion motion(target_joints);
 		motion.SetMaxLinVel(max_vel).SetMaxLinAcc(max_acc);
 		JTrajFunc func = motion(robot);
-		PlanningManager::getInstance().RegisterPlanningTask(robot, func, motion.GetTotalTime(), 40);
+		PlanningManager::getInstance().RegisterPlanningTask(robot, func, motion.GetTotalTime(), 10);
+		
+		KinematicComponent& kine	= *robot->GetComponent<KinematicComponent>(KinematicComponent::type_name.data());
+		RenderManager&		render	= RenderManager::getInstance();
+		render.ClearAuxiliaryObj();
+		std::vector<glm::vec3> samples;
+		float tot = motion.GetTotalTime(), interval = tot / 20.0f;
+		for (float i = 0.0f; i <= tot; i += interval) {
+			auto ret = func(i);									
+			SE3f mat; kine.ForwardKinematic(mat, ret.first);
+			samples.push_back(Conversion::fromVec3f((robot->getModelMatrixWithoutScale() *  mat).block(0, 3, 3, 1)));
+		}
+		if (samples.size() >= 2) {
+			render.EmplaceAuxiliaryObj(std::make_shared<GCurves>(samples, kRed, kBlue));
+			render.EmplaceAuxiliaryObj(std::make_shared<GBall>(samples.front(), 0.010f, kRed));
+			render.EmplaceAuxiliaryObj(std::make_shared<GBall>(samples.back(), 0.010f, kBlue));
+		}
 	}	
+	
+	
 }
 
 //FIXME: THIS METHOD NOT GOOD FOR ISOLATION
@@ -72,7 +101,7 @@ void PlanningSystem::ResponsePTPMotionCSpace(const QString& obj_name, float max_
 	PTPMotion motion(target_joints);
 	motion.SetMaxLinVel(max_vel).SetMaxLinAcc(max_acc);
 	JTrajFunc func = motion(robot);
-	PlanningManager::getInstance().RegisterPlanningTask(robot, func, motion.GetTotalTime(), 40);
+	PlanningManager::getInstance().RegisterPlanningTask(robot, func, motion.GetTotalTime(), 10);
 	
 }
 
@@ -97,7 +126,7 @@ void PlanningSystem::ResponseLineMotion(const QString& obj_name, float max_vel, 
 	render.EmplaceAuxiliaryObj(std::make_shared<GLine>(Conversion::fromVec3f(ini), Conversion::fromVec3f(goal),
 													   kRed, kBlue));
 	func.SetTargetOptimizer(TargetOptimizer{});
-	PlanningManager::getInstance().RegisterPlanningTask(robot, func, func.GetTimeTotal(), 40);
+	PlanningManager::getInstance().RegisterPlanningTask(robot, func, func.GetTimeTotal(), 10);
 	
 }
 
@@ -127,7 +156,7 @@ void PlanningSystem::ResponseCircleMotion(const QString& obj_name, float max_vel
 	std::transform(samples_stl.begin(), samples_stl.end(), samples.begin(), STLUtils::toGlmVec3);
 	render.EmplaceAuxiliaryObj(std::make_shared<GCurves>(samples, kRed, kBlue));
 
-	PlanningManager::getInstance().RegisterPlanningTask(robot, func, func.GetTimeTotal(), 40);
+	PlanningManager::getInstance().RegisterPlanningTask(robot, func, func.GetTimeTotal(), 10);
 }
 
 void PlanningSystem::ResponseSplineMotion(const QString& obj_name, float max_vel, float max_acc, float max_ang_vel, float max_ang_acc, std::vector<float> target_descarte, std::vector<std::vector<float>> waypoints)
@@ -157,7 +186,7 @@ void PlanningSystem::ResponseSplineMotion(const QString& obj_name, float max_vel
 	std::transform(samples_stl.begin(), samples_stl.end(), samples.begin(), STLUtils::toGlmVec3);
 	render.EmplaceAuxiliaryObj(std::make_shared<GCurves>(samples, kRed, kBlue));
 
-	PlanningManager::getInstance().RegisterPlanningTask(robot, func, func.GetTimeTotal(), 40);
+	PlanningManager::getInstance().RegisterPlanningTask(robot, func, func.GetTimeTotal(), 10);
 }
 
 void PlanningSystem::ResponseDualSyncLineMotion(const std::vector<QString>& obj_names, std::vector<float> max_vels, std::vector<float> max_accs, std::vector<float> target, std::vector<std::vector<float>> bias)
@@ -194,7 +223,7 @@ void PlanningSystem::ResponseDualSyncLineMotion(const std::vector<QString>& obj_
 	render.EmplaceAuxiliaryObj(std::make_shared<GLine>(Conversion::fromVec3f(r_ini), Conversion::fromVec3f(r_goal),
 		kRed, kYellow));
 
-	PlanningManager::getInstance().RegisterDualPlanningTask(robots, funcs, l_func.GetTimeTotal(), 40);
+	PlanningManager::getInstance().RegisterDualPlanningTask(robots, funcs, l_func.GetTimeTotal(), 10);
 }
 
 void PlanningSystem::ResponseDualSyncCircleMotion(const std::vector<QString>& obj_names, std::vector<float> max_vels, std::vector<float> max_accs, std::vector<float> target, std::vector<std::vector<float>> bias, std::vector<float> waypoint)
@@ -217,7 +246,7 @@ void PlanningSystem::ResponseDualSyncCircleMotion(const std::vector<QString>& ob
 	funcs.emplace_back(l_func);
 	funcs.emplace_back(r_func);
 
-	PlanningManager::getInstance().RegisterDualPlanningTask(robots, funcs, l_func.GetTimeTotal(), 40);
+	PlanningManager::getInstance().RegisterDualPlanningTask(robots, funcs, l_func.GetTimeTotal(), 10);
 }
 
 }

@@ -5,6 +5,7 @@
 #include "manager/rendermanager.h"
 #include "manager/physicsmanager.h"
 #include "manager/planningmanager.h"
+#include "manager/tcpsocketmanager.h"
 
 #include <QtGui/QMouseEvent>
 #include <QtGUI/QKeyEvent>
@@ -75,7 +76,8 @@ void Viewport::paintGL()
 	
 	// Adjust the planning
 	PlanningManager::getInstance().tick(delta_time.count());
-	
+	// Sync the frame
+	TcpSocketManager::getInstance().tick();
 	// Adjust all component
 	ModelManager::getInstance().tickAll(delta_time.count());
 	// Adjust all resources
@@ -85,6 +87,7 @@ void Viewport::paintGL()
 	// Draw all renderable process Passes
 	RenderManager::getInstance().tick();
 	
+	// 
 	// Time statics rendering over
 	std::chrono::time_point now = std::chrono::steady_clock::now();
 	delta_time = std::chrono::duration_cast<std::chrono::duration<float>>(now - last_point);

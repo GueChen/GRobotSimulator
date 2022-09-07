@@ -5,7 +5,9 @@
 namespace GComponent {
 
 PhysicsManager::PhysicsManager()  = default;
-PhysicsManager::~PhysicsManager() = default;
+PhysicsManager::~PhysicsManager() {
+	transport_->disconnect();
+}
 
 void PhysicsManager::tick(float delta_time)
 {

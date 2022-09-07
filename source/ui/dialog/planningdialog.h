@@ -17,9 +17,6 @@ namespace Ui {
 class PlanningDialog;
 }
 QT_END_NAMESPACE
-namespace GComponent {
-class PlanningWidget;
-}
 
 class QTableWidget;
 

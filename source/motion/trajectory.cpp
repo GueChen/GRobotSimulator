@@ -40,7 +40,7 @@ JointPairs Trajectory::operator()(float t_reg)
     vector<float> cur_xs = kine_sdk.GetJointsPos();
     Twistf        glb_t  = path_func_(t);
     SE3f          goal   = glb_inv * ExpMapping(glb_t);
-    vector<float> out_xs; kine_sdk.InverseKinematic(out_xs, goal, cur_xs);
+    vector<float> out_xs;  kine_sdk.InverseKinematic(out_xs, goal, cur_xs);
     std::transform(out_xs.begin(), out_xs.end(), out_xs.begin(), ToStandarAngle);
     if (out_xs.empty()) return JointPairs{};                         // Solve Failed
 
@@ -63,15 +63,10 @@ JointPairs Trajectory::operator()(float t_reg)
     SE3f          mat_ini;  kine_sdk.ForwardKinematic(mat_ini, cur_xs);
     Jacobi<float> jacobi;   kine_sdk.Jacobian(jacobi, cur_xs);
     Twist<float>  delta_v = LogMapSE3Tose3(goal * InverseSE3(mat_ini));
-    Thetav<float> out_vs  = Eigen::JacobiSVD<decltype(jacobi)>(jacobi, Eigen::ComputeFullU | Eigen::ComputeFullV).solve(delta_v);
-
-    JointPairs ret(kJNum);
-    for (int i = 0; i < kJNum; ++i) {
-        JointPair& joint = ret[i];
-        joint.first = out_xs[i];
-        joint.second = out_vs[i];
-    }
-    return ret;
+    Thetav<float> out_vs_vec = Eigen::JacobiSVD<decltype(jacobi)>(jacobi, Eigen::ComputeFullU | Eigen::ComputeFullV).solve(delta_v);
+    Thetas<float> out_vs(out_vs_vec.begin(), out_vs_vec.end());
+    
+    return {out_xs, out_vs};
 }
 
 void Trajectory::SetTimeTotal(float time_total)

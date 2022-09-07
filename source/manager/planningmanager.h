@@ -10,9 +10,6 @@
 #include "base/singleton.h"
 
 #include "motion/gmotionbase.h"
-#include "motion/dualsynclinemotion.h"
-
-#include <QtCore/QObject>
 
 #include <unordered_map>
 #include <functional>

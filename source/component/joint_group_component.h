@@ -26,6 +26,8 @@ using std::unordered_set;
 using _DelFun = std::function<void(void)>;
 
 class JointGroupComponent:public Component {
+using Limit = JointComponent::Limitation;
+
 public:
 	explicit JointGroupComponent(Model* ptr_parent = nullptr, const vector<JointComponent*>& joints = {});
 	~JointGroupComponent();
@@ -34,13 +36,19 @@ public:
 	// void Derigistered()			override;
 
 	virtual const string_view& 
-					GetTypeName()	const override	{ return type_name; }	
-	inline size_t	GetJointsSize()	const			{ return joints_.size(); }
+					GetTypeName		()	const override	{ return type_name; }	
+	inline size_t	GetJointsSize	()	const			{ return joints_.size(); }
 	inline const vector<JointComponent*>& 
-					GetJoints()		const			{ return joints_; }
+					GetJoints		()	const			{ return joints_; }
 
-	vector<float>	GetPositions()  const;
-	void			SetPositions(const vector<float>& positions);
+	vector<float>	GetPositions	()  const;
+	void			SetPositions	(const std::vector<float>&positions);
+
+	bool			SafetyCheck		(const std::vector<float>& positions) const;
+	void			SetLimitations	(const std::vector<float>& min_lims,
+								     const std::vector<float>& max_lims);
+	std::vector<Limit>
+					GetLimitations()									  const;
 
 	int				SearchJointsInChildren();
 	
@@ -52,9 +60,6 @@ private:
 	// TODO: consider the situation under tow paralle joints
 	vector<JointComponent*>			joinable_joints_	 = {};
 	unordered_set<JointComponent*>	record_table_		 = {};
-
-	std::optional<std::function<vector<double>()>> 
-							pos_function		 = std::nullopt;
 
 public:
 	constexpr static const string_view type_name = "JointGroupComponent";

@@ -39,6 +39,7 @@ JTrajFunc GComponent::PTPMotion::operator()(Model* robot)
 
     // Caculate total time of sync j motion
     float time_total = 0.0f;
+    if (max_acc_ >= 1e-15)
     if (float max_acc_dist = max_vel_ * max_vel_ / max_acc_;
         max_acc_dist >= max_delta){
         time_total = 2.0 * std::sqrt(max_delta / max_acc_);
@@ -60,29 +61,32 @@ JTrajFunc GComponent::PTPMotion::operator()(Model* robot)
 
     // all deserve, get the function
     auto traj_func = [acc = max_acc_, params, time_total, kJNum, j_vals](float t)->JointPairs {
-        JointPairs ret(kJNum);
-        std::transform(params.begin(), params.end(), j_vals.begin(), ret.begin(),
-            [t, acc, time_total](auto& param, auto& j_ini)->JointPair{
-                auto& [sgn, t_rise, delta] = param;
-                float v = 0.0f, x = j_ini;
-                if (t <= t_rise){
-                    v =  sgn * acc * t;
-                    x += 0.5 * v * t;
-                }
-                else if (t <= time_total - t_rise){
-                    v =  sgn * acc * t_rise;
-                    x += v * (t - 0.5 * t_rise);
-                }
-                else if (t <= time_total - 1e-5){
-                    v =  sgn * acc * (time_total - t);
-                    x += delta - 0.5 * v * (time_total - t);
-                }
-                else{
-                    v =  0.0f;
-                    x += delta;
-                }
-                return std::make_pair(x, v);
-            });
+        JointPairs ret;
+        ret.first.resize(kJNum);
+        ret.second.resize(kJNum);
+        for (int i = 0; i < kJNum; ++i) {
+            auto& [sgn, t_rise, delta] = params[i];
+            float& x                   = ret.first[i],
+                 & v                   = ret.second[i];
+            x = j_vals[i];
+
+            if (t <= t_rise){
+                v =  sgn * acc * t;
+                x += 0.5 * v * t;
+            }
+            else if (t <= time_total - t_rise){
+                v =  sgn * acc * t_rise;
+                x += v * (t - 0.5 * t_rise);
+            }
+            else if (t <= time_total - 1e-5){
+                v =  sgn * acc * (time_total - t);
+                x += delta - 0.5 * v * (time_total - t);
+            }
+            else{
+                v =  0.0f;
+                x += delta;
+            }            
+        }        
         return ret;      
     };
 

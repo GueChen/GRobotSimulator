@@ -9,6 +9,8 @@
 #include "component/rigidbody_component.h"
 #include <glm/glm.hpp>
 
+#include <yvals.h>
+
 int main(int argc, char *argv[])
 {
     

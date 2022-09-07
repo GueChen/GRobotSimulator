@@ -168,9 +168,9 @@ private:
 
 /*________________________Planning Display Related_____________________________________________*/
 	list<std::shared_ptr<SimplexModel>> 
-									planning_aux_lists_;
-	std::mutex						planning_lock;
-
+									planning_aux_lists_			= {};
+	int								delete_count_				= 0;
+	std::mutex						planning_lock_;	
 /*________________________PROXY CLASS_______________________________________________________*/
 private:
 class DisableGuard {

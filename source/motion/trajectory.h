@@ -24,7 +24,7 @@ class  Model;
 
 using PathFunc		 = std::function<Twistf(float)>;
 using JointPair      = std::pair<float, float>;            
-using JointPairs     = std::vector<JointPair>;
+using JointPairs     = std::pair<std::vector<float>, std::vector<float>>;
 using JTrajFunc      = std::function<JointPairs(float)>;
 using DualJointPair  = std::pair<JointPairs, JointPairs>;
 using DualTrajectory = std::pair<Trajectory, Trajectory>;
