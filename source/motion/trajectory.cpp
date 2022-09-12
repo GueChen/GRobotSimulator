@@ -39,16 +39,21 @@ JointPairs Trajectory::operator()(float t_reg)
     float         t      = Clamp(t_reg / time_total, 0.0f, 1.0f);
     vector<float> cur_xs = kine_sdk.GetJointsPos();
     Twistf        glb_t  = path_func_(t);
-    SE3f          goal   = glb_inv * ExpMapping(glb_t);
+    SE3f          g_ori  = glb_inv * ExpMapping(glb_t),
+                  goal   = g_ori * ExpMapping(modify_vec_);
     vector<float> out_xs;  kine_sdk.InverseKinematic(out_xs, goal, cur_xs);
     std::transform(out_xs.begin(), out_xs.end(), out_xs.begin(), ToStandarAngle);
-    if (out_xs.empty()) return JointPairs{};                         // Solve Failed
+    modify_vec_ *= 0.97f;                                                   // self decaying
+    if (out_xs.empty()) return JointPairs{};                                // solve failed
 
-    if (target_opt_ && target_opt_->ConditionCheck(impl_->obj)) {           // Modify Target
-        glb_t = target_opt_->Optimize(impl_->obj, glb_t, out_xs);
-        goal  = glb_inv * ExpMapping(glb_t);
-        kine_sdk.InverseKinematic(out_xs, goal, cur_xs);
+    if (target_opt_ && target_opt_->ConditionCheck(impl_->obj)) {           // modify target
+        out_xs = target_opt_->Optimize(impl_->obj, glb_t, out_xs);
+        //goal  = glb_inv * ExpMapping(glb_t);
+        //kine_sdk.InverseKinematic(out_xs, goal, cur_xs);
         std::transform(out_xs.begin(), out_xs.end(), out_xs.begin(), ToStandarAngle);
+        SE3f new_goal = SE3f::Identity();
+        kine_sdk.ForwardKinematic(new_goal, out_xs);
+        modify_vec_ = LogMapSE3Tose3(InverseSE3(g_ori) * new_goal);
     }
 
     if (self_opt_ && self_opt_->ConditionCheck(impl_->obj)) {                        // Self Motion

@@ -140,10 +140,10 @@ std::vector<GComponent::Vertex> GComponent::QtGLTranslationAxis::SetupVertexData
 	std::vector<Vertex> vertices;
 	/* Make X axis shape */
 	/* the Cylinder inner Circle */
-	SetupXaxisCircle(segments, radius, 0.0f, vertices);
+	SetupXaxisCircle(segments, 0.5f * radius, 0.0f, vertices);
 	/* the Cylinder outer Circle */
-	SetupXaxisCircle(segments, radius, 1.5, vertices);
-	SetupXaxisCircle(segments, radius * 4.0f, 1.5, vertices);
+	SetupXaxisCircle(segments, 0.5f * radius, 0.5f * 1.5, vertices);
+	SetupXaxisCircle(segments, 0.5f * radius * 4.0f, 0.5f * 1.5, vertices);
 	/* the Cone Conical Point */
 	{
 		Vertex		temp;
@@ -151,7 +151,7 @@ std::vector<GComponent::Vertex> GComponent::QtGLTranslationAxis::SetupVertexData
 				 &	norm	= temp.normal;
 		glm::vec2&	coord	= temp.texcoords;
 
-		pos.x = 1.5f + 10.0f * radius;
+		pos.x = 0.5f * 1.5f + 0.5f * 10.0f * radius;
 		pos.y = pos.z = 0.0f;
 
 		norm.x = 1.0f;

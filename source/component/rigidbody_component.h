@@ -37,6 +37,8 @@ public:
 					GetTypeName() const override{ return type_name; };
 	inline RigidBodyActor& 
 					GetActor()	  const			{ return *rigidbody_actor_; }
+	inline Mat4		GetLocalModelMat() const	{ return local_model_matrix_; }
+
 protected:
 	void			tickImpl(float delta_time) override;
 	

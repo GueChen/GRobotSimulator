@@ -60,6 +60,8 @@ signals:
 								std::vector<float> target,    
 								std::vector<std::vector<float>> bias,
 								std::vector<float> waypoint);
+	void RequestChangeCurrentTaskStatus
+							   (const std::vector<QString>& obj_names, int status);
 
 private:
 // Process Related Methods
@@ -81,9 +83,15 @@ private:
 	std::vector<std::vector<float>>
 		GetDatasFromTable(QTableWidget* tbl);
 
+// Status change helper method
+	std::vector<QString> GetCurrentObjName() const;
+
 private slots:
 	void on_execution_button_clicked();
 	void on_cancel_button_clicked();
+	void on_stop_button_clicked();
+	void on_pause_button_clicked();
+	void on_resume_button_clicked();
 	void on_spline_waypoints_add_button_clicked();
 	void on_spline_waypoints_del_button_clicked();
 	void on_spline_waypoints_clear_button_clicked();

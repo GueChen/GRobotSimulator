@@ -98,19 +98,26 @@ void Viewport::paintGL()
 
 void Viewport::CustomUpdateImpl()
 {
-	Model* sphere_collider = ModelManager::getInstance().GetModelByName("sphere0");
-	/*if (sphere_collider) {
-		
-		float time_point = std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::steady_clock::now().time_since_epoch()).count();
-		sphere_collider->setTransLocal(Eigen::Vector3f(
-								0.25f + 0.3f   * sin(0.5f * time_point), 
-								0.85f + 0.125f * cos(0.5f * 0.33f * time_point), 
-								1.75f + 0.2f   * sin(0.5f * 3.714f * time_point)));
-		std::shared_ptr<PhysicsScene> scene = PhysicsManager::getInstance().GetActivateScene().lock();
-		auto rigid_com = sphere_collider->GetComponent<RigidbodyComponent>(RigidbodyComponent::type_name.data());
-		vector<OverlapHitInfo> hits_info;
-		scene->Overlap(rigid_com->GetActor(), 10, hits_info);
-	}*/
+	
+	//Model* sphere_collider = ModelManager::getInstance().GetModelByName("sphere0");
+	//if (sphere_collider) {
+	//	
+	//	float time_point = std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::steady_clock::now().time_since_epoch()).count();
+	//	/*sphere_collider->setTransLocal(Eigen::Vector3f(
+	//							0.25f + 0.3f   * sin(0.5f * time_point), 
+	//							0.85f + 0.125f * cos(0.5f * 0.33f * time_point), 
+	//							1.75f + 0.2f   * sin(0.5f * 3.714f * time_point)));*/
+	//	std::shared_ptr<PhysicsScene> scene = PhysicsManager::getInstance().GetActivateScene().lock();
+	//	auto rigid_com = sphere_collider->GetComponent<RigidbodyComponent>(RigidbodyComponent::type_name.data());
+	//	vector<OverlapHitInfo> hits_info;
+	//	scene->Overlap(rigid_com->GetActor(), 10, hits_info);
+	//	for (auto&& [hitter, vec] : hits_info) {
+	//		std::cout << sphere_collider->getName() << " collide with " << 
+	//			PhysicsManager::getInstance().GetModelIdByActorID(hitter)->GetParent()->getName() <<
+	//			"\npenetrac vec: " << vec.transpose() << std::endl;
+	//	}
+	//}
+	
 	
 }
 

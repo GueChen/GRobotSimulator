@@ -176,6 +176,17 @@ namespace GComponent {
 		return vals;
 	}
 
+	std::vector<QString> PlanningDialog::GetCurrentObjName() const
+	{
+		std::vector<QString> obj_names;
+		for (auto& child : ui_ptr_->planning_stacked->currentWidget()->children()) {
+			if (child->objectName().contains("obj_combo")) {
+				obj_names.push_back(dynamic_cast<QComboBox*>(child)->currentText());
+			}
+		}
+		return obj_names;
+	}
+
 /*________________________________________PRIVATE SLOTS__________________________________________________*/
 	void PlanningDialog::on_execution_button_clicked()
 	{
@@ -198,6 +209,30 @@ namespace GComponent {
 	void PlanningDialog::on_cancel_button_clicked()
 	{		
 		close();
+	}
+
+	void PlanningDialog::on_stop_button_clicked()
+	{
+		constexpr const int kStopStatus = 0;
+		std::vector<QString> obj_names = GetCurrentObjName();		
+		if (obj_names.empty()) return;
+		emit RequestChangeCurrentTaskStatus(obj_names, kStopStatus);
+	}
+
+	void PlanningDialog::on_pause_button_clicked()
+	{
+		constexpr const int kPauseStatus = 1;
+		std::vector<QString> obj_names = GetCurrentObjName();
+		if (obj_names.empty()) return;
+		emit RequestChangeCurrentTaskStatus(obj_names, kPauseStatus);
+	}
+
+	void PlanningDialog::on_resume_button_clicked()
+	{
+		constexpr const int kResumeStatus = 2;
+		std::vector<QString> obj_names = GetCurrentObjName();
+		if (obj_names.empty()) return;
+		emit RequestChangeCurrentTaskStatus(obj_names, kResumeStatus);
 	}
 
 	void PlanningDialog::on_spline_waypoints_add_button_clicked()

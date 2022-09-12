@@ -9,7 +9,7 @@
 
 #include "physics/physics_datastructure.hpp"
 
-#include <GComponent/GTransform.hpp>
+#include "component/rigidbody_component.h"
 
 #include <vector>
 #include <memory>
@@ -24,14 +24,19 @@ class TargetOptimizer {
 public:
 	TargetOptimizer()  = default;
 	~TargetOptimizer() = default;
-	Twistf Optimize(Model&, const Twistf& glb_t, const std::vector<float>& thetas);	
-	bool ConditionCheck(Model&);
+	std::vector<float> 
+			Optimize(Model&, const Twistf& glb_t, const std::vector<float>& thetas);
+	
+	void	DisplayHitterInformations(GComponent::Model& obj);
+
+	bool	ConditionCheck(Model&);
 
 private:
-	bool ConditionCheck(Model&, const std::shared_ptr<PhysicsScene>&, int);
+	bool	ConditionCheck(Model&, const std::shared_ptr<PhysicsScene>&, int);
 
 private:
-	std::map<int, std::vector<OverlapHitInfo>> hit_infos;
+	std::map<int, std::vector<OverlapHitInfo>> hit_infos_;
+	std::map<int, RigidbodyComponent&>		   hit_actors_;
 };
 
 class SelfmotionOptimizer {

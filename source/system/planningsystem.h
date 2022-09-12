@@ -37,7 +37,9 @@ public:
 	
 	inline int  GetDisplayFlags() const	   { return display_flag; }
 	inline void SetDisplayFlags(int flags) { display_flag = flags; }
-	void		BroadcastJointsAngle(const std::string& name, std::vector<float> joints);
+	void		BroadcastJointsAngle
+								(const std::string& name, std::vector<float> joints,
+								 float				time_stamp);
 
 protected:
 	PlanningSystem() = default;
@@ -77,11 +79,13 @@ public slots:
 								std::vector<float> target,    
 								std::vector<std::vector<float>> bias,
 								std::vector<float> waypoint);
-
+	void ResponseChangeCurrentTaskStatus
+							   (const std::vector<QString>& obj_name, int status);
 
 signals:
 	void		NotifyNewJointsAngle
-							   (const QString& obj_name, std::vector<float> joints);
+							   (const QString& obj_name, std::vector<float> joints,
+							    float		   time_stamp);
 
 private:
 	int display_flag = 0;

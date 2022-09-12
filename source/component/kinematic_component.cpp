@@ -95,6 +95,26 @@ bool KinematicComponent::ZeroProjection(ZeroProj<float>& zero_mat, const Thetav<
 	return result;
 }
 
+bool KinematicComponent::Transforms(vector<SE3<float>>& out_mats, const Thetas<float>& thetas)
+{
+	return RobotKinematic::Transforms(out_mats, exp_coords_, toThetav(thetas));
+}
+
+bool KinematicComponent::Transforms(vector<SE3<float>>& out_mats, const Thetav<float>& thetav)
+{		
+	return RobotKinematic::Transforms(out_mats, exp_coords_, thetav);
+}
+
+bool KinematicComponent::DifferentialTransforms(vector<SE3<float>>& out_mats, const Thetas<float>& thetas)
+{
+	return RobotKinematic::Differential(out_mats, exp_coords_, toThetav(thetas));
+}
+
+bool KinematicComponent::DifferentialTransforms(vector<SE3<float>>& out_mats, const Thetav<float>& thetav)
+{
+	return RobotKinematic::Differential(out_mats, exp_coords_, thetav);
+}
+
 bool KinematicComponent::UpdateExponentialCoordinates()
 {
 	JointGroupComponent* joints_group = GetJointsGroup();
@@ -148,11 +168,7 @@ bool KinematicComponent::UpdateExponentialCoordinates()
 	return false;
 }
 
-vector<float> KinematicComponent::GetJointsPos() const
-{	
-	return GetJointsGroup()->GetPositions();
-}
-
+/*_________________________________PROTECTED METHODS_______________________________*/
 void KinematicComponent::tickImpl(float delta_time)
 {
 	UpdateExponentialCoordinates();

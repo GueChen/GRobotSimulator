@@ -58,6 +58,9 @@ protected:
 	std::optional<TargetOptimizer>		target_opt_ = std::nullopt;
 	std::optional<SelfmotionOptimizer>	self_opt_	= std::nullopt;
 
+	//TODO: consider a better place
+	Twistf								modify_vec_ = Twistf::Zero();
+
 };	// !class Trajectory
 
 

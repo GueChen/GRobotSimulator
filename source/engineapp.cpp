@@ -270,6 +270,9 @@ void GComponent::EngineApp::ConnectModules()
 	// Circle Sync
 	connect(planning_dialog_ptr_.get(),			&PlanningDialog::RequestDualSyncCircleMotion,
 			&PlanningSystem::getInstance(),		&PlanningSystem::ResponseDualSyncCircleMotion);
+	// Stop Motion
+	connect(planning_dialog_ptr_.get(),			&PlanningDialog::RequestChangeCurrentTaskStatus,
+			&PlanningSystem::getInstance(),		&PlanningSystem::ResponseChangeCurrentTaskStatus);
 
 	connect(&PlanningSystem::getInstance(),		&PlanningSystem::NotifyNewJointsAngle,
 			&TransmitSystem::getInstance(),		&TransmitSystem::ReceiveJointsAngle);

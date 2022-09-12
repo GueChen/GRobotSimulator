@@ -37,7 +37,7 @@ signals:
 
 public slots:	
 	void ResponseModeChange(const QString& obj_name, int mode);
-	void ReceiveJointsAngle(const QString& obj_name, std::vector<float> joints);
+	void ReceiveJointsAngle(const QString& obj_name, std::vector<float> joints, float time_stamp);
 	void ProcessRobotTransmitDatas
 						   (const QString& obj_name, int type, std::vector<float> datas);
 protected:

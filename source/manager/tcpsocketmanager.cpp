@@ -95,7 +95,8 @@ void TcpSocketManager::SocketConnection(const QString& name, QTcpSocket* sock)
 	connect(sock, &QTcpSocket::errorOccurred, [this, sock, name](QAbstractSocket::SocketError err) {		
 		std::cout <<"Error happend: " << err << ", try to reconnect: " << 
 			sock->localAddress().toString().toStdString() << "->" << sock->peerPort() << std::endl;
-		RegisterTcpSocket(name, sock->localAddress(), sock->peerPort());
+		//RegisterTcpSocket(name, sock->peerAddress(), sock->peerPort());
+		DeregisterTcpSocket(name);
 		});
 #endif // _DEBUG
 	
