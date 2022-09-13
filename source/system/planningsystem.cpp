@@ -122,7 +122,7 @@ void PlanningSystem::ResponseLineMotion(const QString& obj_name, float max_vel, 
 	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(goal), 0.010f, kBlue));
 	render.EmplaceAuxiliaryObj(std::make_shared<GLine>(Conversion::fromVec3f(ini), Conversion::fromVec3f(goal),
 													   kRed, kBlue));
-	func.SetTargetOptimizer(TargetOptimizer{});
+	func.SetTargetOptimizer(new PhysxCheckerOptimizer{});
 	PlanningManager::getInstance().RegisterPlanningTask(robot, func, func.GetTimeTotal(), 5);
 	
 }
@@ -202,8 +202,8 @@ void PlanningSystem::ResponseDualSyncLineMotion(const std::vector<QString>& obj_
 	
 	std::vector<JTrajFunc> funcs; 
 	auto [l_func, r_func] = motion(robots[0], robots[1]);
-	l_func.SetTargetOptimizer(TargetOptimizer{});
-	r_func.SetTargetOptimizer(TargetOptimizer{});
+	l_func.SetTargetOptimizer(new PhysxCheckerOptimizer{});
+	r_func.SetTargetOptimizer(new PhysxCheckerOptimizer{});
 
 	funcs.emplace_back(l_func);
 	funcs.emplace_back(r_func);

@@ -213,6 +213,12 @@
     <ClCompile Include="source\system\transmitsystem.cpp">
       <Filter>system</Filter>
     </ClCompile>
+    <ClCompile Include="source\motion\keepermotion.cpp">
+      <Filter>motion\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\optimization\skinsensor_optimizer.cpp">
+      <Filter>motion\optimization</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\motion\gmotionbase.h">
@@ -427,6 +433,12 @@
     </ClInclude>
     <ClInclude Include="source\function\adapter\kuka_iiwa\kuka_iiwa_encoder.h">
       <Filter>function\adapter\kuka_iiwa</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\keepermotion.h">
+      <Filter>motion\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\optimization\skinsensor_optimizer.h">
+      <Filter>motion\optimization</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

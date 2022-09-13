@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>595</width>
-    <height>811</height>
+    <height>1192</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -2555,7 +2555,24 @@ color: black;</string>
     <string>PushButton</string>
    </property>
   </widget>
+  <widget class="QChartView" name="graphicsView">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>860</y>
+     <width>256</width>
+     <height>192</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QChartView</class>
+   <extends>QGraphicsView</extends>
+   <header location="global">qchartview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../resource/icons.qrc"/>
  </resources>

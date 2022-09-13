@@ -22,7 +22,7 @@ SE3f				glb_inv		= SE3f::Identity();
 float				time_total	= 0.0f;
 };
 
-Trajectory::Trajectory(Model& obj, PathFunc path_func, float time_total):
+Trajectory::Trajectory(Model& obj, float time_total, PathFunc path_func):
 	impl_(new TrajectoryImpl(obj, time_total)),
     path_func_(path_func)
 {}
@@ -43,13 +43,11 @@ JointPairs Trajectory::operator()(float t_reg)
                   goal   = g_ori * ExpMapping(modify_vec_);
     vector<float> out_xs;  kine_sdk.InverseKinematic(out_xs, goal, cur_xs);
     std::transform(out_xs.begin(), out_xs.end(), out_xs.begin(), ToStandarAngle);
-    modify_vec_ *= 0.97f;                                                   // self decaying
+    modify_vec_ *= 0.98f;                                                   // self decaying
     if (out_xs.empty()) return JointPairs{};                                // solve failed
 
     if (target_opt_ && target_opt_->ConditionCheck(impl_->obj)) {           // modify target
         out_xs = target_opt_->Optimize(impl_->obj, glb_t, out_xs);
-        //goal  = glb_inv * ExpMapping(glb_t);
-        //kine_sdk.InverseKinematic(out_xs, goal, cur_xs);
         std::transform(out_xs.begin(), out_xs.end(), out_xs.begin(), ToStandarAngle);
         SE3f new_goal = SE3f::Identity();
         kine_sdk.ForwardKinematic(new_goal, out_xs);

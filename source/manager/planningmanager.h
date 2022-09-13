@@ -14,6 +14,7 @@
 #include <unordered_map>
 #include <functional>
 #include <thread>
+#include <deque>
 
 namespace GComponent {
 
@@ -50,6 +51,8 @@ private:
 	std::unordered_map<Model*, std::mutex>						  lock_map_;	
 	std::unordered_map<Model*, std::queue<std::function<void()>>> task_queue_map_;
 	std::unordered_map<Model*, TaskStatus>						  execution_flag_map_;
+	/*std::unordered_map<Model*, std::deque<std::variant<Eigen::VectorXf, SE3f>>>
+																  goal_deque_map_;*/
 
 	float task_time_stamp_		= -1.0f;
 	float execution_time_stamp_ = -1.0f;

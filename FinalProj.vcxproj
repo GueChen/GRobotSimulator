@@ -226,6 +226,8 @@
     <ClCompile Include="source\model\basic\skybox.cpp" />
     <ClCompile Include="source\motion\dualsynccirclemotion.cpp" />
     <ClCompile Include="source\motion\gmotionbase.cpp" />
+    <ClCompile Include="source\motion\keepermotion.cpp" />
+    <ClCompile Include="source\motion\optimization\skinsensor_optimizer.cpp" />
     <ClCompile Include="source\motion\optimization\trajectory_optimization.cpp" />
     <ClCompile Include="source\motion\trajectory.cpp" />
     <ClCompile Include="source\pattern\widgetbuilder.cpp" />
@@ -324,6 +326,8 @@
       </SubType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="source\motion\keepermotion.h" />
+    <ClInclude Include="source\motion\optimization\skinsensor_optimizer.h" />
     <ClInclude Include="source\motion\optimization\trajectory_optimization.h">
       <SubType>
       </SubType>

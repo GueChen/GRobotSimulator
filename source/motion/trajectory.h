@@ -29,10 +29,9 @@ using JTrajFunc      = std::function<JointPairs(float)>;
 using DualJointPair  = std::pair<JointPairs, JointPairs>;
 using DualTrajectory = std::pair<Trajectory, Trajectory>;
 
-
 class Trajectory{
 public:
-	Trajectory(Model & obj, PathFunc path_func, float time_total);
+	Trajectory(Model & obj, float time_total, PathFunc path_func);
 	~Trajectory();
 
 	JointPairs operator()(float t_reg);
@@ -46,8 +45,8 @@ public:
 	std::vector<std::vector<float>>
 					GetSampleFromPathFunc(float interval);
 	
-	inline void		SetTargetOptimizer(TargetOptimizer optimizer)		  { target_opt_ = optimizer; }
-	inline void		SetSelfMotionOptimizer(SelfmotionOptimizer optimizer) { self_opt_ = optimizer; }
+	inline void		SetTargetOptimizer(TgtOptimizer* optimizer)		      { target_opt_ = std::shared_ptr<TgtOptimizer>(optimizer); }
+	inline void		SetSelfMotionOptimizer(SelfmotionOptimizer* optimizer) { self_opt_ = std::shared_ptr<SelfmotionOptimizer>(optimizer); }
 	Model&			GetModel();
 	PathFunc		GetPathFunction();
 
@@ -55,8 +54,8 @@ protected:
 	std::shared_ptr<TrajectoryImpl>		impl_		= nullptr;
 	PathFunc							path_func_;
 
-	std::optional<TargetOptimizer>		target_opt_ = std::nullopt;
-	std::optional<SelfmotionOptimizer>	self_opt_	= std::nullopt;
+	std::shared_ptr<TgtOptimizer>		target_opt_ = nullptr;
+	std::shared_ptr<SelfmotionOptimizer>self_opt_	= nullptr;
 
 	//TODO: consider a better place
 	Twistf								modify_vec_ = Twistf::Zero();
