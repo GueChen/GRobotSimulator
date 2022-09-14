@@ -57,8 +57,8 @@
     <IntDir>debug\</IntDir>
     <TargetName>GSimulator</TargetName>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
-    <IncludePath>$(ProjectDir)source;$(MyCppLib);$(QT_INCLUDE);$(IncludePath)</IncludePath>
-    <LibraryPath>$(QT_LIBS);$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Qt\6.2.0\msvc2019_64\include;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt;$(WindowsSDK_IncludePath);$(ProjectDir)source;$(ProjectDir)..\MyLib;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Qt\6.2.0\msvc2019_64\lib;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\ucrt\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>release\</OutDir>
@@ -70,8 +70,8 @@
     <LibraryPath>$(QTDIR)\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <QtInstall>6.2.4_msvc2019_64</QtInstall>
-    <QtModules>opengl;network;gui;widgets;qml;quickwidgets;quick</QtModules>
+    <QtInstall>6.2.0_msvc2019_64</QtInstall>
+    <QtModules>core;gui;network;qml;quick;widgets;opengl;quickwidgets;serialport;charts</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <QtInstall>6.2.4_msvc2019_64</QtInstall>
@@ -226,6 +226,8 @@
     <ClCompile Include="source\model\basic\skybox.cpp" />
     <ClCompile Include="source\motion\dualsynccirclemotion.cpp" />
     <ClCompile Include="source\motion\gmotionbase.cpp" />
+    <ClCompile Include="source\motion\keepermotion.cpp" />
+    <ClCompile Include="source\motion\optimization\skinsensor_optimizer.cpp" />
     <ClCompile Include="source\motion\optimization\trajectory_optimization.cpp" />
     <ClCompile Include="source\motion\trajectory.cpp" />
     <ClCompile Include="source\pattern\widgetbuilder.cpp" />
@@ -269,6 +271,7 @@
     </ClCompile>
     <ClCompile Include="source\system\networksystem.cpp" />
     <ClCompile Include="source\system\planningsystem.cpp" />
+    <ClCompile Include="source\system\skinsystem.cpp" />
     <ClCompile Include="source\system\transmitsystem.cpp" />
     <ClCompile Include="source\ui\dialog\networkdialog.cpp" />
     <ClCompile Include="source\ui\dialog\planningdialog.cpp">
@@ -278,6 +281,7 @@
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
     </ClCompile>
     <ClCompile Include="source\ui\dialog\robotcreatedialog.cpp" />
+    <ClCompile Include="source\ui\dialog\skindialog.cpp" />
     <ClCompile Include="source\ui\menu\componentmenu.cpp" />
     <ClCompile Include="source\ui\widget\kinematic_widget.cpp" />
     <ClCompile Include="source\ui\widget\tracker_widget.cpp" />
@@ -324,6 +328,8 @@
       </SubType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="source\motion\keepermotion.h" />
+    <ClInclude Include="source\motion\optimization\skinsensor_optimizer.h" />
     <ClInclude Include="source\motion\optimization\trajectory_optimization.h">
       <SubType>
       </SubType>
@@ -353,6 +359,8 @@
     <QtMoc Include="source\ui\dialog\networkdialog.h" />
     <QtMoc Include="source\system\networksystem.h" />
     <QtMoc Include="source\system\transmitsystem.h" />
+    <QtMoc Include="source\ui\dialog\skindialog.h" />
+    <QtMoc Include="source\system\skinsystem.h" />
     <ClInclude Include="source\ui\menu\componentmenu.h" />
     <ClInclude Include="source\ui\wrapper\extensiblelist.h" />
     <QtMoc Include="source\ui\widget\viewport.h" />
@@ -433,6 +441,7 @@
     <QtUic Include="UI\Dialog\networkdialog.ui" />
     <QtUic Include="UI\Dialog\planningdialog.ui" />
     <QtUic Include="UI\Dialog\robotcreatedialog.ui" />
+    <QtUic Include="UI\Dialog\skindialog.ui" />
     <QtUic Include="UI\Display\widget_qss_playground.ui" />
     <QtUic Include="UI\widget\kinematic_component_ui_widget.ui" />
     <QtUic Include="UI\widget\tracker_component_ui_widget.ui" />

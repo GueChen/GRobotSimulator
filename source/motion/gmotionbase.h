@@ -75,9 +75,14 @@ class CMotionBase : public MotionBase {
 public:
     explicit CMotionBase(const SE3f& goal):goal_(goal) {}
     virtual ~CMotionBase()                   = default;
+
+//  Base class interface to get trajectory
     Trajectory operator()(Model* robot);
+    Trajectory operator()(Model* robot, SE3f start);
+
 protected:
-    virtual PathFunc PathFuncImpl(const SE3f& mat_ini, const SE3f& mat_end)       = 0;
+//  Derived class overrivde implementation methods
+    virtual PathFunc PathFuncImpl     (const SE3f& mat_ini, const SE3f& mat_end)  = 0;
     virtual float    ExecutionTimeImpl(const SE3f& mat_ini, const SE3f& mat_end)  = 0;
 
 protected:
@@ -91,10 +96,10 @@ public:
     DualMotionBase()                          = default;
     virtual ~DualMotionBase()                 = default;    
 
-    DualMotionBase& SetMaxLeftVel(float vel);
-    DualMotionBase& SetMaxLeftAcc(float acc);
-    DualMotionBase& SetMaxRightVel(float vel);
-    DualMotionBase& SetMaxRightAcc(float acc);
+    DualMotionBase& SetMaxLeftVel  (float vel);
+    DualMotionBase& SetMaxLeftAcc  (float acc);
+    DualMotionBase& SetMaxRightVel (float vel);
+    DualMotionBase& SetMaxRightAcc (float acc);
     
     inline float GetTotalTime() const { return time_total_; }
 

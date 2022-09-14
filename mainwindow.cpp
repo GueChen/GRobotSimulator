@@ -127,6 +127,10 @@ void MainWindow::ConnectionInit()
         emit RequestShowDialog("NetworkDialog");
     });
 
+    connect(ui_->skin_module_action,                      &QAction::triggered, [this]() {
+        emit RequestShowDialog("SkinDialog");
+    });
+
     connect(ui_->quit_action,                             &QAction::triggered,
             this,                                         &MainWindow::close);
 }

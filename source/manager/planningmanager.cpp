@@ -1,7 +1,9 @@
 #include "manager/planningmanager.h"
 #include "system/planningsystem.h"
+#include "system/skinsystem.h"
 #include "motion/GMotion"
 
+#include "component/joint_group_component.h"
 #include <QtCore/QThreadPool>
 
 #include <chrono>
@@ -97,19 +99,33 @@ void PlanningManager::RegisterPlanningTask(Model * robot, JTrajFunc func, float 
 	else {
 		task_queue_map_[robot].push(task);
 	}
-		
 }
 
 void PlanningManager::RegisterDualPlanningTask(std::vector<Model*> robots, std::vector<JTrajFunc> func, float time_total, uint32_t interval_ms)
 {
-	auto task = [funcs = func, time_total, interval = interval_ms, m_keys = robots, &m_locks = lock_map_, &m_que = task_queue_map_] {
+	auto task = [this, funcs = func, time_total, interval = interval_ms, 
+				 m_keys = robots, 
+				 &m_status= execution_flag_map_,
+				 &m_locks = lock_map_, 
+				 &m_que = task_queue_map_] {
+		using namespace std::chrono;
 		{
 		std::lock_guard<std::mutex> lock_l(m_locks[m_keys[0]]),
 									lock_r(m_locks[m_keys[1]]);
-		float elapsed = 0.0f;
-		std::chrono::time_point start_time = std::chrono::steady_clock::now();
+
+		float	    elapsed	   = 0.0f,
+				    delay	   = 0.0f;
+		//manager_elapsed_time   = elapsed;
+
+		TaskStatus& l_status	   = m_status[m_keys[0]],
+					l_last_status  = l_status,
+					r_status	   = m_status[m_keys[1]],
+					r_last_status  = r_status;
+
+		time_point  start_time = steady_clock::now(),
+					last_time  = steady_clock::now();			
 		
-		while (elapsed < time_total) {
+		while (elapsed < time_total && l_status) {
 			elapsed = std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::steady_clock::now() - start_time).count();
 			auto l = funcs[0](elapsed);
 			auto r = funcs[1](elapsed);
@@ -128,8 +144,9 @@ void PlanningManager::RegisterDualPlanningTask(std::vector<Model*> robots, std::
 		}
 		}		
 	};
-
+	
 	QThreadPool::globalInstance()->start(task);
+
 	// consider how to process the concurrency for dual situation
 	// std::cout << "RegisterDualPlanningTask NO IMPLEMENTATIONS\n";
 }

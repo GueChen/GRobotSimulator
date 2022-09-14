@@ -28,8 +28,7 @@ JTrajFunc GComponent::PTPMotion::operator()(Model* robot)
 
     // Caculate max delta joint val
     vector<float> j_delta(kJNum);
-    std::transform(jgoals_.begin(), jgoals_.end(),
-                   j_vals.begin(),
+    std::transform(jgoals_.begin(), jgoals_.end(), j_vals.begin(),
                    j_delta.begin(),
                    std::minus<>{}
     );
@@ -52,6 +51,7 @@ JTrajFunc GComponent::PTPMotion::operator()(Model* robot)
     // Caculate acc params
     vector<QuadParam> params(kJNum);
     std::transform(j_delta.begin(), j_delta.end(), params.begin(),
+        // solve equation: A * x * x + B * x + C = 0
         [A = max_acc_, B = -max_acc_ * time_total](float C)->QuadParam{
             int   sgn    = C < 0 ? -1 : 1;
             float t_rise = (-B - std::sqrt(B * B - 4 * A * std::abs(C))) / (2 * A),
@@ -60,7 +60,8 @@ JTrajFunc GComponent::PTPMotion::operator()(Model* robot)
     );
 
     // all deserve, get the function
-    auto traj_func = [acc = max_acc_, params, time_total, kJNum, j_vals](float t)->JointPairs {
+    auto traj_func = [acc = max_acc_, params, time_total, kJNum, j_vals]
+    (float t)->JointPairs {
         JointPairs ret;
         ret.first.resize(kJNum);
         ret.second.resize(kJNum);

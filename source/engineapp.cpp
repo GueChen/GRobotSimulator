@@ -6,6 +6,7 @@
 #include "ui/dialog/robotcreatedialog.h"
 #include "ui/dialog/planningdialog.h"
 #include "ui/dialog/networkdialog.h"
+#include "ui/dialog/skindialog.h"
 #include "base/editortreemodel.h"
 
 #include "component/component_factory.h"
@@ -17,6 +18,7 @@
 #include "system/planningsystem.h"
 #include "system/networksystem.h"
 #include "system/transmitsystem.h"
+#include "system/skinsystem.h"
 
 #include <QtCore/QThread>
 
@@ -58,6 +60,7 @@ void GComponent::EngineApp::Init(int argc, char* argv[])
 	ObjectManager::getInstance().Initialize();
 	TcpSocketManager::getInstance().Initialize();
 	NetworkSystem::getInstance().Initialize();
+	SkinSystem::getInstance().Initialize();
 	PhysicsManager::getInstance().SetActivateScene(PhysicsManager::getInstance().CreatePhysicsScene());
 
 	InitializeMembers(argc, argv);
@@ -66,6 +69,10 @@ void GComponent::EngineApp::Init(int argc, char* argv[])
 	window_ptr_->getModelTreeView()->setModel(model_tree_.get());
 	
 	ConnectModules();	
+	for (int i = 0; i < (SkinSystem::getInstance()._Nlist).size(); i++)
+	{
+		skin_dialog_ptr_.get()->ComboText()->addItem((SkinSystem::getInstance()._Nlist)[i]);
+	}
 
 	MoveSomeToThread();
 }
@@ -299,11 +306,59 @@ void GComponent::EngineApp::ConnectModules()
 	connect(&TcpSocketManager::getInstance(),	&TcpSocketManager::TransmitRobotDatas,
 			&TransmitSystem::getInstance(),		&TransmitSystem::ProcessRobotTransmitDatas);
 
+	connect(&PlanningSystem::getInstance(),		&PlanningSystem::NotifyNewJointsAngle,
+			&TransmitSystem::getInstance(),		&TransmitSystem::ReceiveJointsAngle);
+	
+
+	/* network usage */
+	connect(network_dialog_ptr_.get(),			&NetworkDialog::RequestLinkClientToServer,
+			&NetworkSystem::getInstance(),		&NetworkSystem::ResponseLinkClientToServer);
+	connect(network_dialog_ptr_.get(),			&NetworkDialog::RequestAsyncReceiver,
+			&NetworkSystem::getInstance(),		&NetworkSystem::ResponseAsyncReceiver);
+	connect(network_dialog_ptr_.get(),			&NetworkDialog::RequestQuit,
+			&NetworkSystem::getInstance(),		&NetworkSystem::ResponseQuit);
+	connect(network_dialog_ptr_.get(),			&NetworkDialog::RequestHigherAurthority,
+			&NetworkSystem::getInstance(),		&NetworkSystem::ResponseHigherAurthority);
+	connect(network_dialog_ptr_.get(),			&NetworkDialog::RequestModeChange,
+			&TransmitSystem::getInstance(),		&TransmitSystem::ResponseModeChange);
+
+	connect(&TcpSocketManager::getInstance(),   &TcpSocketManager::NotifySocketLinkState,
+			network_dialog_ptr_.get(),			&NetworkDialog::LinkStateChange);
+	connect(&TcpSocketManager::getInstance(),   &TcpSocketManager::NotifySocketRank,
+			network_dialog_ptr_.get(),			&NetworkDialog::RankLevelChange);
+	connect(&TcpSocketManager::getInstance(),   &TcpSocketManager::NotifyAsyncStatus,
+			network_dialog_ptr_.get(),			&NetworkDialog::ResponseAsyncStatus);
+	connect(&TcpSocketManager::getInstance(),	&TcpSocketManager::TransmitRobotDatas,
+			&TransmitSystem::getInstance(),		&TransmitSystem::ProcessRobotTransmitDatas);
+
 	connect(&TransmitSystem::getInstance(),		&TransmitSystem::SendPlanningDatas,
 			&NetworkSystem::getInstance(),		&NetworkSystem::ResponseSendJointsAngle);
 
 	connect(&NetworkSystem::getInstance(),		&NetworkSystem::NotifySocketLinkError,
 			network_dialog_ptr_.get(),			&NetworkDialog::ResponseLinkError);
+
+
+	/* skin usage */
+	connect(skin_dialog_ptr_.get(),				&SkinDialog::RunCtr, 
+			&SkinSystem::getInstance(),			&SkinSystem::Run);
+	connect(skin_dialog_ptr_.get(),				&SkinDialog::CloseCtr, 
+			&SkinSystem::getInstance(),			&SkinSystem::Close);
+	connect(skin_dialog_ptr_.get(),				&SkinDialog::GetPortName, 
+			&SkinSystem::getInstance(),			&SkinSystem::GetPort);
+	connect(&SkinSystem::getInstance(),			&SkinSystem::SendValue,
+			skin_dialog_ptr_.get(),				&SkinDialog::GetValue, Qt::DirectConnection);//DirectConnection
+	/*connect(&SkinSystem::getInstance(),			&SkinSystem::SendString,
+			skin_dialog_ptr_.get(),				&SkinDialog::DisplayValue, Qt::DirectConnection);*/
+	connect(skin_dialog_ptr_.get(),				&SkinDialog::SetZero, 
+			&SkinSystem::getInstance(),			&SkinSystem::GetBase);
+	connect(skin_dialog_ptr_.get(),				&SkinDialog::SetTrue, 
+			&SkinSystem::getInstance(),			&SkinSystem::ClearBase);
+	connect(skin_dialog_ptr_.get(),				&SkinDialog::ReadPort,
+			&SkinSystem::getInstance(),			&SkinSystem::ReadPortName);
+	connect(&SkinSystem::getInstance(),			&SkinSystem::SendPortList,
+			skin_dialog_ptr_.get(),				&SkinDialog::GetPortlist, Qt::DirectConnection);
+	connect(skin_dialog_ptr_.get(),				&SkinDialog::SetDirectionVector,
+			&SkinSystem::getInstance(),			&SkinSystem::SetSensorVector);
 }
 
 void GComponent::EngineApp::InitializeMembers(int argc, char* argv[])
@@ -329,6 +384,10 @@ void GComponent::EngineApp::InitializeMembers(int argc, char* argv[])
 	network_dialog_ptr_->setWindowTitle("Link the World");
 	dialog_table.emplace(QString("NetworkDialog"), network_dialog_ptr_.get());
 
+	skin_dialog_ptr_ = _PtrWithDel<SkinDialog>(new SkinDialog(window_ptr_.get()), deleter);
+	skin_dialog_ptr_->setWindowTitle("Read sensor data");
+	dialog_table.emplace(QString("SkinDialog"), skin_dialog_ptr_.get());
+
 	// model initialize	
 	model_tree_ = _PtrWithDel<EditorTreeModel>(new EditorTreeModel(""), deleter);
 }
@@ -343,6 +402,9 @@ void GComponent::EngineApp::MoveSomeToThread()
 	
 	threads_map_["TcpSocket"]	= new QThread;
 	TcpSocketManager::getInstance().moveToThread(threads_map_["TcpSocket"]);
+
+	threads_map_["Skin"]		= new QThread;
+	SkinSystem::getInstance().moveToThread(threads_map_["Skin"]);
 
 	for (auto&& [__, t_thread] : threads_map_) {
 		t_thread->start();

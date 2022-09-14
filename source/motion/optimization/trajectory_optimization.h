@@ -20,20 +20,26 @@ namespace GComponent {
 class Model;
 class PhysicsScene;
 
-class TargetOptimizer {
+class TgtOptimizer {
 public:
-	TargetOptimizer()  = default;
-	~TargetOptimizer() = default;
+	TgtOptimizer()			= default;
+	~TgtOptimizer()			= default;
+	virtual std::vector<float>
+			Optimize(Model&, const Twistf& glb_t, const std::vector<float>& thetas) = 0;
+	virtual bool ConditionCheck(Model&) = 0;
+};
+
+class PhysxCheckerOptimizer : public TgtOptimizer {
+public:
+	PhysxCheckerOptimizer()  = default;
+	~PhysxCheckerOptimizer() = default;
 	std::vector<float> 
-			Optimize(Model&, const Twistf& glb_t, const std::vector<float>& thetas);
+			Optimize(Model&, const Twistf& glb_t, const std::vector<float>& thetas) override;
+	bool	ConditionCheck(Model&) override;
 	
-	void	DisplayHitterInformations(GComponent::Model& obj);
-
-	bool	ConditionCheck(Model&);
-
 private:
 	bool	ConditionCheck(Model&, const std::shared_ptr<PhysicsScene>&, int);
-
+	void	DisplayHitterInformations(GComponent::Model& obj);
 private:
 	std::map<int, std::vector<OverlapHitInfo>> hit_infos_;
 	std::map<int, RigidbodyComponent&>		   hit_actors_;

@@ -87,6 +87,7 @@ signals:
 							   (const QString& obj_name, std::vector<float> joints,
 							    float		   time_stamp);
 
+
 private:
 	int display_flag = 0;
 };

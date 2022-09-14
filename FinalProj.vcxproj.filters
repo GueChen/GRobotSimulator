@@ -213,6 +213,36 @@
     <ClCompile Include="source\system\transmitsystem.cpp">
       <Filter>system</Filter>
     </ClCompile>
+    <ClCompile Include="source\motion\keepermotion.cpp">
+      <Filter>motion\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\optimization\skinsensor_optimizer.cpp">
+      <Filter>motion\optimization</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\dialog\networkdialog.cpp">
+      <Filter>ui_surface\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="source\system\networksystem.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="source\manager\tcpsocketmanager.cpp">
+      <Filter>manager\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\function\adapter\kuka_iiwa\kuka_iiwa_decoder.cpp">
+      <Filter>function\adapter\kuka_iiwa</Filter>
+    </ClCompile>
+    <ClCompile Include="source\function\adapter\kuka_iiwa\kuka_iiwa_encoder.cpp">
+      <Filter>function\adapter\kuka_iiwa</Filter>
+    </ClCompile>
+    <ClCompile Include="source\system\transmitsystem.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\dialog\skindialog.cpp">
+      <Filter>ui_surface\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="source\system\skinsystem.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\motion\gmotionbase.h">
@@ -428,6 +458,12 @@
     <ClInclude Include="source\function\adapter\kuka_iiwa\kuka_iiwa_encoder.h">
       <Filter>function\adapter\kuka_iiwa</Filter>
     </ClInclude>
+    <ClInclude Include="source\motion\keepermotion.h">
+      <Filter>motion\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\optimization\skinsensor_optimizer.h">
+      <Filter>motion\optimization</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="mainwindow.h">
@@ -482,6 +518,12 @@
     <QtMoc Include="source\system\transmitsystem.h">
       <Filter>system</Filter>
     </QtMoc>
+    <QtMoc Include="source\ui\dialog\skindialog.h">
+      <Filter>ui_surface\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="source\system\skinsystem.h">
+      <Filter>system</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="mainwindow.ui">
@@ -503,6 +545,9 @@
       <Filter>ui</Filter>
     </QtUic>
     <QtUic Include="UI\Dialog\networkdialog.ui">
+      <Filter>ui</Filter>
+    </QtUic>
+    <QtUic Include="UI\Dialog\skindialog.ui">
       <Filter>ui</Filter>
     </QtUic>
   </ItemGroup>
