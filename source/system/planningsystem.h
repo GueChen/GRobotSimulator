@@ -40,7 +40,8 @@ public:
 	void		BroadcastJointsAngle
 								(const std::string& name, std::vector<float> joints,
 								 float				time_stamp);
-
+	void		BroadcastTaskPause
+								(const std::string& name);
 protected:
 	PlanningSystem() = default;
 
@@ -68,25 +69,28 @@ public slots:
 								 float max_ang_vel,	float max_ang_acc,
 							     std::vector<float> target_descarte,
 							     std::vector<std::vector<float>> waypoints);
+	void ResponseKeeperMotion   (const QString& obj_name,
+								 float time_total, 
+								 std::vector<float> target_descarte);
 	void ResponseDualSyncLineMotion
-							   (const std::vector<QString>& obj_names, 
-								std::vector<float> max_vels,  std::vector<float> max_accs, 
-								std::vector<float> target,   
-								std::vector<std::vector<float>> bias);
+							    (const std::vector<QString>& obj_names, 
+							 	 std::vector<float> max_vels,  std::vector<float> max_accs, 
+							 	 std::vector<float> target,   
+							 	 std::vector<std::vector<float>> bias);
 	void ResponseDualSyncCircleMotion
-							   (const std::vector<QString>& obj_names, 
-								std::vector<float> max_vels,  std::vector<float> max_accs, 
-								std::vector<float> target,    
-								std::vector<std::vector<float>> bias,
-								std::vector<float> waypoint);
+							     (const std::vector<QString>& obj_names, 
+								  std::vector<float> max_vels,  std::vector<float> max_accs, 
+								  std::vector<float> target,    
+								  std::vector<std::vector<float>> bias,
+								  std::vector<float> waypoint);	
 	void ResponseChangeCurrentTaskStatus
-							   (const std::vector<QString>& obj_name, int status);
+							     (const std::vector<QString>& obj_name, int status);
 
 signals:
 	void		NotifyNewJointsAngle
 							   (const QString& obj_name, std::vector<float> joints,
 							    float		   time_stamp);
-
+	void		NotifyPauseTask(const QString& obj_name);
 
 private:
 	int display_flag = 0;

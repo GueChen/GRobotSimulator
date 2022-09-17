@@ -22,6 +22,16 @@ public:
 	bool ConditionCheck(Model&) override;
 };
 
+class SkinSensorSimpleOptimizer : public TgtOptimizer
+{
+public:
+	SkinSensorSimpleOptimizer()  = default;
+	~SkinSensorSimpleOptimizer() = default;
+
+	std::vector<float> Optimize(Model&, const Twistf& glb_t, const std::vector<float>& thetas) override;
+
+	bool ConditionCheck(Model&) override;
+};
 } // !namespace GComponent
 
 #endif // !_SKINSENSOR_OPTIMIZER_H

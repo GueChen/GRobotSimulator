@@ -2,6 +2,12 @@
 #include "GComponent/GTransform.hpp"
 #include "function/conversion.hpp"
 
+#ifdef _DEBUG
+#include <chrono>
+#include <iostream>
+#endif // _DEBUG
+
+
 using std::vector;
 using Eigen::Vector3f;
 using Eigen::Matrix3f;
@@ -118,6 +124,10 @@ namespace GComponent {
 
     void SkinSystem::ReadData2()
     {
+#ifdef _DEBUG
+        static std::chrono::time_point t_p = std::chrono::steady_clock::now();
+#endif // _DEBUG
+        
         QByteArray buf;
         uchar flag;
         float h1, l1, l2, l3;
@@ -133,6 +143,12 @@ namespace GComponent {
 
         if (databuf.size() > 64)
         {
+#ifdef _DEBUG
+            std::chrono::time_point t_c = std::chrono::steady_clock::now();
+            std::cout << "Trigger: " << t_c - t_p << std::endl;
+            t_p = t_c;
+#endif // _DEBUG
+            
             DataProcess(flag, h1, l1, l2, l3, datavalue, newvalue);
             emit SendValue(_Vfloat);
             //emit SendString(_Str);
@@ -171,7 +187,7 @@ namespace GComponent {
 
     float SkinSystem::LPFilter(float predata, float curdata)
     {
-        float a = 0.112;
+        float a = 0.5;
         float newdata;
         newdata = a * curdata + (1 - a) * predata;
         return newdata;
@@ -195,7 +211,7 @@ namespace GComponent {
         vector<Vector3f> TriggerVector;
         for (int i = _UnitName; i < (_UnitName + _CountNum) ; ++i)
         {
-            if (_Trigger[i] == 1)
+            if (_Trigger[i % 8] == 1)
             {
                 TriggerVector.push_back(_VectorList[i - _UnitName]);
             }

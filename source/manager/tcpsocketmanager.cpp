@@ -68,8 +68,12 @@ bool TcpSocketManager::TcpSocketWrite(const QString& name, const QByteArray& dat
 	auto iter = socket_table_.find(name);
 	if (iter == socket_table_.end()) return false;
 	std::lock_guard<std::mutex> lock(lock_table_[iter->second.get()]);
-	if (iter->second->write(datas) == -1) {
+	if (iter->second->write(datas) == -1) {		
 		// some error information
+#ifdef _DEBUG
+		std::cout << iter->second->errorString().toStdString() << std::endl;
+#endif // _DEBUG
+
 	}
 	else if(!buffered) {
 		//iter->second->flush();
@@ -91,14 +95,14 @@ void TcpSocketManager::SocketConnection(const QString& name, QTcpSocket* sock)
 	connect(sock, &QTcpSocket::readyRead,	 [name, this]() { emit RequestProcessMsg(name); });
 	connect(sock, &QTcpSocket::connected,	 [name, this]() { emit NotifySocketLinkState(name, true); });
 	connect(sock, &QTcpSocket::disconnected, [name, this]() { emit NotifySocketLinkState(name, false); });
-#ifdef _DEBUG
-	connect(sock, &QTcpSocket::errorOccurred, [this, sock, name](QAbstractSocket::SocketError err) {		
-		std::cout <<"Error happend: " << err << ", try to reconnect: " << 
-			sock->localAddress().toString().toStdString() << "->" << sock->peerPort() << std::endl;
-		//RegisterTcpSocket(name, sock->peerAddress(), sock->peerPort());
-		DeregisterTcpSocket(name);
-		});
-#endif // _DEBUG
+//#ifdef _DEBUG
+//	connect(sock, &QTcpSocket::errorOccurred, [this, sock, name](QAbstractSocket::SocketError err) {		
+//		std::cout <<"Error happend: " << err << ", try to reconnect: " << 
+//			sock->localAddress().toString().toStdString() << "->" << sock->peerPort() << std::endl;
+//		//RegisterTcpSocket(name, sock->peerAddress(), sock->peerPort());
+//		DeregisterTcpSocket(name);
+//		});
+//#endif // _DEBUG
 	
 }
 

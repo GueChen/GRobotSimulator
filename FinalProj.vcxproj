@@ -57,8 +57,8 @@
     <IntDir>debug\</IntDir>
     <TargetName>GSimulator</TargetName>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
-    <IncludePath>C:\Qt\6.2.0\msvc2019_64\include;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt;$(WindowsSDK_IncludePath);$(ProjectDir)source;$(ProjectDir)..\MyLib;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Qt\6.2.0\msvc2019_64\lib;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\ucrt\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(QT_INCLUDE);$(ProjectDir)source;$(ProjectDir)..\MyLib;$(IncludePath)</IncludePath>
+    <LibraryPath>$(QT_LIBS);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>release\</OutDir>
@@ -70,12 +70,12 @@
     <LibraryPath>$(QTDIR)\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <QtInstall>6.2.0_msvc2019_64</QtInstall>
+    <QtInstall>6.2.4_msvc2019_64</QtInstall>
     <QtModules>core;gui;network;qml;quick;widgets;opengl;quickwidgets;serialport;charts</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <QtInstall>6.2.4_msvc2019_64</QtInstall>
-    <QtModules>core;opengl;network;gui;widgets;qml;quickwidgets;quick</QtModules>
+    <QtModules>core;gui;network;qml;quick;widgets;opengl;quickwidgets;serialport</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <VcpkgConfiguration>Release</VcpkgConfiguration>

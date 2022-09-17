@@ -271,6 +271,9 @@ void GComponent::EngineApp::ConnectModules()
 	// Spline
 	connect(planning_dialog_ptr_.get(),			&PlanningDialog::RequestSplineMotion,
 			&PlanningSystem::getInstance(),		&PlanningSystem::ResponseSplineMotion);
+	// Keeper
+	connect(planning_dialog_ptr_.get(),			&PlanningDialog::RequestKeeperMotion,
+			&PlanningSystem::getInstance(),		&PlanningSystem::ResponseKeeperMotion);
 	// Line Sync
 	connect(planning_dialog_ptr_.get(),			&PlanningDialog::RequestDualSyncLineMotion,
 			&PlanningSystem::getInstance(),		&PlanningSystem::ResponseDualSyncLineMotion);
@@ -283,32 +286,8 @@ void GComponent::EngineApp::ConnectModules()
 
 	connect(&PlanningSystem::getInstance(),		&PlanningSystem::NotifyNewJointsAngle,
 			&TransmitSystem::getInstance(),		&TransmitSystem::ReceiveJointsAngle);
-	
-
-	/* network usage */
-	connect(network_dialog_ptr_.get(),			&NetworkDialog::RequestLinkClientToServer,
-			&NetworkSystem::getInstance(),		&NetworkSystem::ResponseLinkClientToServer);
-	connect(network_dialog_ptr_.get(),			&NetworkDialog::RequestAsyncReceiver,
-			&NetworkSystem::getInstance(),		&NetworkSystem::ResponseAsyncReceiver);
-	connect(network_dialog_ptr_.get(),			&NetworkDialog::RequestQuit,
-			&NetworkSystem::getInstance(),		&NetworkSystem::ResponseQuit);
-	connect(network_dialog_ptr_.get(),			&NetworkDialog::RequestHigherAurthority,
-			&NetworkSystem::getInstance(),		&NetworkSystem::ResponseHigherAurthority);
-	connect(network_dialog_ptr_.get(),			&NetworkDialog::RequestModeChange,
-			&TransmitSystem::getInstance(),		&TransmitSystem::ResponseModeChange);
-
-	connect(&TcpSocketManager::getInstance(),   &TcpSocketManager::NotifySocketLinkState,
-			network_dialog_ptr_.get(),			&NetworkDialog::LinkStateChange);
-	connect(&TcpSocketManager::getInstance(),   &TcpSocketManager::NotifySocketRank,
-			network_dialog_ptr_.get(),			&NetworkDialog::RankLevelChange);
-	connect(&TcpSocketManager::getInstance(),   &TcpSocketManager::NotifyAsyncStatus,
-			network_dialog_ptr_.get(),			&NetworkDialog::ResponseAsyncStatus);
-	connect(&TcpSocketManager::getInstance(),	&TcpSocketManager::TransmitRobotDatas,
-			&TransmitSystem::getInstance(),		&TransmitSystem::ProcessRobotTransmitDatas);
-
-	connect(&PlanningSystem::getInstance(),		&PlanningSystem::NotifyNewJointsAngle,
-			&TransmitSystem::getInstance(),		&TransmitSystem::ReceiveJointsAngle);
-	
+	connect(&PlanningSystem::getInstance(),		&PlanningSystem::NotifyPauseTask,
+			&TransmitSystem::getInstance(),		&TransmitSystem::ResponsePauseTask);
 
 	/* network usage */
 	connect(network_dialog_ptr_.get(),			&NetworkDialog::RequestLinkClientToServer,
@@ -333,7 +312,8 @@ void GComponent::EngineApp::ConnectModules()
 
 	connect(&TransmitSystem::getInstance(),		&TransmitSystem::SendPlanningDatas,
 			&NetworkSystem::getInstance(),		&NetworkSystem::ResponseSendJointsAngle);
-
+	connect(&TransmitSystem::getInstance(),		&TransmitSystem::SendCancelRequest,
+			&NetworkSystem::getInstance(),		&NetworkSystem::ResponseSendCancelRequest);
 	connect(&NetworkSystem::getInstance(),		&NetworkSystem::NotifySocketLinkError,
 			network_dialog_ptr_.get(),			&NetworkDialog::ResponseLinkError);
 

@@ -139,12 +139,12 @@ void KUKA_IIWA_MODEL::InitializeModelResource()
     // base extend
     register_cylinder_collider(models_tmp[1], 0.5f * local_trans[2]);
     //forearm
-    register_cylinder_collider(models_tmp[2], 0.5f * (local_trans[3] + local_trans[4]));
+    //register_cylinder_collider(models_tmp[2], 0.5f * (local_trans[3] + local_trans[4]));
     // hin
-    register_cylinder_collider_impl(
+    /*register_cylinder_collider_impl(
                                 models_tmp[4], 0.4f * (local_trans[5] + local_trans[6]),
                                 0.20f * (local_trans[5] + local_trans[6]).norm(),
-                                kRadius + 0.08f);
+                                kRadius + 0.08f);*/
     register_cylinder_collider_impl(
                                models_tmp[6], 0.45f * local_trans[7], 
                                0.35f * mask_prod(local_trans[7], Vec3::UnitZ()).norm(),

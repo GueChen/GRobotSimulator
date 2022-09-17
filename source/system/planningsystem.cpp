@@ -32,6 +32,15 @@ void PlanningSystem::BroadcastJointsAngle(const std::string& name, std::vector<f
 	emit NotifyNewJointsAngle(obj_table[name], joints, time_stamp);
 }
 
+void PlanningSystem::BroadcastTaskPause(const std::string& name)
+{
+	static std::map<std::string, QString> obj_table = {
+		{"kuka_iiwa_robot_0", "left"},
+		{"kuka_iiwa_robot_1", "right"}
+	};
+	emit NotifyPauseTask(obj_table[name]);
+}
+
 /*___________________________________PROTECTED METHODS___________________________________________________*/
 std::string PlanningSystem::SimpleGetObjName(const QString& obj_name)
 {
@@ -114,6 +123,12 @@ void PlanningSystem::ResponseLineMotion(const QString& obj_name, float max_vel, 
 		   SetMaxAngVel(max_ang_vel).SetMaxAngAcc(max_ang_acc);
 
 	Trajectory func = motion(robot);
+	func.SetTargetOptimizer(
+			//new PhysxCheckerOptimizer{}
+			//new SkinSensorOptimizer{}
+			new SkinSensorSimpleOptimizer{}
+	);
+	PlanningManager::getInstance().RegisterPlanningTask(robot, func, func.GetTimeTotal(), 5);
 
 	Vec3 ini  = func.GetInitialPoint().block(0, 3, 3, 1),
 		 goal = func.GetGoalPoint().block(0, 3, 3, 1);
@@ -123,8 +138,7 @@ void PlanningSystem::ResponseLineMotion(const QString& obj_name, float max_vel, 
 	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(goal), 0.010f, kBlue));
 	render.EmplaceAuxiliaryObj(std::make_shared<GLine>(Conversion::fromVec3f(ini), Conversion::fromVec3f(goal),
 													   kRed, kBlue));
-	func.SetTargetOptimizer(new SkinSensorOptimizer{});
-	PlanningManager::getInstance().RegisterPlanningTask(robot, func, func.GetTimeTotal(), 5);
+	
 	
 }
 
@@ -187,6 +201,20 @@ void PlanningSystem::ResponseSplineMotion(const QString& obj_name, float max_vel
 	PlanningManager::getInstance().RegisterPlanningTask(robot, func, func.GetTimeTotal(), 5);
 }
 
+void PlanningSystem::ResponseKeeperMotion(const QString& obj_name, float time_total, std::vector<float> target_descarte)
+{
+	Model* robot = ModelManager::getInstance().GetModelByName(SimpleGetObjName(obj_name));
+	if (!robot)		return; // object not exist
+	Eigen::Matrix4f goal_mat = STLUtils::toMat4f(target_descarte);
+	KeeperMotion motion(goal_mat, time_total);
+	Trajectory func = motion(robot);
+	func.SetTargetOptimizer(new SkinSensorOptimizer{});
+	PlanningManager::getInstance().RegisterPlanningTask(robot, func, func.GetTimeTotal(), 5);
+	RenderManager& render = RenderManager::getInstance();
+	
+	render.ClearAuxiliaryObj();
+}
+
 void PlanningSystem::ResponseDualSyncLineMotion(const std::vector<QString>& obj_names, std::vector<float> max_vels, std::vector<float> max_accs, std::vector<float> target, std::vector<std::vector<float>> bias)
 {
 	vector<Model*> robots(2);
@@ -203,11 +231,15 @@ void PlanningSystem::ResponseDualSyncLineMotion(const std::vector<QString>& obj_
 	
 	std::vector<JTrajFunc> funcs; 
 	auto [l_func, r_func] = motion(robots[0], robots[1]);
-	l_func.SetTargetOptimizer(new PhysxCheckerOptimizer{});
-	r_func.SetTargetOptimizer(new PhysxCheckerOptimizer{});
+	//l_func.SetTargetOptimizer(new PhysxCheckerOptimizer{});
+	//r_func.SetTargetOptimizer(new PhysxCheckerOptimizer{});
+
+	l_func.SetTargetOptimizer(new SkinSensorOptimizer{});
+	r_func.SetTargetOptimizer(new SkinSensorOptimizer{});
 
 	funcs.emplace_back(l_func);
 	funcs.emplace_back(r_func);
+	
 	PlanningManager::getInstance().RegisterDualPlanningTask(robots, funcs, l_func.GetTimeTotal(), 5);
 
 	Vec3 l_ini  = l_func.GetInitialPoint().block(0, 3, 3, 1),
@@ -223,9 +255,7 @@ void PlanningSystem::ResponseDualSyncLineMotion(const std::vector<QString>& obj_
 	render.EmplaceAuxiliaryObj(std::make_shared<GLine>(Conversion::fromVec3f(l_ini), Conversion::fromVec3f(l_goal),
 		kRed, kYellow));
 	render.EmplaceAuxiliaryObj(std::make_shared<GLine>(Conversion::fromVec3f(r_ini), Conversion::fromVec3f(r_goal),
-		kRed, kYellow));
-
-	
+		kRed, kYellow));	
 }
 
 void PlanningSystem::ResponseDualSyncCircleMotion(const std::vector<QString>& obj_names, std::vector<float> max_vels, std::vector<float> max_accs, std::vector<float> target, std::vector<std::vector<float>> bias, std::vector<float> waypoint)

@@ -31,8 +31,7 @@ public:
 	~Encoder()	= default;
 
 	Encoder &				 EncodeMoveSmartServoMotion(const std::vector<float>& datas);
-	Encoder &				 EncodeMovePTPMotion	   (const std::vector<float>& datas);
-				
+	Encoder &				 EncodeMovePTPMotion	   (const std::vector<float>& datas);	
 	inline QByteArray		 GetCommand()				{ return msg_; };
 		
 protected:		
@@ -54,6 +53,7 @@ public:
 	static inline QByteArray RequestQuit()		 { return QByteArray(kQuitRequest)    + kEndSymbol; }
 	static inline QByteArray RequestAsync()		 { return QByteArray(kAsyncRequest)	  + kEndSymbol; }
 	static inline QByteArray RequestAsyncStop()  { return QByteArray(kAsyncStopRequest) + kEndSymbol; }
+	static inline QByteArray RequestCancel()	 { return QByteArray(kCancelRequest) + kEndSymbol; }
 
 private:
 	constexpr static 
@@ -64,6 +64,8 @@ private:
 		const char kAsyncRequest[]		  = "GETASYNC";
 	constexpr static 
 		const char kAsyncStopRequest[]    = "GETSTOP";
+	constexpr static
+		const char kCancelRequest[]		  = "CLEANUP";
 	constexpr static 
 		const char kEndSymbol			  = '#';
 };

@@ -5,8 +5,6 @@
 
 namespace GComponent {
 
-using BallObst = pair<Vec3d, double>;
-
 class LineMotion : public CMotionBase
 {
 public:

@@ -34,7 +34,7 @@ void TransmitSystem::ReceiveJointsAngle(const QString& obj_name, std::vector<flo
 		if (!joints_sdk || !joints_sdk->SafetyCheck(joints)) return;
 		emit SendPlanningDatas(obj_name, joints);
 	}
-	else {
+	if (left_transmit_mode_ != eR2V) {
 		Model* robot = ModelManager::getInstance().GetModelByName(obj_map[obj_name].toStdString());
 		if (!robot)		 return;
 		auto   joints_sdk = robot->GetComponent<JointGroupComponent>(JointGroupComponent::type_name.data());
@@ -54,6 +54,13 @@ void TransmitSystem::ProcessRobotTransmitDatas(const QString& obj_name, int type
 			joints_sdk->SetPositions(datas);
 		}
 		}
+	}
+}
+
+void TransmitSystem::ResponsePauseTask(const QString& obj_name)
+{
+	if (left_transmit_mode_ != eNormal) {
+		emit SendCancelRequest(obj_name);
 	}
 }
 
