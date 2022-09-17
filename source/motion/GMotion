@@ -2,5 +2,6 @@
 #include "linmotion.h"
 #include "circmotion.h"
 #include "splinemotion.h"
+#include "keepermotion.h"
 #include "dualsynclinemotion.h"
 #include "dualsynccirclemotion.h"

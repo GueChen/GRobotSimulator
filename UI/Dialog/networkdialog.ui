@@ -53,7 +53,7 @@ border-top-left-radius: 			3px;
       <enum>QTabWidget::East</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="left_tab">
       <attribute name="title">

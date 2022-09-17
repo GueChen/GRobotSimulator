@@ -1,6 +1,10 @@
 #include "manager/planningmanager.h"
+
 #include "system/planningsystem.h"
+
 #include "motion/GMotion"
+
+#include "component/joint_group_component.h"
 
 #include <QtCore/QThreadPool>
 
@@ -56,7 +60,7 @@ void PlanningManager::RegisterPlanningTask(Model * robot, JTrajFunc func, float 
 		float	    elapsed	   = 0.0f,
 				    delay	   = 0.0f;
 		manager_elapsed_time   = elapsed;
-							   
+								
 		TaskStatus& status	   = m_status[m_key],
 					last_status= status;
 		time_point  start_time = steady_clock::now(),
@@ -66,8 +70,13 @@ void PlanningManager::RegisterPlanningTask(Model * robot, JTrajFunc func, float 
 			time_point cur_time = steady_clock::now();
 			elapsed  = duration_cast<duration<float>>(cur_time - start_time).count() - delay;
 			if (status == eStop) goto next_task;
-			if (status == ePause || last_status == ePause) {
+			if (status == eReadyPause || last_status == eReadyPause || 
+				status == ePause	  || last_status == ePause) {
+				if (last_status == eReadyPause || last_status == eExecution) {			// Single shot for cancel preplanning
+					PlanningSystem::getInstance().BroadcastTaskPause(m_key->getName());
+				}
 				delay += duration_cast<duration<float>>(cur_time - last_time).count();				
+				status = ePause;
 			}			
 			else if (status == eExecution) {
 				ExecutionOnce(func, m_key, elapsed);		// normal execution
@@ -81,6 +90,10 @@ void PlanningManager::RegisterPlanningTask(Model * robot, JTrajFunc func, float 
 
 		if (status == eExecution) {							// gurantee goal reached
 			ExecutionOnce(func, m_key, time_total);
+		}
+		else if(status == eStop) {							// stop pause, cancel preplanning datas
+			PlanningSystem::getInstance().BroadcastTaskPause(m_key->getName());
+								
 		}
 		}													// !RAII lock scope
 		
@@ -97,7 +110,6 @@ void PlanningManager::RegisterPlanningTask(Model * robot, JTrajFunc func, float 
 	else {
 		task_queue_map_[robot].push(task);
 	}
-		
 }
 
 void PlanningManager::RegisterDualPlanningTask(std::vector<Model*> robots, std::vector<JTrajFunc> func, float time_total, uint32_t interval_ms)

@@ -17,7 +17,7 @@
 
 namespace GComponent {
 
-//TODO: finish this class
+//TODO: complete this class
 class RigidbodyComponent : public Component {
 // 1. Support Physics Update acoording the elapsed time
 // 2. Support mass and innertial computation from triangle mesh or particle system

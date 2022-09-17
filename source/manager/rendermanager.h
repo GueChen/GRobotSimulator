@@ -54,7 +54,7 @@ struct RenderCommand {
 	string uniform_name;
 };
 
-class RenderManager : public SingletonBase<RenderManager>, public QObject 
+class RenderManager : public SingletonBase<RenderManager> 
 {
 /// type alias
 	using RenderList  = list<RenderCommand>;

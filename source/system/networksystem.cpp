@@ -64,7 +64,17 @@ void NetworkSystem::ResponseSendJointsAngle(const QString& obj_name, std::vector
 	QByteArray msg = KUKA::Encoder{}.EncodeMoveSmartServoMotion(joints).GetCommand();
 	if(TcpSocketManager::getInstance().TcpSocketWrite(obj_name, msg, false)){
 #ifdef _DEBUG
-		std::cout << "SOCKET ERROR::send failed for some reason\n";
+		std::cout << "SOCKET ERROR::send joints failed for some reason\n";
+#endif // _DEBUG		
+	}
+}
+
+void NetworkSystem::ResponseSendCancelRequest(const QString& obj_name)
+{
+	QByteArray msg = KUKA::Encoder::RequestCancel();
+	if (TcpSocketManager::getInstance().TcpSocketWrite(obj_name, msg, false)) {
+#ifdef _DEBUG
+		std::cout << "SOCKET ERROR::send cancel failed for some reason\n";
 #endif // _DEBUG		
 	}
 }

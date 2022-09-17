@@ -97,6 +97,15 @@ namespace GComponent {
 		emit RequestSplineMotion(obj_name, max_vel, max_acc, max_ang_vel, max_ang_acc, targets, waypoints);
 	}
 
+	void PlanningDialog::KeeperMotionExecution()
+	{
+		QString		  obj_name = ui_ptr_->keeper_obj_combo->currentText();
+		float		  time     = ui_ptr_->keeper_time_val->text().toFloat();
+		vector<float> targets  = GetOneRowFromTable(ui_ptr_->line_cspace_table, 0);
+
+		emit RequestKeeperMotion(obj_name, time, targets);
+	}
+
 	void PlanningDialog::DualMotionExecution()
 	{
 		enum DualType : int {
@@ -191,7 +200,7 @@ namespace GComponent {
 	void PlanningDialog::on_execution_button_clicked()
 	{
 		enum MotionType : int{
-			NONE = 0, PTP, Line, Circle, Spline, Dual
+			NONE = 0, PTP, Line, Circle, Spline, Keeper, Dual
 		}motion_type = static_cast<MotionType>(ui_ptr_->type_combo->currentIndex());
 
 		switch (motion_type)
@@ -200,6 +209,7 @@ namespace GComponent {
 		case Line:	 LineMotionExecution();	  break;
 		case Circle: CircleMotionExecution(); break;
 		case Spline: SplineMotionExecution(); break;
+		case Keeper: KeeperMotionExecution(); break;
 		case Dual:   DualMotionExecution();	  break;
 		default:	 break;
 		}

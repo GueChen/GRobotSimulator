@@ -34,7 +34,9 @@ public slots:
 	void ResponseQuit			   (const QString& obj_name);
 	void ResponseHigherAurthority  (const QString& obj_name);
 	void ResponseSendJointsAngle   (const QString& obj_name, std::vector<float> joints);
+	void ResponseSendCancelRequest (const QString& obj_name);
 	void ResponseSyncOnce		   (const QString& obj_name, int type);
+
 
 protected:
 	NetworkSystem() = default;

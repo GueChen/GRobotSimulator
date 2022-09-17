@@ -40,6 +40,7 @@ class EditorTreeModel;
 class PlanningDialog;
 class RobotCreateDialog;
 class NetworkDialog;
+class SkinDialog;
 }
 
 namespace GComponent {
@@ -86,6 +87,7 @@ private:
 	_PtrWithDel<RobotCreateDialog>  robot_create_dialog_ptr_ = nullptr;
 	_PtrWithDel<PlanningDialog>		planning_dialog_ptr_	 = nullptr;
 	_PtrWithDel<NetworkDialog>		network_dialog_ptr_		 = nullptr;
+	_PtrWithDel<SkinDialog>         skin_dialog_ptr_		 = nullptr;
 	//unique_ptr<>
 	steady_clock::time_point		last_time_point_		 = steady_clock::now();
 	std::unordered_map<QString, QThread*> 

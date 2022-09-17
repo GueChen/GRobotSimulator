@@ -7,6 +7,14 @@ namespace GComponent {
 
 class KeeperMotion : public CMotionBase
 {
+public:
+	explicit KeeperMotion(const SE3f& goal, float execution_time);
+	~KeeperMotion() = default;
+
+protected:
+	// Í¨¹ý CMotionBase ¼Ì³Ð
+	virtual PathFunc PathFuncImpl(const SE3f& mat_ini, const SE3f& mat_end)		override;
+	virtual float ExecutionTimeImpl(const SE3f& mat_ini, const SE3f& mat_end)	override;
 
 };
 

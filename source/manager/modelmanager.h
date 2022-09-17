@@ -68,7 +68,7 @@ public:
     Model*      GetAuxiModelByName(const string& name)     const;
 
     [[nodiscard]]
-    size_t      RegisteredCamera(glm::vec3 pos = glm::vec3(3.0f, 0.0f, 0.5f));
+    size_t      RegisteredCamera(glm::vec3 pos = glm::vec3(5.0f, 0.0f, 1.0f));
     void        DeregisterdCamera(size_t handle);
     Camera*     GetCameraByHandle(size_t handle) const;
    

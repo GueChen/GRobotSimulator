@@ -22,7 +22,7 @@ class Model;
 
 class PlanningManager{	
 	enum TaskStatus:int {
-		eStop = 0, ePause = 1, eExecution = 2
+		eStop = 0, eReadyPause = 1, eExecution = 2, ePause = 10
 	};
 
 	NonCoyable(PlanningManager)

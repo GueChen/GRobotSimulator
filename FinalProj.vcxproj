@@ -57,7 +57,7 @@
     <IntDir>debug\</IntDir>
     <TargetName>GSimulator</TargetName>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
-    <IncludePath>$(ProjectDir)source;$(MyCppLib);$(QT_INCLUDE);$(IncludePath)</IncludePath>
+    <IncludePath>$(QT_INCLUDE);$(ProjectDir)source;$(ProjectDir)..\MyLib;$(IncludePath)</IncludePath>
     <LibraryPath>$(QT_LIBS);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -71,11 +71,11 @@
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <QtInstall>6.2.4_msvc2019_64</QtInstall>
-    <QtModules>opengl;network;gui;widgets;qml;quickwidgets;quick</QtModules>
+    <QtModules>core;gui;network;qml;quick;widgets;opengl;quickwidgets;serialport;charts</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <QtInstall>6.2.4_msvc2019_64</QtInstall>
-    <QtModules>core;opengl;network;gui;widgets;qml;quickwidgets;quick</QtModules>
+    <QtModules>core;gui;network;qml;quick;widgets;opengl;quickwidgets;serialport</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <VcpkgConfiguration>Release</VcpkgConfiguration>
@@ -271,6 +271,7 @@
     </ClCompile>
     <ClCompile Include="source\system\networksystem.cpp" />
     <ClCompile Include="source\system\planningsystem.cpp" />
+    <ClCompile Include="source\system\skinsystem.cpp" />
     <ClCompile Include="source\system\transmitsystem.cpp" />
     <ClCompile Include="source\ui\dialog\networkdialog.cpp" />
     <ClCompile Include="source\ui\dialog\planningdialog.cpp">
@@ -280,6 +281,7 @@
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
     </ClCompile>
     <ClCompile Include="source\ui\dialog\robotcreatedialog.cpp" />
+    <ClCompile Include="source\ui\dialog\skindialog.cpp" />
     <ClCompile Include="source\ui\menu\componentmenu.cpp" />
     <ClCompile Include="source\ui\widget\kinematic_widget.cpp" />
     <ClCompile Include="source\ui\widget\tracker_widget.cpp" />
@@ -357,6 +359,8 @@
     <QtMoc Include="source\ui\dialog\networkdialog.h" />
     <QtMoc Include="source\system\networksystem.h" />
     <QtMoc Include="source\system\transmitsystem.h" />
+    <QtMoc Include="source\ui\dialog\skindialog.h" />
+    <QtMoc Include="source\system\skinsystem.h" />
     <ClInclude Include="source\ui\menu\componentmenu.h" />
     <ClInclude Include="source\ui\wrapper\extensiblelist.h" />
     <QtMoc Include="source\ui\widget\viewport.h" />
@@ -437,6 +441,7 @@
     <QtUic Include="UI\Dialog\networkdialog.ui" />
     <QtUic Include="UI\Dialog\planningdialog.ui" />
     <QtUic Include="UI\Dialog\robotcreatedialog.ui" />
+    <QtUic Include="UI\Dialog\skindialog.ui" />
     <QtUic Include="UI\Display\widget_qss_playground.ui" />
     <QtUic Include="UI\widget\kinematic_component_ui_widget.ui" />
     <QtUic Include="UI\widget\tracker_component_ui_widget.ui" />

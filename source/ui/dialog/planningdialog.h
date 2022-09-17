@@ -49,6 +49,9 @@ signals:
 								float max_ang_vel,			  float max_ang_acc,
 								std::vector<float> target_descarte, 
 								std::vector<std::vector<float>> waypoints);
+	void RequestKeeperMotion   (const QString& obj_name,
+								float time,
+								std::vector<float> target_descarte);
 	void RequestDualSyncLineMotion 
 							   (const std::vector<QString>& obj_names, 
 								std::vector<float> max_vels,  std::vector<float> max_accs, 
@@ -71,6 +74,7 @@ private:
 	void LineMotionExecution();
 	void CircleMotionExecution();
 	void SplineMotionExecution();
+	void KeeperMotionExecution();
 	void DualMotionExecution();
 	void DualSyncMotionExecution();	
 	void DualAsyncMotionExecution();
