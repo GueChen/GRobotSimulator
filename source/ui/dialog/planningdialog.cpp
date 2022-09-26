@@ -289,4 +289,14 @@ namespace GComponent {
 		ui_ptr_->dual_sync_waypoint_z->setEnabled(enable);
 		ui_ptr_->dual_sync_waypoint_z_label->setEnabled(enable);
 	}
+
+	void PlanningDialog::on_target_combo_currentIndexChanged(int idx)
+	{
+		emit GetTargetOptimizer(idx);
+	}
+
+	void PlanningDialog::on_selfmotion_combo_currentIndexChanged(int idx)
+	{
+		emit GetSelfMotionOptimizer(idx);
+	}
 }

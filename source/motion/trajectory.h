@@ -107,14 +107,14 @@ public:
 	inline Twistf	GetModifyVector() const { return modify_vec_; }
 	PathFunc		GetPathFunction();
 	// opt cspace function
-	inline void		SetTargetOptimizer(TgtOptimizer* optimizer)			   { target_opt_ = std::shared_ptr<TgtOptimizer>(optimizer); }
-	inline void		SetSelfMotionOptimizer(SelfmotionOptimizer* optimizer) { self_opt_ = std::shared_ptr<SelfmotionOptimizer>(optimizer); }
+	inline void		SetTargetOptimizer(TgtOptimizer* optimizer)		{ target_opt_ = std::shared_ptr<TgtOptimizer>(optimizer); }
+	inline void		SetSelfMotionOptimizer(SlfOptimizer* optimizer) { self_opt_   = std::shared_ptr<SlfOptimizer>(optimizer); }
 
 protected:	
 	PathFunc							func_;
 
 	_Base::_Ptr<TgtOptimizer>			target_opt_ = nullptr;
-	_Base::_Ptr<SelfmotionOptimizer>	self_opt_	= nullptr;
+	_Base::_Ptr<SlfOptimizer>			self_opt_	= nullptr;
 	
 	Twistf								modify_vec_ = Twistf::Zero();
 };	// !class Trajectory

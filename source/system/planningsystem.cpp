@@ -9,6 +9,7 @@
 #include "motion/GMotion"
 #include "motion/optimization/skinsensor_optimizer.h"
 
+
 #ifdef _DEBUG
 #include <iostream>
 #endif // _DEBUG
@@ -125,12 +126,13 @@ void PlanningSystem::ResponseLineMotion(const QString& obj_name, float max_vel, 
 	CTrajectory func = motion(robot);
 	Vec3 ini  = func.GetInitialPoint().block(0, 3, 3, 1),
 		 goal = func.GetGoalPoint().block(0, 3, 3, 1);
-	func.SetTargetOptimizer(
-			//new PhysxCheckerOptimizer{}
-			//new SkinSensorOptimizer{}
-			//new SkinSensorSimpleKeeperOptimizer{}
-			new SkinSensorLineOptimizer{(goal - ini).normalized()}
-	);
+
+	TgtOptimizer* optimizer = nullptr;
+	if (tgt_flag) {
+		optimizer = new SkinSensorLineOptimizer((goal - ini).normalized());
+	}
+	func.SetTargetOptimizer(optimizer);
+	func.SetSelfMotionOptimizer(GetSlfOptimizer());
 	PlanningManager::getInstance().RegisterPlanningTask(func.GetPtrCopy());
 	
 	RenderManager& render = RenderManager::getInstance();
@@ -138,9 +140,7 @@ void PlanningSystem::ResponseLineMotion(const QString& obj_name, float max_vel, 
 	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(ini),  0.010f, kRed));
 	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(goal), 0.010f, kBlue));
 	render.EmplaceAuxiliaryObj(std::make_shared<GLine>(Conversion::fromVec3f(ini), Conversion::fromVec3f(goal),
-													   kRed, kBlue));
-	
-	
+													   kRed, kBlue));	
 }
 
 void PlanningSystem::ResponseCircleMotion(const QString& obj_name, float max_vel, float max_acc, float max_ang_vel, float max_ang_acc, std::vector<float> target_descarte, std::vector<float> waypoint)
@@ -314,4 +314,49 @@ void PlanningSystem::ResponseChangeCurrentTaskStatus(const std::vector<QString>&
 	}
 }
 
+void PlanningSystem::SetTargetOptimizer(int idx)
+{
+	enum TargetOptimizer : int {
+		NONE = 0, PhysxChecker, SkinSensor
+	}target_optimizer = static_cast<TargetOptimizer>(idx);
+
+	switch (target_optimizer)
+	{
+	case PhysxChecker:	 tgt_flag = 1;	 qDebug() << "set phx";	    break;
+	case SkinSensor:	 tgt_flag = 2;   qDebug() << "set skin";	break;
+	default:			 tgt_flag = 0;	 qDebug() << "set null";	break;
+	}
+}
+
+void PlanningSystem::SetSelfMotionOptimier(int idx)
+{
+	enum SelfOptimizer : int {
+		NONE = 0, SelfMotion
+	}self_optimizer = static_cast<SelfOptimizer>(idx);
+
+	switch (self_optimizer)
+	{
+	case SelfMotion:	 slf_flag = 1;	 qDebug() << "set slfm";    break;
+	default:			 slf_flag = 0;	 qDebug() << "set null";	break;
+	}
+}
+
+TgtOptimizer* PlanningSystem::GetTgtOptimizer()
+{
+	switch (tgt_flag)
+	{
+	case 1:		return new PhysxCheckerOptimizer{};		break;
+	case 2:		return new SkinSensorOptimizer{};		break;
+	default:	return nullptr;							break;
+	}
+}
+
+SlfOptimizer* PlanningSystem::GetSlfOptimizer()
+{
+	switch (slf_flag)
+	{
+	case 1:		return new SelfmotionOptimizer{};		break;
+	default:	return nullptr;							break;
+	}
+}
 }

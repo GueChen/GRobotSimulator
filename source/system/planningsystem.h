@@ -9,6 +9,8 @@
 
 #include "base/singleton.h"
 #include "function/conversion.hpp"
+#include "motion/optimization/skinsensor_optimizer.h"
+#include "motion/optimization/trajectory_optimization.h"
 
 #include <QtCore/QObject>
 
@@ -84,7 +86,9 @@ public slots:
 								  std::vector<std::vector<float>> bias,
 								  std::vector<float> waypoint);	
 	void ResponseChangeCurrentTaskStatus
-							     (const std::vector<QString>& obj_name, int status);
+							   (const std::vector<QString>& obj_name, int status);
+	void SetTargetOptimizer(int idx);
+	void SetSelfMotionOptimier(int idx);
 
 signals:
 	void		NotifyNewJointsAngle
@@ -93,7 +97,14 @@ signals:
 	void		NotifyPauseTask(const QString& obj_name);
 
 private:
+	TgtOptimizer* GetTgtOptimizer();
+	SlfOptimizer* GetSlfOptimizer();
+
+private:
 	int display_flag = 0;
+	int tgt_flag = 0;
+	int slf_flag = 0;
+
 };
 
 } // !namespace GComponent

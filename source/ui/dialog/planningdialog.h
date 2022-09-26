@@ -65,6 +65,9 @@ signals:
 								std::vector<float> waypoint);
 	void RequestChangeCurrentTaskStatus
 							   (const std::vector<QString>& obj_names, int status);
+	void GetTargetOptimizer(int idx);
+	void GetSelfMotionOptimizer(int idx);
+
 
 private:
 // Process Related Methods
@@ -100,6 +103,8 @@ private slots:
 	void on_spline_waypoints_del_button_clicked();
 	void on_spline_waypoints_clear_button_clicked();
 	void on_sync_type_combo_activated(int idx);
+	void on_target_combo_currentIndexChanged(int idx);
+	void on_selfmotion_combo_currentIndexChanged(int idx);
 
 private:
 	Ui::PlanningDialog*		    ui_ptr_				 = nullptr;

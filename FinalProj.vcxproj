@@ -57,8 +57,8 @@
     <IntDir>debug\</IntDir>
     <TargetName>GSimulator</TargetName>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
-    <IncludePath>$(QT_INCLUDE);$(ProjectDir)source;$(ProjectDir)..\MyLib;$(IncludePath)</IncludePath>
-    <LibraryPath>$(QT_LIBS);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)source;$(ProjectDir)..\MyLib;$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>release\</OutDir>
@@ -66,7 +66,7 @@
     <TargetName>FinalProj</TargetName>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>E:\lib\Cpp\MyLib\3rdparty\include;$(MyCppLib);$(ProjectDir)source;$(IncludePath)</IncludePath>
+    <IncludePath>$(MyCppLib);$(ProjectDir)source;$(IncludePath)</IncludePath>
     <LibraryPath>$(QTDIR)\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

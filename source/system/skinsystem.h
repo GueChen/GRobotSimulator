@@ -47,6 +47,7 @@ private:
     float               LPFilter(float predata, float curdata);
     void                ProximityTrigger(float currentV, float baseV, int i);        
 
+
 public slots:
     void                Run();
     void                Close();

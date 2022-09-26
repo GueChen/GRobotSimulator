@@ -137,12 +137,15 @@ JointPairs CTrajectory::operator()(float t_reg)
     }
 
     if (self_opt_ && self_opt_->ConditionCheck(impl_->obj)) {                        // Self Motion
-        auto inc = self_opt_->IncVector(impl_->obj, out_xs);
-        ZeroProj<float> zero_mat; 
-        kine_sdk.ZeroProjection(zero_mat, out_xs);
-        auto self_xs = STLUtils::fromDynVecf(inc * zero_mat);
-        std::transform(self_xs.begin(), self_xs.end(), out_xs.begin(), out_xs.begin(), std::plus<>{});
-        std::transform(out_xs.begin(),  out_xs.end(),  out_xs.begin(), ToStandarAngle);
+        for (int i = 0; i < 3; i++)
+        {
+            auto inc = self_opt_->IncVector(impl_->obj, out_xs);
+            ZeroProj<float> zero_mat;
+            kine_sdk.ZeroProjection(zero_mat, out_xs);
+            auto self_xs = STLUtils::fromDynVecf(zero_mat * inc/*ClampMaxAbs(Eigen::VectorX<float>(zero_mat * inc), 0.01)*/);
+            std::transform(self_xs.begin(), self_xs.end(), out_xs.begin(), out_xs.begin(), std::plus<>{});
+            std::transform(out_xs.begin(), out_xs.end(), out_xs.begin(), ToStandarAngle);
+        }        
     }
     
     SE3f          mat_ini;  kine_sdk.ForwardKinematic(mat_ini, cur_xs);

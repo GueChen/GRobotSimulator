@@ -286,6 +286,15 @@ void GComponent::EngineApp::ConnectModules()
 
 	connect(&PlanningSystem::getInstance(),		&PlanningSystem::NotifyNewJointsAngle,
 			&TransmitSystem::getInstance(),		&TransmitSystem::ReceiveJointsAngle);
+
+	connect(planning_dialog_ptr_.get(),			&PlanningDialog::GetTargetOptimizer,
+			&PlanningSystem::getInstance(),			&PlanningSystem::SetTargetOptimizer);
+
+	connect(planning_dialog_ptr_.get(),			&PlanningDialog::GetSelfMotionOptimizer,
+			&PlanningSystem::getInstance(),			&PlanningSystem::SetSelfMotionOptimier);
+
+	
+
 	connect(&PlanningSystem::getInstance(),		&PlanningSystem::NotifyPauseTask,
 			&TransmitSystem::getInstance(),		&TransmitSystem::ResponsePauseTask);
 
@@ -309,6 +318,9 @@ void GComponent::EngineApp::ConnectModules()
 			network_dialog_ptr_.get(),			&NetworkDialog::ResponseAsyncStatus);
 	connect(&TcpSocketManager::getInstance(),	&TcpSocketManager::TransmitRobotDatas,
 			&TransmitSystem::getInstance(),		&TransmitSystem::ProcessRobotTransmitDatas);
+
+	connect(&PlanningSystem::getInstance(),		&PlanningSystem::NotifyNewJointsAngle,
+			&TransmitSystem::getInstance(),		&TransmitSystem::ReceiveJointsAngle);	
 
 	connect(&TransmitSystem::getInstance(),		&TransmitSystem::SendPlanningDatas,
 			&NetworkSystem::getInstance(),		&NetworkSystem::ResponseSendJointsAngle);

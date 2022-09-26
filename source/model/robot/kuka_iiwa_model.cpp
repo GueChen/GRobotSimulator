@@ -128,7 +128,7 @@ void KUKA_IIWA_MODEL::InitializeModelResource()
     auto register_cylinder_collider = [kRadius, &register_cylinder_collider_impl]
     (Model* model, Vec3 trans) {
         float half_length = trans.norm() - 0.07f;        
-        register_cylinder_collider_impl(model, trans, half_length, 0.07f);
+        register_cylinder_collider_impl(model, trans, half_length, /*0.07f)*/0.12f);
     };
     std::array<Vec3, 4> arm_trans = {
         0.5f * local_trans[2],
