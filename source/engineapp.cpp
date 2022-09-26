@@ -339,6 +339,8 @@ void GComponent::EngineApp::ConnectModules()
 			skin_dialog_ptr_.get(),				&SkinDialog::GetPortlist, Qt::DirectConnection);
 	connect(skin_dialog_ptr_.get(),				&SkinDialog::SetDirectionVector,
 			&SkinSystem::getInstance(),			&SkinSystem::SetSensorVector);
+	connect(skin_dialog_ptr_.get(),				&SkinDialog::SetSkinUsedMask,
+			&SkinSystem::getInstance(),			&SkinSystem::SetUsingMask);
 }
 
 void GComponent::EngineApp::InitializeMembers(int argc, char* argv[])

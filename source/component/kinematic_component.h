@@ -120,7 +120,7 @@ private:
 	IKSolverEnum			ik_solver_enum_		  = IKSolverEnum::LeastNorm;
 	RobotKinematic::IKSolver<float>*
 							solver_				  = nullptr;
-	double					precision_			  = 1e-4f;
+	double					precision_			  = 1e-5f;
 	int						max_iteration_		  = 50;
 	double					decay_scaler_		  = 0.3f;
 	IKSolverTable			ik_solvers_			  = {};

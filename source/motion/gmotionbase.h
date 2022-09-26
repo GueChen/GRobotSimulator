@@ -68,7 +68,7 @@ class JMotionBase : public MotionBase {
 public: 
     JMotionBase()                            = default;
     virtual ~JMotionBase()                   = default;
-    virtual JTrajFunc operator()(Model* robot)  = 0;
+    virtual JTrajectory operator()(Model* robot)  = 0;
 };
 
 class CMotionBase : public MotionBase {
@@ -77,8 +77,8 @@ public:
     virtual ~CMotionBase()                   = default;
 
 //  Base class interface to get trajectory
-    Trajectory operator()(Model* robot);
-    Trajectory operator()(Model* robot, SE3f start);
+    CTrajectory operator()(Model* robot);
+    CTrajectory operator()(Model* robot, SE3f start);
 
 protected:
 //  Derived class overrivde implementation methods

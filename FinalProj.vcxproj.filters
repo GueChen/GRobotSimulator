@@ -243,6 +243,9 @@
     <ClCompile Include="source\system\skinsystem.cpp">
       <Filter>system</Filter>
     </ClCompile>
+    <ClCompile Include="source\motion\planning_task.cpp">
+      <Filter>motion</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\motion\gmotionbase.h">
@@ -463,6 +466,9 @@
     </ClInclude>
     <ClInclude Include="source\motion\optimization\skinsensor_optimizer.h">
       <Filter>motion\optimization</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\planning_task.h">
+      <Filter>motion</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

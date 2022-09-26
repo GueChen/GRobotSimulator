@@ -31,7 +31,7 @@ MotionBase& MotionBase::SetMaxAngAcc(float acc)
 }
 
 /*_____________________________________________CMotionBase Class____________________________________________*/
-Trajectory CMotionBase::operator()(Model* robot)
+CTrajectory CMotionBase::operator()(Model* robot)
 {
     KinematicComponent&  kinematic_sdk  = *robot->GetComponent<KinematicComponent>(KinematicComponent::type_name.data());        
     SE3f                 mat_ini;         kinematic_sdk.ForwardKinematic(mat_ini);
@@ -40,15 +40,15 @@ Trajectory CMotionBase::operator()(Model* robot)
     PathFunc path = PathFuncImpl(mat_ini, goal_);               // get path planning data
     time_total_   = ExecutionTimeImpl(mat_ini, goal_);          // caculate the total execution time
 
-    return Trajectory(*robot, time_total_, path);
+    return CTrajectory(*robot, time_total_, path);
 }
 
-Trajectory CMotionBase::operator()(Model* robot, SE3f start)
+CTrajectory CMotionBase::operator()(Model* robot, SE3f start)
 {
     PathFunc path = PathFuncImpl(start, goal_);               // get path planning data
     time_total_   = ExecutionTimeImpl(start, goal_);          // caculate the total execution time
 
-    return Trajectory(*robot, time_total_, path);
+    return CTrajectory(*robot, time_total_, path);
 }
 
 /*_____________________________________________DualMotionBase Class_________________________________________*/
@@ -89,7 +89,7 @@ DualTrajectory DualSyncMotionBase::operator()(Model* left, Model* right)
     auto&& [l_path, r_path] = PathFuncImpl(l_ini, l_goal, r_ini, r_goal);
     time_total_             = ExecutionTimeImpl(l_ini, l_goal, r_ini, r_goal);
 
-    return {Trajectory(*left, time_total_, l_path), Trajectory(*right, time_total_, r_path)};
+    return {CTrajectory(*left, time_total_, l_path), CTrajectory(*right, time_total_, r_path)};
 }
 
 /*_________________________________________DualSyncMotionBase Class_________________________________________*/

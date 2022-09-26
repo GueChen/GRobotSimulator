@@ -11,7 +11,7 @@ PTPMotion::PTPMotion(const vector<float>& thetas_desire, InterpolationEnum type)
     jgoals_(thetas_desire)
 {}
 
-JTrajFunc GComponent::PTPMotion::operator()(Model* robot)
+JTrajectory GComponent::PTPMotion::operator()(Model* robot)
 {
     struct QuadParam {
         int     sgn;        // the positive and negative sign
@@ -91,5 +91,5 @@ JTrajFunc GComponent::PTPMotion::operator()(Model* robot)
         return ret;      
     };
 
-    return traj_func;
+    return JTrajectory(*robot, time_total, traj_func);
 }

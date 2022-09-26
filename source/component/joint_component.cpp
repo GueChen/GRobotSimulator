@@ -52,7 +52,9 @@ void JointComponent::PushAccBuffer(float new_acc)
 
 bool JointComponent::CheckEffective(float angle) const
 {
-	return pos_limits_.min <= angle && angle <= pos_limits_.max;
+	return (pos_limits_.min <= angle && angle <= pos_limits_.max)
+			&&	// limitation
+			abs(pos_ - angle) < (3.1415926535f / 2.0f);					// move dir limitation
 }
 
 void JointComponent::tickImpl(float delta_time)

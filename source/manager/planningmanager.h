@@ -10,6 +10,7 @@
 #include "base/singleton.h"
 
 #include "motion/gmotionbase.h"
+#include "motion/planning_task.h"
 
 #include <unordered_map>
 #include <functional>
@@ -30,12 +31,15 @@ class PlanningManager{
 public:
 	static PlanningManager& getInstance();
 	~PlanningManager();
-
-	void RegisterPlanningTask(Model * robot, JTrajFunc func, float time_total, uint32_t interval_ms);
-
+	
 	void RegisterDualPlanningTask(std::vector<Model*> robots, std::vector<JTrajFunc> funcs, float time_total, uint32_t interval_ms);
-		
+	
+	void RegisterPlanningTask(Trajectory* traj);
+
 	void ChangeCurrentTaskStatus(Model* robot, int status);
+	PlanningTask::TaskStatus
+		 GetCurrentTaskStatus(Model* robot);
+	void InteruptPrePlanning(Model* robot);
 
 	inline float GetExecutionTime() const { return execution_time_stamp_; }
 	inline float GetPlanningTime()  const { return task_time_stamp_; }
@@ -50,10 +54,8 @@ protected:
 private:
 	std::unordered_map<Model*, std::mutex>						  lock_map_;	
 	std::unordered_map<Model*, std::queue<std::function<void()>>> task_queue_map_;
-	std::unordered_map<Model*, TaskStatus>						  execution_flag_map_;
-	/*std::unordered_map<Model*, std::deque<std::variant<Eigen::VectorXf, SE3f>>>
-																  goal_deque_map_;*/
-
+	std::unordered_map<Model*, std::deque<PlanningTask*>>		  task_dict_;	
+	
 	float task_time_stamp_		= -1.0f;
 	float execution_time_stamp_ = -1.0f;
 };

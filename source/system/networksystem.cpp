@@ -37,7 +37,7 @@ void NetworkSystem::ResponseLinkClientToServer(const QString& obj_name, QString 
 void NetworkSystem::ResponseAsyncReceiver(const QString& obj_name, bool flag)
 {
 	QByteArray msg = flag ? KUKA::Encoder::RequestAsync() : KUKA::Encoder::RequestAsyncStop();
-	if (TcpSocketManager::getInstance().TcpSocketWrite(obj_name, msg)){	
+	if (!TcpSocketManager::getInstance().TcpSocketWrite(obj_name, msg)){	
 #ifdef _DEBUG
 		std::cout << "SOCKET ERROR::send failed for some reason\n";
 #endif // _DEBUG		
@@ -52,7 +52,7 @@ void NetworkSystem::ResponseQuit(const QString& obj_name)
 void NetworkSystem::ResponseHigherAurthority(const QString& obj_name)
 {
 	QByteArray msg = KUKA::Encoder::RequestController();
-	if (TcpSocketManager::getInstance().TcpSocketWrite(obj_name, msg)){
+	if (!TcpSocketManager::getInstance().TcpSocketWrite(obj_name, msg)){
 #ifdef _DEBUG
 		std::cout << "SOCKET ERROR::send failed for some reason\n";
 #endif // _DEBUG		
@@ -62,7 +62,7 @@ void NetworkSystem::ResponseHigherAurthority(const QString& obj_name)
 void NetworkSystem::ResponseSendJointsAngle(const QString& obj_name, std::vector<float> joints) {
 	//if (!SafetyCheck()) return;
 	QByteArray msg = KUKA::Encoder{}.EncodeMoveSmartServoMotion(joints).GetCommand();
-	if(TcpSocketManager::getInstance().TcpSocketWrite(obj_name, msg, false)){
+	if(!TcpSocketManager::getInstance().TcpSocketWrite(obj_name, msg, false)){
 #ifdef _DEBUG
 		std::cout << "SOCKET ERROR::send joints failed for some reason\n";
 #endif // _DEBUG		
@@ -72,7 +72,7 @@ void NetworkSystem::ResponseSendJointsAngle(const QString& obj_name, std::vector
 void NetworkSystem::ResponseSendCancelRequest(const QString& obj_name)
 {
 	QByteArray msg = KUKA::Encoder::RequestCancel();
-	if (TcpSocketManager::getInstance().TcpSocketWrite(obj_name, msg, false)) {
+	if (!TcpSocketManager::getInstance().TcpSocketWrite(obj_name, msg, false)) {
 #ifdef _DEBUG
 		std::cout << "SOCKET ERROR::send cancel failed for some reason\n";
 #endif // _DEBUG		

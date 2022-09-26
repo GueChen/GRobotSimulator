@@ -1,6 +1,8 @@
 #include "skindialog.h"
 #include "ui_skindialog.h"
 
+#include <QtWidgets/QCheckBox>
+
 using std::vector;
 
 namespace GComponent {
@@ -12,6 +14,7 @@ SkinDialog::SkinDialog(QWidget* parent) :
 {
     skin_ui->setupUi(this);
     InitChart();
+    Connection();
 }
 
 SkinDialog::~SkinDialog()
@@ -63,29 +66,21 @@ void SkinDialog::on_readportButton_clicked()
 void SkinDialog::on_setButton_clicked()
 {
     int unitname = skin_ui->unitBox->currentIndex();
-    int count = skin_ui->countBox->currentText().toInt();
-    vector<float> tar_dir = GetRotationFromTable(skin_ui->basis_vec_table);
+    int count    = skin_ui->countBox->currentText().toInt();
+    vector<float> tar_dir = GetOneColFromTable(skin_ui->basis_vec_table, 0);
     emit SetDirectionVector(unitname, count, tar_dir);
 }
 /*______________________________PUBLIC METHODS_________________________________*/
 void SkinDialog::DisplayValue(QList<QString> str)
-{
-    skin_ui->textEdit->clear();
-    skin_ui->textEdit_2->clear();
-    skin_ui->textEdit_3->clear();
-    skin_ui->textEdit_4->clear();
-    skin_ui->textEdit_5->clear();
-    skin_ui->textEdit_6->clear();
-    skin_ui->textEdit_7->clear();
-    skin_ui->textEdit_8->clear();
-    skin_ui->textEdit->append(str[0]);
-    skin_ui->textEdit_2->append(str[1]);
-    skin_ui->textEdit_3->append(str[2]);
-    skin_ui->textEdit_4->append(str[3]);
-    skin_ui->textEdit_5->append(str[4]);
-    skin_ui->textEdit_6->append(str[5]);
-    skin_ui->textEdit_7->append(str[6]);
-    skin_ui->textEdit_8->append(str[7]);
+{    
+    skin_ui->textEdit->setText(str[0]);
+    skin_ui->textEdit_2->setText(str[1]);
+    skin_ui->textEdit_3->setText(str[2]);
+    skin_ui->textEdit_4->setText(str[3]);
+    skin_ui->textEdit_5->setText(str[4]);
+    skin_ui->textEdit_6->setText(str[5]);
+    skin_ui->textEdit_7->setText(str[6]);
+    skin_ui->textEdit_8->setText(str[7]);
 }
 
 void SkinDialog::GetValue(QList<float> v)
@@ -177,6 +172,18 @@ void SkinDialog::InitChart()
     //pVLayout->setContentsMargins(5, 40, 180, 40);
     //pVLayout->addWidget(chartView);
 
+}
+
+void SkinDialog::Connection()
+{
+    QString prefix = "unit_mask_";
+    for (int i = 0; i < 8; ++i) {
+        QString    name      = prefix + QString::number(i + 1);
+        QCheckBox* check_box = findChild<QCheckBox*>(name);
+        connect(check_box, &QCheckBox::stateChanged, [this, idx = i](int state) {
+            emit SetSkinUsedMask(idx, state);
+        });
+    }    
 }
 
 vector<float> SkinDialog::GetOneColFromTable(QTableWidget* tbl, int col_idx)

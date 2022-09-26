@@ -22,15 +22,32 @@ public:
 	bool ConditionCheck(Model&) override;
 };
 
-class SkinSensorSimpleOptimizer : public TgtOptimizer
+class SkinSensorSimpleKeeperOptimizer : public TgtOptimizer
 {
 public:
-	SkinSensorSimpleOptimizer()  = default;
-	~SkinSensorSimpleOptimizer() = default;
+	SkinSensorSimpleKeeperOptimizer()  = default;
+	~SkinSensorSimpleKeeperOptimizer() = default;
 
 	std::vector<float> Optimize(Model&, const Twistf& glb_t, const std::vector<float>& thetas) override;
 
 	bool ConditionCheck(Model&) override;
+};
+
+class SkinSensorLineOptimizer : public TgtOptimizer 
+{
+public:
+	SkinSensorLineOptimizer(Vec3 dir);
+	~SkinSensorLineOptimizer() = default;
+	
+	virtual std::vector<float> Optimize(Model&, const Twistf& glb_t, const std::vector<float>& thetas) override;
+
+	virtual bool ConditionCheck(Model&) override;
+
+protected:
+	Vec3 fwd_dir_		     = Vec3::Zero();
+	bool is_blocking_	     = false;
+	int  blocking_count_     = 0;
+	int  solve_failed_count_ = 0;
 };
 } // !namespace GComponent
 

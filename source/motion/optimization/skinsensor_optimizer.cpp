@@ -4,6 +4,7 @@
 
 #include "model/model.h"
 #include "component/kinematic_component.h"
+#include "manager/planningmanager.h"
 
 #ifdef _DEBUG
 #include <iostream>
@@ -58,25 +59,31 @@ bool GComponent::SkinSensorOptimizer::ConditionCheck(Model&)
     return SkinSystem::getInstance().Flag();
 }
 
-/*____________________________Find the Vector try to  move to orthogonal dir___________________________*/
-std::vector<float> GComponent::SkinSensorSimpleOptimizer::Optimize(Model&obj, const Twistf& glb_t, const std::vector<float>& thetas)
+/*_____________________________Skin Sensor Simple Keeper Optimizer_____________________*/
+std::vector<float> GComponent::SkinSensorSimpleKeeperOptimizer::Optimize(Model&obj, const Twistf& glb_t, const std::vector<float>& thetas)
 {
     std::vector<float> ret = thetas;
     std::vector<Eigen::Vector3f> hit_list = SkinSystem::getInstance().GetTriVector();
     if (!hit_list.empty()) {
-        SE3f  glb_inv = obj.getModelMatrixWithoutScale().inverse();
+        SE3f  glb     = obj.getModelMatrixWithoutScale();
+        SE3f  glb_inv = InverseSE3(glb);
         auto& kine    = *obj.GetComponent<KinematicComponent>(KinematicComponent::type_name.data());
         
-        SE3f goal; kine.ForwardKinematic(goal, ret);
-        goal = kine.GetParent()->getModelMatrix() * goal;
+        SE3f goal; kine.ForwardKinematic(goal, ret); goal = glb * goal;
+
+        std::vector<SE3f> trans; kine.Transforms(trans, thetas);
+        std::partial_sum(trans.begin(), trans.end(), trans.begin(), std::multiplies<>{});
+        SO3<float> orientation = obj.getModelMatrixWithoutScale().block(0, 0, 3, 3) * trans[5].block(0, 0, 3, 3);
+
         for (auto& vec : hit_list) {
-            Vector3f move_dir = Roderigues(0.5f * MyPI * Vector3f::UnitZ()) * vec;
+            Vector3f move_dir = -orientation* vec;
             goal.block(0, 3, 3, 1) += move_dir * 0.002f;
-            std::cout << "ori vec: " << vec.transpose() << 
-                         ", move dir : " << move_dir.transpose() << std::endl;
+#ifdef _DEBUG
+            std::cout << "ori vec: " << vec.transpose() <<
+                ", move dir : " << move_dir.transpose() << std::endl;
+#endif // _DEBUG            
         }
-        std::vector<float> new_pos;
-        //Twistf new_goal = LogMapSE3Tose3(goal);
+        std::vector<float> new_pos;        
         if (kine.InverseKinematic(new_pos, glb_inv * goal, ret)) {
             ret = new_pos;            
         }
@@ -85,7 +92,80 @@ std::vector<float> GComponent::SkinSensorSimpleOptimizer::Optimize(Model&obj, co
     return ret;
 }
 
-bool GComponent::SkinSensorSimpleOptimizer::ConditionCheck(Model&)
+bool GComponent::SkinSensorSimpleKeeperOptimizer::ConditionCheck(Model&)
 {
     return SkinSystem::getInstance().Flag();
+}
+
+
+/*______________________________Skin Sensor Line Optimizer________________________*/
+GComponent::SkinSensorLineOptimizer::SkinSensorLineOptimizer(Vec3 dir):
+    fwd_dir_(dir)
+{}
+
+std::vector<float> GComponent::SkinSensorLineOptimizer::Optimize(Model& obj, const Twistf& glb_t, const std::vector<float>& thetas)
+{
+    std::vector<float> ret = thetas;
+    std::vector<Eigen::Vector3f> vec_list = SkinSystem::getInstance().GetTriVector();    
+    auto status = PlanningManager::getInstance().GetCurrentTaskStatus(&obj);
+    if (!vec_list.empty()) {
+        SE3f  glb     = obj.getModelMatrixWithoutScale();
+        SE3f  glb_inv = InverseSE3(glb);
+        auto& kine    = *obj.GetComponent<KinematicComponent>(KinematicComponent::type_name.data());
+        SE3f  goal; kine.ForwardKinematic(goal, ret); goal = glb * goal;
+
+        std::vector<SE3f> trans; kine.Transforms(trans, thetas);
+        std::partial_sum(trans.begin(), trans.end(), trans.begin(), std::multiplies<>{});
+//        SO3<float> orientation = obj.getModelMatrixWithoutScale().block(0, 0, 3, 3) * trans[5].block(0, 0, 3, 3);
+        
+        auto iter = std::find_if(vec_list.begin(), vec_list.end(), [&fwd_dir = this->fwd_dir_/*, &ori = orientation*/](auto && vec) {
+            return  /*(ori * */vec.dot(fwd_dir) > 0.85;
+        });
+        
+        if (iter != vec_list.end()) {  // exist orthorgnal direction and the angle smaller than 45                                    
+            if (blocking_count_ == 0 && status != PlanningTask::eBlocking) {
+                PlanningManager::getInstance().ChangeCurrentTaskStatus(&obj, PlanningTask::eBlocking);
+                PlanningManager::getInstance().InteruptPrePlanning(&obj);
+            }                                    
+            //std::cout << "block here cur vec: " << (orientation * *iter).transpose() << std::endl;
+            blocking_count_ = std::min(blocking_count_ + 1, 10);
+        }
+        else {
+            Vec3 move_dir = Vec3::Zero();
+            //std::cout << "the move dir: " << fwd_dir_.transpose() << std::endl;
+            for (auto& vec : vec_list) {
+                float cos_val = vec.dot(fwd_dir_);                
+                move_dir += (vec - cos_val * fwd_dir_);
+            }
+            goal.block(0, 3, 3, 1) -= 0.01f * move_dir;            
+            blocking_count_ = std::max(blocking_count_ - 2, 0);
+            if (blocking_count_ == 0 && status != PlanningTask::eExecution) {                
+                PlanningManager::getInstance().ChangeCurrentTaskStatus(&obj, PlanningTask::eExecution);
+            }
+        }
+        
+        if (vector<float> out; kine.InverseKinematic(out, glb_inv * goal, ret)) {
+            ret = out;
+            if (blocking_count_ == 0) {
+                solve_failed_count_ = 0;
+            }
+        }
+        else {
+            ++solve_failed_count_;
+        }
+    }    
+                  
+    return ret;
+}
+
+bool GComponent::SkinSensorLineOptimizer::ConditionCheck(Model& obj)
+{
+    bool result = SkinSystem::getInstance().Flag();
+    if (!result) {
+        blocking_count_ = std::max(blocking_count_ - 2, 0);
+        if (blocking_count_ == 0 && PlanningManager::getInstance().GetCurrentTaskStatus(&obj) != PlanningTask::eExecution) {
+            PlanningManager::getInstance().ChangeCurrentTaskStatus(&obj, PlanningTask::eExecution);
+        }
+    }
+    return result;
 }

@@ -229,6 +229,7 @@
     <ClCompile Include="source\motion\keepermotion.cpp" />
     <ClCompile Include="source\motion\optimization\skinsensor_optimizer.cpp" />
     <ClCompile Include="source\motion\optimization\trajectory_optimization.cpp" />
+    <ClCompile Include="source\motion\planning_task.cpp" />
     <ClCompile Include="source\motion\trajectory.cpp" />
     <ClCompile Include="source\pattern\widgetbuilder.cpp" />
     <ClCompile Include="source\manager\editor\uistatemanager.cpp" />
@@ -334,6 +335,7 @@
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="source\motion\planning_task.h" />
     <ClInclude Include="source\motion\trajectory.h">
       <SubType>
       </SubType>

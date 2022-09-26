@@ -82,8 +82,8 @@ bool TcpSocketManager::TcpSocketWrite(const QString& name, const QByteArray& dat
 #ifdef _DEBUG
 	static auto start = std::chrono::steady_clock::now();
 	auto cur = std::chrono::steady_clock::now();
-	std::cout << "send elapsed: " << std::chrono::duration_cast<std::chrono::milliseconds>(cur - start) << std::endl;
-	std::cout << "socket state: " << iter->second->state() << std::endl;
+	/*std::cout << "send elapsed: " << std::chrono::duration_cast<std::chrono::milliseconds>(cur - start) << std::endl;
+	std::cout << "socket state: " << iter->second->state() << std::endl;*/
 	start = cur;
 	//if(iter->second->state() == QAbstractr)
 #endif // _DEBUG
@@ -113,8 +113,13 @@ void TcpSocketManager::ResponseProcessMsg(QString obj_name) {
 	QTcpSocket*	   socket = GetTcpSocket(obj_name);
 	if (socket == nullptr) return;
 	QByteArray	   datas  = socket->readAll();
-	QByteArrayList msgs	  = datas.split('#');
-
+	QByteArrayList msgs;// = datas.split('#');
+	for (int idx = 1, last = 0; idx < datas.size(); ++idx) {
+		if (datas[idx] == (char)0xef && datas[idx - 1] == (char)0xef) {			
+			msgs.append(datas.mid(last, idx - 1 - last));
+			last = idx + 1;
+		}
+	}
 #ifdef _DEBUG
 	int data_count = 0, msg_count = 0, async_count = 0;
 #endif // _DEBUG
@@ -147,10 +152,10 @@ void TcpSocketManager::ResponseProcessMsg(QString obj_name) {
 #ifdef _DEBUG
 	static auto start = std::chrono::steady_clock::now();
 	auto cur = std::chrono::steady_clock::now();	
-	std::cout << "receive elapsed: " << std::chrono::duration_cast<std::chrono::milliseconds>(cur - start)
+	/*std::cout << "receive elapsed: " << std::chrono::duration_cast<std::chrono::milliseconds>(cur - start)
 			  << ", receive " << data_count    << " data, " << 
 								   msg_count   << " msg, "  <<
-								   async_count << " async"<<std::endl;
+								   async_count << " async"<<std::endl;*/
 	start = cur;
 #endif // _DEBUG
 	

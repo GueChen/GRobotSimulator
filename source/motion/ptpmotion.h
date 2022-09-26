@@ -11,7 +11,7 @@ public:
     explicit PTPMotion(const vector<float>&, InterpolationEnum type = InterpolationEnum::Trapezoid);
     ~PTPMotion() = default;
 
-    virtual JTrajFunc operator()(Model* robot) override;
+    virtual JTrajectory operator()(Model* robot) override;
        
 private:
     vector<float> jgoals_;

@@ -37,86 +37,31 @@ PlanningManager& PlanningManager::getInstance()
 
 PlanningManager::~PlanningManager() = default;
 
-void PlanningManager::RegisterPlanningTask(Model * robot, JTrajFunc func, float time_total, uint32_t interval)
-{	
-	auto task = [this, func, time_total, interval, 
-				 m_key = robot,										// map key use model ptr
-				 &m_locks = lock_map_,								// get lock
-				 &m_que   = task_queue_map_,						// get queue 
-				 &m_status= execution_flag_map_,
-				 &manager_elapsed_time = this->task_time_stamp_]
-		() mutable {
-		using namespace std::chrono;
-		if (isinf(time_total) || isnan(time_total)) {
-#ifdef _DEBUG
-			std::cout << "Time Is Infinity or nan val, Speed Divide Zero!\n";
-#endif
-			goto next_task;
-		}
-
-		{													// RAII lock scope
-		std::lock_guard<std::mutex> lock(m_locks[m_key]);	// guaranted only one task possessing the ownership of robot
-		
-		float	    elapsed	   = 0.0f,
-				    delay	   = 0.0f;
-		manager_elapsed_time   = elapsed;
-								
-		TaskStatus& status	   = m_status[m_key],
-					last_status= status;
-		time_point  start_time = steady_clock::now(),
-					last_time  = steady_clock::now();
-
-		while (elapsed < time_total && status != eStop) {
-			time_point cur_time = steady_clock::now();
-			elapsed  = duration_cast<duration<float>>(cur_time - start_time).count() - delay;
-			if (status == eStop) goto next_task;
-			if (status == eReadyPause || last_status == eReadyPause || 
-				status == ePause	  || last_status == ePause) {
-				if (last_status == eReadyPause || last_status == eExecution) {			// Single shot for cancel preplanning
-					PlanningSystem::getInstance().BroadcastTaskPause(m_key->getName());
-				}
-				delay += duration_cast<duration<float>>(cur_time - last_time).count();				
-				status = ePause;
-			}			
-			else if (status == eExecution) {
-				ExecutionOnce(func, m_key, elapsed);		// normal execution
-			}
-
-			manager_elapsed_time = elapsed;
-			std::this_thread::sleep_for(milliseconds(interval));
-			last_status = status;
-			last_time	= cur_time;
-		}
-
-		if (status == eExecution) {							// gurantee goal reached
-			ExecutionOnce(func, m_key, time_total);
-		}
-		else if(status == eStop) {							// stop pause, cancel preplanning datas
-			PlanningSystem::getInstance().BroadcastTaskPause(m_key->getName());
-								
-		}
-		}													// !RAII lock scope
-		
-	next_task:
-		TaskFinishedNotify(m_key);		
-	};
-
-	std::mutex& lock = lock_map_[robot];
-	if (lock.try_lock()) {
-		execution_flag_map_[robot] = eExecution;
+void PlanningManager::RegisterPlanningTask(Trajectory* traj) {
+	Model*		  key	= &traj->GetModel();
+	std::mutex&   lock	= lock_map_[key];
+	auto&		  queue	= task_dict_[key];
+	PlanningTask* task	= new PlanningTask(traj, lock);	
+	task->SetFinishNotifyer([&queue = task_dict_[key]]() {
+		auto task = queue.front(); 
+		queue.pop_front();
+		task->SetStatus(PlanningTask::eFinished);
+		if (!queue.empty()) {
+			QThreadPool::globalInstance()->start(queue.front());
+		}	
+		delete task;
+	});
+	queue.push_back(task);
+	if (lock.try_lock()) {		
 		QThreadPool::globalInstance()->start(task);
 		lock.unlock();
-	}
-	else {
-		task_queue_map_[robot].push(task);
-	}
+	}	
 }
 
 void PlanningManager::RegisterDualPlanningTask(std::vector<Model*> robots, std::vector<JTrajFunc> func, float time_total, uint32_t interval_ms)
 {
 	auto task = [this, funcs = func, time_total, interval = interval_ms, 
-				 m_keys = robots, 
-				 &m_status= execution_flag_map_,
+				 m_keys = robots, 			
 				 &m_locks = lock_map_, 
 				 &m_que = task_queue_map_] {
 		using namespace std::chrono;
@@ -126,17 +71,11 @@ void PlanningManager::RegisterDualPlanningTask(std::vector<Model*> robots, std::
 
 		float	    elapsed	   = 0.0f,
 				    delay	   = 0.0f;
-		//manager_elapsed_time   = elapsed;
-
-		TaskStatus& l_status	   = m_status[m_keys[0]],
-					l_last_status  = l_status,
-					r_status	   = m_status[m_keys[1]],
-					r_last_status  = r_status;
-
+		
 		time_point  start_time = steady_clock::now(),
 					last_time  = steady_clock::now();			
 		
-		while (elapsed < time_total && l_status) {
+		while (elapsed < time_total) {
 			elapsed = std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::steady_clock::now() - start_time).count();
 			auto l = funcs[0](elapsed);
 			auto r = funcs[1](elapsed);
@@ -163,16 +102,30 @@ void PlanningManager::RegisterDualPlanningTask(std::vector<Model*> robots, std::
 }
 
 void PlanningManager::ChangeCurrentTaskStatus(Model* robot, int status)
+{	
+	auto task_queue = task_dict_[robot];
+	if (!task_queue.empty()) {
+		task_queue.front()->SetStatus(static_cast<PlanningTask::TaskStatus>(status));
+	}
+}
+
+PlanningTask::TaskStatus PlanningManager::GetCurrentTaskStatus(Model* robot)
 {
-	auto iter = execution_flag_map_.find(robot);
-	if (iter == execution_flag_map_.end()) return;
-	iter->second = static_cast<TaskStatus>(status);
+	auto task_queue = task_dict_[robot];
+	if (task_queue.empty()) return PlanningTask::TaskStatus();
+	return task_queue.front()->GetStatus();
+}
+
+void PlanningManager::InteruptPrePlanning(Model* robot)
+{
+	auto task_queue = task_dict_[robot];
+	if (!task_queue.empty()) {
+		task_queue.front()->NotifyInteruptOnce();
+	}
 }
 
 void PlanningManager::tick(float delta_time)
-{
-
-}
+{}
 
 /*___________________________________PROTECTED METHODS_____________________________*/
 bool PlanningManager::ExecutionOnce(const JTrajFunc& func, Model* obj, float time) const {
@@ -195,12 +148,10 @@ bool PlanningManager::TaskFinishedNotify(Model* key)
 	if (iter == task_queue_map_.end()) return false;	
 	
 	if (iter->second.empty()) {			// no task anymore, delete all resource from map 
-		lock_map_.erase(key);
-		execution_flag_map_.erase(key);
+		lock_map_.erase(key);		
 		task_queue_map_.erase(iter);
 	}
-	else {
-		execution_flag_map_[key] = eExecution;
+	else {		
 		QThreadPool::globalInstance()->start(iter->second.front());
 		iter->second.pop();		
 	}	

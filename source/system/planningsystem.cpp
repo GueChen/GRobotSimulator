@@ -60,9 +60,9 @@ void PlanningSystem::ResponsePTPMotionJSpace(const QString& obj_name, float max_
 	if (robot) {
 		PTPMotion motion(target_joints);
 		motion.SetMaxLinVel(max_vel).SetMaxLinAcc(max_acc);
-		JTrajFunc func = motion(robot);
-		PlanningManager::getInstance().RegisterPlanningTask(robot, func, motion.GetTotalTime(), 5);
-		
+		JTrajectory func = motion(robot);
+		PlanningManager::getInstance().RegisterPlanningTask(new JTrajectory(func));
+	
 		KinematicComponent& kine	= *robot->GetComponent<KinematicComponent>(KinematicComponent::type_name.data());
 		RenderManager&		render	= RenderManager::getInstance();
 		render.ClearAuxiliaryObj();
@@ -107,8 +107,8 @@ void PlanningSystem::ResponsePTPMotionCSpace(const QString& obj_name, float max_
 	std::transform(target_joints.begin(), target_joints.end(), target_joints.begin(), ToStandarAngle);
 	PTPMotion motion(target_joints);
 	motion.SetMaxLinVel(max_vel).SetMaxLinAcc(max_acc);
-	JTrajFunc func = motion(robot);
-	PlanningManager::getInstance().RegisterPlanningTask(robot, func, motion.GetTotalTime(), 5);
+	JTrajectory func = motion(robot);
+	PlanningManager::getInstance().RegisterPlanningTask(func.GetPtrCopy());
 	
 }
 
@@ -121,17 +121,18 @@ void PlanningSystem::ResponseLineMotion(const QString& obj_name, float max_vel, 
 	LineMotion motion(goal_mat);
 	motion.SetMaxLinVel(max_vel).SetMaxLinAcc(max_acc).
 		   SetMaxAngVel(max_ang_vel).SetMaxAngAcc(max_ang_acc);
-
-	Trajectory func = motion(robot);
+	
+	CTrajectory func = motion(robot);
+	Vec3 ini  = func.GetInitialPoint().block(0, 3, 3, 1),
+		 goal = func.GetGoalPoint().block(0, 3, 3, 1);
 	func.SetTargetOptimizer(
 			//new PhysxCheckerOptimizer{}
 			//new SkinSensorOptimizer{}
-			new SkinSensorSimpleOptimizer{}
+			//new SkinSensorSimpleKeeperOptimizer{}
+			new SkinSensorLineOptimizer{(goal - ini).normalized()}
 	);
-	PlanningManager::getInstance().RegisterPlanningTask(robot, func, func.GetTimeTotal(), 5);
-
-	Vec3 ini  = func.GetInitialPoint().block(0, 3, 3, 1),
-		 goal = func.GetGoalPoint().block(0, 3, 3, 1);
+	PlanningManager::getInstance().RegisterPlanningTask(func.GetPtrCopy());
+	
 	RenderManager& render = RenderManager::getInstance();
 	render.ClearAuxiliaryObj();
 	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(ini),  0.010f, kRed));
@@ -153,8 +154,8 @@ void PlanningSystem::ResponseCircleMotion(const QString& obj_name, float max_vel
 	motion.SetMaxLinVel(max_vel).SetMaxLinAcc(max_acc).
 		   SetMaxAngVel(max_ang_vel).SetMaxAngAcc(max_ang_acc);
 
-	Trajectory func = motion(robot);
-
+	CTrajectory func = motion(robot);
+	PlanningManager::getInstance().RegisterPlanningTask(func.GetPtrCopy());
 	
 	Vec3 ini  = func.GetInitialPoint().block(0, 3, 3, 1),
 		 goal = func.GetGoalPoint().block(0, 3, 3, 1);	
@@ -165,10 +166,10 @@ void PlanningSystem::ResponseCircleMotion(const QString& obj_name, float max_vel
 	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(mid_pos),	0.010f, kPurple));
 	auto samples_stl = func.GetSampleFromPathFunc(0.05f);
 	std::vector<glm::vec3> samples(samples_stl.size());
-	std::transform(samples_stl.begin(), samples_stl.end(), samples.begin(), STLUtils::toGlmVec3);
+	std::transform(samples_stl.begin(), samples_stl.end(), samples.begin(), Conversion::fromVec3f);
 	render.EmplaceAuxiliaryObj(std::make_shared<GCurves>(samples, kRed, kBlue));
 
-	PlanningManager::getInstance().RegisterPlanningTask(robot, func, func.GetTimeTotal(), 5);
+	
 }
 
 void PlanningSystem::ResponseSplineMotion(const QString& obj_name, float max_vel, float max_acc, float max_ang_vel, float max_ang_acc, std::vector<float> target_descarte, std::vector<std::vector<float>> waypoints)
@@ -182,7 +183,8 @@ void PlanningSystem::ResponseSplineMotion(const QString& obj_name, float max_vel
 	motion.SetMaxLinVel(max_vel).SetMaxLinAcc(max_acc).
 		   SetMaxAngVel(max_ang_vel).SetMaxAngAcc(max_ang_acc);
 
-	Trajectory func = motion(robot);
+	CTrajectory func = motion(robot);
+	PlanningManager::getInstance().RegisterPlanningTask(func.GetPtrCopy());
 
 	Vec3 ini  = func.GetInitialPoint().block(0, 3, 3, 1),
 		 goal = func.GetGoalPoint().block(0, 3, 3, 1);
@@ -195,10 +197,10 @@ void PlanningSystem::ResponseSplineMotion(const QString& obj_name, float max_vel
 	}
 	auto samples_stl = func.GetSampleFromPathFunc(0.05f);
 	std::vector<glm::vec3> samples(samples_stl.size());
-	std::transform(samples_stl.begin(), samples_stl.end(), samples.begin(), STLUtils::toGlmVec3);
+	std::transform(samples_stl.begin(), samples_stl.end(), samples.begin(), Conversion::fromVec3f);
 	render.EmplaceAuxiliaryObj(std::make_shared<GCurves>(samples, kRed, kBlue));
 
-	PlanningManager::getInstance().RegisterPlanningTask(robot, func, func.GetTimeTotal(), 5);
+	
 }
 
 void PlanningSystem::ResponseKeeperMotion(const QString& obj_name, float time_total, std::vector<float> target_descarte)
@@ -207,11 +209,14 @@ void PlanningSystem::ResponseKeeperMotion(const QString& obj_name, float time_to
 	if (!robot)		return; // object not exist
 	Eigen::Matrix4f goal_mat = STLUtils::toMat4f(target_descarte);
 	KeeperMotion motion(goal_mat, time_total);
-	Trajectory func = motion(robot);
-	func.SetTargetOptimizer(new SkinSensorOptimizer{});
-	PlanningManager::getInstance().RegisterPlanningTask(robot, func, func.GetTimeTotal(), 5);
-	RenderManager& render = RenderManager::getInstance();
-	
+	CTrajectory func = motion(robot);
+	func.SetTargetOptimizer(
+		//new SkinSensorOptimizer{}
+		new SkinSensorSimpleKeeperOptimizer{}
+	);
+	PlanningManager::getInstance().RegisterPlanningTask(func.GetPtrCopy());
+
+	RenderManager& render = RenderManager::getInstance();	
 	render.ClearAuxiliaryObj();
 }
 
@@ -231,12 +236,7 @@ void PlanningSystem::ResponseDualSyncLineMotion(const std::vector<QString>& obj_
 	
 	std::vector<JTrajFunc> funcs; 
 	auto [l_func, r_func] = motion(robots[0], robots[1]);
-	//l_func.SetTargetOptimizer(new PhysxCheckerOptimizer{});
-	//r_func.SetTargetOptimizer(new PhysxCheckerOptimizer{});
-
-	l_func.SetTargetOptimizer(new SkinSensorOptimizer{});
-	r_func.SetTargetOptimizer(new SkinSensorOptimizer{});
-
+	
 	funcs.emplace_back(l_func);
 	funcs.emplace_back(r_func);
 	
@@ -288,7 +288,7 @@ void PlanningSystem::ResponseDualSyncCircleMotion(const std::vector<QString>& ob
 	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(l_mid), 0.010f, kPurple));
 	auto l_samples_stl = l_func.GetSampleFromPathFunc(0.05f);
 	std::vector<glm::vec3> l_samples(l_samples_stl.size());
-	std::transform(l_samples_stl.begin(), l_samples_stl.end(), l_samples.begin(), STLUtils::toGlmVec3);
+	std::transform(l_samples_stl.begin(), l_samples_stl.end(), l_samples.begin(), Conversion::fromVec3f);
 	render.EmplaceAuxiliaryObj(std::make_shared<GCurves>(l_samples, kRed, kBlue));
 
 	Vec3 r_ini  = r_func.GetInitialPoint().block(0, 3, 3, 1),
@@ -299,7 +299,7 @@ void PlanningSystem::ResponseDualSyncCircleMotion(const std::vector<QString>& ob
 	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(r_mid), 0.010f, kPurple));
 	auto r_samples_stl = r_func.GetSampleFromPathFunc(0.05f);
 	std::vector<glm::vec3> r_samples(r_samples_stl.size());
-	std::transform(r_samples_stl.begin(), r_samples_stl.end(), r_samples.begin(), STLUtils::toGlmVec3);
+	std::transform(r_samples_stl.begin(), r_samples_stl.end(), r_samples.begin(), Conversion::fromVec3f);
 	render.EmplaceAuxiliaryObj(std::make_shared<GCurves>(r_samples, kRed, kBlue));
 
 	PlanningManager::getInstance().RegisterDualPlanningTask(robots, funcs, l_func.GetTimeTotal(), 5);
