@@ -13,9 +13,9 @@ using namespace GComponent;
 
 RenderMesh::RenderMesh(std::vector<Vertex> vertices, std::vector<Triangle> indices, std::vector<Texture> textures)
 {
-    mesh_datas_.Vertices = vertices;
-    mesh_datas_.Indices = indices;
-    mesh_datas_.Textures = textures;
+    mesh_datas_.vertices = vertices;
+    mesh_datas_.indices = indices;
+    mesh_datas_.textures = textures;
     VAO_ = 0;
 }
 
@@ -24,24 +24,24 @@ RenderMesh::~RenderMesh()
     CheckClearGL();
 }
 
-void RenderMesh::setupMesh()
+void RenderMesh::SetupMesh()
 {
     if (!is_setup_) {
-        std::vector<Vertex>& Vertices = mesh_datas_.Vertices;
-        std::vector<Triangle>& Indices = mesh_datas_.Indices;
+        std::vector<Vertex>& Vertices = mesh_datas_.vertices;
+        std::vector<Triangle>& Indices = mesh_datas_.indices;
 
         /* 检查 Vertex 数据是否有误/为空 */
         if (Vertices.empty()) return;
 
         /* 绑定 VAO、VBO 与 EBO */
         const size_t BufferSize = Vertices.size() * sizeof(Vertex);
-        std::tie(VAO_, VBO_) = gl->genVABO(&Vertices[0], BufferSize);
-        gl->glBindVertexArray(VAO_);
-        EBO_ = gl->genEBO(Indices);
+        std::tie(VAO_, VBO_) = gl_->genVABO(&Vertices[0], BufferSize);
+        gl_->glBindVertexArray(VAO_);
+        EBO_ = gl_->genEBO(Indices);
 
         /* 激活顶点数据 */
-        gl->EnableVertexAttribArrays(3, 3, 2);
-        gl->glBindVertexArray(0);
+        gl_->EnableVertexAttribArrays(3, 3, 2);
+        gl_->glBindVertexArray(0);
 
         /* 标志位置true */
         is_setup_ = true;
@@ -52,24 +52,24 @@ void RenderMesh::setupMesh()
 
 }
 
-void RenderMesh::setGL(const std::shared_ptr<MyGL>& other)
+void RenderMesh::SetGL(const std::shared_ptr<MyGL>& other)
 {
     /* 为 GL 指针传递 Context */
-    gl = other;
+    gl_ = other;
 
     /* 申请资源前检查是否需要清理 */
     CheckClearGL();
 
     /* 申请传递 Vertex 资源 */
-    setupMesh();
+    SetupMesh();
 }
 
 void RenderMesh::CheckClearGL()
 {
     if (is_setup_) {
-        gl->glDeleteBuffers(1, &VBO_);
-        gl->glDeleteBuffers(1, &EBO_);
-        gl->glDeleteVertexArrays(1, &VAO_);
+        gl_->glDeleteBuffers(1, &VBO_);
+        gl_->glDeleteBuffers(1, &EBO_);
+        gl_->glDeleteVertexArrays(1, &VAO_);
 
         VAO_ = VBO_ = EBO_ = 0;
         is_setup_ = false;
@@ -78,7 +78,7 @@ void RenderMesh::CheckClearGL()
 
 void RenderMesh::Draw()
 {
-    gl->glBindVertexArray(VAO_);
-    gl->glDrawElements(GL_TRIANGLES, 3 * mesh_datas_.Indices.size(), GL_UNSIGNED_INT, 0);
-    gl->glBindVertexArray(0);
+    gl_->glBindVertexArray(VAO_);
+    gl_->glDrawElements(GL_TRIANGLES, 3 * mesh_datas_.indices.size(), GL_UNSIGNED_INT, 0);
+    gl_->glBindVertexArray(0);
 }

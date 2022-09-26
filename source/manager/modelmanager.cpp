@@ -21,7 +21,6 @@ ModelManager::~ModelManager() {
     auxiliary_models_.clear();
     models_.clear();
     cameras_.clear();
-    gl_ = nullptr;
 }
 
 ModelManager& ModelManager::getInstance() 
@@ -145,6 +144,7 @@ Model* ModelManager::GetAuxiModelByName(const string& name) const
 
 void ModelManager::tickAll(float delta_time)
 {
+
     /* Deleted All Requester Models */
     while (!deleted_queue_.empty()) 
     {
@@ -154,7 +154,9 @@ void ModelManager::tickAll(float delta_time)
     /* Tick The Rest Models */
     for(auto && [id, model]: models_)
     {
-        model->tick(delta_time);
+        if (not model->parent_) {
+            model->tick(delta_time);
+        }
     }
 }
 
@@ -176,29 +178,6 @@ Camera* ModelManager::GetCameraByHandle(size_t handle) const
 {
     if (handle <= cameras_.size()) return cameras_[handle - 1].get();
     return nullptr;
-}
-
-void ModelManager::SetProjectViewMatrices(glm::mat4 proj, glm::mat4 view)
-{
-    gl_->setMatrices(matrices_UBO_, proj, view);
-}
-
-void ModelManager::SetDirLightViewPosition(glm::vec3 light_dir, glm::vec3 light_color, glm::vec3 view_pos)
-{
-    gl_->setDirLightViewPos(ambient_observer_UBO_, light_dir, light_color, view_pos);
-}
-
-void ModelManager::SetGL(const shared_ptr<MyGL>& gl)
-{
-    gl_ = gl;
-    if (matrices_UBO_) {
-        gl_->glDeleteBuffers(1, (unsigned*) & matrices_UBO_);
-        gl_->glDeleteBuffers(1, (unsigned*)&ambient_observer_UBO_);
-        matrices_UBO_ = 0;
-        ambient_observer_UBO_ = 0;
-    }
-    matrices_UBO_         = gl_->genMatrices();
-    ambient_observer_UBO_ = gl_->genDirLightViewPos();
 }
 
 /*____________________________________Slots Functions_________________________________________*/

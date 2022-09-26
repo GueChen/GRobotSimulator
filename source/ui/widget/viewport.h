@@ -1,14 +1,17 @@
-ï»¿#ifndef _VIEWPORT_H
+/**
+ *  @file  	viewport.h
+ *  @brief 	This class is use opengl function to create an observer environment UI bind with a manager UIState.
+ *  @author Gue Chen<guechen@buaa.edu.cn>
+ *  @date 	May 19th, 2022
+ **/
+#ifndef _VIEWPORT_H
 #define _VIEWPORT_H
-#include "function/picking_helper.h"
 
 #include "manager/editor/uistatemanager.h"
 
 #include "render/mygl.hpp"
 #include "render/myshader.h"
 #include "render/camera.hpp"
-#include "model/axis/qtaxis.h"
-#include "model/basegrid.h"
 
 #include <QtOpenGLWidgets/QOpenGLWidget>
 #include <QtCore/QTimer>
@@ -22,15 +25,17 @@ namespace GComponent {
 	public:
 		explicit Viewport(QWidget* parent = nullptr);
 		~Viewport();
+
 	protected:
 		void initializeGL() override;
 		void resizeGL(int w, int h) override;
 		void paintGL() override;
+		void CustomUpdateImpl();
 
 	private:
 		void RegisteredShader();
 
-		/// Event Definitions äº‹ä»¶å®šä¹‰
+		/// Event Definitions ÊÂ¼þ¶¨Òå
 	protected:
 		void keyPressEvent(QKeyEvent* event)		override;
 		void keyReleaseEvent(QKeyEvent* event)		override;
@@ -48,7 +53,6 @@ namespace GComponent {
 
 	private:		
 		std::shared_ptr<MyGL>							gl_;
-		std::unique_ptr<BaseGrid>						grid_;
 
 		QPoint											mouse_right_pressed;
 		size_t										    camera_handle = 0;

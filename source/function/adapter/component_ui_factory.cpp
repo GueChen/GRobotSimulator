@@ -307,13 +307,37 @@ void GComponent::ComponentUIFactory::ConnectTrackerComponentUI(TrackerComponentW
 
 	// Component << UI
 	QObject::connect(widget, &TrackerComponentWidget::StateChangedRequest, [&tracker = component](int index) {
-		std::cout << index << std::endl;
 		tracker.SetState(static_cast<TrackerComponent::State>(index));
 		});
 	QObject::connect(widget, &TrackerComponentWidget::TragetSelectedRequest, [&tracker = component](const QString& goal_name) {
 		tracker.SetGoal(goal_name.toStdString());
 		});
 	QObject::connect(widget, &TrackerComponentWidget::destroyed, [&component]() {
+		component.DeregisterUpdateFunction();
+		component.DeregisterDelFunction();
+		});
+}
+
+/*__________________________Kinematic Component UI BUILDER METHODS______________________________________*/
+void GComponent::ComponentUIFactory::ConnectKinematicComponentUI(KinematicComponentWidget* widget, KinematicComponent& component)
+{
+	widget->SetJointCount(component.GetJointCount());
+	widget->SetIKSolver(static_cast<int>(component.GetIKEnum()));
+	widget->SetMaxIterations(component.GetMaxIteration());
+	widget->SetStepDecay(component.GetDecayScaler());
+	widget->SetPrecision(component.GetPrecision());
+	
+	// TODO: complete the rest connect
+	// Component >> UI
+	component.RegisterDelFunction([widget]() {
+		widget->disconnect();
+		});
+	
+	// Component << UI
+	QObject::connect(widget, &KinematicComponentWidget::IKSolverSwitchRequest, [&component](int idx) {
+		component.SetIKSolver(static_cast<IKSolverEnum>(idx));
+		});
+	QObject::connect(widget, &KinematicComponentWidget::destroyed, [&component]() {
 		component.DeregisterUpdateFunction();
 		component.DeregisterDelFunction();
 		});

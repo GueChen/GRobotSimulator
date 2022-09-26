@@ -1,6 +1,7 @@
 #include "basegrid.h"
 
 #include "render/mygl.hpp"
+#include "manager/resourcemanager.h"
 
 using namespace GComponent;
 
@@ -28,7 +29,7 @@ void BaseGrid::GLBufferInitialize()
 
 }
 
-void BaseGrid::setGL(shared_ptr<MyGL> other)
+void BaseGrid::SetGL(shared_ptr<MyGL> other)
 {
     gl = other;
     GLBufferInitialize();
@@ -36,8 +37,14 @@ void BaseGrid::setGL(shared_ptr<MyGL> other)
 
 void BaseGrid::Draw()
 {
+    if (MyShader* shader = ResourceManager::getInstance().GetShaderByName("base"); shader) {
+        shader->use();
+        shader->setMat4("model", mat4(1.0f));
+        shader->setBool("normReverse", false);
+    }
     gl->glBindVertexArray(VAO);
     gl->glDrawElements(GL_LINES, num * 4, GL_UNSIGNED_INT, 0);
+    gl->glBindVertexArray(0);
 }
 
 vector<vec3> BaseGrid::GetGridVertexLocation(int num, float size)

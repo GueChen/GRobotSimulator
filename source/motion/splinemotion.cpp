@@ -1,54 +1,31 @@
-#include "splinemotion.h"
-#include "model/robot/kuka_iiwa_model.h"
+#include "motion/splinemotion.h"
 
 namespace GComponent {
 
-SPlineMotion::SPlineMotion(const SE3d& T, const vector<Vec3d>& pList):
-    T_goal(T), posList_mid(pList)
-
+SPlineMotion::SPlineMotion(const SE3f& mat, const vector<Vec3f>& poses):
+    CMotionBase(mat), mid_poses_(poses)
 {}
 
-JointCruveMsgPkg SPlineMotion::GetCurvesFunction(KUKA_IIWA_MODEL * robot, const double Max_Vel_Limit, const double Max_Acc_Limit)
+PathFunc SPlineMotion::PathFuncImpl(const SE3f & mat_ini, const SE3f & mat_end)
 {
-    SE3d T_ini = robot->ForwardKinematic();
-    Vec3d p_ini = T_ini.block(0, 3, 3, 1);
-    Vec3d p_end = T_goal.block(0, 3, 3, 1);
-    const size_t JointNum = robot->GetThetas().size();
+    return GetCubicSplineFunction(LogMapSE3Tose3(mat_ini), LogMapSE3Tose3(mat_end), mid_poses_);
+}
 
-    auto SPlineFunc = GetCubicSplineFunction(LogMapSE3Tose3(T_ini), LogMapSE3Tose3(T_goal), posList_mid);
-    double scaler = 0.0;
-    scaler += (p_ini - posList_mid.front()).norm();
-    scaler += (p_end - posList_mid.back()).norm();
-    for(auto it = posList_mid.begin(); it != posList_mid.end() - 1; ++it)
-    {
-        scaler += (*it - *(it + 1)).norm();
+float SPlineMotion::ExecutionTimeImpl(const SE3f& mat_ini, const SE3f& mat_end)
+{
+    Vec3f pos_ini     = mat_ini.block(0, 3, 3, 1),
+          pos_goal    = mat_end.block(0, 3, 3, 1);
+    float lin_dist    = 0.0f;
+    lin_dist += (pos_ini - mid_poses_.front()).norm();
+    lin_dist += (pos_goal - mid_poses_.back()).norm();
+    for (auto it = mid_poses_.begin(), end = std::prev(mid_poses_.end()); 
+        it != end;) {
+        auto it_next = std::next(it);
+        lin_dist += (*it - *it_next).norm();
+        it = it_next;
     }
-    double tot = scaler / Max_Vel_Limit;
-
-    /* 没有任何连续性考虑的测试 */
-    auto PositionFunction = [robot, Max_Vel_Limit, SPlineFunc, tot](double t){
-        double scalered_t  = Clamp(t / tot, 0.0, 1.0);
-        Twistd twist_cur   = SPlineFunc(scalered_t);
-        IIWAThetas ret_Pos = robot->BackKinematic(twist_cur);
-        std::for_each(ret_Pos.begin(), ret_Pos.end(),[](auto & num)
-        {
-            num = ToStandarAngle(num);
-            num = RadiusToDegree(num);
-        });
-        return vector<double>(ret_Pos.cbegin(), ret_Pos.cend());
-    };
-
-    // FIXME: 待实装修改
-    auto VelocityFunction = [robot, Max_Vel_Limit, tot, JointNum, PositionFunction](double t){
-        if(t <= tot || t >= tot) return vector<double>(7, 0.0);
-        Twistd v_thetav;
-        for(int i = 0; i < 6; ++i)
-        {
-            v_thetav[i] = Max_Vel_Limit;
-        }
-        return vector<double>(7, Max_Vel_Limit);
-    };
-    return {tot, PositionFunction, VelocityFunction};
+    float ang_dist = (LogMapSO3Toso3(mat_ini.block(0, 0, 3, 3).inverse() * goal_.block(0, 0, 3, 3))).norm();
+    return std::max(lin_dist / max_vel_, ang_dist / max_ang_vel_);
 }
 
 } // namespace GComponent

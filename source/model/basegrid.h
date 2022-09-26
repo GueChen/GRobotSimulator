@@ -40,7 +40,7 @@ public:
     ~BaseGrid() = default;
 
     /* GL 设置函数 */
-    void setGL(shared_ptr<MyGL> other);
+    void SetGL(shared_ptr<MyGL> other);
 
     /* 绘图接口 */
     void Draw();

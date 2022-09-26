@@ -13,7 +13,9 @@
 
 #include <functional>
 #include <optional>
+#include <mutex>
 #include <list>
+#include <limits>
 
 enum class JointMode {
 	Position = 0,
@@ -38,11 +40,18 @@ using _OptDelFun = std::optional<std::function<void(void)>>;
 
 class JointComponent : public Component {
 friend class JointGroupComponent;
+
 public:
-	JointComponent(Model* ptr_parent, Vec3 bind_axis, _OptDelFun del_fun = std::nullopt);
+	struct Limitation {
+		float min = std::numeric_limits<float>::lowest();
+		float max = std::numeric_limits<float>::max();
+	};
+
+public:
+	explicit		JointComponent(Model* ptr_parent = nullptr, Vec3 bind_axis = Vec3::Zero(), _OptDelFun del_fun = std::nullopt);
 	virtual			~JointComponent() { if (opt_del_func_) opt_del_func_->operator()(); }
 
-	// 通过 Component 继承
+/// 通过 Component 继承
 	virtual const string_view&
 					GetTypeName() const override{ return type_name; }
 
@@ -61,20 +70,30 @@ public:
 					GetAxis()		  const		{return axis_;}
 
 /// Group Setter
-	inline void		PushPosBuffer(float new_pos){ pos_buffers_.push_back(new_pos); }
+	void			PushPosBuffer(float new_pos);
 	inline const std::list<float>& 
-					GetPosBuffer() const		{ return pos_buffers_;}
+					GetPosBuffer()	  const		{ return pos_buffers_;}
 
-	inline void		PushVelBuffer(float new_vel){ vel_buffers_.push_back(new_vel); }
+	void			PushVelBuffer(float new_vel);
 	inline const std::list<float>&
-					GetVelBuffer() const		{ return vel_buffers_;}
+					GetVelBuffer()    const		{ return vel_buffers_;}
 
-	inline void		PushAccBuffer(float new_acc){ acc_buffers_.push_back(new_acc); }
+	void			PushAccBuffer(float new_acc);
 	inline const std::list<float>&
-					GetAccBuffer() const		{ return acc_buffers_;}
+					GetAccBuffer()    const		{ return acc_buffers_;}
 
+	inline void		SetPosLimit(float min_v, float max_v)
+	{
+		pos_limits_.min = min_v; 
+		pos_limits_.max = max_v;
+	}
+	inline Limitation
+					GetPosLimit()	  const		{ return pos_limits_; }
+	bool			CheckEffective(float new_pos)	const;
+	
 /// Display friend method
-	friend std::ostream& operator<<(std::ostream & o, const JointComponent& joint_component);
+	friend 
+	std::ostream&	operator<<(std::ostream & o, const JointComponent& joint_component);
 
 protected:
 	void			tickImpl(float delta_time) override;
@@ -89,17 +108,24 @@ protected:
 	Vec3			axis_			= Vec3::Zero();			// The Axis Joint Bindings
 	
 	Vec3			zero_pos_		= Vec3::Zero();
+	
 	float			pos_			= 0.0f;
 	float			vel_			= 0.0f;
 	float			acc_			= 0.0f;
-
+	
 	std::list<float> pos_buffers_	= {};
 	std::list<float> vel_buffers_	= {};
 	std::list<float> acc_buffers_	= {};
-	
+	std::mutex		 pos_lock_;
+	std::mutex       vel_lock_;
+	std::mutex		 acc_lock_;
+
 	_OptDelFun		 opt_del_func_  = std::nullopt;			// [Temp, Maybe D/M Later] Used for Group Component
 
-private:
+	/* Safety item */
+	Limitation		 pos_limits_;
+
+public:
 	constexpr static const std::string_view type_name = "JointComponent";
 };
 

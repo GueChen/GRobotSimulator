@@ -1,3 +1,9 @@
+/**
+ *  @file  	tracker_widget.h
+ *  @brief 	This class is specific ui to fit tracker component, notice it should use with kinematic_component_ui_widget.ui.
+ *  @author Gue Chen<guechen@buaa.edu.cn>
+ *  @date 	June 13th, 2022
+ **/
 #ifndef _TRACKER_WIDGET_H
 #define _TRACKER_WIDGET_H
 

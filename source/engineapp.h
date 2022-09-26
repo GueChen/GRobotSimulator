@@ -7,41 +7,59 @@
 #ifndef _MYENGINE_H
 #define _MYENGINE_H
 
-#include "ui/dialog/robotcreatedialog.h"
 
 #include "base/singleton.h"
-#include "base/editortreemodel.h"
-#include "mainwindow.h"
 
 #include <QtCore/QObject>
 #include <QtWidgets/QApplication>
 
 #include <memory>
 #include <chrono>
+#include <functional>
 
-
-#ifdef _DEBUG
- /*******************/ //DELETE THIS AFTER TEST
 #include "component/joint_component.h"
 #include "component/joint_group_component.h"
 #include "component/kinematic_component.h"
 #include "component/tracker_component.h"
 #include "function/adapter/kinematic_adapter.h"
 #include <GComponent/GGeometry.hpp>
+#ifdef _DEBUG
+ /*******************/ //DELETE THIS AFTER TEST
+
 /******************/
 #endif // !_DEBUG
 
+class MainWindow;
+class QThread;
+
+namespace GComponent{
+// Function Related Class
+class Component;
+// UI Ralated Class
+class EditorTreeModel;
+class PlanningDialog;
+class RobotCreateDialog;
+class NetworkDialog;
+class SkinDialog;
+}
+
 namespace GComponent {
+
 using namespace std::chrono;
 using std::unique_ptr;
 
 class EngineApp : public QObject
 {
+	template<class T>
+	using _Deleter    = std::function<void(T*)>;
+	template<class T>
+	using _PtrWithDel = unique_ptr<T, _Deleter<T>>;
+
 	Q_OBJECT
 	NonCoyable(EngineApp)
 public:
 	static EngineApp& getInstance(); 
-	virtual ~EngineApp() = default;
+	virtual ~EngineApp();
 	
 	void Init(int argc, char* argv[]);
 	int Exec();	
@@ -51,17 +69,29 @@ protected:
 	template<class _TimeScale>
 	duration<float, _TimeScale> GetSpanTime();	
 
-	void LogicTick(float delta_time);
-	void RenderTick(float delta_time);
-
 // FIXME: puts it into a proper position
-	void TestConversion(const vector<vector<float>>& params);
+	void CreateRobotWithParams(const vector<vector<float>>& params);
+
 private:
-	unique_ptr<QApplication>		gui_app_ptr_	 = nullptr;
-	unique_ptr<EditorTreeModel>		model_tree_		 = nullptr;
-	unique_ptr<MainWindow>			window_ptr_		 = nullptr;
-	unique_ptr<RobotCreateDialog>	robot_create_dialog_ptr_ = nullptr;
-	steady_clock::time_point		last_time_point_ = steady_clock::now();
+	void ConnectModules();
+	void InitializeMembers(int argc, char* argv[]);
+	void MoveSomeToThread();
+
+signals:
+	void RequestCreateComponentUI(Component* component_ptr, const QString& com_name);
+
+private:
+	unique_ptr<QApplication>		gui_app_ptr_			 = nullptr;
+	_PtrWithDel<EditorTreeModel>	model_tree_				 = nullptr;
+	_PtrWithDel<MainWindow>			window_ptr_				 = nullptr;
+	_PtrWithDel<RobotCreateDialog>  robot_create_dialog_ptr_ = nullptr;
+	_PtrWithDel<PlanningDialog>		planning_dialog_ptr_	 = nullptr;
+	_PtrWithDel<NetworkDialog>		network_dialog_ptr_		 = nullptr;
+	_PtrWithDel<SkinDialog>         skin_dialog_ptr_		 = nullptr;
+	//unique_ptr<>
+	steady_clock::time_point		last_time_point_		 = steady_clock::now();
+	std::unordered_map<QString, QThread*> 
+									threads_map_			 = {};
 };
 
 }

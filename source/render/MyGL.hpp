@@ -1,11 +1,16 @@
 #ifndef _MYGL_H
 #define _MYGL_H
 
+#include <stb_image.h>
+
 #include <QtOpenGL/QOpenGLFunctions_4_5_Core>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <concepts>
+#include <iostream>
+#include <format>
 #include <vector>
 #include <tuple>
 
@@ -28,6 +33,7 @@ public:
     MyGL()  = default;
     ~MyGL() = default;
 
+/*______________________________________OpenGL Helper METHODS_______________________________________*/
     unsigned
     genMatrices()
     {
@@ -152,9 +158,84 @@ public:
             glEnableVertexAttribArray(idx),
             glVertexAttribPointer(idx++, stride, GL_FLOAT, GL_FALSE, singleSize, (void*)(loc)),
             loc += singleSize * _args.size()), ...);
-
     }
 
+/*____________________________________IMAGE PROCESS Methods__________________________________________*/
+    template<class T> requires std::same_as<T, std::string> || std::same_as<T, std::string_view>    
+    unsigned
+    LoadCubemap(const std::vector<T>& faces) 
+    {
+        unsigned texture_buffer = 0;
+        glGenTextures(1, &texture_buffer);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, texture_buffer);
+        int width, height, nr_channels;
+        for (unsigned i = 0; i < faces.size(); ++i) 
+        {
+            unsigned char* data = stbi_load(faces[i].data(), &width, &height, &nr_channels, 0);
+            if (data) 
+            {
+                GLenum format = GL_RGB;
+                switch (nr_channels) 
+                {
+                case 1:format = GL_RED; break;
+                case 3:format = GL_RGB; break;
+                case 4:format = GL_RGBA; break;
+                default: format = GL_RGB;
+                }
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+            }
+            else 
+            {
+                std::cerr << std::format("Cubemap texture failed loading at path: {:}\n", faces[i]);
+            }
+            stbi_image_free(data);
+        }
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        return texture_buffer;
+    }
+
+    unsigned
+    LoadTexture(const std::string file_path, bool repeat = true)
+    {
+        unsigned int texture_buffer_handle = 0;
+        glGenTextures(1, &texture_buffer_handle);
+
+        int width, height, nr_channels;
+        unsigned char* data = stbi_load(file_path.c_str(), &width, &height, &nr_channels, 0);
+        if (data)
+        {
+            GLenum format       = GL_RGB;
+            GLint  wrap_method  = repeat ? GL_REPEAT : GL_CLAMP_TO_EDGE;
+            switch (nr_channels)
+            {
+            case 1:format = GL_RED; break;
+            case 3:format = GL_RGB; break;
+            case 4:format = GL_RGBA; break;
+            default: format = GL_RGB;
+            }
+            glBindTexture(GL_TEXTURE_2D, texture_buffer_handle);
+            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+            glGenerateMipmap(GL_TEXTURE_2D);
+                 
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_method);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_method);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            stbi_image_free(data);
+        }
+        else
+        {
+            std::cerr << std::format("MyGL LoadTexture Error: {:}\n", file_path);            
+        }
+        return texture_buffer_handle;
+    }
+
+/*____________________________________SHADER Helper Methods__________________________________________*/
     void setBool(unsigned model_id_, const std::string & name, bool value) noexcept
     {
         glUniform1i(glGetUniformLocation(model_id_, name.c_str()), (int)value);

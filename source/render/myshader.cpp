@@ -25,7 +25,7 @@ void MyShader::use() noexcept
     bind();
 }
 
-void MyShader::setGL(std::shared_ptr<MyGL> other)
+void MyShader::SetGL(std::shared_ptr<MyGL> other)
 {
     gl = other;
     link();
@@ -37,7 +37,7 @@ void MyShader::setBool(const std::string & name, bool value) noexcept
 }
 
 void MyShader::setInt(const std::string& name, int value) noexcept
-{
+{    
     gl->glUniform1i(gl->glGetUniformLocation(programId(), name.c_str()), value);
 }
 

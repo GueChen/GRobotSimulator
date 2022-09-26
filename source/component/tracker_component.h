@@ -3,6 +3,7 @@
  *  @brief 	This class Applies Bind to a Goal and Try use Kinematic Component to Closer Goal.
  *  @author Gue Chen<guechen@buaa.edu.cn>
  *  @date 	May 25, 2022
+ *	@update June 14th, 2022 complete the tracker interface and linked it to trackerWidget
  **/
 #ifndef _TRACKER_COMPONENT_H
 #define _TRACKER_COMPONENT_H
@@ -60,7 +61,7 @@ protected:
 	void			ClearTracers();
 
 	virtual void	tickImpl(float delta_time) override;
-	inline string	GetName()	const					{ return GetParent()->getName(); }
+	inline string	GetName()	const					{ return ptr_parent_ ? GetParent()->getName() : ""; }
 
 private:
 	State			state_						= State::Sleeping;
@@ -70,10 +71,16 @@ private:
 	unordered_map<string, list<string>::iterator> 
 					tracer_node_map_			= {};
 
-	static 
-	unordered_set<string> trackable_table_;
+	
+/*_________STATIC FIELDS______________________________________________________________________________*/	
+public:
 	static constexpr 
 	const string_view type_name = "TrackerComponent";	
+
+private:
+	// TODO: add a bias trans and rot
+	static 
+	unordered_set<string> trackable_table_;
 };
 
 

@@ -7,7 +7,6 @@
 *.core
 *.moc
 *.o
-*.obj
 *.orig
 *.rej
 *.so
@@ -49,15 +48,10 @@ Thumbs.db
 *.idb
 *.ilk
 *.pdb
-*.sln
 *.suo
-*.vcproj
-*vcproj.*.*.user
 *.ncb
 *.sdf
 *.opensdf
-*.vcxproj
-*vcxproj.*
 .vs/
 
 
@@ -76,3 +70,4 @@ Thumbs.db
 # Generated File
 debug/
 release/
+x64/

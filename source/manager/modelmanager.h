@@ -31,6 +31,17 @@ using std::unique_ptr;
 using std::shared_ptr;
 using std::unordered_map;
 
+class ComponentDeleter {
+public:
+    ComponentDeleter(Model& model) : model(model) {}
+
+    void Invoke(const string& component_name) {
+        model.DeregisterComponent(component_name);
+    }
+private:
+    Model& model;
+};
+
 class ModelManager: public QObject
 {
     Q_OBJECT
@@ -57,15 +68,10 @@ public:
     Model*      GetAuxiModelByName(const string& name)     const;
 
     [[nodiscard]]
-    size_t      RegisteredCamera(glm::vec3 pos = glm::vec3(8.0f, 0.0f, 0.5f));
+    size_t      RegisteredCamera(glm::vec3 pos = glm::vec3(5.0f, 0.0f, 1.0f));
     void        DeregisterdCamera(size_t handle);
     Camera*     GetCameraByHandle(size_t handle) const;
-
-    void SetProjectViewMatrices(glm::mat4 proj, glm::mat4 view);
-    void SetDirLightViewPosition(glm::vec3 light_dir, glm::vec3 light_color, glm::vec3 view_pos);
-
-    void SetGL(const shared_ptr<MyGL>& gl);
-
+   
     void tickAll(float delta_time);
 
     inline const unordered_map<size_t, string>& GetModelsIDWithName() const { return model_handle_to_name_table_; }
@@ -84,7 +90,7 @@ public slots:
     // TODO: 实现该槽函数
     //void ResponseParentChangeRequest(const string& model_name, const string& new_parent_name);
 
-private:    
+private:
     /* Model Realated Terms 实例管理相关项 */
     size_t                                    next_model_id_                        = 1;
     unordered_map<size_t, unique_ptr<Model>>  models_                               = {};
@@ -97,12 +103,10 @@ private:
     unordered_map<size_t, string>             auxiliary_handle_to_name_table_       = {};
     
     queue<size_t>                             deleted_queue_                         = {};
+    
     /* 值得考虑该三项是否移除或给其它对象保管 */
     vector<unique_ptr<Camera>>                cameras_                              = {};
-    size_t                                    matrices_UBO_                         = 0;
-    size_t                                    ambient_observer_UBO_                 = 0;
-    shared_ptr<MyGL>                          gl_                                   = nullptr;
-    
+       
 };
 
 } // namespace GComponent

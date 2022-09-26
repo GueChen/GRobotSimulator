@@ -25,7 +25,7 @@ TrackerComponent::~TrackerComponent()
 {
 	/* if there is a goal, make sure cleaning possession of self */
 	if (tracked_goal_) {
-		_RawPtr goal_component = tracked_goal_->GetComponet<_Self>(type_name.data());
+		_RawPtr goal_component = tracked_goal_->GetComponent<_Self>(type_name.data());
 		if (goal_component) {
 			goal_component->DeregisterTracer(GetName());
 		}
@@ -45,7 +45,7 @@ void TrackerComponent::SetGoal(const string& goal_name)
 	if (!trackable_table_.count(goal_name)) return;
 	tracked_goal_ = ModelManager::getInstance().GetModelByName(goal_name);
 	if (tracked_goal_) {
-		_RawPtr goal_component = tracked_goal_->GetComponet<_Self>(type_name.data());
+		_RawPtr goal_component = tracked_goal_->GetComponent<_Self>(type_name.data());
 		if (goal_component) {
 			goal_component->RegisterTracer(GetName());
 		}
@@ -73,7 +73,7 @@ void TrackerComponent::ClearTracers()
 	for (auto& tracer_name : tracer_list_) {
 		Model* tracer_ptr = ModelManager::getInstance().GetModelByName(tracer_name);
 		if (tracer_ptr) {
-			_RawPtr tracer_component = tracer_ptr->GetComponet<_Self>(type_name.data());
+			_RawPtr tracer_component = tracer_ptr->GetComponent<_Self>(type_name.data());
 			if (tracer_component) {
 				tracer_component->SetGoal("");
 			}
@@ -89,18 +89,18 @@ void GComponent::TrackerComponent::tickImpl(float delta_time)
 	if (!tracked_goal_ || !ptr_parent) return;
 	Mat4 goal_local_SE3  = InverseSE3(ptr_parent->getModelMatrix()) * tracked_goal_->getModelMatrixWithoutScale();
 
-	KinematicComponent*  kinematic_component   = ptr_parent->GetComponet<KinematicComponent>("KinematicComponent");
+	KinematicComponent*  kinematic_component   = ptr_parent->GetComponent<KinematicComponent>("KinematicComponent");
 	
 	Thetas<float> out_thetas;
 	if (kinematic_component) {
-		JointGroupComponent* joint_group_component = ptr_parent->GetComponet<JointGroupComponent>("JointGroupComponent");		 
+		JointGroupComponent* joint_group_component = ptr_parent->GetComponent<JointGroupComponent>("JointGroupComponent");		 
 		
 		bool result  = kinematic_component->InverseKinematic(out_thetas, goal_local_SE3, joint_group_component->GetPositions());
 		std::ranges::transform(out_thetas, out_thetas.begin(), ToStandarAngle);
 		if (result) {
 			joint_group_component->SetPositions(out_thetas);				
 		}
-		
+
 	}
 }
 

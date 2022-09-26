@@ -18,7 +18,7 @@ namespace GComponent{
 using std::pair;
 using std::vector;
 template<class T>
-using Twist = Eigen::Vector<T, 6>;
+using Twist  = Eigen::Vector<T, 6>;
 using Twistd = Eigen::Vector<double, 6>;
 using Twistf = Eigen::Vector<float, 6>;
 

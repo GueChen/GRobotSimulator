@@ -21,7 +21,6 @@
 
 namespace GComponent {
 
-class Model;
 class MyGL;
 class MyShader;
 
@@ -30,18 +29,24 @@ using std::string;
 using std::pair;
 using std::shared_ptr;
 using std::unique_ptr;
-using Vec3 = Eigen::Vector3f;
-using Vec4 = Eigen::Vector4f;
-using Mat3 = Eigen::Matrix3f;
-using Mat4 = Eigen::Matrix4f;
 using std::unordered_map;
+
+using Vec3  = Eigen::Vector3f;
+using Vec4  = Eigen::Vector4f;
+using Mat3  = Eigen::Matrix3f;
+using Mat4  = Eigen::Matrix4f;
 
 class Model
 {
-    using _RawPtr = Model*;   
+/// Type Alias
+    using _RawPtr       = Model*;   
     using _PtrComponent = unique_ptr<Component>;
+
+/// Friends
     friend class ModelManager;
     friend class RenderManager;
+
+/// Class Methods
 public:
     explicit        Model(_RawPtr parent = nullptr, const string & meshKey = "");
                     Model(const string& name, const string& mesh, const string& shader, const Mat4& model_mat, _RawPtr parent =nullptr);
@@ -96,11 +101,11 @@ public:
     //vec3          getScaleGlobal() const;
 
     bool            RegisterComponent(_PtrComponent && component_ptr);
-    // bool            DerigisterComponent();
+    bool            DeregisterComponent(const string& component_name);
     inline const vector<_PtrComponent>&
                     GetComponents()  const              { return components_ptrs_;}
     template<class _TypeComponent> requires std::is_base_of_v<Component, _TypeComponent>
-    _TypeComponent* GetComponet(const string & component_name);
+    _TypeComponent* GetComponent(const string & component_name);
     
 protected:
     int             getChildIndex(_RawPtr ptr);
@@ -108,37 +113,41 @@ protected:
     void            updateChildrenMatrix(const Mat3& parent_scale_mat);
     virtual void    setShaderProperty(MyShader& shader);
 
+/// Fields 数据域
 protected:
     // Components 组件体系
-    vector<_PtrComponent> components_ptrs_;
-    vector<string>        components_type_names_;
+    vector<_PtrComponent>   components_ptrs_        = {};
 
     /// Transform 变换相关
-    Vec3 trans_                     = Vec3::Zero();
-    Vec3 rot_                       = Vec3::Zero();
-    Vec3 scale_                     = Vec3::Ones();
-    Vec3 shear_                     = Vec3::Zero();
+    Vec3                    trans_                  = Vec3::Zero();
+    Vec3                    rot_                    = Vec3::Zero();
+    Vec3                    scale_                  = Vec3::Ones();
+    Vec3                    shear_                  = Vec3::Zero();
+    Mat4                    parent_model_mat_       = Mat4::Identity();    
+    Mat4                    model_mat_              = Mat4::Identity();
+    Mat3                    inv_parent_U_mat_       = Mat3::Identity();
 
-    /// Fields 数据域
-    Mat4 parent_model_mat_          = Mat4::Identity();    
-    Mat4 model_mat_                 = Mat4::Identity();
-    Mat3 inv_parent_U_mat_          = Mat3::Identity();
-
-    _RawPtr         parent_         = nullptr;
-    vector<_RawPtr> children_       = {};
+    // Relationships 父子关系
+    _RawPtr                 parent_                 = nullptr;
+    vector<_RawPtr>         children_               = {};
 
     /// Structure 结构相关
-    int     model_id_               = -1;
-    string  name_                   = "";
-    string  mesh_                   = "";
-    string  shader_                 = "";
-
+    int                     model_id_               = -1;
+    string                  name_                   = "";
+    string                  mesh_                   = "";
+    string                  shader_                 = "";
 };
 
+/// <summary>
+/// This functions is used to get the specify Type Component from a model object
+/// </summary>
+/// <typeparam name="_TypeComponent">component type</typeparam>
+/// <param name="component_name">the key to find the component</param>
+/// <returns>the specify type component</returns>
 template<class _TypeComponent> requires std::is_base_of_v<Component, _TypeComponent>
-_TypeComponent* Model::GetComponet(const string& component_name) {
-    for (int i = 0; i < components_type_names_.size(); ++i) {
-        if (components_type_names_[i] == component_name) {
+_TypeComponent* Model::GetComponent(const string& component_name) {
+    for (int i = 0; i < components_ptrs_.size(); ++i) {
+        if (components_ptrs_[i]->GetTypeName() == component_name) {
             return dynamic_cast<_TypeComponent*>(components_ptrs_[i].get());
         }
     }

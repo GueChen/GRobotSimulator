@@ -13,6 +13,8 @@
 #include "component/joint_group_component.h"
 #include "component/kinematic_component.h"
 #include "component/tracker_component.h"
+#include "component/rigidbody_component.h"
+
 #include "ui/widget/kinematic_widget.h"
 #include "ui/widget/tracker_widget.h"
 #include <GComponent/GNumerical.hpp>
@@ -71,15 +73,23 @@ public:
 		else if (s == "KinematicComponent") {
 			KinematicComponent& kinematic_component = dynamic_cast<KinematicComponent&>(component);
 			KinematicComponentWidget* widget = new KinematicComponentWidget;
-			//widget->Init();
+			ConnectKinematicComponentUI(widget, kinematic_component);
+			widget->setGeometry(QRect(0, 0, 300, 600));
 			return widget;
 		}
 		else if (s == "TrackerComponent") {
 			TrackerComponent& tracker_component = dynamic_cast<TrackerComponent&>(component);
 			TrackerComponentWidget* widget = new TrackerComponentWidget;
+
 			ConnectTrackerComponentUI(widget, tracker_component);
 			return widget;
 		}
+		else{
+			// TODO: add the widget
+			QWidget* widget = new QWidget;
+			return   widget;
+		}
+		
 		return nullptr;
 	}
 
@@ -99,6 +109,10 @@ private:
 
 	/*___________________________Tracker Component UI Create Methods_________________________________*/
 	static void ConnectTrackerComponentUI(TrackerComponentWidget* widget, TrackerComponent& component);
+
+	/*_________________________Kinematic Component UI Create Methods_________________________________*/
+	static void ConnectKinematicComponentUI(KinematicComponentWidget* widget, KinematicComponent& component);
+
 private:
 	/*_____________________________Joint Component UI Objects________________________________________*/
 	static constexpr const string_view JointSliderTagText		= "Joint";

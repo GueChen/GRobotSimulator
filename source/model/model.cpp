@@ -54,8 +54,13 @@ Model::~Model()
 void GComponent::Model::tick(float delta_time)
 {
     tickImpl(delta_time);
+    // tick all components
     for (auto& component : components_ptrs_) {
         component->tick(delta_time);
+    }
+    // tick all children
+    for (auto& child : children_) {
+        child->tick(delta_time);
     }
 }
 
@@ -138,16 +143,24 @@ bool GComponent::Model::RegisterComponent(_PtrComponent&& component_ptr)
 {
     // TODO: Add a hash Set to fillter the same type component
     component_ptr->SetParent(this);
-    components_type_names_.push_back(component_ptr->GetTypeName().data());
     components_ptrs_.push_back(std::move(component_ptr));    
     return true;
+}
+
+bool GComponent::Model::DeregisterComponent(const string& component_name)
+{
+    size_t size = components_ptrs_.size();
+    std::erase_if(components_ptrs_, [&component_name](auto& com) {
+        return com->GetTypeName() == component_name;
+    });     
+    return size == components_ptrs_.size();
 }
 
 void Model::appendChild(const _RawPtr pchild, Mat4 transform)
 {
     pchild->setParent(this);
     children_.emplace_back(pchild);
-    pchild->setModelMatrix(transform);              
+    pchild->setModelMatrix(transform);
     updateChildrenMatrix(Mat3::Identity()/*Scale(scale_)* Shear(shear_)*/);
 }
 
@@ -201,9 +214,11 @@ void Model::updateChildrenMatrix(const Mat3& parent_adjoint_mat)
 
         child->parent_model_mat_     = getModelMatrixWithoutScale();
         child->trans_                = parent_adjoint_mat * child->inv_parent_U_mat_ * child->trans_;
-        child->rot_                  = LogMapSO3Toso3(Q_new);        
-        std::tie(child->scale_, child->shear_)
-                                     = SSDecompositionMat3(upper_triangle_mat_new);
+        child->rot_                  = LogMapSO3Toso3(Q_new);
+        if (!std::isnan(upper_triangle_mat_new(0, 0))) {
+            std::tie(child->scale_, child->shear_)
+                = SSDecompositionMat3(upper_triangle_mat_new);
+        }
         child->inv_parent_U_mat_     = parent_adjoint_mat.inverse();
 
         child->updateModelMatrix();        
@@ -213,5 +228,7 @@ void Model::updateChildrenMatrix(const Mat3& parent_adjoint_mat)
 void GComponent::Model::setShaderProperty(MyShader& shader)
 {
     shader.setMat4("model", Conversion::fromMat4f(getModelMatrix()));
-    //shader.setVec3("color", glm::Vec3(1.0f));
+    if (not parent_) {
+        shader.setVec3("color", glm::vec3(1.0f));
+    }
 }

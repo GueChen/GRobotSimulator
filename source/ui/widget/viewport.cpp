@@ -3,13 +3,19 @@
 #include "manager/resourcemanager.h"
 #include "manager/modelmanager.h"
 #include "manager/rendermanager.h"
+#include "manager/physicsmanager.h"
+#include "manager/planningmanager.h"
+#include "manager/tcpsocketmanager.h"
 
 #include <QtGui/QMouseEvent>
 #include <QtGUI/QKeyEvent>
 #include <QtCore/QmetaType>
 
+#ifdef _DEBUG
 #include <iostream>
 #include <format>
+#endif
+#include "component/rigidbody_component.h"
 
 namespace GComponent {
 
@@ -24,27 +30,25 @@ Viewport::Viewport(QWidget* parent) :
 
 Viewport::~Viewport() {}
 
+
 void Viewport::initializeGL()
 {
 	gl_->initializeOpenGLFunctions();
-
+	
 	RegisteredShader();
 	if (!camera_handle)
 		camera_handle = GComponent::ModelManager::getInstance().RegisteredCamera();
-	GComponent::ResourceManager::getInstance().DeregisteredUIHandle("viewport");
-
-	ui_state_.SetGL(gl_);
-	GComponent::ModelManager::getInstance().SetGL(gl_);
+	
+	ui_state_.SetGL(gl_);	
 	GComponent::ResourceManager::getInstance().SetGL(gl_);
 	GComponent::RenderManager::getInstance().SetGL(gl_);
 
-	GComponent::ResourceManager::getInstance().RegisteredUIHandle("viewport", this);
 	QOpenGLContext::currentContext()->format().setSwapInterval(0);
 }
 
 void Viewport::resizeGL(int w, int h)
 {
-	gl_->glViewport(0.0f, 0.0f, w, h);
+	//gl_->glViewport(0.0f, 0.0f, w, h);
 	ui_state_.OnResize(w, h);
 }
 
@@ -52,30 +56,69 @@ void Viewport::paintGL()
 {
 	using namespace glm;
 	using namespace GComponent;
-	using enum AxisSelected;
-
 	static std::chrono::time_point last_point = std::chrono::steady_clock::now();
 	static float delta = 0.0f;
-
+	
+	/*_________________________________Paint Main Loop________________________________________________________________________________________________*/
 	Camera* camera_ptr = ModelManager::getInstance().GetCameraByHandle(camera_handle);
+	// Set global Render parameters
+	RenderGlobalInfo& render_info = RenderManager::getInstance().m_render_sharing_msg;
+	render_info.SetSimpleDirLight(vec3(0.5f, 1.0f, 1.0f), vec3(1.0f));
+	render_info.SetCameraInfo(*camera_ptr);
+	render_info.SetProjectionPlane(0.001f, 1000.0f);
+	render_info.UpdateProjectionMatrix();
+	
+	// custom definition update method
+	CustomUpdateImpl();
+
 	// Process Input
 	ui_state_.tick();
-	// Set global parameters
-	ModelManager::getInstance().SetProjectViewMatrices(
-		perspective(radians(camera_ptr->Zoom), static_cast<float>(width()) / height(), 0.1f, 1000.0f),
-		camera_ptr->GetViewMatrix());
-	ModelManager::getInstance().SetDirLightViewPosition(vec3(0.5f, 1.0f, 1.0f), vec3(1.0f), camera_ptr->Position);
+	
+	// Adjust the planning
+	PlanningManager::getInstance().tick(delta_time.count());
+	// Sync the frame
+	TcpSocketManager::getInstance().tick();
 	// Adjust all component
 	ModelManager::getInstance().tickAll(delta_time.count());
 	// Adjust all resources
 	ResourceManager::getInstance().tick(gl_);
+	// Adjust all the physics actors
+	PhysicsManager::getInstance().tick(delta_time.count());
 	// Draw all renderable process Passes
 	RenderManager::getInstance().tick();
-
+	
+	// 
+	// Time statics rendering over
 	std::chrono::time_point now = std::chrono::steady_clock::now();
 	delta_time = std::chrono::duration_cast<std::chrono::duration<float>>(now - last_point);
 	last_point = now;
 	emit EmitDeltaTime(delta_time.count());
+	update();
+}
+
+void Viewport::CustomUpdateImpl()
+{
+	
+	//Model* sphere_collider = ModelManager::getInstance().GetModelByName("sphere0");
+	//if (sphere_collider) {
+	//	
+	//	float time_point = std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::steady_clock::now().time_since_epoch()).count();
+	//	/*sphere_collider->setTransLocal(Eigen::Vector3f(
+	//							0.25f + 0.3f   * sin(0.5f * time_point), 
+	//							0.85f + 0.125f * cos(0.5f * 0.33f * time_point), 
+	//							1.75f + 0.2f   * sin(0.5f * 3.714f * time_point)));*/
+	//	std::shared_ptr<PhysicsScene> scene = PhysicsManager::getInstance().GetActivateScene().lock();
+	//	auto rigid_com = sphere_collider->GetComponent<RigidbodyComponent>(RigidbodyComponent::type_name.data());
+	//	vector<OverlapHitInfo> hits_info;
+	//	scene->Overlap(rigid_com->GetActor(), 10, hits_info);
+	//	for (auto&& [hitter, vec] : hits_info) {
+	//		std::cout << sphere_collider->getName() << " collide with " << 
+	//			PhysicsManager::getInstance().GetModelIdByActorID(hitter)->GetParent()->getName() <<
+	//			"\npenetrac vec: " << vec.transpose() << std::endl;
+	//	}
+	//}
+	
+	
 }
 
 /*________________________________Events Implementations_____________________________________________*/
@@ -112,17 +155,6 @@ void Viewport::keyPressEvent(QKeyEvent* event)
 	}
 
 	ui_state_.OnKeyPress(key_state);
-
-#ifdef  _DEBUG
-	static std::chrono::time_point last_point = std::chrono::steady_clock::now();
-	static float input_delta_time = 0.0f;
-	std::chrono::time_point now = std::chrono::steady_clock::now();
-	input_delta_time = std::chrono::duration_cast<std::chrono::duration<float>>(now - last_point).count();
-	last_point = now;
-	std::cout << "Input delta time: " << input_delta_time << std::endl;
-	std::cout << event->text().toStdString() << std::endl;
-#endif //  _DEBUG
-
 }
 
 void Viewport::keyReleaseEvent(QKeyEvent* event)
@@ -187,11 +219,13 @@ void Viewport::leaveEvent(QEvent* event)
 
 void Viewport::RegisteredShader()
 {
-	GComponent::ResourceManager::getInstance().RegisteredShader("color",     new GComponent::MyShader(nullptr, PathVert(Color),      PathFrag(Color)));
-    GComponent::ResourceManager::getInstance().RegisteredShader("axis",      new GComponent::MyShader(nullptr, PathVert(axis),       PathFrag(axis)));
-    GComponent::ResourceManager::getInstance().RegisteredShader("picking",   new GComponent::MyShader(nullptr, PathVert(picking),    PathFrag(picking)));
-    GComponent::ResourceManager::getInstance().RegisteredShader("base",      new GComponent::MyShader(nullptr, PathVert(Base),       PathFrag(Base)));
-    GComponent::ResourceManager::getInstance().RegisteredShader("linecolor", new GComponent::MyShader(nullptr, PathVert(LineColor),  PathFrag(LineColor)));
+	GComponent::ResourceManager::getInstance().RegisteredShader("skybox",		new GComponent::MyShader(nullptr, PathVert(skybox), PathFrag(skybox)));
+	GComponent::ResourceManager::getInstance().RegisteredShader("postprocess",	new GComponent::MyShader(nullptr, PathVert(postprocess), PathFrag(postprocess)));
+	GComponent::ResourceManager::getInstance().RegisteredShader("color",		new GComponent::MyShader(nullptr, PathVert(Color),      PathFrag(Color)));
+    GComponent::ResourceManager::getInstance().RegisteredShader("axis",			new GComponent::MyShader(nullptr, PathVert(axis),       PathFrag(axis)));
+    GComponent::ResourceManager::getInstance().RegisteredShader("picking",		new GComponent::MyShader(nullptr, PathVert(picking),    PathFrag(picking)));
+    GComponent::ResourceManager::getInstance().RegisteredShader("base",			new GComponent::MyShader(nullptr, PathVert(Base),       PathFrag(Base)));
+    GComponent::ResourceManager::getInstance().RegisteredShader("linecolor",	new GComponent::MyShader(nullptr, PathVert(LineColor),  PathFrag(LineColor)));
 }
 
 }

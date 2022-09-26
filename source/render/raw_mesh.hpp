@@ -14,9 +14,9 @@
 namespace GComponent {
 
 struct RawMesh {
-	std::vector<Vertex>         Vertices;
-	std::vector<Triangle>       Indices;
-	std::vector<Texture>        Textures;
+	std::vector<Vertex>         vertices;
+	std::vector<Triangle>       indices;
+	std::vector<Texture>        textures;
 };
 
 }

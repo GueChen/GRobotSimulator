@@ -14,14 +14,47 @@ JointComponent::JointComponent(Model* ptr_parent, Vec3 bind_axis, _OptDelFun del
 	switch (type_) {
 		using enum JointType;
 	case Revolute: {
-		zero_pos_ = ptr_parent_->getRotLocal();
+		if (ptr_parent) {
+			zero_pos_ = ptr_parent_->getRotLocal();
+		}
 		break;
 	}
 	case Prismatic: {
-		zero_pos_ = ptr_parent_->getTransLocal();
+		if (ptr_parent) {
+			zero_pos_ = ptr_parent_->getTransLocal();
+		}
 		break;
 	}
 	}
+}
+
+void JointComponent::PushPosBuffer(float new_pos)
+{
+	std::lock_guard<std::mutex> lock(pos_lock_);
+	pos_buffers_.push_back(new_pos);
+	// limit the max pos buffer size to avoid some situation
+	while (pos_buffers_.size() > 10) {
+		pos_buffers_.pop_front();
+	}
+}
+
+void JointComponent::PushVelBuffer(float new_vel)
+{
+	std::lock_guard<std::mutex> lock(vel_lock_);
+	vel_buffers_.push_back(new_vel);
+}
+
+void JointComponent::PushAccBuffer(float new_acc)
+{
+	std::lock_guard<std::mutex> lock(acc_lock_);
+	acc_buffers_.push_back(new_acc); 
+}
+
+bool JointComponent::CheckEffective(float angle) const
+{
+	return (pos_limits_.min <= angle && angle <= pos_limits_.max)
+			&&	// limitation
+			abs(pos_ - angle) < (3.1415926535f / 2.0f);					// move dir limitation
 }
 
 void JointComponent::tickImpl(float delta_time)
@@ -29,6 +62,7 @@ void JointComponent::tickImpl(float delta_time)
 	switch (mode_) {
 	using enum JointMode;
 	case Position: {
+		std::lock_guard<std::mutex> lock(pos_lock_);
 		if (!pos_buffers_.empty()) {
 			pos_ = pos_buffers_.front();
 			pos_buffers_.pop_front();			
@@ -40,6 +74,7 @@ void JointComponent::tickImpl(float delta_time)
 	}
 	case Velocity: {
 		// TODO: add vel mode
+		std::lock_guard<std::mutex> lock(vel_lock_);
 		if (!vel_buffers_.empty()) {
 			vel_ = pos_buffers_.front();
 			pos_ += vel_ * delta_time;
@@ -52,7 +87,9 @@ void JointComponent::tickImpl(float delta_time)
 	}
 	case Accel: {
 		// TODO: add acc mode
+		std::lock_guard<std::mutex> lock(acc_lock_);
 		if (!acc_buffers_.empty()) {
+
 			acc_ = acc_buffers_.front();
 			vel_ += acc_ * delta_time;
 			pos_ += vel_ * delta_time;

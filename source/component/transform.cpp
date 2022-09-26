@@ -8,7 +8,7 @@ void Transform::setPosition(const Vector3 & position)
 
 void Transform::setScale(const Vector3 & scale)
 {
-	scale_ = scale;
+	scale_	  = scale;
 }
 
 void Transform::setRotation(const Vector3 & rotation)

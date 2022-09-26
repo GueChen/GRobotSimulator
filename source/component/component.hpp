@@ -42,15 +42,15 @@ public:
 		tickImpl(delta);
 	}
 
-	void			RegisterDelFunction(const _DelFun& fun) { delete_functions_.push_back(fun); }
+	void			RegisterDelFunction(const _DelFun& fun)		  { delete_functions_.push_back(fun); }
 	void			DeregisterDelFunction() { delete_functions_.clear(); }
 	
 	void			RegisterUpdateFunction(const _UpdateFun& fun) { update_functions_.push_back(fun); }
-	void			DeregisterUpdateFunction() { update_functions_.clear(); }
+	void			DeregisterUpdateFunction()					  { update_functions_.clear(); }
 
 // Getter & Setter		
-	inline void		SetParent(Model* ptr_parent) { ptr_parent_ = ptr_parent; }
-	inline Model*	GetParent() const			 { return ptr_parent_;}
+	inline void		SetParent(Model* ptr_parent)				  { ptr_parent_ = ptr_parent; }
+	inline Model*	GetParent() const							  { return ptr_parent_;}
 
 // Virtual Base Member Functions
 	virtual const string_view&

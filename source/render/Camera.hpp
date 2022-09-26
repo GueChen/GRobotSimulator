@@ -47,7 +47,7 @@ public:
     float Zoom;
 
     /// 构造函数 Constructors
-    Camera(vec3 position = vec3(8.0f, 0.0f, 0.0f) /*vec3(0.0f, 0.5f, 8.0f)*/, vec3 up = vec3(0.0f, 0.0f, 1.0f)/*vec3(0.0f, 1.0f, 0.0f) */, float yaw = YAW, float pitch = PITCH) :
+    Camera(vec3 position = vec3(8.0f, 0.0f, 3.0f) /*vec3(0.0f, 0.5f, 8.0f)*/, vec3 up = vec3(0.0f, 0.0f, 1.0f)/*vec3(0.0f, 1.0f, 0.0f) */, float yaw = YAW, float pitch = PITCH) :
             Front(vec3(-1.0f, 0.0f, 0.0f)/*glm::vec3(0.0f, 0.0f, -1.0f)*/),
             MovementSpeed(SPEED),
             MouseSensitivity(SENSITIVITY),
@@ -77,25 +77,22 @@ public:
 
     /// 成员函数 Methods
 public:
-    mat4 GetViewMatrix()
+    mat4 GetViewMatrix() const
     {
         return MyLookAt(Position, Position + Front, Up);
 
     }
 
-    mat4 GetProjection(float aspect, float z_near = 0.001f, float z_far = 1000.0f)
+    mat4 GetProjection(float aspect, float z_near = 0.001f, float z_far = 1000.0f) const
     {
         return glm::perspective(radians(ZOOM), aspect, z_near, z_far);
     }
 
     void Move(float x, float y, float z)
     {
-       /* Position += Front * z;
+        Position += Front * z;
         Position += Right * x;
-        Position += Up * y;*/
-        Position += Front.x;
-        Position += Right.y;
-        Position += Up.z;
+        Position += Up * y;
     }
     void ProcessKeyMovementCommand(CameraMoveMent direction, float delta_time) {
         float velocity = MovementSpeed * (delta_time < 1e-5 ? 0.05 : delta_time);
@@ -206,7 +203,7 @@ private:
      * @param target {vec3} 视线看向的方向
      * @param up {vec3} 上向量方向
      * */
-    mat4 MyLookAt(vec3 pos, vec3 target, vec3 up)
+    mat4 MyLookAt(vec3 pos, vec3 target, vec3 up) const
     {
         mat4 Result = mat4(1.0f);
 

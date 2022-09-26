@@ -40,9 +40,6 @@ void DUAL_ARM_PLATFORM::InitializeModel()
     _body->appendChild(_left,  left_model_mat.matrix());
     _body->appendChild(_right, right_model_mat.matrix());
 
-    _left->RegisterComponent(std::make_unique<TrackerComponent>(_left));
-    _right->RegisterComponent(std::make_unique<TrackerComponent>(_right));
-
     _left->setColor(Vec3(0.8f, 0.6f, 0.2f));
     _right->setColor(Vec3(0.2f, 0.6f, 0.8f));
     ModelManager::getInstance().ChangeModelParent(_left->getName(),  _body->getName());

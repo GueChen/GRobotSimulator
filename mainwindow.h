@@ -21,12 +21,16 @@ class QChart;
 QT_END_NAMESPACE
 
 namespace GComponent{
-class UIState;
+// UI Related Class
 class GLModelTreeView;
+class ComponentMenu;
+// Function Related Class
+class UIState;
+class Component;
 }
 
 class MainWindow : public QMainWindow
-{
+{    
     Q_OBJECT        
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -35,37 +39,39 @@ public:
     GComponent::UIState*         getUIState()       const;
     GComponent::GLModelTreeView* getModelTreeView() const; 
     QComboBox*                   getModelDispaly()  const;
+    GComponent::ComponentMenu*   getComponentMenu() const;
 
 private:
     void ConnectionInit();
 
-    void Plot(QChart*, double, const std::function<vector<double>(double)>&, const std::string& legend = " ", const std::string& title = "");
-  
+public slots:    
+    void ResponseComponentCreateRequest(GComponent::Component* component_ptr, const QString& type_name);
+
 private slots:
     void ReceiveDeltaTime(float delta_time);
     void SetTabifyDockerWidgetQSS(QDockWidget* widget);
     void CheckSelected();
 
+/*_________________________Button Click______________________________________________________*/
     void on_check_button_clicked();
     void on_trans_button_clicked();
     void on_rot_button_clicked();
     void on_scale_button_clicked();
 
-//private slots:
-//    void on_TestPTPButton_clicked();
-//    void on_TestLINMotion_clicked();
-//    void on_TestCircMotion_clicked();
-//    void on_TestSPLMotion_clicked();
-//    void on_TestGPMMotion_clicked();
-//    void on_TestZEROMotion_clicked();
-//    void on_TestWLNMotion_clicked();
-//    void on_TestTightCoord_clicked();
+/*_________________________Menu Popup_________________________________________________________*/
+    void on_componentstoolbox_customContextMenuRequested(const QPoint& pos);
+
+signals:
+    void RequestDeleteComponent(const QString& component_name);
+    void RequestAddComponent(const QString& component_name);
+    void RequestShowDialog(const QString& dialog_name);
 
 private:
-    Ui::MainWindow*     ui;
-    QTimer*             updated_timer_ptr;
-    QChartView*         m_chart;
-    QChartView*         m_vel_chart;
-   
+
+    Ui::MainWindow*             ui_;
+    QTimer*                     updated_timer_ptr_;
+
+/*_______________________Components MENU______________________________________________________*/
+    GComponent::ComponentMenu*  component_menu_;    
 };
 #endif // MAINWINDOW_H

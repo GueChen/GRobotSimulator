@@ -12,19 +12,28 @@
 
 namespace GComponent
 {
+using std::make_unique;
+
 KinematicComponent::KinematicComponent(Model* ptr_parent): Component(ptr_parent)
-{
+{		
 	if (GetParent()) {
 		UpdateExponentialCoordinates();
 	}
+	InitializeIKSolvers();
 }
 
 KinematicComponent::KinematicComponent(const SE3<float>& initial_end_transform, Model* ptr_parent):
 	Component(ptr_parent), end_transform_mat_(initial_end_transform)
-{
+{	
 	if (GetParent()) {
 		UpdateExponentialCoordinates();
 	}
+	InitializeIKSolvers();
+}
+
+bool KinematicComponent::ForwardKinematic(SE3<float>& out_mat)
+{
+	return ForwardKinematic(out_mat, GetJointsPos());
 }
 
 bool KinematicComponent::ForwardKinematic(SE3<float>&out_mat, const Thetas<float>&thetas)
@@ -53,10 +62,57 @@ bool KinematicComponent::InverseKinematic(Thetav<float>& out_thetav, const SE3<f
 		exp_coords_, 
 		trans_desire, 
 		init_guess, 
-		*solver_, 
+		*ik_solvers_[ik_solver_enum_],
 		precision_, 
 		max_iteration_, 
-		decay_scaler_);;
+		decay_scaler_);
+}
+
+bool KinematicComponent::Jacobian(Jacobi<float>& out_mat, const Thetas<float>& thetas)
+{
+	return RobotKinematic::Jacobian(out_mat, exp_coords_, toThetav(thetas));
+}
+
+bool KinematicComponent::Jacobian(Jacobi<float>& out_mat, const Thetav<float>& thetav)
+{
+	return RobotKinematic::Jacobian(out_mat, exp_coords_, thetav);
+}
+
+bool KinematicComponent::ZeroProjection(ZeroProj<float>& zero_mat, const Thetas<float>& thetas)
+{
+	
+	Jacobi<float> jaco; 
+	bool result = Jacobian(jaco, thetas);
+	if (result) zero_mat = jaco.transpose() * jaco;
+	return result;	
+}
+
+bool KinematicComponent::ZeroProjection(ZeroProj<float>& zero_mat, const Thetav<float>& thetav)
+{
+	Jacobi<float> jaco;
+	bool result = Jacobian(jaco, thetav);
+	if (result) zero_mat = jaco.transpose() * jaco;
+	return result;
+}
+
+bool KinematicComponent::Transforms(vector<SE3<float>>& out_mats, const Thetas<float>& thetas)
+{
+	return RobotKinematic::Transforms(out_mats, exp_coords_, toThetav(thetas));
+}
+
+bool KinematicComponent::Transforms(vector<SE3<float>>& out_mats, const Thetav<float>& thetav)
+{		
+	return RobotKinematic::Transforms(out_mats, exp_coords_, thetav);
+}
+
+bool KinematicComponent::DifferentialTransforms(vector<SE3<float>>& out_mats, const Thetas<float>& thetas)
+{
+	return RobotKinematic::Differential(out_mats, exp_coords_, toThetav(thetas));
+}
+
+bool KinematicComponent::DifferentialTransforms(vector<SE3<float>>& out_mats, const Thetav<float>& thetav)
+{
+	return RobotKinematic::Differential(out_mats, exp_coords_, thetav);
 }
 
 bool KinematicComponent::UpdateExponentialCoordinates()
@@ -86,9 +142,10 @@ bool KinematicComponent::UpdateExponentialCoordinates()
 			// Get q_b with T(t) transform
 			Vec3 w = base_prev * joints[i]->GetAxis();
 			Vec3 q = t;
+
 			// Transform [q(t), w(t)] to [q(0), w(0)]
 			w	   = inv_local.block(0, 0, 3, 3) * w;
-			q	   = affineProduct(inv_local, q);
+			q	   = AffineProduct(inv_local, q);
 
 			// Get Twists
 			exp_coords_[i]	= ScrewToTwist(q, w);
@@ -111,9 +168,20 @@ bool KinematicComponent::UpdateExponentialCoordinates()
 	return false;
 }
 
+/*_________________________________PROTECTED METHODS_______________________________*/
 void KinematicComponent::tickImpl(float delta_time)
 {
 	UpdateExponentialCoordinates();
+}
+
+void KinematicComponent::InitializeIKSolvers()
+{
+	using enum IKSolverEnum;
+	ik_solvers_.emplace(LeastNorm,						make_unique<DynamicLeastNormSolver<float>>());
+	ik_solvers_.emplace(DampedLeastSquare,				make_unique<DynamicDampedLeastSquareSolver<float>>(0.05f));
+	ik_solvers_.emplace(JacobianTranspose,				make_unique<DynamicJacobianTransposeSolver<float>>());
+	ik_solvers_.emplace(AdaptiveDampedLeastSquare,		make_unique<DynamicAdaptiveDampedLeastSquareSolver<float>>());
+	ik_solvers_.emplace(SelectivelyDampedLeastSquare,	make_unique<DynamicSelectivelyDampedLeastSquareSolver<float>>());
 }
 
 Thetav<float> KinematicComponent::toThetav(const Thetas<float> thetas)

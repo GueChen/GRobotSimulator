@@ -13,6 +13,14 @@ namespace GComponent{
 class MyGL;
 class MyShader;
 
+const glm::vec3 kBlue  = vec3(0.0f, 0.0f, 1.0f);
+const glm::vec3 kRed   = vec3(1.0f, 0.0f, 0.0f);
+const glm::vec3 kGreen = vec3(0.0f, 1.0f, 0.0f);
+const glm::vec3 kPurple= vec3(1.0f, 0.0f, 1.0f);
+const glm::vec3 kYellow= vec3(1.0f, 1.0f, 0.0f);
+const glm::vec3 kCyan  = vec3(0.0f, 1.0f, 1.0f);
+const glm::vec3 kWhite = vec3(1.0f, 1.0f, 1.0f);
+
 class SimplexModel: public GComponent::Model
 {
 /// 数据域 Fields
@@ -83,7 +91,7 @@ protected:
 public:
     /* GL 资源管理函数 */
     void
-    setGL(const shared_ptr<MyGL> & other)
+    SetGL(const shared_ptr<MyGL> & other)
     {
         gl = other;
         ClearGLScreenBuffer();

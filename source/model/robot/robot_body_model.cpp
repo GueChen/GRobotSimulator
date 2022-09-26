@@ -5,7 +5,6 @@
 #include "manager/rendermanager.h"
 #include "manager/modelmanager.h"
 #include "render/rendermesh.h"
-#include "render/mygl.hpp"
 #include "render/myshader.h"
 
 
@@ -27,7 +26,7 @@ ROBOT_BODY_MODEL::ROBOT_BODY_MODEL(Mat4 transform)
 void ROBOT_BODY_MODEL::InitializeModelResource()
 {
     if(is_init_) return;
-    ResourceManager::getInstance().RegisteredMesh(mesh_, new RenderMesh(QGL::ModelLoader::getMesh(sPathModel(string("body.STL")))));    
+    ResourceManager::getInstance().RegisteredMesh(mesh_, new RenderMesh(QGL::ModelLoader::getMesh(sPathModel(string("binary/platform_binary.STL")))));    
     is_init_ = true;
 }
 
