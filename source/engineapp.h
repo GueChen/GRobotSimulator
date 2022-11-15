@@ -30,15 +30,17 @@
 #endif // !_DEBUG
 
 class MainWindow;
+class QThread;
 
 namespace GComponent{
 // Function Related Class
 class Component;
 // UI Ralated Class
-class PlanningDialog;
 class EditorTreeModel;
+class PlanningDialog;
 class RobotCreateDialog;
-
+class NetworkDialog;
+class SkinDialog;
 }
 
 namespace GComponent {
@@ -57,7 +59,7 @@ class EngineApp : public QObject
 	NonCoyable(EngineApp)
 public:
 	static EngineApp& getInstance(); 
-	virtual ~EngineApp() = default;
+	virtual ~EngineApp();
 	
 	void Init(int argc, char* argv[]);
 	int Exec();	
@@ -73,6 +75,7 @@ protected:
 private:
 	void ConnectModules();
 	void InitializeMembers(int argc, char* argv[]);
+	void MoveSomeToThread();
 
 signals:
 	void RequestCreateComponentUI(Component* component_ptr, const QString& com_name);
@@ -83,9 +86,12 @@ private:
 	_PtrWithDel<MainWindow>			window_ptr_				 = nullptr;
 	_PtrWithDel<RobotCreateDialog>  robot_create_dialog_ptr_ = nullptr;
 	_PtrWithDel<PlanningDialog>		planning_dialog_ptr_	 = nullptr;
-
+	_PtrWithDel<NetworkDialog>		network_dialog_ptr_		 = nullptr;
+	_PtrWithDel<SkinDialog>         skin_dialog_ptr_		 = nullptr;
 	//unique_ptr<>
 	steady_clock::time_point		last_time_point_		 = steady_clock::now();
+	std::unordered_map<QString, QThread*> 
+									threads_map_			 = {};
 };
 
 }

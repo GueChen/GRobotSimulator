@@ -57,8 +57,8 @@
     <IntDir>debug\</IntDir>
     <TargetName>GSimulator</TargetName>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
-    <IncludePath>$(ProjectDir)source;$(MyCppLib);$(QT_INCLUDE);$(IncludePath)</IncludePath>
-    <LibraryPath>$(QT_LIBS);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)source;$(ProjectDir)..\MyLib;$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>release\</OutDir>
@@ -66,19 +66,22 @@
     <TargetName>FinalProj</TargetName>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>E:\lib\Cpp\MyLib\3rdparty\include;$(MyCppLib);E:\Personal\RobotArm\Graduate\FinalProj\source;$(IncludePath)</IncludePath>
+    <IncludePath>$(MyCppLib);$(ProjectDir)source;$(IncludePath)</IncludePath>
     <LibraryPath>$(QTDIR)\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <QtInstall>6.2.0_msvc2019_64</QtInstall>
-    <QtModules>opengl;network;gui;widgets;qml;quickwidgets;quick</QtModules>
+    <QtInstall>6.2.4_msvc2019_64</QtInstall>
+    <QtModules>core;gui;network;qml;quick;widgets;opengl;quickwidgets;serialport;charts</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <QtInstall>6.2.0_msvc2019_64</QtInstall>
-    <QtModules>core;opengl;network;gui;widgets;qml;quickwidgets;quick</QtModules>
+    <QtInstall>6.2.4_msvc2019_64</QtInstall>
+    <QtModules>core;gui;network;qml;quick;widgets;opengl;quickwidgets;serialport</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <VcpkgConfiguration>Release</VcpkgConfiguration>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <VcpkgConfiguration>Debug</VcpkgConfiguration>
   </PropertyGroup>
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
     <Import Project="$(QtMsBuild)\qt.props" />
@@ -106,7 +109,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;$(OPGL_LIB)\glfw3.lib;$(QTDIR)\lib\Qt6OpenGLWidgets.lib;$(QTDIR)\lib\Qt6QuickWidgets.lib;$(QTDIR)\lib\Qt6Quick.lib;$(QTDIR)\lib\Qt6OpenGL.lib;$(QTDIR)\lib\Qt6Widgets.lib;$(QTDIR)\lib\Qt6Gui.lib;$(QTDIR)\lib\Qt6QmlModels.lib;$(QTDIR)\lib\Qt6Qml.lib;$(QTDIR)\lib\Qt6Network.lib;$(QTDIR)\lib\Qt6Core.lib;$(QTDIR)\lib\Qt6EntryPoint.lib;$(QTDIR)\lib\Qt6Charts.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;$(QTDIR)\lib\Qt6OpenGLWidgets.lib;$(QTDIR)\lib\Qt6QuickWidgets.lib;$(QTDIR)\lib\Qt6Quick.lib;$(QTDIR)\lib\Qt6OpenGL.lib;$(QTDIR)\lib\Qt6Widgets.lib;$(QTDIR)\lib\Qt6Gui.lib;$(QTDIR)\lib\Qt6QmlModels.lib;$(QTDIR)\lib\Qt6Qml.lib;$(QTDIR)\lib\Qt6Network.lib;$(QTDIR)\lib\Qt6Core.lib;$(QTDIR)\lib\Qt6EntryPoint.lib;$(QTDIR)\lib\Qt6Charts.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OPGL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -199,13 +202,16 @@
     </QtUic>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic.cpp" />
+    <ClCompile Include="..\MyLib\GComponent\grobotkinematic.cpp" />
     <ClCompile Include="source\3rdparty\stb\stb_image.c" />
     <ClCompile Include="source\component\collider_component.cpp" />
     <ClCompile Include="source\component\component_factory.cpp" />
     <ClCompile Include="source\component\rigidbody_component.cpp" />
+    <ClCompile Include="source\function\adapter\kuka_iiwa\kuka_iiwa_decoder.cpp" />
+    <ClCompile Include="source\function\adapter\kuka_iiwa\kuka_iiwa_encoder.cpp" />
     <ClCompile Include="source\manager\physicsmanager.cpp" />
     <ClCompile Include="source\manager\planningmanager.cpp" />
+    <ClCompile Include="source\manager\tcpsocketmanager.cpp" />
     <ClCompile Include="source\model\basic\postprocess_quads.cpp" />
     <ClCompile Include="source\component\joint_component.cpp" />
     <ClCompile Include="source\component\joint_group_component.cpp" />
@@ -220,7 +226,10 @@
     <ClCompile Include="source\model\basic\skybox.cpp" />
     <ClCompile Include="source\motion\dualsynccirclemotion.cpp" />
     <ClCompile Include="source\motion\gmotionbase.cpp" />
+    <ClCompile Include="source\motion\keepermotion.cpp" />
+    <ClCompile Include="source\motion\optimization\skinsensor_optimizer.cpp" />
     <ClCompile Include="source\motion\optimization\trajectory_optimization.cpp" />
+    <ClCompile Include="source\motion\planning_task.cpp" />
     <ClCompile Include="source\motion\trajectory.cpp" />
     <ClCompile Include="source\pattern\widgetbuilder.cpp" />
     <ClCompile Include="source\manager\editor\uistatemanager.cpp" />
@@ -261,7 +270,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="source\system\networksystem.cpp" />
     <ClCompile Include="source\system\planningsystem.cpp" />
+    <ClCompile Include="source\system\skinsystem.cpp" />
+    <ClCompile Include="source\system\transmitsystem.cpp" />
+    <ClCompile Include="source\ui\dialog\networkdialog.cpp" />
     <ClCompile Include="source\ui\dialog\planningdialog.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
@@ -269,6 +282,7 @@
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
     </ClCompile>
     <ClCompile Include="source\ui\dialog\robotcreatedialog.cpp" />
+    <ClCompile Include="source\ui\dialog\skindialog.cpp" />
     <ClCompile Include="source\ui\menu\componentmenu.cpp" />
     <ClCompile Include="source\ui\widget\kinematic_widget.cpp" />
     <ClCompile Include="source\ui\widget\tracker_widget.cpp" />
@@ -288,17 +302,20 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="source\ui\dialog\robotcreatedialog.h" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\Concept\gconcept.hpp" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic-inl.hpp" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\heuristic_ik_solver.hpp" />
+    <ClInclude Include="..\MyLib\Concept\gconcept.hpp" />
+    <ClInclude Include="..\MyLib\GComponent\grobotkinematic-inl.hpp" />
+    <ClInclude Include="..\MyLib\GComponent\heuristic_ik_solver.hpp" />
     <ClInclude Include="source\component\collider_component.h" />
     <ClInclude Include="source\component\component_factory.h" />
     <ClInclude Include="source\component\rigidbody_component.h" />
     <QtMoc Include="source\manager\physicsmanager.h" />
+    <ClInclude Include="source\function\adapter\kuka_iiwa\kuka_iiwa_decoder.h" />
+    <ClInclude Include="source\function\adapter\kuka_iiwa\kuka_iiwa_encoder.h" />
     <ClInclude Include="source\manager\planningmanager.h">
       <SubType>
       </SubType>
     </ClInclude>
+    <QtMoc Include="source\manager\tcpsocketmanager.h" />
     <ClInclude Include="source\model\basic\postprocess_quads.h" />
     <ClInclude Include="source\base\global\global_qss.h" />
     <ClInclude Include="source\component\kinematic_component.h" />
@@ -312,10 +329,13 @@
       </SubType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="source\motion\keepermotion.h" />
+    <ClInclude Include="source\motion\optimization\skinsensor_optimizer.h" />
     <ClInclude Include="source\motion\optimization\trajectory_optimization.h">
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="source\motion\planning_task.h" />
     <ClInclude Include="source\motion\trajectory.h">
       <SubType>
       </SubType>
@@ -338,17 +358,22 @@
       <SubType>
       </SubType>
     </QtMoc>
+    <QtMoc Include="source\ui\dialog\networkdialog.h" />
+    <QtMoc Include="source\system\networksystem.h" />
+    <QtMoc Include="source\system\transmitsystem.h" />
+    <QtMoc Include="source\ui\dialog\skindialog.h" />
+    <QtMoc Include="source\system\skinsystem.h" />
     <ClInclude Include="source\ui\menu\componentmenu.h" />
     <ClInclude Include="source\ui\wrapper\extensiblelist.h" />
     <QtMoc Include="source\ui\widget\viewport.h" />
     <QtMoc Include="source\ui\treeview\glmodeltreeview.h" />
     <QtMoc Include="source\base\editortreemodel.h" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GGeometry.hpp" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GNumerical.hpp" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic.h" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GTransform.hpp" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\LSSolver\LinearSystemSolver.hpp" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\LSSolver\PenroseInverse.hpp" />
+    <ClInclude Include="..\MyLib\GComponent\GGeometry.hpp" />
+    <ClInclude Include="..\MyLib\GComponent\GNumerical.hpp" />
+    <ClInclude Include="..\MyLib\GComponent\grobotkinematic.h" />
+    <ClInclude Include="..\MyLib\GComponent\GTransform.hpp" />
+    <ClInclude Include="..\MyLib\LSSolver\LinearSystemSolver.hpp" />
+    <ClInclude Include="..\MyLib\LSSolver\PenroseInverse.hpp" />
     <ClInclude Include="source\component\joint_component.h" />
     <ClInclude Include="source\component\joint_group_component.h" />
     <ClInclude Include="source\component\tracker_component.h" />
@@ -418,6 +443,7 @@
     <QtUic Include="UI\Dialog\networkdialog.ui" />
     <QtUic Include="UI\Dialog\planningdialog.ui" />
     <QtUic Include="UI\Dialog\robotcreatedialog.ui" />
+    <QtUic Include="UI\Dialog\skindialog.ui" />
     <QtUic Include="UI\Display\widget_qss_playground.ui" />
     <QtUic Include="UI\widget\kinematic_component_ui_widget.ui" />
     <QtUic Include="UI\widget\tracker_component_ui_widget.ui" />

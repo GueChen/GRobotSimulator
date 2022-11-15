@@ -36,7 +36,7 @@ using std::vector;
 using std::unordered_map;
 
 enum class InterpolationEnum{
-    Simple,
+    Simple      = 0,
     Quadratic,
     Cubic,
     Quintic,
@@ -68,16 +68,21 @@ class JMotionBase : public MotionBase {
 public: 
     JMotionBase()                            = default;
     virtual ~JMotionBase()                   = default;
-    virtual JTrajFunc operator()(Model* robot)  = 0;
+    virtual JTrajectory operator()(Model* robot)  = 0;
 };
 
 class CMotionBase : public MotionBase {
 public:
     explicit CMotionBase(const SE3f& goal):goal_(goal) {}
     virtual ~CMotionBase()                   = default;
-    Trajectory operator()(Model* robot);
+
+//  Base class interface to get trajectory
+    CTrajectory operator()(Model* robot);
+    CTrajectory operator()(Model* robot, SE3f start);
+
 protected:
-    virtual PathFunc PathFuncImpl(const SE3f& mat_ini, const SE3f& mat_end)       = 0;
+//  Derived class overrivde implementation methods
+    virtual PathFunc PathFuncImpl     (const SE3f& mat_ini, const SE3f& mat_end)  = 0;
     virtual float    ExecutionTimeImpl(const SE3f& mat_ini, const SE3f& mat_end)  = 0;
 
 protected:
@@ -91,10 +96,10 @@ public:
     DualMotionBase()                          = default;
     virtual ~DualMotionBase()                 = default;    
 
-    DualMotionBase& SetMaxLeftVel(float vel);
-    DualMotionBase& SetMaxLeftAcc(float acc);
-    DualMotionBase& SetMaxRightVel(float vel);
-    DualMotionBase& SetMaxRightAcc(float acc);
+    DualMotionBase& SetMaxLeftVel  (float vel);
+    DualMotionBase& SetMaxLeftAcc  (float acc);
+    DualMotionBase& SetMaxRightVel (float vel);
+    DualMotionBase& SetMaxRightAcc (float acc);
     
     inline float GetTotalTime() const { return time_total_; }
 

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1802</width>
-    <height>1072</height>
+    <width>782</width>
+    <height>707</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -911,7 +911,7 @@ font: 9pt &quot;Fixedsys&quot;;</string>
                <x>0</x>
                <y>0</y>
                <width>156</width>
-               <height>594</height>
+               <height>229</height>
               </rect>
              </property>
              <attribute name="label">
@@ -1237,8 +1237,8 @@ border-radius: 3px;
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>226</width>
-               <height>189</height>
+               <width>296</width>
+               <height>229</height>
               </rect>
              </property>
              <property name="styleSheet">
@@ -2253,7 +2253,7 @@ margin: 0px 5px
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1802</width>
+     <width>782</width>
      <height>22</height>
     </rect>
    </property>
@@ -2599,6 +2599,7 @@ QMenu::separator{
     </property>
     <addaction name="network_module_action"/>
     <addaction name="planning_module_action"/>
+    <addaction name="skin_module_action"/>
    </widget>
    <widget class="QMenu" name="help_action">
     <property name="title">
@@ -2749,6 +2750,11 @@ QMenu::separator{
   <action name="actionCamera">
    <property name="text">
     <string>Camera</string>
+   </property>
+  </action>
+  <action name="skin_module_action">
+   <property name="text">
+    <string>Skin</string>
    </property>
   </action>
  </widget>

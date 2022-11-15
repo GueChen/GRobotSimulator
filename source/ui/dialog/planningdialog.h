@@ -17,9 +17,6 @@ namespace Ui {
 class PlanningDialog;
 }
 QT_END_NAMESPACE
-namespace GComponent {
-class PlanningWidget;
-}
 
 class QTableWidget;
 
@@ -52,6 +49,9 @@ signals:
 								float max_ang_vel,			  float max_ang_acc,
 								std::vector<float> target_descarte, 
 								std::vector<std::vector<float>> waypoints);
+	void RequestKeeperMotion   (const QString& obj_name,
+								float time,
+								std::vector<float> target_descarte);
 	void RequestDualSyncLineMotion 
 							   (const std::vector<QString>& obj_names, 
 								std::vector<float> max_vels,  std::vector<float> max_accs, 
@@ -63,6 +63,11 @@ signals:
 								std::vector<float> target,    
 								std::vector<std::vector<float>> bias,
 								std::vector<float> waypoint);
+	void RequestChangeCurrentTaskStatus
+							   (const std::vector<QString>& obj_names, int status);
+	void GetTargetOptimizer(int idx);
+	void GetSelfMotionOptimizer(int idx);
+
 
 private:
 // Process Related Methods
@@ -72,6 +77,7 @@ private:
 	void LineMotionExecution();
 	void CircleMotionExecution();
 	void SplineMotionExecution();
+	void KeeperMotionExecution();
 	void DualMotionExecution();
 	void DualSyncMotionExecution();	
 	void DualAsyncMotionExecution();
@@ -84,13 +90,21 @@ private:
 	std::vector<std::vector<float>>
 		GetDatasFromTable(QTableWidget* tbl);
 
+// Status change helper method
+	std::vector<QString> GetCurrentObjName() const;
+
 private slots:
 	void on_execution_button_clicked();
 	void on_cancel_button_clicked();
+	void on_stop_button_clicked();
+	void on_pause_button_clicked();
+	void on_resume_button_clicked();
 	void on_spline_waypoints_add_button_clicked();
 	void on_spline_waypoints_del_button_clicked();
 	void on_spline_waypoints_clear_button_clicked();
 	void on_sync_type_combo_activated(int idx);
+	void on_target_combo_currentIndexChanged(int idx);
+	void on_selfmotion_combo_currentIndexChanged(int idx);
 
 private:
 	Ui::PlanningDialog*		    ui_ptr_				 = nullptr;

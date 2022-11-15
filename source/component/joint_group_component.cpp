@@ -44,6 +44,43 @@ void JointGroupComponent::SetPositions(const vector<float>& positions)
 	}
 }
 
+void JointGroupComponent::SetPositionsWithTimeStamp(const std::vector<float>& positions, float time_stamp)
+{
+	execution_time_buffer_.push_back(time_stamp);
+	SetPositions(positions);
+}
+
+bool JointGroupComponent::SafetyCheck(const std::vector<float>& positions) const
+{
+	assert(positions.size() <= joints_.size() && 
+		   "JointGroupComponent::SafetyCheck::checking joints count greater than configure count\n");
+	for (int i = 0; i < positions.size(); ++i) {
+		if (!joints_[i]->CheckEffective(positions[i])) {
+			return false;
+		}
+	}
+	return true;
+}
+
+void JointGroupComponent::SetLimitations(const std::vector<float>& min_lims, const std::vector<float>& max_lims)
+{
+	assert(min_lims.size() == joints_.size() && max_lims.size() == joints_.size() &&
+		   "JointGroupComponent::SetLimitations::the limits count not match to joints size\n");
+	for (int i = 0; i < joints_.size(); ++i) {
+		JointComponent& joint = *joints_[i];
+		joint.SetPosLimit(min_lims[i], max_lims[i]);
+	}
+}
+
+std::vector<JointGroupComponent::Limit> JointGroupComponent::GetLimitations() const
+{
+	std::vector<Limit> ret(joints_.size());
+	for (int i = 0; i < joints_.size(); ++i) {
+		ret[i] = joints_[i]->GetPosLimit();
+	}
+	return ret;
+}
+
 int JointGroupComponent::SearchJointsInChildren()
 {
 	Model* parent = GetParent();
@@ -75,6 +112,17 @@ int JointGroupComponent::SearchJointsInChildren()
 	}
 
 	return joints_.size();
+}
+
+void JointGroupComponent::tickImpl(float delta_time)
+{
+	if (!execution_time_buffer_.empty()) {
+		execution_time_ = execution_time_buffer_.front();
+		execution_time_buffer_.pop_front();
+	}
+	else {
+		execution_time_ = -1.0f;
+	}
 }
 
 bool JointGroupComponent::RegisterJoint(JointComponent* joint)

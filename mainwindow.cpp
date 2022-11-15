@@ -90,6 +90,8 @@ void MainWindow::ConnectionInit()
             });
 
     connect(updated_timer_ptr_, &QTimer::timeout, this, &MainWindow::CheckSelected);
+    connect(&ModelManager::getInstance(),               &ModelManager::destroyed,
+            updated_timer_ptr_,                         &QTimer::stop);
     updated_timer_ptr_->start(100);    
 
     /* component tool box */
@@ -119,6 +121,14 @@ void MainWindow::ConnectionInit()
     // TODO: add the complete menu action
     connect(ui_->planning_module_action,                  &QAction::triggered, [this]() {
         emit RequestShowDialog("PlanningDialog");
+    });
+
+    connect(ui_->network_module_action,                   &QAction::triggered, [this]() {
+        emit RequestShowDialog("NetworkDialog");
+    });
+
+    connect(ui_->skin_module_action,                      &QAction::triggered, [this]() {
+        emit RequestShowDialog("SkinDialog");
     });
 
     connect(ui_->quit_action,                             &QAction::triggered,

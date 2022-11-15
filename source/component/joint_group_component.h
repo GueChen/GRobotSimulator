@@ -26,6 +26,8 @@ using std::unordered_set;
 using _DelFun = std::function<void(void)>;
 
 class JointGroupComponent:public Component {
+using Limit = JointComponent::Limitation;
+
 public:
 	explicit JointGroupComponent(Model* ptr_parent = nullptr, const vector<JointComponent*>& joints = {});
 	~JointGroupComponent();
@@ -34,28 +36,36 @@ public:
 	// void Derigistered()			override;
 
 	virtual const string_view& 
-					GetTypeName()	const override	{ return type_name; }	
-	inline size_t	GetJointsSize()	const			{ return joints_.size(); }
-	inline const vector<JointComponent*>& 
-					GetJoints()		const			{ return joints_; }
+					GetTypeName		()	const override	{ return type_name; }	
+	inline size_t	GetJointsSize	()	const			{ return joints_.size(); }
+	inline	const vector<JointComponent*>& 
+					GetJoints		()	const			{ return joints_; }
 
-	vector<float>	GetPositions()  const;
-	void			SetPositions(const vector<float>& positions);
+	vector<float>	GetPositions	()  const;
+	void			SetPositions	(const std::vector<float>&positions);
+	void			SetPositionsWithTimeStamp
+									(const std::vector<float>&positions, float time_stamp);
+	inline	float   GetExecutionTime()  const			{ return execution_time_; }
+
+	bool			SafetyCheck		(const std::vector<float>& positions) const;
+	void			SetLimitations	(const std::vector<float>& min_lims,
+								     const std::vector<float>& max_lims);
+	std::vector<Limit>
+					GetLimitations()									  const;
 
 	int				SearchJointsInChildren();
 	
 protected:
-	void tickImpl(float delta_time)		override		   {}
+	void tickImpl(float delta_time)		override;
 
 private:
-	vector<JointComponent*>			joints_				 = {};
+	vector<JointComponent*>			joints_				   = {};
 	// TODO: consider the situation under tow paralle joints
-	vector<JointComponent*>			joinable_joints_	 = {};
-	unordered_set<JointComponent*>	record_table_		 = {};
-
-	std::optional<std::function<vector<double>()>> 
-							pos_function		 = std::nullopt;
-
+	vector<JointComponent*>			joinable_joints_	   = {};
+	unordered_set<JointComponent*>	record_table_		   = {};
+	
+	float							execution_time_		   = -1.0f;
+	std::list<float>				execution_time_buffer_ = {};
 public:
 	constexpr static const string_view type_name = "JointGroupComponent";
 	

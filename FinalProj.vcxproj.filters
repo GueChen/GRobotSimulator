@@ -75,7 +75,7 @@
     <ClCompile Include="source\pattern\widgetbuilder.cpp">
       <Filter>pattern</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic.cpp">
+    <ClCompile Include="..\MyLib\GComponent\grobotkinematic.cpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClCompile>
     <ClCompile Include="source\function\adapter\kinematic_adapter-inl.h">
@@ -195,6 +195,57 @@
     <ClCompile Include="source\component\component_factory.cpp">
       <Filter>component</Filter>
     </ClCompile>
+    <ClCompile Include="source\ui\dialog\networkdialog.cpp">
+      <Filter>ui_surface\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="source\system\networksystem.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="source\manager\tcpsocketmanager.cpp">
+      <Filter>manager\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\function\adapter\kuka_iiwa\kuka_iiwa_decoder.cpp">
+      <Filter>function\adapter\kuka_iiwa</Filter>
+    </ClCompile>
+    <ClCompile Include="source\function\adapter\kuka_iiwa\kuka_iiwa_encoder.cpp">
+      <Filter>function\adapter\kuka_iiwa</Filter>
+    </ClCompile>
+    <ClCompile Include="source\system\transmitsystem.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\keepermotion.cpp">
+      <Filter>motion\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\optimization\skinsensor_optimizer.cpp">
+      <Filter>motion\optimization</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\dialog\networkdialog.cpp">
+      <Filter>ui_surface\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="source\system\networksystem.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="source\manager\tcpsocketmanager.cpp">
+      <Filter>manager\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\function\adapter\kuka_iiwa\kuka_iiwa_decoder.cpp">
+      <Filter>function\adapter\kuka_iiwa</Filter>
+    </ClCompile>
+    <ClCompile Include="source\function\adapter\kuka_iiwa\kuka_iiwa_encoder.cpp">
+      <Filter>function\adapter\kuka_iiwa</Filter>
+    </ClCompile>
+    <ClCompile Include="source\system\transmitsystem.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\dialog\skindialog.cpp">
+      <Filter>ui_surface\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="source\system\skinsystem.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\planning_task.cpp">
+      <Filter>motion</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\motion\gmotionbase.h">
@@ -275,22 +326,22 @@
     <ClInclude Include="source\function\adapter\component_ui_factory.h">
       <Filter>function\adapter</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GGeometry.hpp">
+    <ClInclude Include="..\MyLib\GComponent\GGeometry.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GNumerical.hpp">
+    <ClInclude Include="..\MyLib\GComponent\GNumerical.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic.h">
+    <ClInclude Include="..\MyLib\GComponent\grobotkinematic.h">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GTransform.hpp">
+    <ClInclude Include="..\MyLib\GComponent\GTransform.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\LSSolver\LinearSystemSolver.hpp">
+    <ClInclude Include="..\MyLib\LSSolver\LinearSystemSolver.hpp">
       <Filter>base\mylib\LinearSystemSolver</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\LSSolver\PenroseInverse.hpp">
+    <ClInclude Include="..\MyLib\LSSolver\PenroseInverse.hpp">
       <Filter>base\mylib\LinearSystemSolver</Filter>
     </ClInclude>
     <ClInclude Include="source\ui\wrapper\extensiblelist.h">
@@ -308,16 +359,16 @@
     <ClInclude Include="source\function\builder\robotbuilder.h">
       <Filter>function\builder</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic-inl.hpp">
+    <ClInclude Include="..\MyLib\GComponent\grobotkinematic-inl.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\heuristic_ik_solver.hpp">
+    <ClInclude Include="..\MyLib\GComponent\heuristic_ik_solver.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
     <ClInclude Include="source\model\basic\skybox.h">
       <Filter>model\basic</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\Concept\gconcept.hpp">
+    <ClInclude Include="..\MyLib\Concept\gconcept.hpp">
       <Filter>base\mylib\Concept</Filter>
     </ClInclude>
     <ClInclude Include="source\render\framebufferobject.h">
@@ -404,6 +455,21 @@
     <ClInclude Include="source\physics\physics_datastructure.hpp">
       <Filter>physics</Filter>
     </ClInclude>
+    <ClInclude Include="source\function\adapter\kuka_iiwa\kuka_iiwa_decoder.h">
+      <Filter>function\adapter\kuka_iiwa</Filter>
+    </ClInclude>
+    <ClInclude Include="source\function\adapter\kuka_iiwa\kuka_iiwa_encoder.h">
+      <Filter>function\adapter\kuka_iiwa</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\keepermotion.h">
+      <Filter>motion\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\optimization\skinsensor_optimizer.h">
+      <Filter>motion\optimization</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\planning_task.h">
+      <Filter>motion</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="mainwindow.h">
@@ -446,6 +512,24 @@
     <QtMoc Include="source\system\planningsystem.h">
       <Filter>system</Filter>
     </QtMoc>
+    <QtMoc Include="source\ui\dialog\networkdialog.h">
+      <Filter>ui_surface\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="source\system\networksystem.h">
+      <Filter>system</Filter>
+    </QtMoc>
+    <QtMoc Include="source\manager\tcpsocketmanager.h">
+      <Filter>manager\inc</Filter>
+    </QtMoc>
+    <QtMoc Include="source\system\transmitsystem.h">
+      <Filter>system</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\dialog\skindialog.h">
+      <Filter>ui_surface\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="source\system\skinsystem.h">
+      <Filter>system</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="mainwindow.ui">
@@ -467,6 +551,9 @@
       <Filter>ui</Filter>
     </QtUic>
     <QtUic Include="UI\Dialog\networkdialog.ui">
+      <Filter>ui</Filter>
+    </QtUic>
+    <QtUic Include="UI\Dialog\skindialog.ui">
       <Filter>ui</Filter>
     </QtUic>
   </ItemGroup>
@@ -705,6 +792,9 @@
     </Filter>
     <Filter Include="motion\optimization">
       <UniqueIdentifier>{d860b26e-7b28-4fd8-a1b5-94e106cb3d5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="function\adapter\kuka_iiwa">
+      <UniqueIdentifier>{01188df9-9434-4571-be9f-fc70a5f989b3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

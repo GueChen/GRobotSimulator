@@ -32,6 +32,10 @@ void JointComponent::PushPosBuffer(float new_pos)
 {
 	std::lock_guard<std::mutex> lock(pos_lock_);
 	pos_buffers_.push_back(new_pos);
+	// limit the max pos buffer size to avoid some situation
+	while (pos_buffers_.size() > 10) {
+		pos_buffers_.pop_front();
+	}
 }
 
 void JointComponent::PushVelBuffer(float new_vel)
@@ -44,6 +48,13 @@ void JointComponent::PushAccBuffer(float new_acc)
 {
 	std::lock_guard<std::mutex> lock(acc_lock_);
 	acc_buffers_.push_back(new_acc); 
+}
+
+bool JointComponent::CheckEffective(float angle) const
+{
+	return (pos_limits_.min <= angle && angle <= pos_limits_.max)
+			&&	// limitation
+			abs(pos_ - angle) < (3.1415926535f / 2.0f);					// move dir limitation
 }
 
 void JointComponent::tickImpl(float delta_time)

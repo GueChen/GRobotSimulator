@@ -48,7 +48,7 @@ public:
 	explicit KinematicComponent(Model* ptr_parent = nullptr);
 	explicit KinematicComponent(const SE3<float>& initial_end_transform, Model* ptr_parent = nullptr);
 	~KinematicComponent() = default;
-	
+/// Kinematic related interface
 	bool	  ForwardKinematic(SE3<float>&  out_mat);
 	bool	  ForwardKinematic(SE3<float>&  out_mat, const Thetas<float>&  thetas);
 	bool	  ForwardKinematic(SE3<float>&	out_mat, const Thetav<float>&  thetav);
@@ -66,6 +66,12 @@ public:
 	bool	  ZeroProjection(ZeroProj<float>& zero_mat, const Thetas<float>& thetas);
 	bool	  ZeroProjection(ZeroProj<float>& zero_mat, const Thetav<float>& thetav);
 
+	bool	  Transforms(vector<SE3<float>>& out_mats, const Thetas<float>& thetas);
+	bool      Transforms(vector<SE3<float>>& out_mats, const Thetav<float>& thetav);
+
+	bool	  DifferentialTransforms(vector<SE3<float>>& out_mats, const Thetas<float>& thetas);
+	bool      DifferentialTransforms(vector<SE3<float>>& out_mats, const Thetav<float>& thetav);
+
 	bool	  UpdateExponentialCoordinates();
 
 /// Getter & Setter
@@ -78,7 +84,7 @@ public:
 					GetIKEnum()		const			{ return ik_solver_enum_; }
 	inline unsigned GetJointCount() const			{ return joint_count_; }
 	
-	vector<float>   GetJointsPos() const;
+	inline vector<float>   GetJointsPos() const		{ return GetJointsGroup()->GetPositions(); }
 
 	inline void		SetPrecision(double prececion)	{ precision_ = prececion; }
 	inline double	GetPrecision()	const			{ return precision_; }
@@ -114,7 +120,7 @@ private:
 	IKSolverEnum			ik_solver_enum_		  = IKSolverEnum::LeastNorm;
 	RobotKinematic::IKSolver<float>*
 							solver_				  = nullptr;
-	double					precision_			  = 1e-6f;
+	double					precision_			  = 1e-5f;
 	int						max_iteration_		  = 50;
 	double					decay_scaler_		  = 0.3f;
 	IKSolverTable			ik_solvers_			  = {};

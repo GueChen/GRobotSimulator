@@ -9,7 +9,7 @@
 
 #include "physics/physics_datastructure.hpp"
 
-#include <GComponent/GTransform.hpp>
+#include "component/rigidbody_component.h"
 
 #include <vector>
 #include <memory>
@@ -20,28 +20,54 @@ namespace GComponent {
 class Model;
 class PhysicsScene;
 
-class TargetOptimizer {
+class TgtOptimizer {
 public:
-	TargetOptimizer()  = default;
-	~TargetOptimizer() = default;
-	Twistf Optimize(Model&, const Twistf& glb_t, const std::vector<float>& thetas);	
-	bool ConditionCheck(Model&);
-
-private:
-	bool ConditionCheck(Model&, const std::shared_ptr<PhysicsScene>&, int);
-
-private:
-	std::map<int, std::vector<OverlapHitInfo>> hit_infos;
+	TgtOptimizer()			= default;
+	~TgtOptimizer()			= default;
+	virtual std::vector<float>
+			Optimize(Model&, const Twistf& glb_t, const std::vector<float>& thetas) = 0;
+	virtual bool ConditionCheck(Model&) = 0;
 };
 
-class SelfmotionOptimizer {
+class PhysxCheckerOptimizer : public TgtOptimizer {
+public:
+	PhysxCheckerOptimizer()  = default;
+	~PhysxCheckerOptimizer() = default;
+	std::vector<float> 
+			Optimize(Model&, const Twistf& glb_t, const std::vector<float>& thetas) override;
+	bool	ConditionCheck(Model&) override;
+	
+private:
+	bool	ConditionCheck(Model&, const std::shared_ptr<PhysicsScene>&, int);
+	void	DisplayHitterInformations(GComponent::Model& obj);
+private:
+	std::map<int, std::vector<OverlapHitInfo>> hit_infos_;
+	std::map<int, RigidbodyComponent&>		   hit_actors_;	
+};
+
+
+class SlfOptimizer {
+public:
+	SlfOptimizer() = default;
+	~SlfOptimizer() = default;
+	virtual Eigen::Vector<float, Eigen::Dynamic>
+			IncVector(Model& obj, const std::vector<float>& thetas) = 0;
+	virtual bool ConditionCheck(Model&) = 0;
+};
+
+class SelfmotionOptimizer : public SlfOptimizer {
 public:
 	SelfmotionOptimizer()  = default;
 	~SelfmotionOptimizer() = default;
 	Eigen::Vector<float, Eigen::Dynamic>
-		 IncVector(Model&, const std::vector<float>& thetas);
-	bool ConditionCheck(Model&);
-
+			IncVector(Model& obj, const std::vector<float>& thetas) override;
+	bool	ConditionCheck(Model&) override;
+private:
+	bool	ConditionCheck(Model&, const std::shared_ptr<PhysicsScene>&, int);
+	void	DisplayHitterInformations(GComponent::Model& obj);
+private:
+	std::map<int, std::vector<OverlapHitInfo>> hit_infos_;
+	std::map<int, RigidbodyComponent&>		   hit_actors_;
 };
 
 } // !namespace GComponent

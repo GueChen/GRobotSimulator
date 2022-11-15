@@ -17,7 +17,7 @@
 
 namespace GComponent {
 
-//TODO: finish this class
+//TODO: complete this class
 class RigidbodyComponent : public Component {
 // 1. Support Physics Update acoording the elapsed time
 // 2. Support mass and innertial computation from triangle mesh or particle system
@@ -37,6 +37,8 @@ public:
 					GetTypeName() const override{ return type_name; };
 	inline RigidBodyActor& 
 					GetActor()	  const			{ return *rigidbody_actor_; }
+	inline Mat4		GetLocalModelMat() const	{ return local_model_matrix_; }
+
 protected:
 	void			tickImpl(float delta_time) override;
 	
