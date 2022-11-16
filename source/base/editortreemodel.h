@@ -62,6 +62,8 @@ bool
 bool
     setHeaderData(int section, Qt::Orientation orientation,
                   const QVariant & value, int role = Qt::EditRole)      override;
+
+/// Operation Methods
 bool 
     insertColumns(int position, int columns, 
                   const QModelIndex & parent = QModelIndex())           override;
@@ -83,10 +85,25 @@ bool
                const QModelIndex & parent = QModelIndex())              override;
 
 QModelIndex
+    getIndexByItem(_RawPtrItem item);
+QModelIndex
     getIndexByName(const string& name);
+
 void 
     removeData(const string& delete_item_name);
 
+QMimeData* 
+    mimeData(const QModelIndexList& indexes)                      const override;
+QStringList
+    mimeTypes()                                                   const override;
+bool 
+    dropMimeData(const QMimeData* data, 
+                 Qt::DropAction action,
+                 int row, int column, 
+                 const QModelIndex& parent)                             override;
+Qt::DropActions
+    supportedDropActions()                                        const override;
+        
 protected:
 _RawPtrItem
     getItem(const QModelIndex & index) const;
@@ -103,10 +120,11 @@ public slots:
 
 signals:
     void DataDeletedNotice();
+    void ParentChangeRequest(const string& name, const string& parent_name);
 
 /// Fields      数据域
 private:
-    _PtrItem root_ = nullptr;
+    _PtrItem root_ = nullptr;    
 };
 
 } // namespace GComponent

@@ -566,9 +566,22 @@ void RenderManager::PassSpecifiedListCSMShadow(RenderList& list, function<Rawptr
 	{
 		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
 		Model*		obj	 = ObjGetter(obj_name);
-
+		
 		obj->setShaderProperty(*shadow_shader);
-		if (mesh) mesh->Draw();
+		if (mesh) {
+#ifdef _COLLISION_TEST
+			if (!obj->intesection_) {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			}
+			else {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
+#endif // _COLLISION_TEST
+			mesh->Draw();
+		}
+
+
+		
 	}
 	gl_->glBindTexture(GL_TEXTURE_2D, 0);
 }

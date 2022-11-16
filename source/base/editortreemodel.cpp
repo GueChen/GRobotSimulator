@@ -1,9 +1,13 @@
 #include "editortreemodel.h"
 
 #include "function/stringprocessor.hpp"
+#include "ui/treeview/glmodeltreeview.h"
 
 #include <stack>
 #include <queue>
+
+#include <QtCore/QMimeData>
+
 #ifdef _DEBUG
 #include <iostream>
 #include <format>
@@ -97,7 +101,9 @@ QVariant EditorTreeModel::headerData(int section, Qt::Orientation orientation, i
 Qt::ItemFlags EditorTreeModel::flags(const QModelIndex& index) const
 {
     if (!index.isValid()) return Qt::NoItemFlags;
-    return  Qt::ItemIsEditable | QAbstractItemModel::flags(index);
+    return  QAbstractItemModel::flags(index) |
+        Qt::ItemIsDragEnabled |
+        Qt::ItemIsDropEnabled;
 }
 
 bool EditorTreeModel::setData(const QModelIndex& index, const QVariant& value, int role)
@@ -184,11 +190,15 @@ bool EditorTreeModel::removeRows(int position, int rows, const QModelIndex& pare
     return result;
 }
 
+QModelIndex EditorTreeModel::getIndexByItem(_RawPtrItem item)
+{
+    return item ? createIndex(item->IndexInParent(), 0, item) : QModelIndex();;
+}
+
 QModelIndex EditorTreeModel::getIndexByName(const string& name)
 {
     if (name.empty()) return QModelIndex();
-    _RawPtrItem ptr_item = getItemByName(name);    
-    return ptr_item? createIndex(ptr_item->IndexInParent(), 0, ptr_item) : QModelIndex();
+    return getIndexByItem(getItemByName(name));    
 }
 
 EditorTreeModel::_RawPtrItem EditorTreeModel::getItem(const QModelIndex& index) const
@@ -220,6 +230,63 @@ void EditorTreeModel::removeData(const string& delete_item_name)
         }
         emit DataDeletedNotice();
     }
+}
+
+QStringList EditorTreeModel::mimeTypes() const
+{
+    QStringList types;
+    types << QStringLiteral("application/editor_tree_msg");
+    return types;
+}
+
+QMimeData* EditorTreeModel::mimeData(const QModelIndexList& indexes) const
+{
+    if (indexes.count() == 0) return nullptr;
+    QStringList types = mimeTypes();
+    QMimeData*  data = new QMimeData();
+    QByteArray  encoded;
+    QDataStream stream(&encoded, QDataStream::WriteOnly);
+    for (auto& index : indexes) {
+        stream << getItem(index)->GetData(0);
+    }
+    data->setData(types.at(0), encoded);
+    return data;
+}
+
+bool EditorTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)
+{   
+    QStringList format = mimeTypes();
+    if (!data->hasFormat(format.at(0))) return false;
+    if (row > rowCount(parent)) row = rowCount(parent);
+    if (row == -1)              row = rowCount(parent);
+    if (column == -1)           column = 0;
+    QByteArray encoded   = data->data(format.at(0));
+    QDataStream stream   = QDataStream(&encoded, QDataStream::ReadOnly);    
+    _RawPtrItem ptr_p    = getItem(parent);
+    auto insert_children = [this](auto && insert, _RawPtrItem ptr, const QModelIndex& parent)->void {       
+        int row = 0;
+        for (auto& child : ptr->GetChildren()) {
+            insertRow(child->GetDatas(), row, parent);
+            insert(insert, child.get(), getIndexByItem(getItem(parent)->GetChild(row)));
+            ++row;
+        }        
+    };
+    while (!stream.atEnd()) {
+        QVariant    name;
+        stream  >>  name;
+        _RawPtrItem ptr_item = getItemByName(name.toString().toStdString());
+        insertRow({name}, row, parent);
+        insert_children(insert_children, ptr_item, getIndexByItem(getItem(parent)->GetChild(row)));
+        emit ParentChangeRequest(name.toString().toStdString(), 
+                                 ptr_p == root_.get()? 
+                                 "@__ROOT__" : ptr_p->GetData(0).toString().toStdString());
+    } 
+    return true;
+}
+
+Qt::DropActions EditorTreeModel::supportedDropActions() const
+{
+    return QAbstractItemModel::supportedDropActions() | Qt::MoveAction;
 }
 
 void EditorTreeModel::setupModelData(const QString& data)

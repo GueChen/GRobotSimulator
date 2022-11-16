@@ -168,7 +168,8 @@ void GComponent::EngineApp::ConnectModules()
 	/* uimodel  >> treemodel */
 	connect(treeview,						&GLModelTreeView::DeleteRequest,
 			model_tree_.get(),				&EditorTreeModel::removeData);
-
+	connect(model_tree_.get(),				&EditorTreeModel::ParentChangeRequest,
+			&ModelManager::getInstance(),	&ModelManager::ResponseParentChangeRequest);
 	connect(model_tree_.get(),				&EditorTreeModel::DataDeletedNotice,
 			treeview,						&GLModelTreeView::ResponseDataDeleted);
 	connect(ui_state_ptr,					&UIState::DeleteRequest,

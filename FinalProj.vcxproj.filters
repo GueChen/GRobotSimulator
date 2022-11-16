@@ -75,7 +75,7 @@
     <ClCompile Include="source\pattern\widgetbuilder.cpp">
       <Filter>pattern</Filter>
     </ClCompile>
-    <ClCompile Include="..\MyLib\GComponent\grobotkinematic.cpp">
+    <ClCompile Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic.cpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClCompile>
     <ClCompile Include="source\function\adapter\kinematic_adapter-inl.h">
@@ -246,6 +246,9 @@
     <ClCompile Include="source\motion\planning_task.cpp">
       <Filter>motion</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\Cpp\MyLib\GComponent\Geometry\gcollision_detection.cpp">
+      <Filter>base\mylib\GComponent\Geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\motion\gmotionbase.h">
@@ -326,22 +329,22 @@
     <ClInclude Include="source\function\adapter\component_ui_factory.h">
       <Filter>function\adapter</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\GComponent\GGeometry.hpp">
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GGeometry.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\GComponent\GNumerical.hpp">
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GNumerical.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\GComponent\grobotkinematic.h">
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic.h">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\GComponent\GTransform.hpp">
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GTransform.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\LSSolver\LinearSystemSolver.hpp">
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\LSSolver\LinearSystemSolver.hpp">
       <Filter>base\mylib\LinearSystemSolver</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\LSSolver\PenroseInverse.hpp">
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\LSSolver\PenroseInverse.hpp">
       <Filter>base\mylib\LinearSystemSolver</Filter>
     </ClInclude>
     <ClInclude Include="source\ui\wrapper\extensiblelist.h">
@@ -359,16 +362,16 @@
     <ClInclude Include="source\function\builder\robotbuilder.h">
       <Filter>function\builder</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\GComponent\grobotkinematic-inl.hpp">
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic-inl.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\GComponent\heuristic_ik_solver.hpp">
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\heuristic_ik_solver.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
     <ClInclude Include="source\model\basic\skybox.h">
       <Filter>model\basic</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\Concept\gconcept.hpp">
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\Concept\gconcept.hpp">
       <Filter>base\mylib\Concept</Filter>
     </ClInclude>
     <ClInclude Include="source\render\framebufferobject.h">
@@ -469,6 +472,18 @@
     </ClInclude>
     <ClInclude Include="source\motion\planning_task.h">
       <Filter>motion</Filter>
+    </ClInclude>
+    <ClInclude Include="source\physics\collision_detection.h">
+      <Filter>physics</Filter>
+    </ClInclude>
+    <ClInclude Include="source\function\serializer.h">
+      <Filter>function</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\Geometry\gcollision_detection.h">
+      <Filter>base\mylib\GComponent\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\types.h">
+      <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -795,6 +810,9 @@
     </Filter>
     <Filter Include="function\adapter\kuka_iiwa">
       <UniqueIdentifier>{01188df9-9434-4571-be9f-fc70a5f989b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="base\mylib\GComponent\Geometry">
+      <UniqueIdentifier>{0ec878b2-e2d2-4f79-a7fe-9a4d09890348}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

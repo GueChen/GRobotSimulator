@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>782</width>
-    <height>707</height>
+    <width>1102</width>
+    <height>724</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -420,6 +420,9 @@ background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
             <height>0</height>
            </size>
           </property>
+          <property name="acceptDrops">
+           <bool>true</bool>
+          </property>
           <property name="styleSheet">
            <string notr="true">QHeaderView::section{
 	font: 9pt &quot;微软雅黑&quot;;
@@ -471,11 +474,20 @@ QTreeView::item:selected:active{
           <property name="autoScrollMargin">
            <number>2</number>
           </property>
+          <property name="showDropIndicator" stdset="0">
+           <bool>true</bool>
+          </property>
           <property name="dragEnabled">
            <bool>true</bool>
           </property>
+          <property name="dragDropOverwriteMode">
+           <bool>false</bool>
+          </property>
           <property name="dragDropMode">
-           <enum>QAbstractItemView::DragDrop</enum>
+           <enum>QAbstractItemView::InternalMove</enum>
+          </property>
+          <property name="defaultDropAction">
+           <enum>Qt::MoveAction</enum>
           </property>
           <property name="iconSize">
            <size>
@@ -488,7 +500,7 @@ QTreeView::item:selected:active{
           </property>
          </widget>
          <widget class="QWidget" name="layoutWidget">
-          <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <layout class="QHBoxLayout" name="view_layout">
            <item>
             <layout class="QVBoxLayout" name="verticalLayout">
              <item>
@@ -911,7 +923,7 @@ font: 9pt &quot;Fixedsys&quot;;</string>
                <x>0</x>
                <y>0</y>
                <width>156</width>
-               <height>229</height>
+               <height>246</height>
               </rect>
              </property>
              <attribute name="label">
@@ -1237,8 +1249,8 @@ border-radius: 3px;
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>296</width>
-               <height>229</height>
+               <width>226</width>
+               <height>189</height>
               </rect>
              </property>
              <property name="styleSheet">
@@ -2253,7 +2265,7 @@ margin: 0px 5px
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>782</width>
+     <width>1102</width>
      <height>22</height>
     </rect>
    </property>
@@ -2272,7 +2284,7 @@ QMenu::indicator:exclusive:checked:selected{
 	border-color: darkblue;
 }
 QMenu::separator{
-	hight: 0.2pt;
+	height: 0.2pt;
 }</string>
    </property>
    <property name="defaultUp">

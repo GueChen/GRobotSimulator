@@ -57,7 +57,7 @@
     <IntDir>debug\</IntDir>
     <TargetName>GSimulator</TargetName>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
-    <IncludePath>$(ProjectDir)source;$(ProjectDir)..\MyLib;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)source;$(MyCppLib);$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -70,11 +70,11 @@
     <LibraryPath>$(QTDIR)\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <QtInstall>6.2.4_msvc2019_64</QtInstall>
+    <QtInstall>6.2.0_msvc2019_64</QtInstall>
     <QtModules>core;gui;network;qml;quick;widgets;opengl;quickwidgets;serialport;charts</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <QtInstall>6.2.4_msvc2019_64</QtInstall>
+    <QtInstall>6.2.0_msvc2019_64</QtInstall>
     <QtModules>core;gui;network;qml;quick;widgets;opengl;quickwidgets;serialport</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -157,7 +157,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ObjectFileName>debug\</ObjectFileName>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;QT_OPENGLWIDGETS_LIB;QT_QMLMODELS_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;QT_OPENGLWIDGETS_LIB;QT_QMLMODELS_LIB;_COLLISION_TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -202,7 +202,8 @@
     </QtUic>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\MyLib\GComponent\grobotkinematic.cpp" />
+    <ClCompile Include="..\..\..\..\lib\Cpp\MyLib\GComponent\Geometry\gcollision_detection.cpp" />
+    <ClCompile Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic.cpp" />
     <ClCompile Include="source\3rdparty\stb\stb_image.c" />
     <ClCompile Include="source\component\collider_component.cpp" />
     <ClCompile Include="source\component\component_factory.cpp" />
@@ -302,15 +303,21 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="source\ui\dialog\robotcreatedialog.h" />
-    <ClInclude Include="..\MyLib\Concept\gconcept.hpp" />
-    <ClInclude Include="..\MyLib\GComponent\grobotkinematic-inl.hpp" />
-    <ClInclude Include="..\MyLib\GComponent\heuristic_ik_solver.hpp" />
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\Concept\gconcept.hpp" />
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\Geometry\gcollision_detection.h" />
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic-inl.hpp" />
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\heuristic_ik_solver.hpp" />
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\types.h" />
     <ClInclude Include="source\component\collider_component.h" />
     <ClInclude Include="source\component\component_factory.h" />
     <ClInclude Include="source\component\rigidbody_component.h" />
     <QtMoc Include="source\manager\physicsmanager.h" />
     <ClInclude Include="source\function\adapter\kuka_iiwa\kuka_iiwa_decoder.h" />
     <ClInclude Include="source\function\adapter\kuka_iiwa\kuka_iiwa_encoder.h" />
+    <ClInclude Include="source\function\serializer.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="source\manager\planningmanager.h">
       <SubType>
       </SubType>
@@ -341,6 +348,7 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="source\physics\abstract_shape.hpp" />
+    <ClInclude Include="source\physics\collision_detection.h" />
     <ClInclude Include="source\physics\physics_datastructure.hpp">
       <SubType>
       </SubType>
@@ -368,12 +376,12 @@
     <QtMoc Include="source\ui\widget\viewport.h" />
     <QtMoc Include="source\ui\treeview\glmodeltreeview.h" />
     <QtMoc Include="source\base\editortreemodel.h" />
-    <ClInclude Include="..\MyLib\GComponent\GGeometry.hpp" />
-    <ClInclude Include="..\MyLib\GComponent\GNumerical.hpp" />
-    <ClInclude Include="..\MyLib\GComponent\grobotkinematic.h" />
-    <ClInclude Include="..\MyLib\GComponent\GTransform.hpp" />
-    <ClInclude Include="..\MyLib\LSSolver\LinearSystemSolver.hpp" />
-    <ClInclude Include="..\MyLib\LSSolver\PenroseInverse.hpp" />
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GGeometry.hpp" />
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GNumerical.hpp" />
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic.h" />
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GTransform.hpp" />
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\LSSolver\LinearSystemSolver.hpp" />
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\LSSolver\PenroseInverse.hpp" />
     <ClInclude Include="source\component\joint_component.h" />
     <ClInclude Include="source\component\joint_group_component.h" />
     <ClInclude Include="source\component\tracker_component.h" />

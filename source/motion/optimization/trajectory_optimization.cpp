@@ -106,8 +106,7 @@ void PhysxCheckerOptimizer::DisplayHitterInformations(GComponent::Model& obj)
 		}
 	}
 }
-	return glb_t;
-}
+
 
 bool PhysxCheckerOptimizer::ConditionCheck(Model& obj)
 {		

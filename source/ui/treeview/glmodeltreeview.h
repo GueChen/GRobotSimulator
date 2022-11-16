@@ -15,22 +15,26 @@
 
 namespace Ui { class GLModelTreeView; };
 
+
 namespace GComponent 
 {
 using std::string;
 class GLModelTreeView : public QTreeView
 {
-	Q_OBJECT
+	Q_OBJECT	
 public:
 	GLModelTreeView(QWidget* parent = nullptr);
 	~GLModelTreeView();
 
 	void setModel(QAbstractItemModel* model)   override;
-
+		
 protected:
-	void mouseReleaseEvent(QMouseEvent* event) override;
-	void keyReleaseEvent(QKeyEvent* event)	   override;
-
+	void mouseReleaseEvent(QMouseEvent* event)	  override;
+	void keyReleaseEvent  (QKeyEvent* event)	  override;
+	
+	void dragMoveEvent	  (QDragMoveEvent* event) override;
+	void dragEnterEvent	  (QDragEnterEvent* event)override;
+	void dropEvent		  (QDropEvent* evnet)	  override;
 private:
 	void InitMenuActions();
 

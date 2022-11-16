@@ -4,6 +4,8 @@
 
 #include <QtGui/QMouseEvent>
 #include <QtGui/QkeyEvent>
+#include <QtGui/QDragMoveEvent>
+#include <QtGui/QDropEvent>
 
 #include <iostream>
       
@@ -13,12 +15,17 @@ GLModelTreeView::GLModelTreeView(QWidget *parent)
 	: QTreeView(parent)
 {
     setFocusPolicy(Qt::ClickFocus);
+    
     InitMenuActions();
-   
+    setDragDropMode(DragDropMode::InternalMove);
+    setDragEnabled(true);
+    setAcceptDrops(true);
+    setDropIndicatorShown(true);
+    
     /* Set Style Sheet */
     m_basic_menu.setStyleSheet(menu_qss.data());
     m_add_menu.setStyleSheet(menu_qss.data());
-   
+       
 }   
 
 GLModelTreeView::~GLModelTreeView()
@@ -34,21 +41,41 @@ void GLModelTreeView::setModel(QAbstractItemModel* model)
             this,             &GLModelTreeView::SelectionChangeSlot);
 }
 
+/*___________________________________OVERRIDE METHODS________________________________________________*/
 void GLModelTreeView::mouseReleaseEvent(QMouseEvent* event)
 {
     QTreeView::mouseReleaseEvent(event);
     if (event->button() == Qt::RightButton)
-    {        
+    {
         m_basic_menu.popup(event->globalPos());
     }
 }
 
 void GLModelTreeView::keyReleaseEvent(QKeyEvent* event)
 {
+    QTreeView::keyReleaseEvent(event);
     if (event->key() == Qt::Key_Delete) 
     {
         emit DeleteRequest(selectionModel()->currentIndex().data().toString().toStdString());
     }
+}
+
+void GLModelTreeView::dragMoveEvent(QDragMoveEvent* event)
+{
+    QTreeView::dragMoveEvent(event);
+    event->acceptProposedAction();    
+}
+
+void GLModelTreeView::dragEnterEvent(QDragEnterEvent* event)
+{
+    QTreeView::dragEnterEvent(event);
+    event->acceptProposedAction();    
+}
+
+void GLModelTreeView::dropEvent(QDropEvent* event)
+{
+    QTreeView::dropEvent(event);
+    event->acceptProposedAction();
 }
 
 void GLModelTreeView::InitMenuActions()

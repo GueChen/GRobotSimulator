@@ -44,9 +44,6 @@ public:
 /// 绘图函数 Drawing Functions
     void setColor(const Vec3 & color);
 
-// 添加检测点辅助函数
-    void AddCheckPoint(int idx, const WeightedCheckPoint & p);
-
 protected:
     void setShaderProperty(MyShader & shader) override;
    
@@ -58,9 +55,6 @@ private:
 private:
 // 当前单一颜色着色器下的显示颜色
     Vec3            _color     = Vec3::Ones();
-
-/// 碰撞检测部分 Collision Part
-    map<int, vector<WeightedCheckPoint>> _checkPointDict;
 
     static bool is_init_;
     static int  count;

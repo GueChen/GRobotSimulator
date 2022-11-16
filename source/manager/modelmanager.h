@@ -88,7 +88,7 @@ signals:
 public slots:
     void ResponseDeleteRequest(const string& del_model_name);
     // TODO: 实现该槽函数
-    //void ResponseParentChangeRequest(const string& model_name, const string& new_parent_name);
+    void ResponseParentChangeRequest(const string& model_name, const string& new_parent_name);
 
 private:
     /* Model Realated Terms 实例管理相关项 */

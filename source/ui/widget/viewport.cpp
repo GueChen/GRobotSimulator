@@ -15,7 +15,9 @@
 #include <iostream>
 #include <format>
 #endif
-#include "component/rigidbody_component.h"
+#include "component/collider_component.h"
+
+#include <GComponent/Geometry/gcollision_detection.h>
 
 namespace GComponent {
 
@@ -98,27 +100,28 @@ void Viewport::paintGL()
 
 void Viewport::CustomUpdateImpl()
 {
-	
-	//Model* sphere_collider = ModelManager::getInstance().GetModelByName("sphere0");
-	//if (sphere_collider) {
-	//	
-	//	float time_point = std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::steady_clock::now().time_since_epoch()).count();
-	//	/*sphere_collider->setTransLocal(Eigen::Vector3f(
-	//							0.25f + 0.3f   * sin(0.5f * time_point), 
-	//							0.85f + 0.125f * cos(0.5f * 0.33f * time_point), 
-	//							1.75f + 0.2f   * sin(0.5f * 3.714f * time_point)));*/
-	//	std::shared_ptr<PhysicsScene> scene = PhysicsManager::getInstance().GetActivateScene().lock();
-	//	auto rigid_com = sphere_collider->GetComponent<RigidbodyComponent>(RigidbodyComponent::type_name.data());
-	//	vector<OverlapHitInfo> hits_info;
-	//	scene->Overlap(rigid_com->GetActor(), 10, hits_info);
-	//	for (auto&& [hitter, vec] : hits_info) {
-	//		std::cout << sphere_collider->getName() << " collide with " << 
-	//			PhysicsManager::getInstance().GetModelIdByActorID(hitter)->GetParent()->getName() <<
-	//			"\npenetrac vec: " << vec.transpose() << std::endl;
-	//	}
-	//}
-	
-	
+	Model* cube0 = ModelManager::getInstance().GetModelByName("cube0");
+	Model* cube1 = ModelManager::getInstance().GetModelByName("cube1");
+	auto col_com0 = cube0->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());
+	auto col_com1 = cube1->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());
+	auto shapes0 = col_com0->GetShapes();
+	auto shapes1 = col_com1->GetShapes();
+	cube0->intesection_ = cube1->intesection_ = false;
+	for (auto& s0 : shapes0) {
+		auto box0 = dynamic_cast<BoxShape*>(s0);
+		for (auto& s1 : shapes1) {
+			auto box1 = dynamic_cast<BoxShape*>(s1);
+			if (IntersectionOBBOBB(Vec3(box0->m_half_x, box0->m_half_y, box0->m_half_z), cube0->getTransGlobal(), cube0->getRotGlobal(),
+				Vec3(box1->m_half_x, box1->m_half_y, box1->m_half_z), cube1->getTransGlobal(), cube1->getRotGlobal())) {
+				cube0->intesection_ = true;
+				cube1->intesection_ = true;
+				goto checkfinish;
+			}
+		}
+	}
+
+checkfinish:
+	;
 }
 
 /*________________________________Events Implementations_____________________________________________*/

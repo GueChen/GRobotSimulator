@@ -60,7 +60,7 @@ public:
     virtual
     void            tickImpl(float delta_time);
 
-    void            appendChild(const _RawPtr pchild, Mat4 transform = Mat4::Identity());
+    void            appendChild(const _RawPtr pchild, Mat4 transform);
 
     inline const vector<_RawPtr>& 
                     getChildren() const { return children_; }
@@ -68,7 +68,7 @@ public:
     bool            eraseChild(int idx);
 
     [[deprecated("no implementation for glm axis getting")]]
-    void            setModelMatrix(const Mat4 & mat);
+    void            setModelMatrix(const Mat4 & mat, bool update = true);
     inline Mat4     getModelMatrix() const               { return parent_model_mat_ * model_mat_; }
         
     Mat4            getTranslationModelMatrix() const;
@@ -84,7 +84,7 @@ public:
     inline void     setShader(const string& shader_name) { shader_ = shader_name;}
     inline string   getShader()      const               { return shader_;}
 
-    inline void     setParent(Model * parent)            { parent_ = parent;}
+    void            setParent(Model* parent); 
     inline _RawPtr  getParent()      const               { return parent_;}
 
     void            setTransLocal(const Vec3& translation, bool updateflag = true);
@@ -136,6 +136,12 @@ protected:
     string                  name_                   = "";
     string                  mesh_                   = "";
     string                  shader_                 = "";
+
+#ifdef _COLLISION_TEST
+public:
+    bool                    intesection_            = false;
+#endif // _COLLISION_TEST
+
 };
 
 /// <summary>

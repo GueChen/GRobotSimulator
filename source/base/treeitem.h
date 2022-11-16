@@ -41,6 +41,7 @@ public:
 
 /// Methods     成员函数
 public:
+    void     ApeendChild(_Ptr&&  child);
     void     ApeendChild(_RawPtr child);
     void     ApeendChild(const vector<QVariant>& datas);
     void     EraseChild(int idx);

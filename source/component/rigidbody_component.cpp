@@ -17,7 +17,7 @@ namespace GComponent{
 		local_model_matrix_(local_mat)
 	{				
 		CapsuleShape capsule_shape(radius, half_height);
-		rigidbody_actor_ = CreateRigidBodyActorFromScene(capsule_shape, group);							
+		rigidbody_actor_ = CreateRigidBodyActorFromScene(capsule_shape, group);
 		rigidbody_actor_->SetParent(ptr_parent_);
 	}
 

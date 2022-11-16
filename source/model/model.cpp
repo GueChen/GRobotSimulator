@@ -76,10 +76,12 @@ bool GComponent::Model::eraseChild(int idx)
     return true;
 }
 
-void Model::setModelMatrix(const Mat4 &mat)
+void Model::setModelMatrix(const Mat4 &mat, bool update)
 {            
-    std::tie(trans_, rot_, scale_, shear_) = TRSSDecompositionMat4(mat);    
-    updateModelMatrix();
+    std::tie(trans_, rot_, scale_, shear_) = TRSSDecompositionMat4(mat);
+    if (update) {
+        updateModelMatrix();
+    }
 }
 
 Mat4 GComponent::Model::getTranslationModelMatrix() const
@@ -99,6 +101,17 @@ Mat4 GComponent::Model::getModelMatrixWithoutScale() const
         model_trans_rot.rotate(AngleAxisf(rot_.norm(), rot_ / rot_.norm()));
     }
     return parent_model_mat_ * model_trans_rot.matrix();
+}
+
+void GComponent::Model::setParent(Model* parent)
+{
+    // remove from old parent
+    if (_RawPtr p = this->parent_; p != nullptr) {
+        if (p == parent) return;
+        p->eraseChild(p->getChildIndex(this));
+    }    
+    parent_           = parent;
+    parent_model_mat_ = parent_ ? parent_->getModelMatrixWithoutScale() : Mat4::Identity();
 }
 
 void GComponent::Model::setTransLocal(const Vec3& translation, bool updateflag)
@@ -157,11 +170,10 @@ bool GComponent::Model::DeregisterComponent(const string& component_name)
 }
 
 void Model::appendChild(const _RawPtr pchild, Mat4 transform)
-{
+{        
     pchild->setParent(this);
     children_.emplace_back(pchild);
-    pchild->setModelMatrix(transform);
-    updateChildrenMatrix(Mat3::Identity()/*Scale(scale_)* Shear(shear_)*/);
+    pchild->setModelMatrix(transform);    
 }
 
 int GComponent::Model::getChildIndex(_RawPtr ptr)

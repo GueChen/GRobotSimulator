@@ -7,7 +7,10 @@
 #ifndef __ABSTRACT_SHAPE_HPP
 #define __ABSTRACT_SHAPE_HPP
 
+#include "physics/physics_datastructure.hpp"
+
 #include <Eigen/Dense>
+#include <vector>
 
 namespace GComponent {
 
@@ -16,7 +19,7 @@ enum class ShapeEnum {
 	Capsule		= 1,
 	Box			= 2,
 	Plane		= 3,
-	ConvexMesh	= 4,
+	ConvexHull	= 4,
 	None		= -1
 };
 
@@ -64,6 +67,44 @@ public:
 	float				m_half_z		= 0.0f;
 	static const ShapeEnum		
 						m_type_enum		= ShapeEnum::Box;
+};
+
+class PlaneShape : public AbstractShape {
+public:
+	PlaneShape() { 
+		// No Implementation
+		assert(false); 
+	}
+
+public:
+	Eigen::Vector3f		n;// normal of the plane
+	float				d;// distance from the origin
+	static const ShapeEnum
+						m_type_enum		= ShapeEnum::Plane;
+};
+
+class ConvexShape : public AbstractShape {
+public:
+	struct Line {
+		int first;
+		int second;
+	};
+	struct Facelet {
+		int first;
+		int second;
+		int third;
+	};
+
+	ConvexShape() {
+		// No Implementation
+		assert(false);
+	}
+public:
+	
+	std::vector<Eigen::Vector3f> m_vertices;
+	std::vector<Line>			 m_lines;
+	std::vector<Facelet>	     m_faces;
+	static const ShapeEnum		 m_type_enum = ShapeEnum::ConvexHull;
 };
 
 } // !namespace GComponent

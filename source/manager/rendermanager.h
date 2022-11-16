@@ -77,22 +77,20 @@ public:
 	bool InitFrameBuffer();
 
 //________________Render relate Invoke inteface______________________________________________//
-	void PushRenderCommand(const RenderCommand & command);
-	void EmplaceRenderCommand(string obj_name, string shader_name, 
-							  string mesh_name, string uniform_name = "");
+	void PushRenderCommand				(const RenderCommand & command);
+	void EmplaceRenderCommand			(string obj_name,   string shader_name, 
+										 string mesh_name,  string uniform_name = "");
 	
-	void PushAuxiRenderCommand(const RenderCommand& command);
-	void EmplaceAuxiRenderCommand(
-							  string obj_name,  string shader_name,
-							  string mesh_name, string uniform_name = "");
+	void PushAuxiRenderCommand			(const RenderCommand& command);
+	void EmplaceAuxiRenderCommand		(string obj_name,   string shader_name,
+										 string mesh_name,  string uniform_name = "");
 
-	void PushPostProcessRenderCommand(const RenderCommand& command);
-	void EmplacePostProcessRenderCommand(
-							  string obj_name,  string shader_name,
-							  string mesh_name, string uniform_name = "");
-	void EmplaceFrontPostProcessRenderCommand(
-							  string obj_name,	string shader_name,
-							  string mesh_name, string uniform_name = "");
+	void PushPostProcessRenderCommand	(const RenderCommand& command);
+	void EmplacePostProcessRenderCommand(string obj_name,   string shader_name,
+										 string mesh_name,  string uniform_name = "");
+	void EmplaceFrontPostProcessRenderCommand
+										(string obj_name,	string shader_name,
+										 string mesh_name,  string uniform_name = "");
 
 //_______________Planing Relate Auxiliry Inteface_______________________________________________//
 	void EmplaceAuxiliaryObj(shared_ptr<SimplexModel>&& obj);
@@ -123,13 +121,13 @@ private:
 	void RenderingPass();
 	void AuxiliaryPass();
 		
-	void PassSpecifiedListPicking(PassType draw_index_type, 
-								 RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);
-	void PassSpecifiedListNormal(RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);
-	void PassSpecifiedListDepth(RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);	
-	void PassSpecifiedListShadow(RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);
-	void PassSpecifiedListCSMDepth(RenderList&,  function<RawptrModel(const std::string&)>ObjGetter);
-	void PassSpecifiedListCSMShadow(RenderList&, function<RawptrModel(const std::string&)>ObjGetter);
+	void PassSpecifiedListPicking	(PassType draw_index_type, 
+									 RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);
+	void PassSpecifiedListNormal	(RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);
+	void PassSpecifiedListDepth		(RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);	
+	void PassSpecifiedListShadow	(RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);
+	void PassSpecifiedListCSMDepth	(RenderList&,    function<RawptrModel(const std::string&)>ObjGetter);
+	void PassSpecifiedListCSMShadow	(RenderList&,    function<RawptrModel(const std::string&)>ObjGetter);
 
 /*_______________________Planning Simplex Render_____________________________________________*/
 	void SimplexMeshPass();
@@ -154,7 +152,7 @@ private:
 
 	optional<PickingController>		picking_controller_handle_;
 	shared_ptr<MyGL>				gl_;
-
+/*_______________________Bad Practice Modified it In a Better Place___________________________*/
 	BaseGrid						grid_;
 	SkyBox							skybox_;
 	PostprocessQuads				screen_quad_;	

@@ -185,7 +185,3 @@ void KUKA_IIWA_MODEL::setColor(const Vec3 &color)
     _color = color;
 }
 
-void KUKA_IIWA_MODEL::AddCheckPoint(int idx, const WeightedCheckPoint &p)
-{
-    _checkPointDict[idx].emplace_back(p);
-}

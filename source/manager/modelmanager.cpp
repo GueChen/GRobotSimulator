@@ -17,6 +17,7 @@ using std::move;
 
 ModelManager::ModelManager() = default;
 
+
 ModelManager::~ModelManager() {
     auxiliary_models_.clear();
     models_.clear();
@@ -185,5 +186,22 @@ void ModelManager::ResponseDeleteRequest(const string& del_model_name)
 {
     deleted_queue_.push(model_name_to_handle_table_[del_model_name]);  
 }
+
+void ModelManager::ResponseParentChangeRequest(const string& model_name, const string& new_parent_name)
+{
+    Model* model  = GetModelByName(model_name), 
+         * parent = GetModelByName(new_parent_name);
+    Mat4 ori_mat  = model->getModelMatrix();
+    if (parent) {
+        Mat4 p_mat = parent->getModelMatrixWithoutScale();
+        parent->appendChild(model, InverseSE3(p_mat) * ori_mat);
+    }
+    else {
+        model->setParent(nullptr);
+        model->setModelMatrix(ori_mat, false);
+        model->updateModelMatrix();
+    }
+}
+
 
 } // namespace GComponent

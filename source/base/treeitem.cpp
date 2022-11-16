@@ -13,6 +13,12 @@ TreeItem::~TreeItem() {
     ClearChildren();
 }
 
+void TreeItem::ApeendChild(_Ptr&& child)
+{
+    child->parent_ = this;
+    children_.push_back(std::move(child));
+}
+
 void TreeItem::ApeendChild(_RawPtr child)
 {
     child->parent_ = this;

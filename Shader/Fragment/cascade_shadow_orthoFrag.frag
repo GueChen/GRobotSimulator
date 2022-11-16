@@ -115,8 +115,10 @@ float ShadowCaculation(vec4 frag_pos_light_space, float bias, int layer)
     // percentage closest filter
     float shadow     = 0.0f;
     vec2  texel_size = 1.0 / vec2(textureSize(shadow_map, 0));
+    if(proj_coords.z <= 1.0)
     for(int x = -2; x <= 2; ++x)for(int y = - 2; y <= 2; ++y)
     {
+        
         float pcf_depth = texture(shadow_map, vec3(proj_coords.xy + vec2(x, y) * texel_size, layer)).r;
         shadow += current_depth - bias > pcf_depth ? 1.0 : 0.0;
     }

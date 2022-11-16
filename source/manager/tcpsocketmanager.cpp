@@ -27,11 +27,7 @@ void TcpSocketManager::Initialize()
 			this,	&TcpSocketManager::ResponseProcessMsg);	
 }
 
-void TcpSocketManager::tick() {
-	for(auto & [name, sock]: socket_table_){
-		//emit RequestSyncOneFrame(name, KUKA::DataType::JointCurPos);		
-	}
-}
+void TcpSocketManager::tick() {}
 
 bool TcpSocketManager::RegisterTcpSocket(QString name, QHostAddress address, unsigned short port)
 {	
