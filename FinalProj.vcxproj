@@ -203,6 +203,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\Cpp\MyLib\GComponent\Geometry\gcollision_detection.cpp" />
+    <ClCompile Include="..\..\..\..\lib\Cpp\MyLib\GComponent\Geometry\gdistance.cpp" />
     <ClCompile Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic.cpp" />
     <ClCompile Include="source\3rdparty\stb\stb_image.c" />
     <ClCompile Include="source\component\collider_component.cpp" />
@@ -304,6 +305,7 @@
   <ItemGroup>
     <QtMoc Include="source\ui\dialog\robotcreatedialog.h" />
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\Concept\gconcept.hpp" />
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\Geometry\gdistance.h" />
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\Geometry\gcollision_detection.h" />
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic-inl.hpp" />
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\heuristic_ik_solver.hpp" />
@@ -379,7 +381,7 @@
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GGeometry.hpp" />
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GNumerical.hpp" />
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic.h" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GTransform.hpp" />
+    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\gtransform.hpp" />
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\LSSolver\LinearSystemSolver.hpp" />
     <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\LSSolver\PenroseInverse.hpp" />
     <ClInclude Include="source\component\joint_component.h" />

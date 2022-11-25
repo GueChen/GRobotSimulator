@@ -10,6 +10,19 @@
 
 #include <glm/glm.hpp>
 
+void CreateSphereObstacle(float x, float y, float z, float radius) {
+    using namespace GComponent;
+    static int idx = 0;
+    static const std::string obj_name = "sphere";
+    ObjectManager::getInstance().CreateInstance(obj_name);
+    Model* sphere = ModelManager::getInstance().GetModelByName(obj_name + std::to_string(idx++));
+    sphere->setTransLocal(Vec3(x, y, z));
+    sphere->setScale(Vec3::Ones()* radius);
+    sphere->RegisterComponent(std::make_unique<ColliderComponent>(sphere));
+    auto col_com = sphere->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());
+    col_com->RegisterShape(new SphereShape(0.5f * radius));
+}
+
 void CreateCubeObstacle(float x, float y, float z, float x_l, float y_l, float z_l) {
     using namespace GComponent;
     static int idx = 0;
@@ -28,8 +41,9 @@ int main(int argc, char *argv[])
     using namespace GComponent;
     GComponent::EngineApp::getInstance().Init(argc, argv);
     
-    CreateCubeObstacle(0.5f,  0.8f,  1.0f,  0.2f,  0.7f,   0.3f);
-    CreateCubeObstacle(-2.5f, -1.8f, 0.0f,  0.4f,  0.3f,   0.5f);
+    CreateCubeObstacle(0.5f,    0.8f,  1.0f,  0.2f,  0.7f,   0.3f);
+    CreateCubeObstacle(-2.5f,   -1.8f, 0.0f,  0.4f,  0.3f,   0.5f);
+    CreateSphereObstacle(0.35f, 0.45f, 2.5f, 0.8f);
     //CreateCubeObstacle(0.35f, 0.4f,  0.2f,  0.1f,  0.25f,  0.1f);
     //CreateCubeObstacle(0.45f, 0.25f, 0.85f, 0.05f, 0.20f,  0.15f);
     //GComponent::KUKA_IIWA_MODEL   robot;

@@ -407,9 +407,9 @@ void RenderManager::NormalPass()
 void RenderManager::RenderingPass()
 {
 	// with cascade shadow
-	PassSpecifiedListCSMShadow(render_list_, [](const std::string& name) {
+	/*PassSpecifiedListCSMShadow(render_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetModelByName(name);
-	});
+	});*/
 
 	// with shadow
 	/*PassSpecifiedListShadow(render_list_, [](const std::string& name) {
@@ -417,9 +417,9 @@ void RenderManager::RenderingPass()
 	});*/
 	
 	// without shadow
-	/*PassSpecifiedListNormal(render_list_, [](const std::string& name) {
+	PassSpecifiedListNormal(render_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetModelByName(name);
-		});*/
+		});
 }
 void RenderManager::AuxiliaryPass()
 {
@@ -526,7 +526,21 @@ void RenderManager::PassSpecifiedListNormal(RenderList& list, std::function<Mode
 		
 		shader->use();
 		obj->setShaderProperty(*shader);
-		if (mesh) mesh->Draw();
+		if (mesh) {
+#ifdef _COLLISION_TEST
+			if (!obj->intesection_) {				
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				shader = scene_manager.GetShaderByName("base");
+				shader->use();
+				obj->setShaderProperty(*shader);
+			}
+			else {
+				
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
+#endif // _COLLISION_TEST
+			mesh->Draw();
+		}
 	}
 }
 

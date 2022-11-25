@@ -13,7 +13,7 @@
 #include "function/conversion.hpp"
 #include "component/component.hpp"
 
-#include <GComponent/GTransform.hpp>
+#include <GComponent/gtransform.hpp>
 
 #include <string>
 #include <memory>
@@ -139,7 +139,7 @@ protected:
 
 #ifdef _COLLISION_TEST
 public:
-    bool                    intesection_            = false;
+    bool                    intesection_            = true;
 #endif // _COLLISION_TEST
 
 };

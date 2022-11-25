@@ -9,7 +9,7 @@
 
 #include "motion/optimization/trajectory_optimization.h"
 
-#include <GComponent/GTransform.hpp>
+#include <GComponent/gtransform.hpp>
 
 #include <functional>
 #include <optional>

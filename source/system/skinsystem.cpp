@@ -1,5 +1,5 @@
 #include "skinsystem.h"
-#include "GComponent/GTransform.hpp"
+#include "GComponent/gtransform.hpp"
 #include "function/conversion.hpp"
 
 #ifdef _DEBUG

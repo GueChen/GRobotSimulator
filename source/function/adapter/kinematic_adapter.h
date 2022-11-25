@@ -8,7 +8,7 @@
 #define _KINEMATIC_ADAPTER_H
 
 #include <GComponent/grobotkinematic.h>
-#include <GComponent/GTransform.hpp>
+#include <GComponent/gtransform.hpp>
 
 #include <Eigen/Dense>
 

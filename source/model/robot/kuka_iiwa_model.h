@@ -1,7 +1,7 @@
 #ifndef KUKA_IIWA_MODEL_H
 #define KUKA_IIWA_MODEL_H
 
-#include "GComponent/GTransform.hpp"
+#include "GComponent/gtransform.hpp"
 
 #include "model/model.h"
 

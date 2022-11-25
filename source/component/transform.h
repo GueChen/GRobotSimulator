@@ -3,7 +3,7 @@
 
 #include "Component/component.hpp"
 
-#include "GComponent/GTransform.hpp"
+#include "GComponent/gtransform.hpp"
 
 #include <Eigen/Dense>
 

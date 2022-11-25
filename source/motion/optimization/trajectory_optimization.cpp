@@ -6,7 +6,7 @@
 #include "component/joint_group_component.h"
 #include "manager/physicsmanager.h"
 
-#include <GComponent/GTransform.hpp>
+#include <GComponent/gtransform.hpp>
 
 #include <algorithm>
 

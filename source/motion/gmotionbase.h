@@ -12,7 +12,7 @@
 #include "model/model.h"
 #include "motion/trajectory.h"
 
-#include <GComponent/GTransform.hpp>
+#include <GComponent/gtransform.hpp>
 #include <GComponent/GGeometry.hpp>
 #include <GComponent/GNumerical.hpp>
 
