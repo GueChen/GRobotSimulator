@@ -42,7 +42,7 @@ class PhysicsManager : public QObject{
 
 	Q_OBJECT
 
-	NonCoyable(PhysicsManager)
+	NonCopyable(PhysicsManager)
 
 public:
 	static PhysicsManager& getInstance();
@@ -86,9 +86,7 @@ protected:
 	std::unique_ptr<physx::PxPhysics,      std::function<void(physx::PxPhysics*)>>			physics_;
 	std::unique_ptr<physx::PxCooking,      std::function<void(physx::PxCooking*)>>			cookings_;
 	std::unique_ptr<physx::PxPvd,          std::function<void(physx::PxPvd*)>>				pvd_;
-	std::unique_ptr<physx::PxPvdTransport, std::function<void(physx::PxPvdTransport*)>>		transport_;
-
-	
+	std::unique_ptr<physx::PxPvdTransport, std::function<void(physx::PxPvdTransport*)>>		transport_;		
 };
 
 } // ~!namespace GComponent

@@ -29,7 +29,7 @@ class SkinSystem : public QObject
 {
     Q_OBJECT
 
-    NonCoyable(SkinSystem)
+    NonCopyable(SkinSystem)
 
 public:
     static SkinSystem&  getInstance();

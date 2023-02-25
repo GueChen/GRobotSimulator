@@ -25,7 +25,7 @@ class TcpSocketManager : public QObject {
 
 Q_OBJECT
 
-NonCoyable(TcpSocketManager)
+NonCopyable(TcpSocketManager)
 
 public:
 	static TcpSocketManager& getInstance();

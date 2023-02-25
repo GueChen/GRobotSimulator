@@ -80,13 +80,14 @@ PhysicsScene::PhysicsScene():
 }
 
 PhysicsScene::~PhysicsScene()
-{	
-	physics_impl_->m_scene->release();
+{		
+	// physics_impl_->m_scene->release();
 }
 
 void PhysicsScene::tick(float time_step)
 {
 	std::lock_guard<std::mutex> lock(mutex_lock_);
+	if (time_step <= 0.0f) return;
 	physics_impl_->m_scene->simulate(time_step);
 	physics_impl_->m_scene->fetchResults(true);
 }

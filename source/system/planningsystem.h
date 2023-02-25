@@ -31,7 +31,7 @@ enum TrajDisplayFlag {
 class PlanningSystem : public QObject{
 	Q_OBJECT
 
-	NonCoyable(PlanningSystem)
+	NonCopyable(PlanningSystem)
 
 public:
 	static PlanningSystem& getInstance();

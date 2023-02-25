@@ -62,7 +62,7 @@ class RenderManager : public SingletonBase<RenderManager>
 
 /// friends and macro
 	friend class SingletonBase<RenderManager>;
-	NonCoyable(RenderManager)
+	NonCopyable(RenderManager)
 
 /*_________Public Inteface Methods___________________________________________________________*/
 public:

@@ -6,7 +6,11 @@ namespace GComponent {
 
 PhysicsManager::PhysicsManager()  = default;
 PhysicsManager::~PhysicsManager() {
-	transport_->disconnect();
+	scenes_.clear();	
+	/*pvd_->release();
+	physics_->release();	
+	cookings_->release();
+	foundations_->release();*/
 }
 
 void PhysicsManager::tick(float delta_time)
@@ -31,7 +35,7 @@ void PhysicsManager::Initialize()
 
 	constexpr char PvdHost[] = "127.0.0.1";
 
-	auto physx_deleter = [](auto ptr) { ptr->release(); };
+	auto physx_deleter = [](auto ptr) { /*ptr->release();*/ };
 	foundations_	= std::unique_ptr<physx::PxFoundation, std::function<void(physx::PxFoundation*)>>(
 						PxCreateFoundation(PX_PHYSICS_VERSION, default_allocator_callback, default_error_callback), 
 						physx_deleter);
@@ -46,9 +50,7 @@ void PhysicsManager::Initialize()
 						physx_deleter);
 	physics_		= std::unique_ptr<physx::PxPhysics, std::function<void(physx::PxPhysics*)>>(
 						PxCreatePhysics(PX_PHYSICS_VERSION, *foundations_, default_scale, true, pvd_.get()),
-						[](physx::PxPhysics* ptr){
-							ptr->release();
-						});
+						physx_deleter);
 	PxInitExtensions(*physics_, pvd_.get());
 	pvd_->connect(*transport_, physx::PxPvdInstrumentationFlag::eALL);
 

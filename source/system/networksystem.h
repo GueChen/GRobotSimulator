@@ -18,7 +18,7 @@ namespace GComponent {
 class NetworkSystem : public QObject{
 	Q_OBJECT
 
-	NonCoyable(NetworkSystem)
+	NonCopyable(NetworkSystem)
 
 public:
 	static NetworkSystem& getInstance();

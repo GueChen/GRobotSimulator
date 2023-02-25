@@ -46,7 +46,7 @@ class ModelManager: public QObject
 {
     Q_OBJECT
 
-    NonCoyable(ModelManager)
+    NonCopyable(ModelManager)
 public:
     static      
     ModelManager& getInstance();

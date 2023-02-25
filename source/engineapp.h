@@ -56,7 +56,7 @@ class EngineApp : public QObject
 	using _PtrWithDel = unique_ptr<T, _Deleter<T>>;
 
 	Q_OBJECT
-	NonCoyable(EngineApp)
+	NonCopyable(EngineApp)
 public:
 	static EngineApp& getInstance(); 
 	virtual ~EngineApp();

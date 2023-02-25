@@ -57,7 +57,7 @@
     <IntDir>debug\</IntDir>
     <TargetName>GSimulator</TargetName>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
-    <IncludePath>$(ProjectDir)source;$(MyCppLib);$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)source;..\MyLib;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -202,9 +202,9 @@
     </QtUic>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\lib\Cpp\MyLib\GComponent\Geometry\gcollision_detection.cpp" />
-    <ClCompile Include="..\..\..\..\lib\Cpp\MyLib\GComponent\Geometry\gdistance.cpp" />
-    <ClCompile Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic.cpp" />
+    <ClCompile Include="..\MyLib\GComponent\Geometry\gcollision_detection.cpp" />
+    <ClCompile Include="..\MyLib\GComponent\Geometry\gdistance.cpp" />
+    <ClCompile Include="..\MyLib\GComponent\grobotkinematic.cpp" />
     <ClCompile Include="source\3rdparty\stb\stb_image.c" />
     <ClCompile Include="source\component\collider_component.cpp" />
     <ClCompile Include="source\component\component_factory.cpp" />
@@ -304,12 +304,13 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="source\ui\dialog\robotcreatedialog.h" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\Concept\gconcept.hpp" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\Geometry\gdistance.h" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\Geometry\gcollision_detection.h" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic-inl.hpp" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\heuristic_ik_solver.hpp" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\types.h" />
+    <ClInclude Include="..\MyLib\Concept\gconcept.hpp" />
+    <ClInclude Include="..\MyLib\GComponent\Geometry\gdistance.h" />
+    <ClInclude Include="..\MyLib\GComponent\Geometry\gcollision_detection.h" />
+    <ClInclude Include="..\MyLib\GComponent\Geometry\gjk_simplex.h" />
+    <ClInclude Include="..\MyLib\GComponent\grobotkinematic-inl.hpp" />
+    <ClInclude Include="..\MyLib\GComponent\heuristic_ik_solver.hpp" />
+    <ClInclude Include="..\MyLib\GComponent\types.h" />
     <ClInclude Include="source\component\collider_component.h" />
     <ClInclude Include="source\component\component_factory.h" />
     <ClInclude Include="source\component\rigidbody_component.h" />
@@ -378,12 +379,12 @@
     <QtMoc Include="source\ui\widget\viewport.h" />
     <QtMoc Include="source\ui\treeview\glmodeltreeview.h" />
     <QtMoc Include="source\base\editortreemodel.h" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GGeometry.hpp" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GNumerical.hpp" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic.h" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\gtransform.hpp" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\LSSolver\LinearSystemSolver.hpp" />
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\LSSolver\PenroseInverse.hpp" />
+    <ClInclude Include="..\MyLib\GComponent\GGeometry.hpp" />
+    <ClInclude Include="..\MyLib\GComponent\GNumerical.hpp" />
+    <ClInclude Include="..\MyLib\GComponent\grobotkinematic.h" />
+    <ClInclude Include="..\MyLib\GComponent\gtransform.hpp" />
+    <ClInclude Include="..\MyLib\LSSolver\LinearSystemSolver.hpp" />
+    <ClInclude Include="..\MyLib\LSSolver\PenroseInverse.hpp" />
     <ClInclude Include="source\component\joint_component.h" />
     <ClInclude Include="source\component\joint_group_component.h" />
     <ClInclude Include="source\component\tracker_component.h" />

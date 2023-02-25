@@ -28,6 +28,12 @@ Viewport::Viewport(QWidget* parent) :
 {
 	qRegisterMetaType<Viewport>("viewport");
 	setFocusPolicy(Qt::StrongFocus);
+	QSurfaceFormat set_format;
+	set_format.setSamples(4);
+	set_format.setVersion(4, 5);
+	setFormat(set_format);
+
+	std::cout << std::format("the sample num : {}\n", format().samples());
 }
 
 Viewport::~Viewport() {}
@@ -103,18 +109,22 @@ void Viewport::CustomUpdateImpl()
 	Model* cube0 = ModelManager::getInstance().GetModelByName("cube0");
 	Model* cube1 = ModelManager::getInstance().GetModelByName("cube1");
 	Model* sphere0 = ModelManager::getInstance().GetModelByName("sphere0");
-	
+	Model* capsule0 = ModelManager::getInstance().GetModelByName("capsule0");
 	
 	auto col_com0 = cube0->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());
 	auto col_com1 = cube1->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());
 	auto col_com2 = sphere0->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());
-	
+	auto cap_com3 = capsule0->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());	
+
 	auto shapes0 = col_com0->GetShapes();
 	auto shapes1 = col_com1->GetShapes();
 	auto shapes2 = col_com2->GetShapes();
+	auto shape_cap0 = cap_com3->GetShapes();
+
 	cube0->intesection_ = cube1->intesection_ 
 						= sphere0->intesection_
-						=false;
+						= capsule0->intesection_
+						= false;
 
 	for (auto& s0 : shapes0) {
 		auto box0 = dynamic_cast<BoxShape*>(s0);
@@ -154,9 +164,17 @@ boxcheckfinish:
 		}
 	}
 
-
-checkfinish:
-	;
+	for (auto& s0 : shape_cap0) {
+		auto shape_cap0 = dynamic_cast<CapsuleShape*>(s0);
+		for (auto& s1 : shapes0) {
+			auto box_shape = dynamic_cast<BoxShape*>(s1);
+			if (IntersectOBBCaspsule(Vec3(box_shape->m_half_x, box_shape->m_half_y, box_shape->m_half_z), cube0->getTransGlobal(), cube0->getRotGlobal(),
+				shape_cap0->m_radius, shape_cap0->m_half_height, capsule0->getTransGlobal(), capsule0->getRotGlobal())) {
+				cube0->intesection_ = true;
+				capsule0->intesection_ = true;
+			}
+		}
+	}
 }
 
 /*________________________________Events Implementations_____________________________________________*/
@@ -189,7 +207,7 @@ void Viewport::keyPressEvent(QKeyEvent* event)
 
 	if (event->key() == Qt::Key_Delete) {
 		key_state |= static_cast<size_t>(GComponent::KeyButtonState::KeyDelete);
-		//std::cout << std::format("we would like to current Selected Model: {}\n", 0);
+		//std::cout << std::set_format("we would like to current Selected Model: {}\n", 0);
 	}
 
 	ui_state_.OnKeyPress(key_state);

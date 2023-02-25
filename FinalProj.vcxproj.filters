@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -75,7 +75,7 @@
     <ClCompile Include="source\pattern\widgetbuilder.cpp">
       <Filter>pattern</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic.cpp">
+    <ClCompile Include="..\MyLib\GComponent\grobotkinematic.cpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClCompile>
     <ClCompile Include="source\function\adapter\kinematic_adapter-inl.h">
@@ -246,10 +246,10 @@
     <ClCompile Include="source\motion\planning_task.cpp">
       <Filter>motion</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\Cpp\MyLib\GComponent\Geometry\gcollision_detection.cpp">
+    <ClCompile Include="..\MyLib\GComponent\Geometry\gcollision_detection.cpp">
       <Filter>base\mylib\GComponent\Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\Cpp\MyLib\GComponent\Geometry\gdistance.cpp">
+    <ClCompile Include="..\MyLib\GComponent\Geometry\gdistance.cpp">
       <Filter>base\mylib\GComponent\Geometry</Filter>
     </ClCompile>
   </ItemGroup>
@@ -332,22 +332,22 @@
     <ClInclude Include="source\function\adapter\component_ui_factory.h">
       <Filter>function\adapter</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GGeometry.hpp">
+    <ClInclude Include="..\MyLib\GComponent\GGeometry.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\GNumerical.hpp">
+    <ClInclude Include="..\MyLib\GComponent\GNumerical.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic.h">
+    <ClInclude Include="..\MyLib\GComponent\grobotkinematic.h">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\gtransform.hpp">
+    <ClInclude Include="..\MyLib\GComponent\gtransform.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\LSSolver\LinearSystemSolver.hpp">
+    <ClInclude Include="..\MyLib\LSSolver\LinearSystemSolver.hpp">
       <Filter>base\mylib\LinearSystemSolver</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\LSSolver\PenroseInverse.hpp">
+    <ClInclude Include="..\MyLib\LSSolver\PenroseInverse.hpp">
       <Filter>base\mylib\LinearSystemSolver</Filter>
     </ClInclude>
     <ClInclude Include="source\ui\wrapper\extensiblelist.h">
@@ -365,16 +365,16 @@
     <ClInclude Include="source\function\builder\robotbuilder.h">
       <Filter>function\builder</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\grobotkinematic-inl.hpp">
+    <ClInclude Include="..\MyLib\GComponent\grobotkinematic-inl.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\heuristic_ik_solver.hpp">
+    <ClInclude Include="..\MyLib\GComponent\heuristic_ik_solver.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
     <ClInclude Include="source\model\basic\skybox.h">
       <Filter>model\basic</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\Concept\gconcept.hpp">
+    <ClInclude Include="..\MyLib\Concept\gconcept.hpp">
       <Filter>base\mylib\Concept</Filter>
     </ClInclude>
     <ClInclude Include="source\render\framebufferobject.h">
@@ -482,13 +482,16 @@
     <ClInclude Include="source\function\serializer.h">
       <Filter>function</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\Geometry\gcollision_detection.h">
+    <ClInclude Include="..\MyLib\GComponent\Geometry\gcollision_detection.h">
       <Filter>base\mylib\GComponent\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\types.h">
+    <ClInclude Include="..\MyLib\GComponent\types.h">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\Cpp\MyLib\GComponent\Geometry\gdistance.h">
+    <ClInclude Include="..\MyLib\GComponent\Geometry\gdistance.h">
+      <Filter>base\mylib\GComponent\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MyLib\GComponent\Geometry\gjk_simplex.h">
       <Filter>base\mylib\GComponent\Geometry</Filter>
     </ClInclude>
   </ItemGroup>

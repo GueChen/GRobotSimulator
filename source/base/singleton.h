@@ -8,7 +8,7 @@
  **/
 #include <type_traits>
 
-#define NonCoyable(classname) \
+#define NonCopyable(classname) \
     public:\
     classname(const classname &) = delete;\
     classname& operator=(const classname &) = delete;

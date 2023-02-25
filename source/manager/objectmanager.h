@@ -28,7 +28,7 @@ class ObjectManager:public QObject
 {
 	Q_OBJECT
 
-	NonCoyable(ObjectManager)
+	NonCopyable(ObjectManager)
 public:
 	static
 	ObjectManager& getInstance();

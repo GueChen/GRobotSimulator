@@ -23,7 +23,7 @@ class TransmitSystem : public QObject {
 
 	Q_OBJECT
 
-	NonCoyable(TransmitSystem)
+	NonCopyable(TransmitSystem)
 
 public:
 	static TransmitSystem& getInstance();

@@ -54,7 +54,7 @@ struct CubemapMsg {
 class ResourceManager : public SingletonBase<ResourceManager>, public QObject
 {
     friend class SingletonBase<ResourceManager>;
-    NonCoyable(ResourceManager)
+    NonCopyable(ResourceManager)
 
 public:
     ~ResourceManager();

@@ -26,7 +26,7 @@ class PlanningManager{
 		eStop = 0, eReadyPause = 1, eExecution = 2, ePause = 10
 	};
 
-	NonCoyable(PlanningManager)
+	NonCopyable(PlanningManager)
 
 public:
 	static PlanningManager& getInstance();
