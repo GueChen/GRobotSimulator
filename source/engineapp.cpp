@@ -2,7 +2,10 @@
 
 #include "ui_mainwindow.h"
 
-#include "mainwindow.h"
+#include "ui/treeview/glmodeltreeview.h"
+#include "ui/widget/viewport.h"
+
+#include "ui/mainwindow.h"
 #include "ui/dialog/robotcreatedialog.h"
 #include "ui/dialog/planningdialog.h"
 #include "ui/dialog/networkdialog.h"

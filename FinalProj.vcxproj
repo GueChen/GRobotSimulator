@@ -57,7 +57,7 @@
     <IntDir>debug\</IntDir>
     <TargetName>GSimulator</TargetName>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
-    <IncludePath>$(ProjectDir)source;..\MyLib;$(IncludePath)</IncludePath>
+    <IncludePath>$(QT_INCLUDE);$(ProjectDir)source;..\GComponentBaseLib;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -202,9 +202,9 @@
     </QtUic>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\MyLib\GComponent\Geometry\gcollision_detection.cpp" />
-    <ClCompile Include="..\MyLib\GComponent\Geometry\gdistance.cpp" />
-    <ClCompile Include="..\MyLib\GComponent\grobotkinematic.cpp" />
+    <ClCompile Include="..\GComponentBaseLib\GComponent\Geometry\gcollision_detection.cpp" />
+    <ClCompile Include="..\GComponentBaseLib\GComponent\Geometry\gdistance.cpp" />
+    <ClCompile Include="..\GComponentBaseLib\GComponent\grobotkinematic.cpp" />
     <ClCompile Include="source\3rdparty\stb\stb_image.c" />
     <ClCompile Include="source\component\collider_component.cpp" />
     <ClCompile Include="source\component\component_factory.cpp" />
@@ -221,9 +221,7 @@
     <ClCompile Include="source\component\tracker_component.cpp" />
     <ClCompile Include="source\function\adapter\component_ui_factory.cpp" />
     <ClCompile Include="source\function\adapter\kinematic_adapter-inl.h" />
-    <ClCompile Include="source\function\adapter\kinematic_adpter.cpp" />
     <ClCompile Include="source\function\adapter\modelloader_qgladapter.cpp" />
-    <ClCompile Include="source\function\builder\robotbuilder.cpp" />
     <ClCompile Include="source\function\picking_helper.cpp" />
     <ClCompile Include="source\model\basic\skybox.cpp" />
     <ClCompile Include="source\motion\dualsynccirclemotion.cpp" />
@@ -293,8 +291,8 @@
     <ClCompile Include="source\model\basegrid.cpp" />
     <ClCompile Include="source\model\robot\dual_arm_platform.cpp" />
     <ClCompile Include="source\model\robot\kuka_iiwa_model.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="mainwindow.cpp" />
+    <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\ui\mainwindow.cpp" />
     <ClCompile Include="source\render\rendermesh.cpp" />
     <ClCompile Include="source\model\model.cpp" />
     <ClCompile Include="source\function\modelloader.cpp" />
@@ -304,13 +302,13 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="source\ui\dialog\robotcreatedialog.h" />
-    <ClInclude Include="..\MyLib\Concept\gconcept.hpp" />
-    <ClInclude Include="..\MyLib\GComponent\Geometry\gdistance.h" />
-    <ClInclude Include="..\MyLib\GComponent\Geometry\gcollision_detection.h" />
-    <ClInclude Include="..\MyLib\GComponent\Geometry\gjk_simplex.h" />
-    <ClInclude Include="..\MyLib\GComponent\grobotkinematic-inl.hpp" />
-    <ClInclude Include="..\MyLib\GComponent\heuristic_ik_solver.hpp" />
-    <ClInclude Include="..\MyLib\GComponent\types.h" />
+    <ClInclude Include="..\GComponentBaseLib\Concept\gconcept.hpp" />
+    <ClInclude Include="..\GComponentBaseLib\GComponent\Geometry\gdistance.h" />
+    <ClInclude Include="..\GComponentBaseLib\GComponent\Geometry\gcollision_detection.h" />
+    <ClInclude Include="..\GComponentBaseLib\GComponent\Geometry\gjk_simplex.h" />
+    <ClInclude Include="..\GComponentBaseLib\GComponent\grobotkinematic-inl.hpp" />
+    <ClInclude Include="..\GComponentBaseLib\GComponent\heuristic_ik_solver.hpp" />
+    <ClInclude Include="..\GComponentBaseLib\GComponent\types.h" />
     <ClInclude Include="source\component\collider_component.h" />
     <ClInclude Include="source\component\component_factory.h" />
     <ClInclude Include="source\component\rigidbody_component.h" />
@@ -330,7 +328,6 @@
     <ClInclude Include="source\base\global\global_qss.h" />
     <ClInclude Include="source\component\kinematic_component.h" />
     <ClInclude Include="source\function\adapter\kinematic_adapter.h" />
-    <ClInclude Include="source\function\builder\robotbuilder.h" />
     <QtMoc Include="source\ui\widget\kinematic_widget.h" />
     <QtMoc Include="source\ui\widget\tracker_widget.h" />
     <ClInclude Include="source\model\basic\skybox.h" />
@@ -379,12 +376,12 @@
     <QtMoc Include="source\ui\widget\viewport.h" />
     <QtMoc Include="source\ui\treeview\glmodeltreeview.h" />
     <QtMoc Include="source\base\editortreemodel.h" />
-    <ClInclude Include="..\MyLib\GComponent\GGeometry.hpp" />
-    <ClInclude Include="..\MyLib\GComponent\GNumerical.hpp" />
-    <ClInclude Include="..\MyLib\GComponent\grobotkinematic.h" />
-    <ClInclude Include="..\MyLib\GComponent\gtransform.hpp" />
-    <ClInclude Include="..\MyLib\LSSolver\LinearSystemSolver.hpp" />
-    <ClInclude Include="..\MyLib\LSSolver\PenroseInverse.hpp" />
+    <ClInclude Include="..\GComponentBaseLib\GComponent\GGeometry.hpp" />
+    <ClInclude Include="..\GComponentBaseLib\GComponent\GNumerical.hpp" />
+    <ClInclude Include="..\GComponentBaseLib\GComponent\grobotkinematic.h" />
+    <ClInclude Include="..\GComponentBaseLib\GComponent\gtransform.hpp" />
+    <ClInclude Include="..\GComponentBaseLib\LSSolver\LinearSystemSolver.hpp" />
+    <ClInclude Include="..\GComponentBaseLib\LSSolver\PenroseInverse.hpp" />
     <ClInclude Include="source\component\joint_component.h" />
     <ClInclude Include="source\component\joint_group_component.h" />
     <ClInclude Include="source\component\tracker_component.h" />
@@ -440,7 +437,7 @@
     </ClInclude>
     <ClInclude Include="source\model\robot\dual_arm_platform.h" />
     <ClInclude Include="source\model\robot\kuka_iiwa_model.h" />
-    <QtMoc Include="mainwindow.h">
+    <QtMoc Include="source\ui\mainwindow.h">
     </QtMoc>
     <ClInclude Include="source\render\rendermesh.h" />
     <ClInclude Include="source\model\model.h" />
@@ -449,7 +446,7 @@
     <ClInclude Include="source\model\robot\robot_body_model.h" />
   </ItemGroup>
   <ItemGroup>
-    <QtUic Include="mainwindow.ui">
+    <QtUic Include="UI\mainwindow.ui">
     </QtUic>
     <QtUic Include="UI\Dialog\networkdialog.ui" />
     <QtUic Include="UI\Dialog\planningdialog.ui" />

@@ -2783,7 +2783,7 @@ QMenu::separator{
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="resource/icons.qrc"/>
+  <include location="../resource/icons.qrc"/>
  </resources>
  <connections/>
  <buttongroups>

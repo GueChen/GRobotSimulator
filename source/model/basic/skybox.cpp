@@ -67,12 +67,12 @@ void SkyBox::Draw()
         shader->link();
         shader->use();
         setShaderProperty(*shader);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, cube_texture_id_);
+        // glBindTexture(GL_TEXTURE_CUBE_MAP, cube_texture_id_);
     }
     if (RenderMesh* mesh = resource_manager.GetMeshByName(mesh_); mesh) {
         mesh->Draw();
     }
-    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    // glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
 void SkyBox::tickImpl(float delta_time)

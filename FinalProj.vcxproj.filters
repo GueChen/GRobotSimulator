@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\simplexmesh\gball.cpp">
       <Filter>model\simplexmesh</Filter>
     </ClCompile>
@@ -14,7 +14,7 @@
     <ClCompile Include="source\model\model.cpp">
       <Filter>model</Filter>
     </ClCompile>
-    <ClCompile Include="mainwindow.cpp">
+    <ClCompile Include="source\ui\mainwindow.cpp">
       <Filter>ui_surface</Filter>
     </ClCompile>
     <ClCompile Include="source\render\myshader.cpp">
@@ -75,17 +75,11 @@
     <ClCompile Include="source\pattern\widgetbuilder.cpp">
       <Filter>pattern</Filter>
     </ClCompile>
-    <ClCompile Include="..\MyLib\GComponent\grobotkinematic.cpp">
+    <ClCompile Include="..\GComponentBaseLib\GComponent\grobotkinematic.cpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClCompile>
     <ClCompile Include="source\function\adapter\kinematic_adapter-inl.h">
       <Filter>function\adapter</Filter>
-    </ClCompile>
-    <ClCompile Include="source\function\adapter\kinematic_adpter.cpp">
-      <Filter>function\adapter</Filter>
-    </ClCompile>
-    <ClCompile Include="source\function\builder\robotbuilder.cpp">
-      <Filter>function\builder</Filter>
     </ClCompile>
     <ClCompile Include="source\ui\widget\kinematic_widget.cpp">
       <Filter>ui_surface\widget</Filter>
@@ -246,10 +240,10 @@
     <ClCompile Include="source\motion\planning_task.cpp">
       <Filter>motion</Filter>
     </ClCompile>
-    <ClCompile Include="..\MyLib\GComponent\Geometry\gcollision_detection.cpp">
+    <ClCompile Include="..\GComponentBaseLib\GComponent\Geometry\gcollision_detection.cpp">
       <Filter>base\mylib\GComponent\Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="..\MyLib\GComponent\Geometry\gdistance.cpp">
+    <ClCompile Include="..\GComponentBaseLib\GComponent\Geometry\gdistance.cpp">
       <Filter>base\mylib\GComponent\Geometry</Filter>
     </ClCompile>
   </ItemGroup>
@@ -332,22 +326,22 @@
     <ClInclude Include="source\function\adapter\component_ui_factory.h">
       <Filter>function\adapter</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\GComponent\GGeometry.hpp">
+    <ClInclude Include="..\GComponentBaseLib\GComponent\GGeometry.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\GComponent\GNumerical.hpp">
+    <ClInclude Include="..\GComponentBaseLib\GComponent\GNumerical.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\GComponent\grobotkinematic.h">
+    <ClInclude Include="..\GComponentBaseLib\GComponent\grobotkinematic.h">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\GComponent\gtransform.hpp">
+    <ClInclude Include="..\GComponentBaseLib\GComponent\gtransform.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\LSSolver\LinearSystemSolver.hpp">
+    <ClInclude Include="..\GComponentBaseLib\LSSolver\LinearSystemSolver.hpp">
       <Filter>base\mylib\LinearSystemSolver</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\LSSolver\PenroseInverse.hpp">
+    <ClInclude Include="..\GComponentBaseLib\LSSolver\PenroseInverse.hpp">
       <Filter>base\mylib\LinearSystemSolver</Filter>
     </ClInclude>
     <ClInclude Include="source\ui\wrapper\extensiblelist.h">
@@ -362,19 +356,16 @@
     <ClInclude Include="source\function\adapter\kinematic_adapter.h">
       <Filter>function\adapter</Filter>
     </ClInclude>
-    <ClInclude Include="source\function\builder\robotbuilder.h">
-      <Filter>function\builder</Filter>
-    </ClInclude>
-    <ClInclude Include="..\MyLib\GComponent\grobotkinematic-inl.hpp">
+    <ClInclude Include="..\GComponentBaseLib\GComponent\grobotkinematic-inl.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\GComponent\heuristic_ik_solver.hpp">
+    <ClInclude Include="..\GComponentBaseLib\GComponent\heuristic_ik_solver.hpp">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
     <ClInclude Include="source\model\basic\skybox.h">
       <Filter>model\basic</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\Concept\gconcept.hpp">
+    <ClInclude Include="..\GComponentBaseLib\Concept\gconcept.hpp">
       <Filter>base\mylib\Concept</Filter>
     </ClInclude>
     <ClInclude Include="source\render\framebufferobject.h">
@@ -482,21 +473,21 @@
     <ClInclude Include="source\function\serializer.h">
       <Filter>function</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\GComponent\Geometry\gcollision_detection.h">
+    <ClInclude Include="..\GComponentBaseLib\GComponent\Geometry\gcollision_detection.h">
       <Filter>base\mylib\GComponent\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\GComponent\types.h">
+    <ClInclude Include="..\GComponentBaseLib\GComponent\types.h">
       <Filter>base\mylib\GComponent</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\GComponent\Geometry\gdistance.h">
+    <ClInclude Include="..\GComponentBaseLib\GComponent\Geometry\gdistance.h">
       <Filter>base\mylib\GComponent\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="..\MyLib\GComponent\Geometry\gjk_simplex.h">
+    <ClInclude Include="..\GComponentBaseLib\GComponent\Geometry\gjk_simplex.h">
       <Filter>base\mylib\GComponent\Geometry</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="mainwindow.h">
+    <QtMoc Include="source\ui\mainwindow.h">
       <Filter>ui_surface</Filter>
     </QtMoc>
     <QtMoc Include="source\base\editortreemodel.h">
@@ -556,7 +547,7 @@
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <QtUic Include="mainwindow.ui">
+    <QtUic Include="UI\mainwindow.ui">
       <Filter>ui</Filter>
     </QtUic>
     <QtUic Include="UI\Dialog\robotcreatedialog.ui">

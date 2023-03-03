@@ -91,7 +91,7 @@ bool RenderManager::InitFrameBuffer()
 		gl_->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 		gl_->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 		constexpr float bordercolor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-		glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, bordercolor);
+		gl_->glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, bordercolor);
 
 		// Bind Texture on Frame Buffer
 		gl_->glBindFramebuffer(GL_FRAMEBUFFER, m_csm_depth_FBO);
@@ -529,14 +529,14 @@ void RenderManager::PassSpecifiedListNormal(RenderList& list, std::function<Mode
 		if (mesh) {
 #ifdef _COLLISION_TEST
 			if (!obj->intesection_) {				
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				shader = scene_manager.GetShaderByName("base");
 				shader->use();
 				obj->setShaderProperty(*shader);
 			}
 			else {
 				
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
 #endif // _COLLISION_TEST
 			mesh->Draw();
@@ -585,10 +585,10 @@ void RenderManager::PassSpecifiedListCSMShadow(RenderList& list, function<Rawptr
 		if (mesh) {
 #ifdef _COLLISION_TEST
 			if (!obj->intesection_) {
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			}
 			else {
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
 #endif // _COLLISION_TEST
 			mesh->Draw();
