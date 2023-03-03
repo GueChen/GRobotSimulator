@@ -1,0 +1,7 @@
+[submodule "GComponentBaseLib"]
+	path = GComponentBaseLib
+	url    = https://github.com/GueChen/GComponentBaseLib.git
+
+[submodule "GSimulator"]
+	path = GSimulator
+	url    = https://gitee.com/GueChen/qt-uirobot.git collision-dev
