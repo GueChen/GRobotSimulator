@@ -1,0 +1,823 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\simplexmesh\gball.cpp">
+      <Filter>model\simplexmesh</Filter>
+    </ClCompile>
+    <ClCompile Include="source\simplexmesh\gcurves.cpp">
+      <Filter>model\simplexmesh</Filter>
+    </ClCompile>
+    <ClCompile Include="source\simplexmesh\gline.cpp">
+      <Filter>model\simplexmesh</Filter>
+    </ClCompile>
+    <ClCompile Include="source\model\model.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\mainwindow.cpp">
+      <Filter>ui_surface</Filter>
+    </ClCompile>
+    <ClCompile Include="source\render\myshader.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
+    <ClCompile Include="source\base\editortreemodel.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="source\base\treeitem.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="source\model\robot\dual_arm_platform.cpp">
+      <Filter>model\robot</Filter>
+    </ClCompile>
+    <ClCompile Include="source\model\robot\kuka_iiwa_model.cpp">
+      <Filter>model\robot</Filter>
+    </ClCompile>
+    <ClCompile Include="source\model\robot\robot_body_model.cpp">
+      <Filter>model\robot</Filter>
+    </ClCompile>
+    <ClCompile Include="source\function\modelloader.cpp">
+      <Filter>function</Filter>
+    </ClCompile>
+    <ClCompile Include="source\engineapp.cpp" />
+    <ClCompile Include="source\function\picking_helper.cpp">
+      <Filter>function</Filter>
+    </ClCompile>
+    <ClCompile Include="source\manager\editor\uistatemanager.cpp">
+      <Filter>manager\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\treeview\glmodeltreeview.cpp">
+      <Filter>ui_surface\treeview</Filter>
+    </ClCompile>
+    <ClCompile Include="source\function\adapter\modelloader_qgladapter.cpp">
+      <Filter>function\adapter</Filter>
+    </ClCompile>
+    <ClCompile Include="source\model\basegrid.cpp">
+      <Filter>model\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="source\model\axis\qtaxis.cpp">
+      <Filter>model\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\widget\viewport.cpp">
+      <Filter>ui_surface\openglwidget</Filter>
+    </ClCompile>
+    <ClCompile Include="source\render\rendermesh.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
+    <ClCompile Include="source\function\adapter\component_ui_factory.cpp">
+      <Filter>function\adapter</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\wrapper\extensiblelist.cpp">
+      <Filter>ui_surface\wrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\dialog\robotcreatedialog.cpp">
+      <Filter>ui_surface\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="source\pattern\widgetbuilder.cpp">
+      <Filter>pattern</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GComponentBaseLib\GComponent\grobotkinematic.cpp">
+      <Filter>base\mylib\GComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="source\function\adapter\kinematic_adapter-inl.h">
+      <Filter>function\adapter</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\widget\kinematic_widget.cpp">
+      <Filter>ui_surface\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\widget\tracker_widget.cpp">
+      <Filter>ui_surface\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="source\model\basic\skybox.cpp">
+      <Filter>model\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="source\render\framebufferobject.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
+    <ClCompile Include="source\model\basic\postprocess_quads.cpp">
+      <Filter>model\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="source\3rdparty\stb\stb_image.c">
+      <Filter>3rdparty\stb</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\menu\componentmenu.cpp">
+      <Filter>ui_surface\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="source\render\rhi\render_global_info.cpp">
+      <Filter>render\rhi</Filter>
+    </ClCompile>
+    <ClCompile Include="source\physics\physx\physx_utils.cpp">
+      <Filter>physics\physx</Filter>
+    </ClCompile>
+    <ClCompile Include="source\physics\physics_scene.cpp">
+      <Filter>physics</Filter>
+    </ClCompile>
+    <ClCompile Include="source\physics\rigidbody_actor.cpp">
+      <Filter>physics</Filter>
+    </ClCompile>
+    <ClCompile Include="source\manager\modelmanager.cpp">
+      <Filter>manager\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\manager\objectmanager.cpp">
+      <Filter>manager\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\manager\physicsmanager.cpp">
+      <Filter>manager\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\manager\rendermanager.cpp">
+      <Filter>manager\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\manager\resourcemanager.cpp">
+      <Filter>manager\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\collider_component.cpp">
+      <Filter>component\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\joint_group_component.cpp">
+      <Filter>component\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\kinematic_component.cpp">
+      <Filter>component\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\rigidbody_component.cpp">
+      <Filter>component\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\tracker_component.cpp">
+      <Filter>component\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\transform.cpp">
+      <Filter>component\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\joint_component.cpp">
+      <Filter>component\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\ptpmotion.cpp">
+      <Filter>motion\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\gmotionbase.cpp">
+      <Filter>motion</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\linmotion.cpp">
+      <Filter>motion\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\circmotion.cpp">
+      <Filter>motion\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\splinemotion.cpp">
+      <Filter>motion\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\dualsynclinemotion.cpp">
+      <Filter>motion\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\manager\planningmanager.cpp">
+      <Filter>manager\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\dialog\planningdialog.cpp">
+      <Filter>ui_surface\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="source\system\planningsystem.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\dualsynccirclemotion.cpp">
+      <Filter>motion\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\trajectory.cpp">
+      <Filter>motion</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\optimization\trajectory_optimization.cpp">
+      <Filter>motion\optimization</Filter>
+    </ClCompile>
+    <ClCompile Include="source\component\component_factory.cpp">
+      <Filter>component</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\dialog\networkdialog.cpp">
+      <Filter>ui_surface\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="source\system\networksystem.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="source\manager\tcpsocketmanager.cpp">
+      <Filter>manager\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\function\adapter\kuka_iiwa\kuka_iiwa_decoder.cpp">
+      <Filter>function\adapter\kuka_iiwa</Filter>
+    </ClCompile>
+    <ClCompile Include="source\function\adapter\kuka_iiwa\kuka_iiwa_encoder.cpp">
+      <Filter>function\adapter\kuka_iiwa</Filter>
+    </ClCompile>
+    <ClCompile Include="source\system\transmitsystem.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\keepermotion.cpp">
+      <Filter>motion\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\optimization\skinsensor_optimizer.cpp">
+      <Filter>motion\optimization</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\dialog\networkdialog.cpp">
+      <Filter>ui_surface\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="source\system\networksystem.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="source\manager\tcpsocketmanager.cpp">
+      <Filter>manager\src</Filter>
+    </ClCompile>
+    <ClCompile Include="source\function\adapter\kuka_iiwa\kuka_iiwa_decoder.cpp">
+      <Filter>function\adapter\kuka_iiwa</Filter>
+    </ClCompile>
+    <ClCompile Include="source\function\adapter\kuka_iiwa\kuka_iiwa_encoder.cpp">
+      <Filter>function\adapter\kuka_iiwa</Filter>
+    </ClCompile>
+    <ClCompile Include="source\system\transmitsystem.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\dialog\skindialog.cpp">
+      <Filter>ui_surface\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="source\system\skinsystem.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="source\motion\planning_task.cpp">
+      <Filter>motion</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GComponentBaseLib\GComponent\Geometry\gcollision_detection.cpp">
+      <Filter>base\mylib\GComponent\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GComponentBaseLib\GComponent\Geometry\gdistance.cpp">
+      <Filter>base\mylib\GComponent\Geometry</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\motion\gmotionbase.h">
+      <Filter>motion</Filter>
+    </ClInclude>
+    <ClInclude Include="source\simplexmesh\gball.h">
+      <Filter>model\simplexmesh</Filter>
+    </ClInclude>
+    <ClInclude Include="source\simplexmesh\gcurves.h">
+      <Filter>model\simplexmesh</Filter>
+    </ClInclude>
+    <ClInclude Include="source\simplexmesh\gline.h">
+      <Filter>model\simplexmesh</Filter>
+    </ClInclude>
+    <ClInclude Include="source\simplexmesh\simplexmodel.hpp">
+      <Filter>model\simplexmesh</Filter>
+    </ClInclude>
+    <ClInclude Include="source\function\conversion.hpp">
+      <Filter>function</Filter>
+    </ClInclude>
+    <ClInclude Include="source\function\stringprocessor.hpp">
+      <Filter>function</Filter>
+    </ClInclude>
+    <ClInclude Include="source\model\model.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="source\render\rendering_datastructure.hpp">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="source\render\camera.hpp">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="source\render\mygl.hpp">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="source\render\myshader.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="source\base\treeitem.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="source\model\robot\dual_arm_platform.h">
+      <Filter>model\robot</Filter>
+    </ClInclude>
+    <ClInclude Include="source\model\robot\kuka_iiwa_model.h">
+      <Filter>model\robot</Filter>
+    </ClInclude>
+    <ClInclude Include="source\model\robot\robot_body_model.h">
+      <Filter>model\robot</Filter>
+    </ClInclude>
+    <ClInclude Include="source\function\modelloader.h">
+      <Filter>function</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\component.hpp">
+      <Filter>component</Filter>
+    </ClInclude>
+    <ClInclude Include="source\base\singleton.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="source\render\raw_mesh.hpp">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="source\function\picking_helper.h">
+      <Filter>function</Filter>
+    </ClInclude>
+    <ClInclude Include="source\function\adapter\modelloader_qgladapter.h">
+      <Filter>function\adapter</Filter>
+    </ClInclude>
+    <ClInclude Include="source\model\basegrid.h">
+      <Filter>model\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="source\model\axis\qtaxis.h">
+      <Filter>model\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="source\render\rendermesh.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="source\function\adapter\component_ui_factory.h">
+      <Filter>function\adapter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GComponentBaseLib\GComponent\GGeometry.hpp">
+      <Filter>base\mylib\GComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GComponentBaseLib\GComponent\GNumerical.hpp">
+      <Filter>base\mylib\GComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GComponentBaseLib\GComponent\grobotkinematic.h">
+      <Filter>base\mylib\GComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GComponentBaseLib\GComponent\gtransform.hpp">
+      <Filter>base\mylib\GComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GComponentBaseLib\LSSolver\LinearSystemSolver.hpp">
+      <Filter>base\mylib\LinearSystemSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GComponentBaseLib\LSSolver\PenroseInverse.hpp">
+      <Filter>base\mylib\LinearSystemSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="source\ui\wrapper\extensiblelist.h">
+      <Filter>ui_surface\wrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="source\pattern\widgetbuilder.h">
+      <Filter>pattern</Filter>
+    </ClInclude>
+    <ClInclude Include="source\base\global\global_qss.h">
+      <Filter>base\global</Filter>
+    </ClInclude>
+    <ClInclude Include="source\function\adapter\kinematic_adapter.h">
+      <Filter>function\adapter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GComponentBaseLib\GComponent\grobotkinematic-inl.hpp">
+      <Filter>base\mylib\GComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GComponentBaseLib\GComponent\heuristic_ik_solver.hpp">
+      <Filter>base\mylib\GComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="source\model\basic\skybox.h">
+      <Filter>model\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GComponentBaseLib\Concept\gconcept.hpp">
+      <Filter>base\mylib\Concept</Filter>
+    </ClInclude>
+    <ClInclude Include="source\render\framebufferobject.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="source\model\basic\postprocess_quads.h">
+      <Filter>model\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="source\ui\menu\componentmenu.h">
+      <Filter>ui_surface\menu</Filter>
+    </ClInclude>
+    <ClInclude Include="source\render\rhi\render_global_info.h">
+      <Filter>render\rhi</Filter>
+    </ClInclude>
+    <ClInclude Include="source\physics\physics_scene.h">
+      <Filter>physics</Filter>
+    </ClInclude>
+    <ClInclude Include="source\physics\physx\physx_utils.h">
+      <Filter>physics\physx</Filter>
+    </ClInclude>
+    <ClInclude Include="source\physics\rigidbody_actor.h">
+      <Filter>physics</Filter>
+    </ClInclude>
+    <ClInclude Include="source\physics\abstract_shape.hpp">
+      <Filter>physics</Filter>
+    </ClInclude>
+    <ClInclude Include="source\manager\rendermanager.h">
+      <Filter>manager\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\manager\resourcemanager.h">
+      <Filter>manager\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\collider_component.h">
+      <Filter>component\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\joint_component.h">
+      <Filter>component\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\joint_group_component.h">
+      <Filter>component\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\kinematic_component.h">
+      <Filter>component\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\rigidbody_component.h">
+      <Filter>component\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\tracker_component.h">
+      <Filter>component\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\transform.h">
+      <Filter>component\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\ptpmotion.h">
+      <Filter>motion\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\linmotion.h">
+      <Filter>motion\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\circmotion.h">
+      <Filter>motion\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\splinemotion.h">
+      <Filter>motion\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\dualsynclinemotion.h">
+      <Filter>motion\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\manager\planningmanager.h">
+      <Filter>manager\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\dualsynccirclemotion.h">
+      <Filter>motion\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\trajectory.h">
+      <Filter>motion</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\optimization\trajectory_optimization.h">
+      <Filter>motion\optimization</Filter>
+    </ClInclude>
+    <ClInclude Include="source\component\component_factory.h">
+      <Filter>component</Filter>
+    </ClInclude>
+    <ClInclude Include="source\physics\physics_datastructure.hpp">
+      <Filter>physics</Filter>
+    </ClInclude>
+    <ClInclude Include="source\function\adapter\kuka_iiwa\kuka_iiwa_decoder.h">
+      <Filter>function\adapter\kuka_iiwa</Filter>
+    </ClInclude>
+    <ClInclude Include="source\function\adapter\kuka_iiwa\kuka_iiwa_encoder.h">
+      <Filter>function\adapter\kuka_iiwa</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\keepermotion.h">
+      <Filter>motion\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\optimization\skinsensor_optimizer.h">
+      <Filter>motion\optimization</Filter>
+    </ClInclude>
+    <ClInclude Include="source\motion\planning_task.h">
+      <Filter>motion</Filter>
+    </ClInclude>
+    <ClInclude Include="source\physics\collision_detection.h">
+      <Filter>physics</Filter>
+    </ClInclude>
+    <ClInclude Include="source\function\serializer.h">
+      <Filter>function</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GComponentBaseLib\GComponent\Geometry\gcollision_detection.h">
+      <Filter>base\mylib\GComponent\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GComponentBaseLib\GComponent\types.h">
+      <Filter>base\mylib\GComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GComponentBaseLib\GComponent\Geometry\gdistance.h">
+      <Filter>base\mylib\GComponent\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GComponentBaseLib\GComponent\Geometry\gjk_simplex.h">
+      <Filter>base\mylib\GComponent\Geometry</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="source\ui\mainwindow.h">
+      <Filter>ui_surface</Filter>
+    </QtMoc>
+    <QtMoc Include="source\base\editortreemodel.h">
+      <Filter>base</Filter>
+    </QtMoc>
+    <QtMoc Include="source\manager\editor\uistatemanager.h">
+      <Filter>manager\editor</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\treeview\glmodeltreeview.h">
+      <Filter>ui_surface\treeview</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\widget\viewport.h">
+      <Filter>ui_surface\openglwidget</Filter>
+    </QtMoc>
+    <QtMoc Include="source\engineapp.h" />
+    <QtMoc Include="source\ui\dialog\robotcreatedialog.h">
+      <Filter>ui_surface\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\widget\kinematic_widget.h">
+      <Filter>ui_surface\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\widget\tracker_widget.h">
+      <Filter>ui_surface\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="source\manager\modelmanager.h">
+      <Filter>manager\inc</Filter>
+    </QtMoc>
+    <QtMoc Include="source\manager\objectmanager.h">
+      <Filter>manager\inc</Filter>
+    </QtMoc>
+    <QtMoc Include="source\manager\physicsmanager.h">
+      <Filter>manager\inc</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\dialog\planningdialog.h">
+      <Filter>ui_surface\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="source\system\planningsystem.h">
+      <Filter>system</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\dialog\networkdialog.h">
+      <Filter>ui_surface\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="source\system\networksystem.h">
+      <Filter>system</Filter>
+    </QtMoc>
+    <QtMoc Include="source\manager\tcpsocketmanager.h">
+      <Filter>manager\inc</Filter>
+    </QtMoc>
+    <QtMoc Include="source\system\transmitsystem.h">
+      <Filter>system</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\dialog\skindialog.h">
+      <Filter>ui_surface\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="source\system\skinsystem.h">
+      <Filter>system</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="UI\mainwindow.ui">
+      <Filter>ui</Filter>
+    </QtUic>
+    <QtUic Include="UI\Dialog\robotcreatedialog.ui">
+      <Filter>ui</Filter>
+    </QtUic>
+    <QtUic Include="UI\Display\widget_qss_playground.ui">
+      <Filter>ui</Filter>
+    </QtUic>
+    <QtUic Include="UI\widget\kinematic_component_ui_widget.ui">
+      <Filter>ui</Filter>
+    </QtUic>
+    <QtUic Include="UI\widget\tracker_component_ui_widget.ui">
+      <Filter>ui</Filter>
+    </QtUic>
+    <QtUic Include="UI\Dialog\planningdialog.ui">
+      <Filter>ui</Filter>
+    </QtUic>
+    <QtUic Include="UI\Dialog\networkdialog.ui">
+      <Filter>ui</Filter>
+    </QtUic>
+    <QtUic Include="UI\Dialog\skindialog.ui">
+      <Filter>ui</Filter>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="source\simplexmesh\basicmesh">
+      <Filter>model\simplexmesh</Filter>
+    </None>
+    <None Include="source\motion\GMotion">
+      <Filter>motion</Filter>
+    </None>
+    <None Include="ClassDiagram.cd" />
+    <None Include="Shader\Vertex\axisVert.vert">
+      <Filter>shader\vert</Filter>
+    </None>
+    <None Include="Shader\Vertex\BaseVert.vert">
+      <Filter>shader\vert</Filter>
+    </None>
+    <None Include="Shader\Vertex\ColorVert.vert">
+      <Filter>shader\vert</Filter>
+    </None>
+    <None Include="Shader\Vertex\PhoneVert.vert">
+      <Filter>shader\vert</Filter>
+    </None>
+    <None Include="Shader\Vertex\pickingVert.vert">
+      <Filter>shader\vert</Filter>
+    </None>
+    <None Include="Shader\Vertex\TriangleVert.vert">
+      <Filter>shader\vert</Filter>
+    </None>
+    <None Include="Shader\Fragment\axisFrag.frag">
+      <Filter>shader\frag</Filter>
+    </None>
+    <None Include="Shader\Fragment\BaseFrag.frag">
+      <Filter>shader\frag</Filter>
+    </None>
+    <None Include="Shader\Fragment\ColorFrag.frag">
+      <Filter>shader\frag</Filter>
+    </None>
+    <None Include="Shader\Fragment\PhoneFrag.frag">
+      <Filter>shader\frag</Filter>
+    </None>
+    <None Include="Shader\Fragment\pickingFrag.frag">
+      <Filter>shader\frag</Filter>
+    </None>
+    <None Include="Shader\Fragment\TriangleFrag.frag">
+      <Filter>shader\frag</Filter>
+    </None>
+    <None Include="Shader\Vertex\skyboxVert.vert">
+      <Filter>shader\vert</Filter>
+    </None>
+    <None Include="Shader\Fragment\skyboxFrag.frag">
+      <Filter>shader\frag</Filter>
+    </None>
+    <None Include="Shader\Vertex\postprocessVert.vert">
+      <Filter>shader\vert</Filter>
+    </None>
+    <None Include="Shader\Fragment\postprocessFrag.frag">
+      <Filter>shader\frag</Filter>
+    </None>
+    <None Include="Shader\Vertex\depthOrthoVert.vert">
+      <Filter>shader\vert</Filter>
+    </None>
+    <None Include="Shader\Fragment\depthOrthoFrag.frag">
+      <Filter>shader\frag</Filter>
+    </None>
+    <None Include="Shader\Vertex\shadowOrthoVert.vert">
+      <Filter>shader\vert</Filter>
+    </None>
+    <None Include="Shader\Fragment\shadowOrthoFrag.frag">
+      <Filter>shader\frag</Filter>
+    </None>
+    <None Include="Shader\Vertex\csm_depth_orthoVert.vert">
+      <Filter>shader\vert</Filter>
+    </None>
+    <None Include="Shader\Fragment\csm_depth_orthoFrag.frag">
+      <Filter>shader\frag</Filter>
+    </None>
+    <None Include="Shader\Geom\csm_depth_orthoGeom.geom">
+      <Filter>shader\geom</Filter>
+    </None>
+    <None Include="Shader\Vertex\cascade_shadow_orthoVert.vert">
+      <Filter>shader\vert</Filter>
+    </None>
+    <None Include="Shader\Fragment\cascade_shadow_orthoFrag.frag">
+      <Filter>shader\frag</Filter>
+    </None>
+    <None Include="Shader\Vertex\LineColorVert.vert">
+      <Filter>shader\vert</Filter>
+    </None>
+    <None Include="Shader\Fragment\LineColorFrag.frag">
+      <Filter>shader\frag</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="ui_surface">
+      <UniqueIdentifier>{2b65f2f7-2d29-42c2-be50-7f70add6fd63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="motion">
+      <UniqueIdentifier>{3316e79e-f8d9-45e2-a406-e9edfebecf83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="function">
+      <UniqueIdentifier>{e90aaa8f-08e8-457d-af58-026a28a01409}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="base">
+      <UniqueIdentifier>{fb041739-e032-4662-9769-635f13bbf60c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui_surface\widget">
+      <UniqueIdentifier>{9a226150-951b-4b9e-9510-1f72a3f6fb41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui_surface\dialog">
+      <UniqueIdentifier>{82c7f877-9320-458a-8673-a3d0a96432b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader">
+      <UniqueIdentifier>{bcf42a21-2f21-4e6d-8284-56617a7d1989}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="render">
+      <UniqueIdentifier>{f72726ff-2007-4cb3-9991-a4adf73cc31e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="model">
+      <UniqueIdentifier>{f0588ec8-a3e7-4dd1-b793-af2a8e76a64f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui_surface\openglwidget">
+      <UniqueIdentifier>{9d430860-8b61-4a12-a296-e15e63b9e1f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui_surface\wrapper">
+      <UniqueIdentifier>{3144de8e-5ee4-4f82-8562-dd045628b211}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="model\robot">
+      <UniqueIdentifier>{b1c35759-7a5c-4d1e-a221-62fe2cb5d99c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="manager">
+      <UniqueIdentifier>{dda94de7-b7f7-44e0-900e-d3c0999fdcfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="component">
+      <UniqueIdentifier>{70bda37d-75f2-4d6d-bd62-01aedcee482a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="manager\editor">
+      <UniqueIdentifier>{093ae41e-ff0f-477e-a0d7-bc7e12f0cf03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui_surface\treeview">
+      <UniqueIdentifier>{5f39cedd-d2b0-4792-8cc6-5dad7be6da67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+      <ParseFiles>true</ParseFiles>
+    </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+      <ParseFiles>true</ParseFiles>
+    </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{25af753d-9341-480c-b8bb-1fe5d5af1c71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="model\simplexmesh">
+      <UniqueIdentifier>{85fac23c-2985-444c-85df-10f116b1ccbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="function\adapter">
+      <UniqueIdentifier>{62c1fdae-04f2-4209-93f5-b859312e338d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="model\basic">
+      <UniqueIdentifier>{4247f17a-eefb-4297-82ce-45148e5e37f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="base\mylib">
+      <UniqueIdentifier>{a5a12724-d1a2-4f75-a6df-f0f2409a3c48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="base\mylib\GComponent">
+      <UniqueIdentifier>{4c4a4c24-1acd-4ed7-a05f-f762c0c592dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="base\mylib\LinearSystemSolver">
+      <UniqueIdentifier>{19e05d05-908d-4d17-9f8f-b303c76499ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="function\builder">
+      <UniqueIdentifier>{5eb36452-9626-4dd0-be79-f91ec100be04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pattern">
+      <UniqueIdentifier>{63ec67e9-a9e0-4cc8-93d5-51b399ce2005}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="base\global">
+      <UniqueIdentifier>{4db01443-0508-4671-af20-d7d11495e191}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource">
+      <UniqueIdentifier>{7e9cba39-d6f0-4ff7-9d0e-d4896cf97d3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader\vert">
+      <UniqueIdentifier>{a11f2510-7b81-4154-807b-b4d934c34fa0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader\frag">
+      <UniqueIdentifier>{b0f9c28e-6ac9-41bc-a58c-e25e05d8df1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="base\mylib\Concept">
+      <UniqueIdentifier>{3c1d756b-79ae-4c2b-b84d-5470cd43a1d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rdparty">
+      <UniqueIdentifier>{90fdacc7-9883-4a19-b76c-b03fc727fdd8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rdparty\stb">
+      <UniqueIdentifier>{70183788-499f-4ec2-86d1-3db3b25af4ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader\geom">
+      <UniqueIdentifier>{1db897e4-b46e-4e78-90d3-ded98adb6fac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui_surface\menu">
+      <UniqueIdentifier>{b6e07489-2237-44c5-8b4e-22dd40974d0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="render\rhi">
+      <UniqueIdentifier>{c97e31fa-c4c1-45c5-a4aa-8486bbe71c19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="physics">
+      <UniqueIdentifier>{ff1b089b-377b-490a-99ba-11ae86d9c241}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="physics\physx">
+      <UniqueIdentifier>{bd151ad2-4f2a-41e2-8083-e09e827fed34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="manager\src">
+      <UniqueIdentifier>{5a909fc1-8ee5-4356-bba9-bc8d13e74b4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="manager\inc">
+      <UniqueIdentifier>{9d6185fe-8456-4fe8-a0c9-7e4df371e015}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="motion\src">
+      <UniqueIdentifier>{8dd0a7de-2e3f-483f-9620-9ba0f6cfaeee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="component\src">
+      <UniqueIdentifier>{b3cec5f3-1958-4611-b9f9-cd31617bc52e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="component\inc">
+      <UniqueIdentifier>{485f2077-82b0-45c5-9c57-6eef65bf26b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="motion\inc">
+      <UniqueIdentifier>{118face9-30f5-4791-bd96-177b676773cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="system">
+      <UniqueIdentifier>{2544af4a-fe80-4433-adbd-7bc9179800dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="motion\optimization">
+      <UniqueIdentifier>{d860b26e-7b28-4fd8-a1b5-94e106cb3d5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="function\adapter\kuka_iiwa">
+      <UniqueIdentifier>{01188df9-9434-4571-be9f-fc70a5f989b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="base\mylib\GComponent\Geometry">
+      <UniqueIdentifier>{0ec878b2-e2d2-4f79-a7fe-9a4d09890348}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="resource\icons.qrc">
+      <Filter>resource</Filter>
+    </QtRcc>
+  </ItemGroup>
+</Project>
