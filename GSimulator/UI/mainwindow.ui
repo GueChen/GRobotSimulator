@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1102</width>
-    <height>724</height>
+    <height>855</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -923,7 +923,7 @@ font: 9pt &quot;Fixedsys&quot;;</string>
                <x>0</x>
                <y>0</y>
                <width>156</width>
-               <height>246</height>
+               <height>377</height>
               </rect>
              </property>
              <attribute name="label">
@@ -2626,6 +2626,40 @@ QMenu::separator{
    <addaction name="module_menu"/>
    <addaction name="help_action"/>
   </widget>
+  <widget class="QDockWidget" name="file_browser_docker">
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::AllDockWidgetAreas</set>
+   </property>
+   <property name="windowTitle">
+    <string>文件目录</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="file_browser_widget">
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <widget class="GComponent::FileBrowser" name="widget_2" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
   <action name="modelViewShow">
    <property name="checkable">
     <bool>true</bool>
@@ -2769,6 +2803,7 @@ QMenu::separator{
     <string>Skin</string>
    </property>
   </action>
+  <zorder>logger</zorder>
  </widget>
  <customwidgets>
   <customwidget>
@@ -2780,6 +2815,12 @@ QMenu::separator{
    <class>GComponent::Viewport</class>
    <extends>QOpenGLWidget</extends>
    <header>./source/ui/widget/viewport.h</header>
+  </customwidget>
+  <customwidget>
+   <class>GComponent::FileBrowser</class>
+   <extends>QWidget</extends>
+   <header>./source/ui/widget/file_browser.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>
