@@ -127,6 +127,8 @@ void GComponent::UIState::tick()
 
 	}
 	else if (picking_msg_ && picking_msg_->drawID == static_cast<float>(PassType::AuxiliaryPass) && m_cur_axis) {
+		std::cout << std::format("picking info: Stri -- {:<8}, Prim -- {:<8}, Draw -- {:}, Model -- {:}\n", m_cur_axis->GetStridedSize(), picking_msg_->primitiveID,
+			picking_msg_->drawID, picking_msg_->modelID);
 		if (picking_msg_->primitiveID <= m_cur_axis->GetStridedSize())
 		{
 			m_axis_selected = AxisSelected::xAxis;

@@ -210,7 +210,7 @@ std::vector<GComponent::Vertex> GComponent::QtGLRotationAxis::SetupVertexData(in
 	vector<Vertex> vertices;
 	/* Make X Circle */
 	SetupXaxisCircle(segments, radius, 0.0f, vertices);
-	SetupXaxisCircle(segments, 1.15f * radius, 0.0f, vertices);
+	SetupXaxisCircle(segments, 1.35f * radius, 0.0f, vertices);
 
 	const int vertex_count = vertices.size();
 	/* Make Y-Z Vertex Setup */

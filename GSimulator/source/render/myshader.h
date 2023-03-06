@@ -7,6 +7,7 @@
 #include <QtOpenGL/QOpenGLShaderProgram>
 
 #include <memory>
+#include <string>
 
 #define PathVert(name) ("./Shader/Vertex/"#name"Vert.vert")
 #define PathFrag(name) ("./Shader/Fragment/"#name"Frag.frag")
@@ -22,6 +23,10 @@ std::make_unique<MyShader>(                 \
 
 namespace GComponent {
     class MyGL;
+    struct UniformVar {
+
+    };
+
 
     class MyShader:public QOpenGLShaderProgram
     {
@@ -43,6 +48,9 @@ namespace GComponent {
 
         void SetGL(std::shared_ptr<MyGL> other);
 
+        ///
+        inline void SetName(const std::string& name) { name_ = name; }
+
         /// Set 系列函数，使用前请先使用 MyShader::use
         void setBool(const std::string & name, bool value) noexcept;
         void setInt(const std::string & name, int value) noexcept;
@@ -54,10 +62,17 @@ namespace GComponent {
         void setVec3(const std::string& name, float value[3]) noexcept;
         void setVec3(const std::string& name, glm::vec3 value) noexcept;
         void setMat4(const std::string& name, glm::mat4 mat) noexcept;
-        
+    
+    private:
+        static std::string GetTpyeName(GLenum type);
+
+    private:
+        std::string name_;
+        bool init_ = false;
+    
     };
 
-
+    
 }
 
 

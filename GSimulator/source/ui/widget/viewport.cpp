@@ -66,7 +66,12 @@ void Viewport::initializeGL()
 void Viewport::resizeGL(int w, int h)
 {
 	//gl_->glViewport(0.0f, 0.0f, w, h);
+#ifdef WIN32
+	UINT dpi = GetDpiForWindow(reinterpret_cast<HWND>(winId()));
+	ui_state_.OnResize(MulDiv(w, dpi, 96), MulDiv(h, dpi, 96));
+#else
 	ui_state_.OnResize(w, h);
+#endif
 }
 
 void Viewport::paintGL()
@@ -245,7 +250,13 @@ void Viewport::keyReleaseEvent(QKeyEvent* event)
 
 void Viewport::mouseMoveEvent(QMouseEvent* event)
 {
+#ifdef WIN32
+	int dpi = GetDpiForWindow(reinterpret_cast<HWND>(winId()));
+	ui_state_.OnCursorMove(MulDiv(event->x(), dpi, 96), MulDiv(event->y(), dpi, 96));
+#else
 	ui_state_.OnCursorMove(event->x(), event->y());
+#endif // WIN32
+
 	if (!ui_state_.GetIsDraged())
 	{		
 		QPoint cur_point = event->pos();
@@ -352,13 +363,17 @@ void Viewport::dragEnterEvent(QDragEnterEvent* event)
 
 void Viewport::RegisteredShader()
 {
-	GComponent::ResourceManager::getInstance().RegisteredShader("skybox",		new GComponent::MyShader(nullptr, PathVert(skybox), PathFrag(skybox)));
-	GComponent::ResourceManager::getInstance().RegisteredShader("postprocess",	new GComponent::MyShader(nullptr, PathVert(postprocess), PathFrag(postprocess)));
-	GComponent::ResourceManager::getInstance().RegisteredShader("color",		new GComponent::MyShader(nullptr, PathVert(Color),      PathFrag(Color)));
-    GComponent::ResourceManager::getInstance().RegisteredShader("axis",			new GComponent::MyShader(nullptr, PathVert(axis),       PathFrag(axis)));
-    GComponent::ResourceManager::getInstance().RegisteredShader("picking",		new GComponent::MyShader(nullptr, PathVert(picking),    PathFrag(picking)));
-    GComponent::ResourceManager::getInstance().RegisteredShader("base",			new GComponent::MyShader(nullptr, PathVert(Base),       PathFrag(Base)));
-    GComponent::ResourceManager::getInstance().RegisteredShader("linecolor",	new GComponent::MyShader(nullptr, PathVert(LineColor),  PathFrag(LineColor)));
+	ResourceManager::getInstance().RegisteredShader("skybox",				new MyShader(nullptr,	PathVert(skybox),				PathFrag(skybox)));
+	ResourceManager::getInstance().RegisteredShader("postprocess",			new MyShader(nullptr,	PathVert(postprocess),			PathFrag(postprocess)));
+	ResourceManager::getInstance().RegisteredShader("color",				new MyShader(nullptr,	PathVert(Color),				PathFrag(Color)));
+    ResourceManager::getInstance().RegisteredShader("axis",					new MyShader(nullptr,	PathVert(axis),					PathFrag(axis)));
+    ResourceManager::getInstance().RegisteredShader("picking",				new MyShader(nullptr,	PathVert(picking),				PathFrag(picking)));
+    ResourceManager::getInstance().RegisteredShader("base",					new MyShader(nullptr,	PathVert(Base),					PathFrag(Base)));
+    ResourceManager::getInstance().RegisteredShader("linecolor",			new MyShader(nullptr,	PathVert(LineColor),			PathFrag(LineColor)));
+	ResourceManager::getInstance().RegisteredShader("depth_map",			new MyShader(nullptr,	PathVert(depthOrtho),			PathFrag(depthOrtho)));
+	ResourceManager::getInstance().RegisteredShader("shadow_color",			new MyShader(nullptr,	PathVert(shadowOrtho),			PathFrag(shadowOrtho)));
+	ResourceManager::getInstance().RegisteredShader("csm_depth_map",		new MyShader(nullptr,	PathVert(csm_depth_ortho),		PathFrag(csm_depth_ortho),	PathGeom(csm_depth_ortho)));
+	ResourceManager::getInstance().RegisteredShader("cascade_shadow_ortho",	new MyShader(nullptr,	PathVert(cascade_shadow_ortho),	PathFrag(cascade_shadow_ortho)));
 }
 
 }

@@ -34,8 +34,6 @@ bool RenderManager::InitFrameBuffer()
 
 	if (not depth_FBO_) 
 	{
-		ResourceManager::getInstance().RegisteredShader("depth_map",	new MyShader(nullptr, PathVert(depthOrtho),		PathFrag(depthOrtho)));
-		ResourceManager::getInstance().RegisteredShader("shadow_color", new MyShader(nullptr, PathVert(shadowOrtho),	PathFrag(shadowOrtho)));
 		gl_->glGenFramebuffers(1, &depth_FBO_);
 		gl_->glGenTextures(1, &depth_texture_);
 		
@@ -65,17 +63,7 @@ bool RenderManager::InitFrameBuffer()
 	if (not m_csm_depth_FBO) 
 	{
 		// Regester the specific shader
-		ResourceManager::getInstance().RegisteredShader(
-			"csm_depth_map", 
-			new MyShader(nullptr, 
-				PathVert(csm_depth_ortho), 
-				PathFrag(csm_depth_ortho), 
-				PathGeom(csm_depth_ortho)));
-		ResourceManager::getInstance().RegisteredShader(
-			"cascade_shadow_ortho",
-			new MyShader(nullptr,
-				PathVert(cascade_shadow_ortho),
-				PathFrag(cascade_shadow_ortho)));
+		
 
 		// Generator Handle
 		gl_->glGenFramebuffers(1, &m_csm_depth_FBO);
@@ -347,7 +335,8 @@ void RenderManager::PickingPass()
 		return ModelManager::getInstance().GetModelByName(name);
 	});
 	
-	DisableGuard guard(gl_.get(), GL_DEPTH_TEST);
+	//DisableGuard guard(gl_.get(), GL_DEPTH_TEST);
+	gl_->glClear(GL_DEPTH_BUFFER_BIT);
 	PassSpecifiedListPicking(PassType::AuxiliaryPass, post_process_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetAuxiModelByName(name);
 	});
@@ -366,9 +355,10 @@ void RenderManager::DepthMapPass()
 	gl_->glCullFace(GL_BACK);
 	gl_->glBindFramebuffer(GL_FRAMEBUFFER, QOpenGLContext::currentContext()->defaultFramebufferObject());
 	gl_->glViewport(m_render_sharing_msg.viewport.window_pos.x,
-					m_render_sharing_msg.viewport.window_pos.y, 
-					m_render_sharing_msg.viewport.window_size.x, 
-					m_render_sharing_msg.viewport.window_size.y);
+					m_render_sharing_msg.viewport.window_pos.y,
+					m_render_sharing_msg.viewport.window_size.x,
+					m_render_sharing_msg.viewport.window_size.y
+	);
 
 	// Shadow Pass
 	/*gl_->glViewport(0, 0, 4096, 4096);

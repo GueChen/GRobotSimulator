@@ -37,6 +37,7 @@ namespace GComponent {
 	{
 		DeregisteredShader(name);
 		shader_require_gl_.push_back(name);
+		raw_ptr_shader->SetName(name);
 		shader_map_.emplace(name, move(unique_ptr<MyShader>(raw_ptr_shader)));
 	}
 
