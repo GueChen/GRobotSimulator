@@ -2,6 +2,11 @@
 
 #include "render/mygl.hpp"
 
+#ifdef _DEBUG
+#include <iostream>
+#include <format>
+#endif 
+
 using namespace GComponent;
 
 MyShader::MyShader(QObject * parent,
@@ -29,6 +34,25 @@ void MyShader::SetGL(std::shared_ptr<MyGL> other)
 {
     gl = other;
     link();
+    
+    GLint num_uniforms = 0;
+    gl->glGetProgramInterfaceiv(programId(), GL_UNIFORM, GL_ACTIVE_RESOURCES, &num_uniforms);
+    std::cout << std::format("uniform num: {:}", num_uniforms);
+    for (int i = 0; i < num_uniforms; ++i) {
+        GLenum properties[] = { GL_NAME_LENGTH, GL_TYPE, GL_LOCATION };
+        GLint  values[3];
+        gl->glGetProgramResourceiv(programId(), GL_UNIFORM, i, 3, properties, 3, NULL, values);
+        
+        GLint name_length = values[0];
+        char* name_buffer = new char[name_length];
+        gl->glGetProgramResourceName(programId(), GL_UNIFORM, i, name_length, NULL, name_buffer);
+
+        std::cout << std::format("Uniform {:}: {:}\n", i, name_buffer);
+        std::cout << std::format("Type: {:}\n", values[1]);
+        std::cout << std::format("Location: {:}\n", values[2]);
+        delete[] name_buffer;
+
+    }
 }
 
 void MyShader::setBool(const std::string & name, bool value) noexcept

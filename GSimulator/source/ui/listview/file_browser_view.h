@@ -16,12 +16,16 @@ namespace GComponent {
 
 class FileBrowserView : public QListView {
 	Q_OBJECT
+	friend class FileBrowser;
 public:
-	FileBrowserView(QWidget* parent = nullptr);
+	FileBrowserView(QWidget* parent = nullptr, const QString& dft_dir = "/asset");
 	~FileBrowserView();
 
 	void setRootIndex(const QModelIndex& index) override;
 
+protected:
+	void mousePressEvent(QMouseEvent* event) override;
+	void wheelEvent(QWheelEvent* event)	     override;
 signals:
 	void RootDirChange(const QString& dir);
 
@@ -34,6 +38,13 @@ private slots:
 private:
 	std::unique_ptr<QFileSystemModel> model_ptr_;
 	QModelIndex						  root_index_;
+
+private:
+	static constexpr const int kIconInitSize	   = 75;
+	static constexpr const int kMaxIconSize        = 100;
+	static constexpr const int kMinIconSize        = 50;
+	static constexpr const int kHorizontalSizeDiff = 25;
+	static constexpr const int kVerticalSizeDiff   = 30;
 };
 
 }	// !namespace GComponent

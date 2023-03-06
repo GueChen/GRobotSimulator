@@ -44,7 +44,11 @@ namespace GComponent {
 		void mouseReleaseEvent(QMouseEvent* event)	override;
 		void enterEvent(QEnterEvent* event)			override;
 		void leaveEvent(QEvent* event)				override;
-
+		void wheelEvent(QWheelEvent* event)			override;
+		
+		// drag and drop
+		void dropEvent(QDropEvent* event)			override;
+		void dragEnterEvent(QDragEnterEvent* event) override;
 	signals:
 		void EmitDeltaTime(float delta_time);
 	
@@ -54,7 +58,7 @@ namespace GComponent {
 	private:		
 		std::shared_ptr<MyGL>							gl_;
 
-		QPoint											mouse_right_pressed;
+		QPoint											mouse_pressed_last_pos_;
 		size_t										    camera_handle = 0;
 
 		std::chrono::duration<float>					delta_time;

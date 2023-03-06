@@ -28,9 +28,8 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset>
-         <normalon>:/icon/leftarrow.png</normalon>
-        </iconset>
+        <iconset resource="../../resource/icons.qrc">
+         <normaloff>:/icon/leftarrow.png</normaloff>:/icon/leftarrow.png</iconset>
        </property>
        <property name="autoRaise">
         <bool>true</bool>

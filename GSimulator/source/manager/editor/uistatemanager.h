@@ -59,6 +59,10 @@ public:
 	PickingPixelInfo GetPickingPixelInfo();
 	Model* GetSelectedObject() const;
 
+	// Setter & Getter
+	inline  bool GetIsDraged() const { return is_draged; }
+
+	// Input Proccess Member Methods
 	virtual void OnCursorMove(int mouse_pos_x, int mouse_pos_y);
 	virtual void OnMousePress(unsigned button_flags);
 	virtual void OnMouseRelease(unsigned button_flags);
@@ -67,7 +71,7 @@ public:
 	virtual void OnKeyPress(size_t key_state);
 	virtual void OnKeyRelease(size_t key_state);
 	virtual void OnResize(int w, int h);
-
+	virtual void OnWheel (int val);
 private:
 	void Init(int segments = 15, float radius = 0.045f);
 	void ProcessDelete();

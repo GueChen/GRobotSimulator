@@ -241,7 +241,7 @@ void GComponent::UIState::OnMousePress(unsigned button_flag)
 			}
 			else if (picking_msg_->drawID == static_cast<float>(PassType::AuxiliaryPass)) 
 			{
-				is_draged	= true;
+				is_draged	= true;				
 			}
 			else
 			{
@@ -265,7 +265,7 @@ void GComponent::UIState::OnMouseRelease(unsigned button_flag)
 	button_state &= (~button_flag);
 	if (!(button_state & MouseButton::LeftButton))
 	{
-		is_draged = false;
+		is_draged = false;		
 	}
 }
 
@@ -300,6 +300,10 @@ void GComponent::UIState::OnResize(int w, int h)
 	RenderManager& render_manager = RenderManager::getInstance();
 	render_manager.m_render_sharing_msg.SetViewportSize(w, h);
 	render_manager.InitFrameBuffer();
+}
+
+void GComponent::UIState::OnWheel(int val)
+{
 }
 
 /*_____________________________________SLOT FUNCTIONS________________________________________________*/

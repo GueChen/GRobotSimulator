@@ -7,13 +7,23 @@
 #include "manager/planningmanager.h"
 #include "manager/tcpsocketmanager.h"
 
-#include <QtGui/QMouseEvent>
-#include <QtGUI/QKeyEvent>
+#include "function/adapter/modelloader_qgladapter.h"
+
+#include <QtCore/QDir>
 #include <QtCore/QmetaType>
+#include <QtCore/QMimeData>
+#include <QtGui/QWheelEvent>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QDropEvent>
+#include <QtGui/QKeyEvent>
+#include <QtCore/QThreadPool>
+
+#include <regex>
 
 #ifdef _DEBUG
 #include <iostream>
 #include <format>
+#include <QDebug>
 #endif
 #include "component/collider_component.h"
 
@@ -32,8 +42,7 @@ Viewport::Viewport(QWidget* parent) :
 	set_format.setSamples(4);
 	set_format.setVersion(4, 5);
 	setFormat(set_format);
-
-	std::cout << std::format("the sample num : {}\n", format().samples());
+	setAcceptDrops(true);
 }
 
 Viewport::~Viewport() {}
@@ -206,8 +215,7 @@ void Viewport::keyPressEvent(QKeyEvent* event)
 	}
 
 	if (event->key() == Qt::Key_Delete) {
-		key_state |= static_cast<size_t>(GComponent::KeyButtonState::KeyDelete);
-		//std::cout << std::set_format("we would like to current Selected Model: {}\n", 0);
+		key_state |= static_cast<size_t>(GComponent::KeyButtonState::KeyDelete);		
 	}
 
 	ui_state_.OnKeyPress(key_state);
@@ -238,21 +246,31 @@ void Viewport::keyReleaseEvent(QKeyEvent* event)
 void Viewport::mouseMoveEvent(QMouseEvent* event)
 {
 	ui_state_.OnCursorMove(event->x(), event->y());
-	if (event->buttons() &= Qt::MouseButton::RightButton)
-	{
-		GComponent::Camera* camera_ptr = GComponent::ModelManager::getInstance().GetCameraByHandle(camera_handle);
+	if (!ui_state_.GetIsDraged())
+	{		
 		QPoint cur_point = event->pos();
-		camera_ptr->ProcessMouseMovement(cur_point.x() - mouse_right_pressed.x(), -cur_point.y() + mouse_right_pressed.y());
-		mouse_right_pressed = cur_point;
+		GComponent::Camera* camera_ptr = GComponent::ModelManager::getInstance().GetCameraByHandle(camera_handle);
+		int horizon_diff  = cur_point.x() - mouse_pressed_last_pos_.x(),
+			vertical_diff = -cur_point.y() + mouse_pressed_last_pos_.y();
+		if (event->buttons() & Qt::MouseButton::RightButton) {
+			camera_ptr->ProcessMouseMovement(horizon_diff, vertical_diff);				
+		}
+		if (event->buttons() & Qt::MouseButton::MiddleButton) {
+			camera_ptr->Move(horizon_diff * 0.02f, vertical_diff * 0.02f, 0.0f);	
+		}
+		mouse_pressed_last_pos_ = cur_point;		
 	}
 }
 
 void Viewport::mousePressEvent(QMouseEvent* event)
 {
 	ui_state_.OnMousePress(event->buttons());
-	if (event->button() == Qt::MouseButton::RightButton)
-	{
-		mouse_right_pressed = event->pos();
+	
+	if (!ui_state_.GetIsDraged()) {
+		if (event->button() & (Qt::MouseButton::RightButton | Qt::MouseButton::MiddleButton))
+		{
+			mouse_pressed_last_pos_ = event->pos();
+		}	
 	}
 }
 
@@ -271,6 +289,65 @@ void Viewport::leaveEvent(QEvent* event)
 {
 	ui_state_.OnMouseLeave();
 	setMouseTracking(false);
+}
+
+void Viewport::wheelEvent(QWheelEvent* event)
+{
+	int delta = event->angleDelta().y();
+	ui_state_.OnWheel(delta);
+	if (!ui_state_.GetIsDraged()) {
+		GComponent::Camera* camera_ptr = GComponent::ModelManager::getInstance().GetCameraByHandle(camera_handle);
+		camera_ptr->Move(0.0f, 0.0f, delta / 1200.0f);
+	}
+	event->accept();
+}
+
+/*________________________________Drags and Drops relative_____________________________________________*/
+void Viewport::dropEvent(QDropEvent* event)
+{
+	for (auto&& url : event->mimeData()->urls()) {
+		QFileInfo dir(url.path().mid(1));
+		std::cout << url.toString().toStdString() << std::endl;		
+		std::cout << dir.baseName().toStdString() << std::endl;
+
+		QThreadPool::globalInstance()->start([dir = dir]() {
+			try {
+				std::string mesh_name = dir.baseName().toStdString();				
+				RenderMesh* mesh_ptr  = ResourceManager::getInstance().GetMeshByName(mesh_name);
+
+				if (!mesh_ptr) {	// register mesh resource
+					mesh_ptr = QGL::ModelLoader::getMeshPtr(dir.filePath().toStdString());
+					if (mesh_ptr) {
+						ResourceManager::getInstance().RegisteredMesh(mesh_name, mesh_ptr);
+					}
+				}
+
+				if (mesh_ptr) {		// register model
+					std::string obj_name = mesh_name;
+					int number = 1;
+					while (ModelManager::getInstance().GetModelByName(obj_name)) {
+						std::regex regex("\\d+$");
+						std::string new_name = std::regex_replace(obj_name, regex, std::to_string(number));
+						if (new_name == obj_name) {
+							new_name.append("_" + std::to_string(number));
+						}
+						obj_name = new_name;
+						++number;
+					}
+					Model* model = new Model(obj_name, mesh_name, std::string("color"), GComponent::Mat4::Identity(), nullptr);
+					ModelManager::getInstance().RegisteredModel(obj_name, model);					
+				}
+			}
+			catch (std::ifstream::failure e) {
+				std::cerr << "Loading Failed, consider the file is not a mesh file\n";
+			}
+			});
+	}
+}
+
+void Viewport::dragEnterEvent(QDragEnterEvent* event)
+{
+	event->acceptProposedAction();
 }
 
 void Viewport::RegisteredShader()

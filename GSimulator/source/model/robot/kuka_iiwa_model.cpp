@@ -71,7 +71,7 @@ void KUKA_IIWA_MODEL::InitializeModelResource()
         models_tmp[i]->RegisterComponent(make_unique<JointComponent>(models_tmp[i], axis_binds[i - 1]));        
     } 
     constexpr const float kToler           = 3.5f;
-    constexpr const float klimitTable[][2] = {
+    constexpr const float kLimitTable[][2] = {
         {DegreeToRadius(-170.0f + kToler), DegreeToRadius(180.0f - kToler)},
         {DegreeToRadius(-120.0f + kToler), DegreeToRadius(120.0f - kToler)},
         {DegreeToRadius(-170.0f + kToler), DegreeToRadius(170.0f - kToler)},
@@ -85,7 +85,7 @@ void KUKA_IIWA_MODEL::InitializeModelResource()
     vector<JointComponent*> joints;
     for (int i = 1; i < 8; ++i) {
         JointComponent* joint = models_tmp[i]->GetComponent<JointComponent>("JointComponent");
-        joint->SetPosLimit(klimitTable[i - 1][0], klimitTable[i - 1][1]);
+        joint->SetPosLimit(kLimitTable[i - 1][0], kLimitTable[i - 1][1]);
         joints.push_back(joint);
     }
 
