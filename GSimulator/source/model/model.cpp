@@ -22,8 +22,8 @@ Model::Model(_RawPtr parent, const string & meshKey):
     }
 }
 
-Model::Model(const string & name, const string & mesh, const string & shader,const Mat4 & model_mat, _RawPtr parent) :
-    name_(name), mesh_(mesh), shader_(shader)
+Model::Model(const string & name, const string & mesh, const Mat4 & model_mat, _RawPtr parent) :
+    name_(name), mesh_(mesh)
 {
     setModelMatrix(model_mat);  
     if (parent) {
@@ -31,9 +31,9 @@ Model::Model(const string & name, const string & mesh, const string & shader,con
     }
 }
 
-GComponent::Model::Model(const string & name,  const string & mesh, const string & shader, 
+GComponent::Model::Model(const string & name,  const string & mesh, 
                          const Vec3   & trans, const Vec3 & rot, const Vec3 & scale, _RawPtr parent):
-    name_(name), mesh_(mesh), shader_(shader),
+    name_(name), mesh_(mesh),
     trans_(trans), rot_(rot), scale_(scale)
 {    
     updateModelMatrix();
@@ -55,7 +55,7 @@ void GComponent::Model::tick(float delta_time)
 {
     tickImpl(delta_time);
     // tick all components
-    for (auto& component : components_ptrs_) {
+    for (auto& component : components_ptrs_) {        
         component->tick(delta_time);
     }
     // tick all children
@@ -66,7 +66,7 @@ void GComponent::Model::tick(float delta_time)
 
 void GComponent::Model::tickImpl(float delta_time)
 {
-    RenderManager::getInstance().EmplaceRenderCommand(name_, shader_, mesh_);    
+    RenderManager::getInstance().EmplaceRenderCommand(name_, mesh_);    
 }
 
 bool GComponent::Model::eraseChild(int idx)

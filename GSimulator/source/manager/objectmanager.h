@@ -35,10 +35,8 @@ public:
 
 	void	Initialize();
 
-	bool	RegisterObject(const string& obj_name, const string & mesh_name, const string& shader,
-						   const string& mesh_asset_path   = "", 
-						   const string& shader_vert	   = "", 
-						   const string& shader_frag	   = "");
+	bool	RegisterObject(const string& obj_name, const string & mesh_name,
+						   const string& mesh_asset_path   = "");
 	bool	DerigisterObject(const string& obj_name);
 
 	bool	CreateInstanceWithModelMat(const string& obj_name, const Mat4& model_mat);
@@ -50,7 +48,7 @@ protected:
 
 private:
 	unordered_map<string, size_t>					obj_lists_count_table_;
-	unordered_map<string, pair<string, string>>		obj_properties_table_;
+	unordered_map<string, string>					obj_properties_table_;
 };
 }
 

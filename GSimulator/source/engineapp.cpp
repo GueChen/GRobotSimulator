@@ -18,10 +18,13 @@
 #include "manager/resourcemanager.h"
 #include "manager/physicsmanager.h"
 #include "manager/tcpsocketmanager.h"
+
 #include "system/planningsystem.h"
 #include "system/networksystem.h"
 #include "system/transmitsystem.h"
 #include "system/skinsystem.h"
+
+#include "component/material_component.h"
 
 #include <QtCore/QThread>
 
@@ -93,7 +96,8 @@ void GComponent::EngineApp::CreateRobotWithParams(const vector<vector<float>>& p
 {
 	LocalTransformsSE3<float> matrices = LocalTransformsSE3<float>::fromMDH(params);
 
-	Model* base = new Model("robot_base", "", "color");
+	Model* base = new Model("robot_base", "");
+	base->RegisterComponent(std::make_unique<MaterialComponent>(base, "color"));
 	std::vector<JointComponent*> joints;
 	ModelManager::getInstance().RegisteredModel(base->getName(), base);
 
@@ -110,12 +114,12 @@ void GComponent::EngineApp::CreateRobotWithParams(const vector<vector<float>>& p
 				
 		Eigen::Vector3f scale = 0.08f * Eigen::Vector3<float>::Ones();
 		models[idx] = new Model(name + std::to_string(idx), 
-								"sphere", 
-								"color",
+								"sphere", 								
 								t,
 								r,
 								scale,
-								idx == 0 ? base: models[idx - 1]);										
+								idx == 0 ? base: models[idx - 1]);
+		models[idx]->RegisterComponent(std::make_unique<MaterialComponent>(models[idx], "color"));
 		ModelManager::getInstance().RegisteredModel(models[idx]->getName(), models[idx]);
 		
 		// Create Joints Mesh
@@ -124,11 +128,11 @@ void GComponent::EngineApp::CreateRobotWithParams(const vector<vector<float>>& p
 		Model* 
 		joint_mesh_model = new Model("joint_mesh_" + std::to_string(idx),
 									 "cylinder",
-									 "color",
 							 		 Eigen::Vector3<float>::Zero(),
 									 Eigen::Vector3<float>::Zero(),
 									 scale,
 									 models[idx]);
+		joint_mesh_model->RegisterComponent(std::make_unique<MaterialComponent>(joint_mesh_model, "color"));
 		ModelManager::getInstance().RegisteredModel(joint_mesh_model->getName(), joint_mesh_model);
 
 		// Create Link Mesh
@@ -138,12 +142,12 @@ void GComponent::EngineApp::CreateRobotWithParams(const vector<vector<float>>& p
 			Vec3 r_link = GetRotateAxisAngleFrom2Vec(Vec3::UnitZ().eval(), t);
 			Model* 
 			link_mesh_model = new Model("link_mesh_" + std::to_string(idx),
-										"cylinder",
-										"color",
+										"cylinder",										
 										t/2,
 										r_link,
 										scale,
 										idx == 0 ? base: models[idx - 1]);
+			link_mesh_model->RegisterComponent(std::make_unique<MaterialComponent>(link_mesh_model, "color"));
 			ModelManager::getInstance().RegisteredModel(link_mesh_model->getName(), link_mesh_model);
 		}
 		

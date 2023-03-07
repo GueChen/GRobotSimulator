@@ -12,7 +12,6 @@
 #include "render/rhi/render_global_info.h"
 #include "render/rendermesh.h"
 #include "render/framebufferobject.h"
-#include "render/myshader.h"
 #include "render/mygl.hpp"
 #include "function/picking_helper.h"
 #include "model/basegrid.h"
@@ -48,10 +47,8 @@ enum class PassType {
 };
 
 struct RenderCommand {
-	string object_name;
-	string shader_name;
-	string mesh_name;
-	string uniform_name;
+	string object_name;	
+	string mesh_name;	
 };
 
 class RenderManager : public SingletonBase<RenderManager> 
@@ -78,19 +75,15 @@ public:
 
 //________________Render relate Invoke inteface______________________________________________//
 	void PushRenderCommand				(const RenderCommand & command);
-	void EmplaceRenderCommand			(string obj_name,   string shader_name, 
-										 string mesh_name,  string uniform_name = "");
+	void EmplaceRenderCommand			(string obj_name,   string mesh_name);
 	
 	void PushAuxiRenderCommand			(const RenderCommand& command);
-	void EmplaceAuxiRenderCommand		(string obj_name,   string shader_name,
-										 string mesh_name,  string uniform_name = "");
+	void EmplaceAuxiRenderCommand		(string obj_name,   string mesh_name);
 
 	void PushPostProcessRenderCommand	(const RenderCommand& command);
-	void EmplacePostProcessRenderCommand(string obj_name,   string shader_name,
-										 string mesh_name,  string uniform_name = "");
+	void EmplacePostProcessRenderCommand(string obj_name,   string mesh_name);
 	void EmplaceFrontPostProcessRenderCommand
-										(string obj_name,	string shader_name,
-										 string mesh_name,  string uniform_name = "");
+										(string obj_name,	string mesh_name);
 
 //_______________Planing Relate Auxiliry Inteface_______________________________________________//
 	void EmplaceAuxiliaryObj(shared_ptr<SimplexModel>&& obj);

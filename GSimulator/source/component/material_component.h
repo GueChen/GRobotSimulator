@@ -3,6 +3,7 @@
 
 #include "component/component.hpp"
 #include "render/shader_property.hpp"
+#include "function/conversion.hpp"
 
 #include <unordered_map>
 #include <string_view>
@@ -24,6 +25,10 @@ protected:
 
 public:
 	explicit MaterialComponent(Model* ptr_parent) : Component(ptr_parent) {}
+	MaterialComponent(Model* ptr_parent, std::string shader_name): 
+		Component(ptr_parent){
+		SetShader(shader_name);
+	}
 
 	const std::string_view&
 			 GetTypeName() const override final { return type_name; }	
@@ -36,7 +41,7 @@ public:
 	inline std::string GetShader() const	    { return shader_;}
 
 	//	Renderer Invoke Inteface
-	void  SetShaderProperties() const;
+	void  SetShaderProperties();
 
 private:
 	template<class T>
@@ -46,7 +51,8 @@ private:
 protected:
 	//FIXME: not consider multiple pass situation, later consider how to solve it
 	std::string			shader_;
-	mutable Properties	properties_;
+	MyShader*			shader_ptr_ = nullptr;
+	Properties			properties_;
 
 /// static Fields
 public:

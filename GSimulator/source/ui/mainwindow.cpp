@@ -187,7 +187,7 @@ void MainWindow::CheckSelected()
         Model* parent_ptr = selected_obj_ptr->getParent();
         ui_->name_edit->setText(QString::fromStdString(selected_obj_ptr->getName()));
         ui_->mesh_edit->setText(QString::fromStdString(selected_obj_ptr->getMesh()));
-        ui_->shader_edit->setText(QString::fromStdString(selected_obj_ptr->getShader()));
+        //ui_->shader_edit->setText(QString::fromStdString(selected_obj_ptr->getShader()));
         ui_->parent_edit->setText(QString::fromStdString(parent_ptr ? parent_ptr->getName() : "None"));
 
         // Setting Transforms

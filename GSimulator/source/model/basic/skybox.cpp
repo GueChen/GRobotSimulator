@@ -3,6 +3,8 @@
 #include "manager/rendermanager.h"
 #include "manager/resourcemanager.h"
 
+#include "component/material_component.h"
+
 #define CubemapPrefix(path) "asset/textures/skybox/"#path
 
 namespace GComponent{
@@ -29,8 +31,7 @@ unsigned SkyBox::count = 0;
 SkyBox::SkyBox()
 {
     name_   = "skybox";
-    mesh_   = "skybox";
-    shader_ = "skybox";
+    mesh_   = "skybox";    
     CheckAndRegisteredResource();
    
     ++count;
@@ -54,30 +55,24 @@ void SkyBox::CheckAndRegisteredResource()
     if (count == 0) {
         ResourceManager::getInstance().RegisteredCubemap({ "skybox", Textures, "irradiance", &cube_texture_id_ });
     }
-  /*  if (not ResourceManager::getInstance().GetShaderByName(shader_))
-    {
-        ResourceManager::getInstance().RegisteredShader(shader_, new GComponent::MyShader(nullptr, PathVert(skybox), PathFrag(skybox)));
-    }*/
+    RegisterComponent(std::make_unique<MaterialComponent>(this, "skybox"));
+    
 }
 
 void SkyBox::Draw()
 {
     ResourceManager& resource_manager = ResourceManager::getInstance();
-    if (MyShader* shader = resource_manager.GetShaderByName(shader_); shader) {
-        shader->link();
-        shader->use();
-        setShaderProperty(*shader);
-        // glBindTexture(GL_TEXTURE_CUBE_MAP, cube_texture_id_);
+    if (auto mat_ptr = GetComponent<MaterialComponent>(MaterialComponent::type_name.data()); mat_ptr) {
+        mat_ptr->SetShaderProperties();
     }
     if (RenderMesh* mesh = resource_manager.GetMeshByName(mesh_); mesh) {
         mesh->Draw();
-    }
-    // glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    }    
 }
 
 void SkyBox::tickImpl(float delta_time)
 {
-    RenderManager::getInstance().EmplaceRenderCommand(name_, shader_, mesh_);
+    RenderManager::getInstance().EmplaceRenderCommand(name_, mesh_);
 }
 
 void SkyBox::setShaderProperty(MyShader& shader)

@@ -9,6 +9,25 @@
 
 using namespace GComponent;
 
+static void PropertyInit(GLenum type, Property& pro) {
+    switch (type) {
+    case GL_BOOL:               pro.val = false;                        return;
+    case GL_INT:                pro.val = 0;                            return;
+    case GL_UNSIGNED_INT:       pro.val = 0u;                           return;
+    case GL_FLOAT:              pro.val = 0.0f;                         return;
+    case GL_DOUBLE:             pro.val = 0.0;                          return;
+    case GL_FLOAT_VEC2:         pro.val = glm::zero<glm::vec2>();       return;
+    case GL_FLOAT_VEC3:         pro.val = glm::one<glm::vec3>();        return;
+    case GL_FLOAT_VEC4:         pro.val = glm::zero<glm::vec4>();       return;
+    case GL_FLOAT_MAT2:         pro.val = glm::identity<glm::mat2>();   return;
+    case GL_FLOAT_MAT3:         pro.val = glm::identity<glm::mat3>();   return;
+    case GL_FLOAT_MAT4:         pro.val = glm::identity<glm::mat4>();   return;
+    case GL_SAMPLER_2D:         pro.val = 0;                            return;
+    case GL_SAMPLER_CUBE:       pro.val = 0;                            return;
+    case GL_SAMPLER_2D_ARRAY:   pro.val = 0;                            return;
+    }
+}
+
 MyShader::MyShader(QObject * parent,
                    const std::string & vertexPath,
                    const std::string & fragmentPath,
@@ -56,7 +75,8 @@ void MyShader::SetGL(std::shared_ptr<MyGL> other)
                 variable.name     = name_buffer.get();  
                 variable.type     = GetTypeName(values[1]);
                 variable.location = values[2];
-
+                PropertyInit(values[1], variable);
+                uniforms_.push_back(variable);
             }
         }
         std::cout << "______________________________________________\n";

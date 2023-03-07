@@ -28,7 +28,7 @@ struct Property {
     // Fieds
     std::string type;
     std::string name;
-    int         location;    
+    int         location;
     Var         val;
 
 };

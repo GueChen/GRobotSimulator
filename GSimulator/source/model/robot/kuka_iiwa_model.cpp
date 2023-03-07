@@ -3,7 +3,7 @@
 #include "manager/modelmanager.h"
 #include "manager/resourcemanager.h"
 #include "manager/rendermanager.h"
-#include "render/myshader.h"
+
 #include "render/rendermesh.h"
 
 #include "component/joint_component.h"
@@ -11,6 +11,7 @@
 #include "component/kinematic_component.h"
 #include "component/tracker_component.h"
 #include "component/rigidbody_component.h"
+#include "component/material_component.h"
 
 #include "function/adapter/modelloader_qgladapter.h"
 
@@ -23,8 +24,7 @@ bool KUKA_IIWA_MODEL::is_init_ = false;
 int KUKA_IIWA_MODEL::count     = 0;
 
 KUKA_IIWA_MODEL::KUKA_IIWA_MODEL(Mat4 transform) 
-{
-    shader_ = "color";
+{    
     setModelMatrix(transform); 
     InitializeMeshResource();
     InitializeModelResource();
@@ -57,11 +57,11 @@ void KUKA_IIWA_MODEL::InitializeModelResource()
         string count_name = "kuka_iiwa_robot_link_" + std::to_string(i);
         models_tmp[i]     = new Model(count_name + count_str, 
                                       count_name, 
-                                      "color",
                                       local_trans[i], 
                                       Vec3::Zero(), 
                                       Vec3::Ones(),
                                       i > 0 ? models_tmp[i - 1] :this);
+        models_tmp[i]->RegisterComponent(std::make_unique<MaterialComponent>(models_tmp[i], "color"));
         model_manager.RegisteredModel(models_tmp[i]->getName(), models_tmp[i]);
     }
      
@@ -177,7 +177,7 @@ void GComponent::KUKA_IIWA_MODEL::setShaderProperty(MyShader & shader)
 
 void GComponent::KUKA_IIWA_MODEL::tickImpl(float delta_time)
 {   
-    RenderManager::getInstance().EmplaceRenderCommand(name_, shader_, mesh_);
+    RenderManager::getInstance().EmplaceRenderCommand(name_, mesh_);
 }
 
 void KUKA_IIWA_MODEL::setColor(const Vec3 &color)

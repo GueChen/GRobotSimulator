@@ -8,7 +8,9 @@
 
 #include "manager/resourcemanager.h"
 #include "manager/modelmanager.h"
+
 #include "model/model.h"
+#include "component/material_component.h"
 
 #include <QtGUI/QOpenGLContext>
 
@@ -114,9 +116,9 @@ void RenderManager::PushRenderCommand(const RenderCommand & command)
 	render_list_.push_back(command);
 }
 
-void RenderManager::EmplaceRenderCommand(string obj_name, string shader_name, string mesh_name, string uniform_name)
+void RenderManager::EmplaceRenderCommand(string obj_name, string mesh_name)
 {
-	render_list_.emplace_back(obj_name, shader_name, mesh_name, uniform_name);
+	render_list_.emplace_back(obj_name, mesh_name);
 }
 
 void RenderManager::PushAuxiRenderCommand(const RenderCommand& command)
@@ -124,9 +126,9 @@ void RenderManager::PushAuxiRenderCommand(const RenderCommand& command)
 	axui_render_list_.push_back(command);
 }
 
-void RenderManager::EmplaceAuxiRenderCommand(string obj_name, string shader_name, string mesh_name, string uniform_name)
+void RenderManager::EmplaceAuxiRenderCommand(string obj_name, string mesh_name)
 {
-	axui_render_list_.emplace_back(obj_name, shader_name, mesh_name, uniform_name);
+	axui_render_list_.emplace_back(obj_name, mesh_name);
 }
 
 void RenderManager::PushPostProcessRenderCommand(const RenderCommand& command)
@@ -134,14 +136,14 @@ void RenderManager::PushPostProcessRenderCommand(const RenderCommand& command)
 	post_process_list_.push_back(command);
 }
 
-void RenderManager::EmplacePostProcessRenderCommand(string obj_name, string shader_name, string mesh_name, string uniform_name)
+void RenderManager::EmplacePostProcessRenderCommand(string obj_name, string mesh_name)
 {
-	post_process_list_.emplace_back(obj_name, shader_name, mesh_name, uniform_name);
+	post_process_list_.emplace_back(obj_name, mesh_name);
 }
 
-void RenderManager::EmplaceFrontPostProcessRenderCommand(string obj_name, string shader_name, string mesh_name, string uniform_name)
+void RenderManager::EmplaceFrontPostProcessRenderCommand(string obj_name, string mesh_name)
 {
-	post_process_list_.emplace_front(obj_name, shader_name, mesh_name, uniform_name);
+	post_process_list_.emplace_front(obj_name, mesh_name);
 }
 
 void RenderManager::EmplaceAuxiliaryObj(shared_ptr<SimplexModel>&& obj)
@@ -443,7 +445,7 @@ void RenderManager::PassSpecifiedListPicking(PassType draw_index_type, RenderLis
 	picking_shader->setUint("gDrawIndex", static_cast<unsigned>(draw_index_type));
 	
 	//  Pass Normally
-	for (auto& [obj_name, shader_name, mesh_name, uniform_name] : list) 
+	for (auto& [obj_name, mesh_name] : list) 
 	{		
 		RenderMesh*		mesh			= scene_manager.GetMeshByName(mesh_name);
 		Model*			obj				= ObjGetter(obj_name);
@@ -466,7 +468,7 @@ void RenderManager::PassSpecifiedListDepth(RenderList& list, function<Model* (co
 	glm::mat4 light_space	= light_proj * light_view;
 	depth_shader->setMat4("light_space_matrix", light_space);
 
-	for (auto& [obj_name, shader_name, mesh_name, uniform_name] : list) 
+	for (auto& [obj_name, mesh_name] : list) 
 	{		
 		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
 		Model* obj = ObjGetter(obj_name);
@@ -490,7 +492,7 @@ void RenderManager::PassSpecifiedListShadow(RenderList& list, function<RawptrMod
 	shadow_shader->setInt("shadow_map", 0);
 
 	gl_->glBindTexture(GL_TEXTURE_2D, depth_texture_);
-	for (auto& [obj_name, shader_name, mesh_name, uniform_name] : list)
+	for (auto& [obj_name, mesh_name] : list)
 	{
 		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
 		Model*		obj	 = ObjGetter(obj_name);
@@ -505,29 +507,15 @@ void RenderManager::PassSpecifiedListNormal(RenderList& list, std::function<Mode
 {
 	ResourceManager& scene_manager = ResourceManager::getInstance();
 	ModelManager&	 model_manager = ModelManager::getInstance();
-	for (auto& [obj_name, shader_name, mesh_name, uniform_name] : list) 
-	{
-		MyShader*		shader	= scene_manager.GetShaderByName(shader_name);	
+	for (auto& [obj_name, mesh_name] : list) 
+	{		
 		RenderMesh*		mesh	= scene_manager.GetMeshByName(mesh_name);
 		Model*			obj		= ObjGetter(obj_name);
-		
-		shader->use();
-		obj->setShaderProperty(*shader);
-		if (mesh) {
-#ifdef _COLLISION_TEST
-			if (!obj->intesection_) {				
-				gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				shader = scene_manager.GetShaderByName("base");
-				shader->use();
-				obj->setShaderProperty(*shader);
-			}
-			else {
-				
-				gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			}
-#endif // _COLLISION_TEST
-			mesh->Draw();
-		}
+		if (!obj || !mesh) continue;		
+		auto material = obj->GetComponent<MaterialComponent>(MaterialComponent::type_name.data());		
+		if (!material)	continue;
+		material->SetShaderProperties();						
+		mesh->Draw();	
 	}
 }
 
@@ -538,7 +526,7 @@ void RenderManager::PassSpecifiedListCSMDepth(RenderList& list, function<RawptrM
 
 	MyShader*		 depth_shader = scene_manager.GetShaderByName("csm_depth_map"); depth_shader->use();
 
-	for (auto& [obj_name, shader_name, mesh_name, uniform_name] : list) 
+	for (auto& [obj_name, mesh_name] : list) 
 	{		
 		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
 		Model*		obj  = ObjGetter(obj_name);
@@ -563,26 +551,15 @@ void RenderManager::PassSpecifiedListCSMShadow(RenderList& list, function<Rawptr
 	}
 
 	gl_->glBindTexture(GL_TEXTURE_2D_ARRAY, m_csm_depth_texture);
-	for (auto& [obj_name, shader_name, mesh_name, uniform_name] : list)
+	for (auto& [obj_name, mesh_name] : list)
 	{
 		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
 		Model*		obj	 = ObjGetter(obj_name);
 		
 		obj->setShaderProperty(*shadow_shader);
 		if (mesh) {
-#ifdef _COLLISION_TEST
-			if (!obj->intesection_) {
-				gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			}
-			else {
-				gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			}
-#endif // _COLLISION_TEST
 			mesh->Draw();
-		}
-
-
-		
+		}		
 	}
 	gl_->glBindTexture(GL_TEXTURE_2D, 0);
 }

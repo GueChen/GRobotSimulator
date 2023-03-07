@@ -3,7 +3,8 @@
 #include "manager/modelmanager.h"
 #include "manager/resourcemanager.h"
 #include "function/adapter/modelloader_qgladapter.h"
-#include "render/myshader.h"
+
+#include "component/material_component.h"
 
 GComponent::ObjectManager& GComponent::ObjectManager::getInstance() {
 	static ObjectManager instance;
@@ -12,30 +13,24 @@ GComponent::ObjectManager& GComponent::ObjectManager::getInstance() {
 
 void GComponent::ObjectManager::Initialize()
 {
-	RegisterObject("cube",		"cube",		"color", "./asset/objects/cube.obj",		PathVert(Color), PathFrag(Color));
-	RegisterObject("sphere",	"sphere",	"color", "./asset/objects/sphere.obj",		PathVert(Color), PathFrag(Color));
-	RegisterObject("capsule",	"capsule",	"color", "./asset/objects/capsule.obj",		PathVert(Color), PathFrag(Color));
-	RegisterObject("cylinder",	"cylinder", "color", "./asset/objects/cylinder.obj",	PathVert(Color), PathFrag(Color));
-	RegisterObject("plane",		"floor",	"color", "./asset/objects/floor.obj",		PathVert(Color), PathFrag(Color));
+	RegisterObject("cube",		"cube",		 "./asset/objects/cube.obj");
+	RegisterObject("sphere",	"sphere",	 "./asset/objects/sphere.obj");
+	RegisterObject("capsule",	"capsule",	 "./asset/objects/capsule.obj");
+	RegisterObject("cylinder",	"cylinder",  "./asset/objects/cylinder.obj");
+	RegisterObject("plane",		"floor",	 "./asset/objects/floor.obj");
 }
 
-bool GComponent::ObjectManager::RegisterObject(const string& obj_name, const string& mesh_name, const string& shader_name, const string& mesh_asset_path, const string& shader_vert, const string& shader_frag)
+bool GComponent::ObjectManager::RegisterObject(const string& obj_name, const string& mesh_name, const string& mesh_asset_path)
 {
 	if (obj_lists_count_table_.count(obj_name)) return false;
 	obj_lists_count_table_.emplace(obj_name, 0);
-	obj_properties_table_.emplace(obj_name, std::make_pair(mesh_name, shader_name));
+	obj_properties_table_.emplace(obj_name, mesh_name);
 
 	if (!mesh_asset_path.empty())
 	{
 		ResourceManager::getInstance().RegisteredMesh(mesh_name, QGL::ModelLoader::getMeshPtr(mesh_asset_path));
 	}
-	if (!shader_vert.empty() && !shader_frag.empty())
-	{
-		if (!ResourceManager::getInstance().GetShaderByName(shader_name)) {
-			ResourceManager::getInstance().RegisteredShader(shader_name, new MyShader(nullptr, shader_vert, shader_frag));
-		}
-	}
-
+	
 	return true;
 }
 
@@ -53,8 +48,10 @@ bool GComponent::ObjectManager::CreateInstanceWithModelMat(const string& obj_nam
 	auto iter = obj_lists_count_table_.find(obj_name);
 	if (iter == obj_lists_count_table_.end()) return false;
 	string name = obj_name + std::to_string(obj_lists_count_table_[obj_name]);
-	auto& [mesh, shader] = obj_properties_table_[obj_name];
-	ModelManager::getInstance().RegisteredModel(name, new Model(name, mesh, shader, model_mat));
+	auto&  mesh = obj_properties_table_[obj_name];
+	Model* model= new Model(name, mesh, model_mat);
+	model->RegisterComponent(std::make_unique<MaterialComponent>(model, "color"));
+	ModelManager::getInstance().RegisteredModel(name, std::move(model));	
 	++obj_lists_count_table_[obj_name];
 	return true;
 }

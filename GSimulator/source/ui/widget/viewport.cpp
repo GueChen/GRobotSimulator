@@ -9,6 +9,8 @@
 
 #include "function/adapter/modelloader_qgladapter.h"
 
+#include "component/material_component.h"
+
 #include <QtCore/QDir>
 #include <QtCore/QmetaType>
 #include <QtCore/QMimeData>
@@ -345,8 +347,9 @@ void Viewport::dropEvent(QDropEvent* event)
 						obj_name = new_name;
 						++number;
 					}
-					Model* model = new Model(obj_name, mesh_name, std::string("color"), GComponent::Mat4::Identity(), nullptr);
-					ModelManager::getInstance().RegisteredModel(obj_name, model);					
+					Model* model = new Model(obj_name, mesh_name, GComponent::Mat4::Identity(), nullptr);
+					model->RegisterComponent(std::make_unique<MaterialComponent>(model, "color"));
+					ModelManager::getInstance().RegisteredModel(obj_name, model);		
 				}
 			}
 			catch (std::ifstream::failure e) {

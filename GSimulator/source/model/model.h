@@ -49,8 +49,8 @@ class Model
 /// Class Methods
 public:
     explicit        Model(_RawPtr parent = nullptr, const string & meshKey = "");
-                    Model(const string& name, const string& mesh, const string& shader, const Mat4& model_mat, _RawPtr parent =nullptr);
-                    Model(const string& name, const string& mesh, const string& shader, 
+                    Model(const string& name, const string& mesh, const Mat4& model_mat, _RawPtr parent =nullptr);
+                    Model(const string& name, const string& mesh,  
                           const Vec3& trans = Vec3::Zero(), const Vec3& rot = Vec3::Zero(), const Vec3& scale = Vec3::Ones(),
                           _RawPtr parent = nullptr);
     
@@ -81,8 +81,8 @@ public:
     inline void     setName(const string & name)         { name_ = name;}
     inline string   getName()        const               { return name_;}
 
-    inline void     setShader(const string& shader_name) { shader_ = shader_name;}
-    inline string   getShader()      const               { return shader_;}
+    //inline void     setShader(const string& shader_name) { shader_ = shader_name;}
+    //inline string   getShader()      const               { return shader_;}
 
     void            setParent(Model* parent); 
     inline _RawPtr  getParent()      const               { return parent_;}
@@ -135,7 +135,7 @@ protected:
     int                     model_id_               = -1;
     string                  name_                   = "";
     string                  mesh_                   = "";
-    string                  shader_                 = "";
+    //string                  shader_                 = "";
 
 #ifdef _COLLISION_TEST
 public:

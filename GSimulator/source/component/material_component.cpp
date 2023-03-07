@@ -1,9 +1,9 @@
 #include "component/material_component.h"
 
 #include "render/myshader.h"
-
-#include "manager/rendermanager.h"
 #include "manager/resourcemanager.h"
+
+#include "model/model.h"
 
 namespace GComponent {
 
@@ -25,25 +25,28 @@ MaterialComponent::SetterMap MaterialComponent::setter_map = {
 		GlmSetterPair(vec2),
 		GlmSetterPair(vec3),
 		GlmSetterPair(vec4),
-		GlmSetterPair(mat4)
+		GlmSetterPair(mat4),
+		{"sampler2D",	   MaterialComponent::SetFunction<int>},
+		{"sampler2DArray", MaterialComponent::SetFunction<int>}
 };
 
 void GComponent::MaterialComponent::SetShader(const std::string& shader_name)
 {
-	shader_ = shader_name;
-	auto& render = RenderManager::getInstance();
+	shader_ = shader_name;	
 	auto& resource = ResourceManager::getInstance();
-	MyShader* shader_ptr = resource.GetShaderByName(shader_name);
-	properties_ = shader_ptr->GetProperties();
+	shader_ptr_ = resource.GetShaderByName(shader_name);
+	if (!shader_ptr_) return;
+	properties_ = shader_ptr_->GetProperties();
 }
 
-void GComponent::MaterialComponent::SetShaderProperties() const
+void GComponent::MaterialComponent::SetShaderProperties()
 {
-	MyShader* shader = ResourceManager::getInstance().GetShaderByName(shader_);
-	if (!shader) return;
-	shader->use();
+	if (!shader_ptr_) SetShader(shader_);	
+	if (!shader_ptr_) return;
+	shader_ptr_->use();
 	for (auto&& var : properties_) {
-		setter_map[var.type](shader, var);
+		if (var.name == "model") var.val = Conversion::fromMat4f(GetParent()->getModelMatrix());
+		setter_map[var.type](shader_ptr_, var);
 	}
 }
 }

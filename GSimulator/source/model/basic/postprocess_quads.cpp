@@ -3,6 +3,8 @@
 #include "manager/resourcemanager.h"
 #include "manager/rendermanager.h"
 
+#include "component/material_component.h"
+
 namespace GComponent {
 const std::vector<Vertex>	PostprocessQuads::vertices = 
 {
@@ -19,25 +21,20 @@ const std::vector<Triangle> PostprocessQuads::indeces =
 PostprocessQuads::PostprocessQuads()
 {
 	name_	= "quads";
-	mesh_	= "quads";
-	shader_ = "postprocess";
+	mesh_	= "quads";	
 	ResourceManager& resource_manager = ResourceManager::getInstance();
 	if (not resource_manager.GetMeshByName(mesh_)) {
 		resource_manager.RegisteredMesh(mesh_, new RenderMesh(vertices, indeces, {}));
 	}
-	/*if (not resource_manager.GetShaderByName(shader_)) {
-		resource_manager.RegisteredShader(shader_, new MyShader(nullptr, PathVert(postprocess), PathFrag(postprocess)));
-	}*/
+	RegisterComponent(std::make_unique<MaterialComponent>(this, "postprocess"));
 }
 
 void PostprocessQuads::Draw()
 {
-	ResourceManager& resource_manager = ResourceManager::getInstance();		
-	if (MyShader* shader = resource_manager.GetShaderByName(shader_); shader) {
-		shader->link();
-		shader->use();
-		setShaderProperty(*shader);
-	}	
+	ResourceManager& resource_manager = ResourceManager::getInstance();	
+	if (auto mat_ptr = GetComponent<MaterialComponent>(MaterialComponent::type_name.data()); mat_ptr) {
+		mat_ptr->SetShaderProperties();
+	}
 	if (RenderMesh* mesh = resource_manager.GetMeshByName(mesh_); mesh) {
 		mesh->Draw();
 	}
@@ -45,12 +42,11 @@ void PostprocessQuads::Draw()
 
 void PostprocessQuads::tickImpl(float delta_time)
 {
-	RenderManager::getInstance().EmplaceFrontPostProcessRenderCommand(name_, shader_, mesh_);
+	RenderManager::getInstance().EmplaceFrontPostProcessRenderCommand(name_, mesh_);
 }
 
 void PostprocessQuads::setShaderProperty(MyShader& shader)
 {
-	//shader.setUniformValue("screen_texture", 0);
 	shader.setInt("screen_texture", 0);
 }
 }

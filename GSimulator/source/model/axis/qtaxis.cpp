@@ -6,6 +6,8 @@
  **/
 #include "model/axis/qtaxis.h"
 
+#include  "component/material_component.h"
+
 #include "manager/rendermanager.h"
 #include "manager/resourcemanager.h"
 
@@ -24,14 +26,31 @@ void GComponent::QtGLAbstractAxis::Init(int segments, float radius)
 	ResourceManager::getInstance().RegisteredMesh(mesh_, new RenderMesh(SetupVertexData(segments, radius), SetupIndexData(segments), {}));
 }
 
+GComponent::QtGLAbstractAxis::QtGLAbstractAxis()
+{
+	RegisterComponent(std::make_unique<MaterialComponent>(this, "axis"));
+}
+
 unsigned GComponent::QtGLAbstractAxis::GetStridedSize()
 {
 	return ResourceManager::getInstance().GetMeshByName(mesh_)->GetElementSize() / 3;
 }
 
+void GComponent::QtGLAbstractAxis::SetAxisSelected(AxisSelected which)
+{
+	auto mat_ptr = GetComponent<MaterialComponent>(MaterialComponent::type_name.data());
+	if (!mat_ptr) return;
+	for (auto& prop : mat_ptr->GetProperties()) {
+		if (prop.name == "selected") {
+			prop.val = static_cast<int>(which);
+		}
+	}
+}
+
 void GComponent::QtGLAbstractAxis::tickImpl(float delta_time)
 {
-	RenderManager::getInstance().EmplacePostProcessRenderCommand(name_, shader_, mesh_);
+	std::string shader =  GetComponent<MaterialComponent>(MaterialComponent::type_name.data())->GetShader();
+	RenderManager::getInstance().EmplacePostProcessRenderCommand(name_, mesh_);
 }
 
 void GComponent::QtGLAbstractAxis::Draw()

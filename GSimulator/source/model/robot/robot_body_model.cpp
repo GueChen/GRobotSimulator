@@ -5,7 +5,8 @@
 #include "manager/rendermanager.h"
 #include "manager/modelmanager.h"
 #include "render/rendermesh.h"
-#include "render/myshader.h"
+
+#include "component/material_component.h"
 
 
 using namespace GComponent;
@@ -16,11 +17,12 @@ size_t  ROBOT_BODY_MODEL::count_    = 0;
 ROBOT_BODY_MODEL::ROBOT_BODY_MODEL(Mat4 transform)
 {    
     name_      = "dual_robot_body_" + std::to_string(count_++);
-    mesh_      = "dual_arm_body";
-    shader_    = "color";
+    mesh_      = "dual_arm_body";   
     setModelMatrix(transform);    
     InitializeModelResource();
     ModelManager::getInstance().RegisteredModel(name_, this);
+
+    RegisterComponent(std::make_unique<MaterialComponent>(this, "color"));
 }
 
 void ROBOT_BODY_MODEL::InitializeModelResource()
@@ -32,7 +34,7 @@ void ROBOT_BODY_MODEL::InitializeModelResource()
 
 void GComponent::ROBOT_BODY_MODEL::tickImpl(float delta_time)
 {
-    RenderManager::getInstance().EmplaceRenderCommand(name_, shader_, mesh_);
+    RenderManager::getInstance().EmplaceRenderCommand(name_, mesh_);
 }
 
 void GComponent::ROBOT_BODY_MODEL::setShaderProperty(MyShader& shader)

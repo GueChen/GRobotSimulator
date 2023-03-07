@@ -2,7 +2,6 @@
 #define _SKYBOX_H
 
 #include  "render/rendermesh.h"
-#include  "render/myshader.h"
 #include  "model/model.h"
 
 #include <vector>

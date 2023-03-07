@@ -11,6 +11,7 @@
 #include  "render/myshader.h"
 #include  "model/model.h"
 
+
 #include <GComponent/GNumerical.hpp>
 
 #include <memory>
@@ -35,11 +36,11 @@ using std::vector;
 
 class QtGLAbstractAxis : public Model {
 public:
-	QtGLAbstractAxis() { shader_ = "axis"; };
+	QtGLAbstractAxis();
 	virtual ~QtGLAbstractAxis() {}
 	unsigned		    GetStridedSize();
 
-	inline void			SetAxisSelected(AxisSelected which) { selected_which_ = which; }
+	void			    SetAxisSelected(AxisSelected which);
 	inline AxisSelected GetAxisSelected() const				{ return selected_which_; }
 
 	void Init(int segments, float radius);
