@@ -1,5 +1,5 @@
 /**
- *  @file  	render_rhi.h
+ *  @file  	render_global_info.h
  *  @brief 	some sharing msg used in render.
  *  @author Gue Chen<guechen@buaa.edu.cn>
  *  @date 	July 12th, 2022

@@ -1,4 +1,10 @@
-﻿#ifndef _COMPONENT_HPP 
+﻿/**
+ *  @file  	component.hpp
+ *  @brief 	This class is a basic component class, supply a standard interfaces.
+ *  @author Gue Chen<guechen@buaa.edu.cn>
+ *  @date 	Apr xx, 2022
+ **/
+#ifndef _COMPONENT_HPP 
 #define _COMPONENT_HPP
 
 #include <string>

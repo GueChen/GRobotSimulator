@@ -61,10 +61,7 @@ bool RenderManager::InitFrameBuffer()
 	}
 
 	if (not m_csm_depth_FBO) 
-	{
-		// Regester the specific shader
-		
-
+	{		
 		// Generator Handle
 		gl_->glGenFramebuffers(1, &m_csm_depth_FBO);
 		gl_->glGenTextures(1, &m_csm_depth_texture);

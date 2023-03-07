@@ -1,11 +1,15 @@
 #ifndef MYSHADER_H
 #define MYSHADER_H
 
+#include "render/shader_property.hpp"
+
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/glm.hpp>
 
 #include <QtOpenGL/QOpenGLShaderProgram>
 
+#include <variant>
+#include <vector>
 #include <memory>
 #include <string>
 
@@ -23,13 +27,11 @@ std::make_unique<MyShader>(                 \
 
 namespace GComponent {
     class MyGL;
-    struct UniformVar {
-
-    };
-
-
+    
     class MyShader:public QOpenGLShaderProgram
     {
+    public:
+        
     public:
         /**
          * Shader 构造函数，此处封装了 QOpenGLShaderProgram
@@ -48,28 +50,41 @@ namespace GComponent {
 
         void SetGL(std::shared_ptr<MyGL> other);
 
-        ///
-        inline void SetName(const std::string& name) { name_ = name; }
+        /// Setters & Getters
+        inline void              SetName(const std::string& name)    { name_ = name; }
+
+        inline const Properties& GetProperties() const               { return uniforms_; }
+
 
         /// Set 系列函数，使用前请先使用 MyShader::use
-        void setBool(const std::string & name, bool value) noexcept;
-        void setInt(const std::string & name, int value) noexcept;
+        void setUniformValue(int location, int       value);
+        void setUniformValue(int location, unsigned  value);
+        void setUniformValue(int location, float     value);
+        void setUniformValue(int location, bool      value);
+        void setUniformValue(int location, glm::vec2 value);
+        void setUniformValue(int location, glm::vec3 value);
+        void setUniformValue(int location, glm::vec4 value);
+        void setUniformValue(int location, glm::mat4 mat);
+
+        void setBool(const std::string & name, bool value)    noexcept;
+        void setInt (const std::string & name, int value)     noexcept;
+        void setUint(int location, unsigned int value)        noexcept;
         void setUint(const std::string& name, unsigned value) noexcept;
-        void setFloat(const std::string& name, float value) noexcept;
+        void setFloat(const std::string& name, float value)   noexcept;
         void setVec2(const std::string& name, float value[2]) noexcept;
-        void setVec2(const std::string& name, glm::vec2 value) noexcept;
+        void setVec2(const std::string& name, glm::vec2 value)noexcept;
         void setVec4(const std::string& name, float value[4]) noexcept;
         void setVec3(const std::string& name, float value[3]) noexcept;
-        void setVec3(const std::string& name, glm::vec3 value) noexcept;
-        void setMat4(const std::string& name, glm::mat4 mat) noexcept;
+        void setVec3(const std::string& name, glm::vec3 value)noexcept;
+        void setMat4(const std::string& name, glm::mat4 mat)  noexcept;
     
     private:
-        static std::string GetTpyeName(GLenum type);
+        static std::string GetTypeName(GLenum type);
 
     private:
         std::string name_;
-        bool init_ = false;
-    
+        Properties  uniforms_;
+        bool        init_ = false;
     };
 
     
