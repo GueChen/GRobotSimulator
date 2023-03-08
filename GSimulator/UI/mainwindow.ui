@@ -811,6 +811,12 @@ QLineEdit[readOnly=&quot;true&quot;]{}
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
            <widget class="QComboBox" name="selected_combo">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="styleSheet">
              <string notr="true">
 QComboBox {
@@ -886,14 +892,14 @@ QComboBox QAbstractItemView {
           <item>
            <widget class="QToolBox" name="componentstoolbox">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
             <property name="minimumSize">
              <size>
-              <width>150</width>
+              <width>100</width>
               <height>0</height>
              </size>
             </property>
@@ -912,7 +918,7 @@ color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(125, 100,
 font: 9pt &quot;Fixedsys&quot;;</string>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>1</number>
             </property>
             <property name="tabSpacing">
              <number>1</number>
@@ -966,7 +972,7 @@ background-color:rgb(30,30,30);
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>55</width>
+                     <width>0</width>
                      <height>10</height>
                     </size>
                    </property>
@@ -999,7 +1005,7 @@ background-color:rgb(30,30,30);
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>75</width>
+                     <width>0</width>
                      <height>25</height>
                     </size>
                    </property>
@@ -1038,7 +1044,7 @@ border-radius: 3px;
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>55</width>
+                     <width>0</width>
                      <height>10</height>
                     </size>
                    </property>
@@ -1065,7 +1071,7 @@ border-radius: 3px;
                   <widget class="QLineEdit" name="shader_edit">
                    <property name="minimumSize">
                     <size>
-                     <width>75</width>
+                     <width>0</width>
                      <height>25</height>
                     </size>
                    </property>
@@ -1104,7 +1110,7 @@ border-radius: 3px;
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>55</width>
+                     <width>0</width>
                      <height>10</height>
                     </size>
                    </property>
@@ -1131,7 +1137,7 @@ border-radius: 3px;
                   <widget class="QLineEdit" name="mesh_edit">
                    <property name="minimumSize">
                     <size>
-                     <width>75</width>
+                     <width>0</width>
                      <height>25</height>
                     </size>
                    </property>
@@ -1170,7 +1176,7 @@ border-radius: 3px;
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>55</width>
+                     <width>0</width>
                      <height>10</height>
                     </size>
                    </property>
@@ -1197,7 +1203,7 @@ border-radius: 3px;
                   <widget class="QLineEdit" name="parent_edit">
                    <property name="minimumSize">
                     <size>
-                     <width>75</width>
+                     <width>0</width>
                      <height>25</height>
                     </size>
                    </property>
@@ -1249,9 +1255,15 @@ border-radius: 3px;
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>502</width>
+               <width>156</width>
                <height>377</height>
               </rect>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
              </property>
              <property name="styleSheet">
               <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0.5, x2:0, y2:1, stop:0 rgba(30, 30, 30, 255), stop:1 rgba(45, 45, 45, 255));</string>

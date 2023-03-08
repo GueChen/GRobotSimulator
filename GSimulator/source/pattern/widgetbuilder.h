@@ -7,12 +7,17 @@
 #ifndef _WIDGET_BUILDER_H
 #define _WIDGET_BUILDER_H
 
+#include "render/shader_property.hpp"
+
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QSpacerItem>
 #include <QtCore/QString>
+
+#include <unordered_map>
+#include <string>
 
 namespace GComponent {
 enum class LayoutType {
@@ -75,6 +80,8 @@ private:
 	bool      is_returned_		= false;
 	QWidget * widget_paradigm_	= nullptr;
 	QLayout * widget_layout_	= nullptr;
+
+	
 };
 }
 

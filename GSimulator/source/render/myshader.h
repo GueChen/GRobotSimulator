@@ -53,7 +53,7 @@ namespace GComponent {
         /// Setters & Getters
         inline void              SetName(const std::string& name)    { name_ = name; }
 
-        inline const Properties& GetProperties() const               { return uniforms_; }
+        inline const ShaderProperties& GetProperties() const               { return uniforms_; }
 
 
         /// Set 系列函数，使用前请先使用 MyShader::use
@@ -83,7 +83,7 @@ namespace GComponent {
 
     private:
         std::string name_;
-        Properties  uniforms_;
+        ShaderProperties  uniforms_;
         bool        init_ = false;
     };
 

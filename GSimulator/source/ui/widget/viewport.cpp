@@ -122,7 +122,7 @@ void Viewport::paintGL()
 
 void Viewport::CustomUpdateImpl()
 {
-	Model* cube0 = ModelManager::getInstance().GetModelByName("cube0");
+	/*Model* cube0 = ModelManager::getInstance().GetModelByName("cube0");
 	Model* cube1 = ModelManager::getInstance().GetModelByName("cube1");
 	Model* sphere0 = ModelManager::getInstance().GetModelByName("sphere0");
 	Model* capsule0 = ModelManager::getInstance().GetModelByName("capsule0");
@@ -190,7 +190,7 @@ boxcheckfinish:
 				capsule0->intesection_ = true;
 			}
 		}
-	}
+	}*/
 }
 
 /*________________________________Events Implementations_____________________________________________*/

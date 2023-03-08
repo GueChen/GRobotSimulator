@@ -10,11 +10,11 @@ out vec4 FragColor;
 
 void main()
 {
-	//FragColor = texture(cubemap_texture, vec3(TexCoords.y, TexCoords.z, -TexCoords.x));
-	float r		= length(TexCoords);
-	float theta = (TexCoords.z / r + PI / 2.0f) / PI;
-	
-	FragColor = vec4(mix(vec3(0.05f), vec3(0.25f, 0.25f, 0.25f), theta), 1.0f);
+	FragColor = texture(cubemap_texture, vec3(TexCoords.y, TexCoords.z, -TexCoords.x));
+//	float r		= length(TexCoords);
+//	float theta = (TexCoords.z / r + PI / 2.0f) / PI;
+//	
+//	FragColor = vec4(mix(vec3(0.05f), vec3(0.25f, 0.25f, 0.25f), theta), 1.0f);
 
 	//FragColor = vec4(normalize(TexCoords), 1.0f);
 //	if(TexCoords.z > 0.0f)

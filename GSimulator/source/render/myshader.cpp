@@ -9,7 +9,7 @@
 
 using namespace GComponent;
 
-static void PropertyInit(GLenum type, Property& pro) {
+static void PropertyInit(GLenum type, ShaderProperty& pro) {
     switch (type) {
     case GL_BOOL:               pro.val = false;                        return;
     case GL_INT:                pro.val = 0;                            return;
@@ -71,7 +71,7 @@ void MyShader::SetGL(std::shared_ptr<MyGL> other)
             std::cout << std::format("variables {:<2}: name -- {:<30} | type -- {:<20} | location -- {:} \n", 
                 i, name_buffer.get(), GetTypeName(values[1]), values[2]);
             if (values[2] >= 0) {
-                Property variable;
+                ShaderProperty variable;
                 variable.name     = name_buffer.get();  
                 variable.type     = GetTypeName(values[1]);
                 variable.location = values[2];

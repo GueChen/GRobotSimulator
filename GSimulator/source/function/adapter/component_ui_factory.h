@@ -8,15 +8,18 @@
 #define _COMPONENT_UI_FACTORY_H
 
 #include "pattern/widgetbuilder.h"
+#include "base/global/global_qss.h"
 
 #include "component/joint_component.h"
 #include "component/joint_group_component.h"
 #include "component/kinematic_component.h"
 #include "component/tracker_component.h"
 #include "component/rigidbody_component.h"
+#include "component/material_component.h"
 
 #include "ui/widget/kinematic_widget.h"
 #include "ui/widget/tracker_widget.h"
+#include "ui/widget/line_edit/drag_accept_edit.h"
 #include <GComponent/GNumerical.hpp>
 
 #include <QtCore/QObject>
@@ -39,6 +42,7 @@ namespace GComponent {
 // Derived from a parent UI Builder
 
 class ComponentUIFactory {
+
 public:
 	ComponentUIFactory() = delete;
 	// FIXME: 工厂负责生产不负责销毁，若无接收值发生内存泄漏
@@ -84,6 +88,32 @@ public:
 			ConnectTrackerComponentUI(widget, tracker_component);
 			return widget;
 		}
+		else if (s == "MaterialComponent") {
+			MaterialComponent& material_component = dynamic_cast<MaterialComponent&>(component);
+			auto & properties = material_component.GetProperties();
+			
+			QWidget*	 widget = new QWidget;
+			QVBoxLayout* layout = new QVBoxLayout;
+
+			QLabel*		 shader_label = new QLabel("shader");
+			shader_label->setMinimumHeight(kEleMiniHeight);
+			shader_label->setStyleSheet(component_inspector_text.data());
+			layout->addWidget(shader_label);
+			
+			QLineEdit* shader_editor = new DragAcceptorEditor;
+			shader_editor->setMinimumHeight(kEleMiniHeight);
+			shader_editor->setText(QString::fromStdString(material_component.GetShader()));						
+			layout->addWidget(shader_editor);
+			
+			for (auto&& pro : properties) {				
+				layout->addLayout(build_map[pro.type](pro.name, pro.val));
+			}
+			
+			layout->addItem(new QSpacerItem(20, 20, QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Expanding));
+			widget->setLayout(layout);
+			widget->setSizePolicy(QSizePolicy::Policy::Ignored, QSizePolicy::Policy::Expanding);
+			return widget;
+		}
 		else{
 			// TODO: add the widget
 			QWidget* widget = new QWidget;
@@ -113,6 +143,10 @@ private:
 	/*_________________________Kinematic Component UI Create Methods_________________________________*/
 	static void ConnectKinematicComponentUI(KinematicComponentWidget* widget, KinematicComponent& component);
 
+	/*_________________________Material Component UI Create Methods__________________________________*/
+public:
+	static constexpr const int kEleMiniHeight = 20;
+
 private:
 	/*_____________________________Joint Component UI Objects________________________________________*/
 	static constexpr const string_view JointSliderTagText		= "Joint";
@@ -128,6 +162,8 @@ private:
 	static constexpr const string_view JointSliderGroupObjName  = "joint_slider";
 	static constexpr const string_view JointGroupValObjName		= "value";
 	static constexpr const string_view SettingButtonObjName		= "setting_button";
+
+	static std::unordered_map<std::string, std::function<QLayout*(std::string, ShaderProperty::Var&)>> build_map;
 };
 } 
 

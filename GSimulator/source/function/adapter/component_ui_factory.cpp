@@ -1,8 +1,119 @@
 #include "function/adapter/component_ui_factory.h"
 
+#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QDoubleSpinBox>
+#include <QtWidgets/QSpinBox>
+#include <QtWidgets/QCheckBox>
+
 namespace GComponent {
 using std::string;
 
+static QLabel* CreateStandardTextLabel(const std::string& name) {
+	QLabel* name_text = new QLabel(QString::fromStdString(name));
+	name_text->setStyleSheet(component_inspector_text.data());
+	name_text->setSizePolicy(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Fixed);
+	name_text->setMinimumHeight(ComponentUIFactory::kEleMiniHeight);
+	return name_text;
+}
+
+std::unordered_map<std::string, std::function<QLayout*(std::string, ShaderProperty::Var&)>> ComponentUIFactory::build_map = {
+	{"int", 
+	 [](std::string name, ShaderProperty::Var& val)->QLayout*{
+		QHBoxLayout* layout = new QHBoxLayout;
+				
+		layout->addWidget(CreateStandardTextLabel(name));
+
+		QSpinBox* spinbox = new QSpinBox;
+		spinbox->setValue(std::get<int>(val));
+		QObject::connect(spinbox, &QSpinBox::valueChanged, [&val = val](int value) { val = value;});
+		layout->addWidget(spinbox);
+		return layout;
+	}},
+	{"bool",
+	[](std::string name, ShaderProperty::Var& val)->QLayout* {
+		QVBoxLayout* layout = new QVBoxLayout;
+
+		layout->addWidget(CreateStandardTextLabel(name));
+		
+		QHBoxLayout* sub_layout = new QHBoxLayout;
+		sub_layout->addSpacerItem(new QSpacerItem(20, 20, QSizePolicy::Expanding));
+
+		QCheckBox* checkbox = new QCheckBox;		
+		checkbox->setChecked(std::get<bool>(val));
+		QObject::connect(checkbox, &QCheckBox::stateChanged, [&val = val](bool value) { val = value;});
+		sub_layout->addWidget(checkbox);
+		
+		layout->addLayout(sub_layout);
+		return layout;
+	}},
+	{"float",
+	[](std::string name, ShaderProperty::Var& val)->QLayout* {
+		QHBoxLayout* layout = new QHBoxLayout;
+		
+		layout->addWidget(CreateStandardTextLabel(name));
+
+		QDoubleSpinBox* spinbox = new QDoubleSpinBox;		
+		spinbox->setValue(std::get<float>(val));
+		spinbox->setStyleSheet(double_spin_box_qss.data());
+		QObject::connect(spinbox, &QDoubleSpinBox::valueChanged, [&val = val](double value) { val = static_cast<float>(value); });
+		layout->addWidget(spinbox);
+		
+		return layout;		
+	}},
+	{"vec3",
+	[](std::string name, ShaderProperty::Var& val)->QLayout* {
+		glm::vec3& value = std::get<glm::vec3>(val);
+		
+		QVBoxLayout* layout = new QVBoxLayout;
+		
+		layout->addWidget(CreateStandardTextLabel(name));
+
+		QHBoxLayout* sub_layout = new QHBoxLayout;
+		QLabel* x_label = new QLabel("x");
+		x_label->setAlignment(Qt::AlignCenter);
+		x_label->setStyleSheet(x_label_qss.data());
+		x_label->setMinimumSize(QSize(kEleMiniHeight, kEleMiniHeight));
+		sub_layout->addWidget(x_label);
+		
+		QDoubleSpinBox* x_spinbox = new QDoubleSpinBox;
+		x_spinbox->setValue(value.x);
+		x_spinbox->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Fixed);
+		x_spinbox->setStyleSheet(double_spin_box_qss.data());
+		QObject::connect(x_spinbox, &QDoubleSpinBox::valueChanged, [&val = val](double value) { std::get<glm::vec3>(val).x = value;});
+		sub_layout->addWidget(x_spinbox);
+
+		QLabel* y_label = new QLabel("y");
+		y_label->setAlignment(Qt::AlignCenter);
+		y_label->setStyleSheet(y_label_qss.data());
+		y_label->setMinimumSize(QSize(kEleMiniHeight, kEleMiniHeight));
+		sub_layout->addWidget(y_label);
+
+		QDoubleSpinBox* y_spinbox = new QDoubleSpinBox;
+		y_spinbox->setValue(value.y);
+		y_spinbox->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Fixed);
+		y_spinbox->setStyleSheet(double_spin_box_qss.data());
+		QObject::connect(y_spinbox, &QDoubleSpinBox::valueChanged, [&val = val](double value) { std::get<glm::vec3>(val).y = value; });
+		sub_layout->addWidget(y_spinbox);
+
+		QLabel* z_label = new QLabel("z");
+		z_label->setAlignment(Qt::AlignCenter);
+		z_label->setMinimumSize(QSize(kEleMiniHeight, kEleMiniHeight));
+		z_label->setStyleSheet(z_label_qss.data());
+		sub_layout->addWidget(z_label);
+
+		QDoubleSpinBox* z_spinbox = new QDoubleSpinBox;
+		z_spinbox->setValue(value.z);
+		z_spinbox->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Fixed);
+		z_spinbox->setStyleSheet(double_spin_box_qss.data());
+		QObject::connect(z_spinbox, &QDoubleSpinBox::valueChanged, [&val = val](double value) { std::get<glm::vec3>(val).z = value; });
+		sub_layout->addWidget(z_spinbox);
+
+		layout->addLayout(sub_layout);
+		return layout;
+	}},
+	{"mat4", [](std::string name, ShaderProperty::Var& val)->QLayout* {return nullptr; }}
+};
 /*______________________Joint Component UI BUILDER METHODS__________________________________________*/
 void ComponentUIFactory::CreateJointComponentUI(QWidgetBuilder& builder) {
 	{
@@ -342,6 +453,9 @@ void GComponent::ComponentUIFactory::ConnectKinematicComponentUI(KinematicCompon
 		component.DeregisterDelFunction();
 		});
 }
+
+/*__________________________Material Component UI BUILDER METHODS______________________________________*/
+
 
 }
 

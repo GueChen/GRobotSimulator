@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 
-struct Property {
+struct ShaderProperty {
     // Types alias
     using sampler2D = unsigned int;
     using samplerCUBE = unsigned int;
@@ -32,7 +32,7 @@ struct Property {
     Var         val;
 
 };
-using Properties = std::vector<Property>;
+using ShaderProperties = std::vector<ShaderProperty>;
 
 #endif // !__SHADER_PROPERTY_HPP
 

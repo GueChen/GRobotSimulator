@@ -81,9 +81,6 @@ public:
     inline void     setName(const string & name)         { name_ = name;}
     inline string   getName()        const               { return name_;}
 
-    //inline void     setShader(const string& shader_name) { shader_ = shader_name;}
-    //inline string   getShader()      const               { return shader_;}
-
     void            setParent(Model* parent); 
     inline _RawPtr  getParent()      const               { return parent_;}
 
@@ -135,7 +132,6 @@ protected:
     int                     model_id_               = -1;
     string                  name_                   = "";
     string                  mesh_                   = "";
-    //string                  shader_                 = "";
 
 #ifdef _COLLISION_TEST
 public:

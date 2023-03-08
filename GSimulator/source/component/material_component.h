@@ -21,7 +21,7 @@ public:
 
 protected:
 	using SetterMap = std::unordered_map<std::string, 
-										 std::function<void(MyShader*, Property&)>>;
+										 std::function<void(MyShader*, ShaderProperty&)>>;
 
 public:
 	explicit MaterialComponent(Model* ptr_parent) : Component(ptr_parent) {}
@@ -34,7 +34,7 @@ public:
 			 GetTypeName() const override final { return type_name; }	
 	
 	// Getters & Setters
-	inline Properties& GetProperties()			{ return properties_; }
+	inline ShaderProperties& GetProperties()			{ return properties_; }
 
 	void			   SetShader(const std::string& shader_name);
 
@@ -45,14 +45,14 @@ public:
 
 private:
 	template<class T>
-	static void SetFunction(MyShader* shader, Property& var);
+	static void SetFunction(MyShader* shader, ShaderProperty& var);
 
 /// Fields
 protected:
 	//FIXME: not consider multiple pass situation, later consider how to solve it
 	std::string			shader_;
 	MyShader*			shader_ptr_ = nullptr;
-	Properties			properties_;
+	ShaderProperties			properties_;
 
 /// static Fields
 public:

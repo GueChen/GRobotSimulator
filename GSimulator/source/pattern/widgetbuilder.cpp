@@ -1,6 +1,3 @@
-
-#include "widgetbuilder.h"
-
 #include "pattern/widgetbuilder.h"
 
 namespace GComponent{

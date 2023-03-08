@@ -11,7 +11,7 @@ namespace GComponent {
 #define GlmSetterPair(Type) std::make_pair(#Type, MaterialComponent::SetFunction<glm::Type>)
 
 template<class T>
-void MaterialComponent::SetFunction(MyShader* shader, Property& var)
+void MaterialComponent::SetFunction(MyShader* shader, ShaderProperty& var)
 {
 	assert(shader && "In MaterialComponent::SetFunction, shader ptr can't be nullptr\n");
 	shader->setUniformValue(var.location, std::get<T>(var.val));
@@ -27,7 +27,8 @@ MaterialComponent::SetterMap MaterialComponent::setter_map = {
 		GlmSetterPair(vec4),
 		GlmSetterPair(mat4),
 		{"sampler2D",	   MaterialComponent::SetFunction<int>},
-		{"sampler2DArray", MaterialComponent::SetFunction<int>}
+		{"sampler2DArray", MaterialComponent::SetFunction<int>},
+		{"samplerCUBE",	   MaterialComponent::SetFunction<int>}
 };
 
 void GComponent::MaterialComponent::SetShader(const std::string& shader_name)

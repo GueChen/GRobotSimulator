@@ -86,4 +86,84 @@ constexpr std::string_view red_button_qss =
 "stop: 1 	 rgba(155, 25, 55, 255));"
 "color:rgb(255, 255, 255);"
 "}";
+
+/*_________________________________Component Inspector UI Style Sheet________________________________*/
+/// <summary>
+/// 用于在 Component 的 UI 中展示 property 的名称时
+/// </summary>
+constexpr std::string_view component_inspector_text =
+"QLabel{"
+"color:white;"
+"font: 12pt \"Sitka\";"
+"}";
+
+/// <summary>
+/// 用于 LineEditor 的 UI 展示名称使用
+/// </summary>
+constexpr std::string_view component_inspector_editor =
+"QLineEdit{"
+"font:  9pt \"Cascadia Code\";"
+"color: black;"
+"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+"                                 stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,"
+"                                 stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);"
+"border: 1px solid gray;"
+"border-radius: 3px;"
+"}";
+
+/// <summary>
+/// 用于三维向量中 x 的名称展示
+/// </summary>
+constexpr std::string_view x_label_qss =
+"QLabel{"
+"	color:white;"
+"	background-color: rgb(220, 0, 0);"
+"	border:1px solid;"
+"	border-radius: 2px;"
+"	border-color: qlineargradient(spread : pad, x1 : 0, y1 : 0, x2 : 1, y2 : 0, stop : 0 rgba(0, 0, 0, 255), stop : 1 rgba(255, 255, 255, 255));"
+"	padding: -3 -2px;"
+"}";
+
+/// <summary>
+/// 用于三维向量中 y 的名称展示
+/// </summary>
+constexpr std::string_view y_label_qss =
+"QLabel{\n"
+"	color:white;\n"
+"	background-color: rgb(0, 165, 0);\n"
+"	border:1px solid;\n"
+"	border-radius: 2px;\n"
+"	border-color: qlineargradient(spread : pad, x1 : 0, y1 : 0, x2 : 1, y2 : 0, stop : 0 rgba(0, 0, 0, 255), stop : 1 rgba(255, 255, 255, 255));\n"
+"	padding: -3 -2px;\n"
+"}\n";
+
+/// <summary>
+/// 用于三维向量中 z 的名称展示
+/// </summary>
+constexpr std::string_view z_label_qss =
+"QLabel{\n"
+"	color:white;\n"
+"	background-color: rgb(0, 0, 185);\n"
+"	border:1px solid;\n"
+"	border-radius: 2px;\n"
+"	border-color: qlineargradient(spread : pad, x1 : 0, y1 : 0, x2 : 1, y2 : 0, stop : 0 rgba(0, 0, 0, 255), stop : 1 rgba(255, 255, 255, 255));\n"
+"	padding: -3 -2px;\n"
+"}\n";
+
+/// <summary>
+/// 用于设置 DoubleSpinBox 的风格
+/// </summary>
+constexpr std::string_view double_spin_box_qss =
+"QDoubleSpinBox{"
+"	background-color: rgb(255, 255, 255);"
+"	border-color: rgb(50, 75, 150);"
+"	border-width: 3px;"
+"	border-style: groove;"
+"}"
+"QDoubleSpinBox::hover{"
+"	background-color: rgb(200, 200, 225);"
+"}";
+
+
+
 #endif

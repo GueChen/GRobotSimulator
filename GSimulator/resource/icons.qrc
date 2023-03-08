@@ -6,5 +6,6 @@
   </qresource>
   <qresource prefix="16x16">
     <file>downarrow16x16.png</file>
+    <file>uparrow16x16 .png</file>
   </qresource>
 </RCC>
