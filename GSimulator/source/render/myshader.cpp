@@ -9,6 +9,20 @@
 
 using namespace GComponent;
 
+static std::string ShaderUniformNameProcess(const char* input) {
+    std::string name; 
+    name.reserve(strlen(input));
+    while (*input) {
+        if (*input != '_') {
+            name.push_back(*input);
+        }
+        else {
+            name.push_back(' ');
+        }
+    }
+    return name;
+}
+
 static void PropertyInit(GLenum type, ShaderProperty& pro) {
     switch (type) {
     case GL_BOOL:               pro.val = false;                        return;
@@ -22,9 +36,9 @@ static void PropertyInit(GLenum type, ShaderProperty& pro) {
     case GL_FLOAT_MAT2:         pro.val = glm::identity<glm::mat2>();   return;
     case GL_FLOAT_MAT3:         pro.val = glm::identity<glm::mat3>();   return;
     case GL_FLOAT_MAT4:         pro.val = glm::identity<glm::mat4>();   return;
-    case GL_SAMPLER_2D:         pro.val = 0;                            return;
-    case GL_SAMPLER_CUBE:       pro.val = 0;                            return;
-    case GL_SAMPLER_2D_ARRAY:   pro.val = 0;                            return;
+    case GL_SAMPLER_2D:         pro.val = Texture{};                    return;
+    case GL_SAMPLER_CUBE:       pro.val = Texture{};                    return;
+    case GL_SAMPLER_2D_ARRAY:   pro.val = Texture{};                    return;
     }
 }
 
@@ -72,10 +86,17 @@ void MyShader::SetGL(std::shared_ptr<MyGL> other)
                 i, name_buffer.get(), GetTypeName(values[1]), values[2]);
             if (values[2] >= 0) {
                 ShaderProperty variable;
-                variable.name     = name_buffer.get();  
+                variable.name     = ShaderUniformNameProcess(name_buffer.get());
                 variable.type     = GetTypeName(values[1]);
                 variable.location = values[2];
-                PropertyInit(values[1], variable);
+                if (variable.type == "vec3" && 
+                    variable.name.find("color") != std::string::npos) {
+                    variable.type = "color";
+                    variable.val  = Color::White;
+                }
+                else {
+                    PropertyInit(values[1], variable);
+                }
                 uniforms_.push_back(variable);
             }
         }

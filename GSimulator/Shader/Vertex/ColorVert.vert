@@ -15,7 +15,7 @@ layout(std140, set = 0, binding = 0) uniform Matrices{
 };
 
 uniform mat4 model;
-uniform bool NormReverse;
+uniform bool norm_reverse;
 
 out vec3 FragPos;
 out vec3 Norm;
@@ -25,7 +25,7 @@ void main()
 {
     FragPos = vec3(model * vec4(aPos, 1.0f));
     Norm = transpose(inverse(mat3(model))) * aNorm;
-    if(NormReverse)
+    if(norm_reverse)
     {
         Norm = - Norm;
     }

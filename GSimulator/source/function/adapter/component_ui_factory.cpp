@@ -1,13 +1,64 @@
 #include "function/adapter/component_ui_factory.h"
 
-#include <QtWidgets/QHBoxLayout>
+#include "base/global/global_qss.h"
+
+#include "component/joint_component.h"
+#include "component/joint_group_component.h"
+#include "component/kinematic_component.h"
+#include "component/tracker_component.h"
+#include "component/rigidbody_component.h"
+#include "component/material_component.h"
+
+#include "ui/widget/kinematic_widget.h"
+#include "ui/widget/tracker_widget.h"
+#include "ui/widget/line_edit/drag_accept_edit.h"
+
+#include <QtCore/QObject>
+#include <QtCore/QTimer>
+#include <QtWidgets/QDial>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QCheckBox>
+#include <QtWidgets/QSlider>
+#include <QtWidgets/QLayout>
+#include <QtWidgets/QToolButton>
+#include <QtWidgets/QHBoxLayout>
+
+#include <QtGui/QDropEvent>
+#include <QtGui/QDragEnterEvent>
 
 namespace GComponent {
 using std::string;
+
+/*_____________________________Joint Component UI Create Methods_________________________________*/
+static void CreateJointComponentUI(QWidgetBuilder& builder);
+static void ConnectJointComponentUI(QWidget* widget, JointComponent& joint_component);
+
+/*_______________________Joint Group Component UI Create Methods_________________________________*/
+static void CreateJointGroupComponentUI(QWidgetBuilder& builder, int joint_count);
+static void ConnectJointGroupComponentUI(QWidget* widget, JointGroupComponent& component);
+
+/*___________________________Tracker Component UI Create Methods_________________________________*/
+static void ConnectTrackerComponentUI(TrackerComponentWidget* widget, TrackerComponent& component);
+
+/*_________________________Kinematic Component UI Create Methods_________________________________*/
+static void ConnectKinematicComponentUI(KinematicComponentWidget* widget, KinematicComponent& component);
+
+/*_____________________________Joint Component UI Objects________________________________________*/
+static constexpr const string_view JointSliderTagText = "Joint";
+static constexpr const string_view JointMinLimitTagText = "min(deg.)";
+static constexpr const string_view JointMaxLimitTagText = "max(deg.)";
+
+static constexpr const string_view JointSliderObjName = "joint_slider";
+static constexpr const string_view JointValObjName = "joint_val";
+static constexpr const string_view JointMaxValObjName = "max_val";
+static constexpr const string_view JointMinValObjName = "min_val";
+/*________________________Joint Group Component UI Objects_______________________________________*/
+static constexpr const string_view JointLayoutObjName = "single_joint_layout";
+static constexpr const string_view JointSliderGroupObjName = "joint_slider";
+static constexpr const string_view JointGroupValObjName = "value";
+static constexpr const string_view SettingButtonObjName = "setting_button";
 
 static QLabel* CreateStandardTextLabel(const std::string& name) {
 	QLabel* name_text = new QLabel(QString::fromStdString(name));
@@ -17,6 +68,9 @@ static QLabel* CreateStandardTextLabel(const std::string& name) {
 	return name_text;
 }
 
+
+
+// ui Create table acoording the class with Shader Properties
 std::unordered_map<std::string, std::function<QLayout*(std::string, ShaderProperty::Var&)>> ComponentUIFactory::build_map = {
 	{"int", 
 	 [](std::string name, ShaderProperty::Var& val)->QLayout*{
@@ -112,71 +166,78 @@ std::unordered_map<std::string, std::function<QLayout*(std::string, ShaderProper
 		layout->addLayout(sub_layout);
 		return layout;
 	}},
+	{"color",
+	[](std::string name, ShaderProperty::Var& val)->QLayout* {
+		QVBoxLayout* layout = new QVBoxLayout;
+
+		layout->//addWidget(CreateStandardTextLabel(name));
+		
+		return layout;
+	}},
 	{"mat4", [](std::string name, ShaderProperty::Var& val)->QLayout* {return nullptr; }}
 };
 /*______________________Joint Component UI BUILDER METHODS__________________________________________*/
-void ComponentUIFactory::CreateJointComponentUI(QWidgetBuilder& builder) {
-	{
-		builder.GetWidgetLayout()->addWidget(new QDial);
+void CreateJointComponentUI(QWidgetBuilder& builder) {
+	builder.GetWidgetLayout()->addWidget(new QDial);
 
-		QSlider* slider = new QSlider(Qt::Horizontal);
-		//slider->setParent(&boxlayout);
-		slider->setObjectName(JointSliderObjName.data());
-		slider->setMinimum(-1);
-		slider->setMaximum(1);
-		slider->setValue(0);
-		builder.GetWidgetLayout()->addWidget(slider);
+	QSlider* slider = new QSlider(Qt::Horizontal);
+	//slider->setParent(&boxlayout);
+	slider->setObjectName(JointSliderObjName.data());
+	slider->setMinimum(-1);
+	slider->setMaximum(1);
+	slider->setValue(0);
+	builder.GetWidgetLayout()->addWidget(slider);
 
-		QHBoxLayout* sliderlayout = new QHBoxLayout;
-		// add slider
-		/* |label | | s--l--i--d--e--r| | | label | */
-		QLabel* val_tag = new QLabel(JointSliderTagText.data());
-		val_tag->setObjectName("val_tag");
-		val_tag->setMinimumWidth(75);
-		sliderlayout->addWidget(val_tag);
+	QHBoxLayout* sliderlayout = new QHBoxLayout;
+	// add slider
+	/* |label | | s--l--i--d--e--r| | | label | */
+	QLabel* val_tag = new QLabel(JointSliderTagText.data());
+	val_tag->setObjectName("val_tag");
+	val_tag->setMinimumWidth(75);
+	sliderlayout->addWidget(val_tag);
 
-		QLineEdit* val = new QLineEdit("0.0");		
-		val->setObjectName(JointValObjName.data());
-		val->setAlignment(Qt::AlignCenter);
-		sliderlayout->addWidget(val);
+	QLineEdit* val = new QLineEdit("0.0");		
+	val->setObjectName(JointValObjName.data());
+	val->setAlignment(Qt::AlignCenter);
+	sliderlayout->addWidget(val);
 
-		builder.AddLayout(sliderlayout);
+	builder.AddLayout(sliderlayout);
 
-		// add label val
-		QHBoxLayout* min_limit_layout = new QHBoxLayout;
+	// add label val
+	QHBoxLayout* min_limit_layout = new QHBoxLayout;
 
-		QLabel* min_limit_label = new QLabel(JointMinLimitTagText.data());
-		min_limit_label->setObjectName("min_label");
-		min_limit_label->setMinimumWidth(75);
-		min_limit_layout->addWidget(min_limit_label);
+	QLabel* min_limit_label = new QLabel(JointMinLimitTagText.data());
+	min_limit_label->setObjectName("min_label");
+	min_limit_label->setMinimumWidth(75);
+	min_limit_layout->addWidget(min_limit_label);
 
-		QLineEdit* min_val = new QLineEdit("-180.0");
-		min_val->setObjectName(JointMinValObjName.data());
-		min_val->setAlignment(Qt::AlignCenter);
-		min_limit_layout->addWidget(min_val);
+	QLineEdit* min_val = new QLineEdit("-180.0");
+	min_val->setObjectName(JointMinValObjName.data());
+	min_val->setAlignment(Qt::AlignCenter);
+	min_limit_layout->addWidget(min_val);
 
-		builder.AddLayout(min_limit_layout);
+	builder.AddLayout(min_limit_layout);
 
-		// add label val
-		QHBoxLayout* max_limit_layout = new QHBoxLayout;
+	// add label val
+	QHBoxLayout* max_limit_layout = new QHBoxLayout;
 
-		QLabel* max_limit_label = new QLabel(JointMaxLimitTagText.data());
-		max_limit_label->setObjectName("max_label");
-		max_limit_label->setMinimumWidth(75);
-		max_limit_layout->addWidget(max_limit_label);
+	QLabel* max_limit_label = new QLabel(JointMaxLimitTagText.data());
+	max_limit_label->setObjectName("max_label");
+	max_limit_label->setMinimumWidth(75);
+	max_limit_layout->addWidget(max_limit_label);
 
-		QLineEdit* max_val = new QLineEdit("180.0");
-		max_val->setObjectName(JointMaxValObjName.data());
-		max_val->setAlignment(Qt::AlignCenter);
-		max_limit_layout->addWidget(max_val);
+	QLineEdit* max_val = new QLineEdit("180.0");
+	max_val->setObjectName(JointMaxValObjName.data());
+	max_val->setAlignment(Qt::AlignCenter);
+	max_limit_layout->addWidget(max_val);
 
-		builder.AddLayout(max_limit_layout);
+	builder.AddLayout(max_limit_layout);
 
-		builder.AddSpacer(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
-	}
+	builder.AddSpacer(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
+	
 }
 
-void ComponentUIFactory::ConnectJointComponentUI(QWidget* widget, JointComponent& joint_component)
+void ConnectJointComponentUI(QWidget* widget, JointComponent& joint_component)
 {
 	QSlider* slider	   = widget->findChild<QSlider*>(JointSliderObjName.data());
 	QLineEdit* val	   = widget->findChild<QLineEdit*>(JointValObjName.data());
@@ -215,7 +276,7 @@ void ComponentUIFactory::ConnectJointComponentUI(QWidget* widget, JointComponent
 }
 
 /*______________________Joint Group Component UI BUILDER METHODS______________________________________*/
-void GComponent::ComponentUIFactory::CreateJointGroupComponentUI(QWidgetBuilder& builder, int joint_count)
+void CreateJointGroupComponentUI(QWidgetBuilder& builder, int joint_count)
 {
 	QWidget* widget = builder.GetWidget();
 	QIcon left_icon, right_icon, setting_icon;
@@ -348,7 +409,7 @@ void GComponent::ComponentUIFactory::CreateJointGroupComponentUI(QWidgetBuilder&
 	builder.AddSpacer(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 }
 
-void ComponentUIFactory::ConnectJointGroupComponentUI(QWidget* widget, JointGroupComponent& component)
+void ConnectJointGroupComponentUI(QWidget* widget, JointGroupComponent& component)
 {
 	const vector<JointComponent*> joints = component.GetJoints();
 	int n = component.GetJointsSize();
@@ -390,7 +451,7 @@ void ComponentUIFactory::ConnectJointGroupComponentUI(QWidget* widget, JointGrou
 }
 
 /*__________________________Tracker Component UI BUILDER METHODS______________________________________*/
-void GComponent::ComponentUIFactory::ConnectTrackerComponentUI(TrackerComponentWidget* widget, TrackerComponent& component)
+void ConnectTrackerComponentUI(TrackerComponentWidget* widget, TrackerComponent& component)
 {
 	auto string_to_QString = [](const string& val)->QString {
 		return QString::fromStdString(val);
@@ -430,7 +491,7 @@ void GComponent::ComponentUIFactory::ConnectTrackerComponentUI(TrackerComponentW
 }
 
 /*__________________________Kinematic Component UI BUILDER METHODS______________________________________*/
-void GComponent::ComponentUIFactory::ConnectKinematicComponentUI(KinematicComponentWidget* widget, KinematicComponent& component)
+void ConnectKinematicComponentUI(KinematicComponentWidget* widget, KinematicComponent& component)
 {
 	widget->SetJointCount(component.GetJointCount());
 	widget->SetIKSolver(static_cast<int>(component.GetIKEnum()));
@@ -456,6 +517,83 @@ void GComponent::ComponentUIFactory::ConnectKinematicComponentUI(KinematicCompon
 
 /*__________________________Material Component UI BUILDER METHODS______________________________________*/
 
+
+QWidget* ComponentUIFactory::Create(Component& component)
+{
+	string_view s = component.GetTypeName();
+	QWidgetBuilder builder;
+
+	if (s == "JointComponent") {
+		JointComponent& joint_component = dynamic_cast<JointComponent&>(component);
+
+		/* builder UI Part */
+		CreateJointComponentUI(builder);
+
+		/* Connect and Adjust some Datas */
+		ConnectJointComponentUI(builder.GetWidget(), joint_component);
+
+		return builder.GetWidget();
+	}
+	else if (s == "JointGroupComponent") {
+		JointGroupComponent& joints_component = dynamic_cast<JointGroupComponent&>(component);
+		int num = joints_component.SearchJointsInChildren();
+
+		/* builder UI part */
+		CreateJointGroupComponentUI(builder, num);
+
+		/* Connect and Adjust Datas */
+		ConnectJointGroupComponentUI(builder.GetWidget(), joints_component);
+
+		return builder.GetWidget();
+	}
+	else if (s == "KinematicComponent") {
+		KinematicComponent& kinematic_component = dynamic_cast<KinematicComponent&>(component);
+		KinematicComponentWidget* widget = new KinematicComponentWidget;
+		ConnectKinematicComponentUI(widget, kinematic_component);
+		widget->setGeometry(QRect(0, 0, 300, 600));
+		return widget;
+	}
+	else if (s == "TrackerComponent") {
+		TrackerComponent& tracker_component = dynamic_cast<TrackerComponent&>(component);
+		TrackerComponentWidget* widget = new TrackerComponentWidget;
+
+		ConnectTrackerComponentUI(widget, tracker_component);
+		return widget;
+	}
+	else if (s == "MaterialComponent") {
+		MaterialComponent& material_component = dynamic_cast<MaterialComponent&>(component);
+		auto& properties = material_component.GetProperties();
+
+		QWidget* widget = new QWidget;
+		QVBoxLayout* layout = new QVBoxLayout;
+
+		QLabel* shader_label = new QLabel("shader");
+		shader_label->setMinimumHeight(kEleMiniHeight);
+		shader_label->setStyleSheet(component_inspector_text.data());
+		layout->addWidget(shader_label);
+
+		QLineEdit* shader_editor = new DragAcceptorEditor(QString::fromStdString(material_component.GetShader()), 
+														  nullptr);
+		shader_editor->setMinimumHeight(kEleMiniHeight);
+		layout->addWidget(shader_editor);
+
+		for (auto&& pro : properties) {
+			layout->addLayout(build_map[pro.type](pro.name, pro.val));
+		}
+
+		layout->addItem(new QSpacerItem(20, 20, QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Expanding));
+		widget->setLayout(layout);
+		widget->setSizePolicy(QSizePolicy::Policy::Ignored, QSizePolicy::Policy::Expanding);
+		return widget;
+	}
+	else {
+		// TODO: add the widget
+		QWidget* widget = new QWidget;
+		return   widget;
+	}
+
+	return nullptr;
+}
 
 }
 

@@ -20,6 +20,13 @@ using vec4 = glm::vec4;
 using vec3 = glm::vec3;
 using vec2 = glm::vec2;
 
+struct Color {
+    vec3 val;
+
+    static constexpr const glm::vec3 White = glm::vec3(1.0f);
+    static constexpr const glm::vec3 Dark  = glm::vec3(0.0f);
+};
+
 struct Line{
     int first;
     int second;

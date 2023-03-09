@@ -8,13 +8,20 @@ namespace GComponent {
 DragAcceptorEditor::DragAcceptorEditor(QWidget*		 parent, 
 									   DragEnterFunc enter_func,
 									   DropFunc		 drop_func):
-	QLineEdit(parent),
+	DragAcceptorEditor("", parent, enter_func, drop_func)
+{}
+
+DragAcceptorEditor::DragAcceptorEditor(const QString& text, 
+									   QWidget* parent, 
+									   DragEnterFunc enter_func, 
+									   DropFunc drop_func):
+	QLineEdit(text, parent),
 	drop_callback_(drop_func),
 	drag_enter_callback_(enter_func)
 {
 	setStyleSheet(component_inspector_editor.data());
-	setAlignment (Qt::AlignCenter);
-	setReadOnly  (true);
+	setAlignment(Qt::AlignCenter);
+	setReadOnly(true);
 }
 
 void DragAcceptorEditor::dropEvent(QDropEvent* event)

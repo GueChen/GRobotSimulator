@@ -12,6 +12,7 @@
 #include <functional>
 
 namespace GComponent {
+	
 class DragAcceptorEditor : public QLineEdit {
 	Q_OBJECT
 public:
@@ -22,6 +23,11 @@ public:
 	explicit DragAcceptorEditor(QWidget*	  parent	 = nullptr, 
 								DragEnterFunc enter_func = [](QDragEnterEvent*) { return false; },
 								DropFunc	  drop_func	 = [](QDropEvent*){});
+	explicit DragAcceptorEditor(const QString&, 
+								QWidget*	  parent	 = nullptr, 
+								DragEnterFunc enter_func = [](QDragEnterEvent*) { return false; },
+								DropFunc	  drop_func	 = [](QDropEvent*){});
+
 	~DragAcceptorEditor() = default;
 
 protected:

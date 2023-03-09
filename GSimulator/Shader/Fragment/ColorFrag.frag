@@ -16,11 +16,15 @@ layout(std140, set = 0, binding = 1) uniform ambient_observer_parameter{
 
 out vec4 FragColor;
 
-#define Ambient 0.1
+#define Ambient  0.1
 #define Specular 0.70
-#define Diffuse 0.55
+#define Diffuse  0.55
 
-uniform vec3 color;
+
+uniform float ambient;
+uniform vec3  specular_color;
+uniform vec3  diffuse_color;
+uniform vec3  surface_color;
 
 vec3 CalcLight(DirLight light, vec3 norm, vec3 viewDir);
 
@@ -41,8 +45,8 @@ vec3 CalcLight(DirLight light, vec3 norm, vec3 viewDir)
     vec3 halfWayDir = normalize(light.dir + viewDir);
 
     vec3 ambient    = vec3(Ambient);
-    vec3 diffuse    = vec3(Diffuse)  * max( dot( light.dir, norm), 0.0f);
-    vec3 specular   = vec3(Specular) * pow( max( dot( norm, halfWayDir), 0.0f), 55.0f);
+    vec3 diffuse    = diffuse_color  * max( dot( light.dir, norm), 0.0f);
+    vec3 specular   = specular_color * pow( max( dot( norm, halfWayDir), 0.0f), 55.0f);
 
-    return (ambient + diffuse + specular) * light.color * color;
+    return (ambient + diffuse + specular) * light.color * surface_color;
 }
