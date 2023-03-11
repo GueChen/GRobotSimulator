@@ -93,8 +93,8 @@ constexpr std::string_view red_button_qss =
 /// </summary>
 constexpr std::string_view component_inspector_text =
 "QLabel{"
-"color:white;"
-"font: 12pt \"Sitka\";"
+"color: rgb(255, 255, 255);"
+"font: 9pt \"Microsoft YaHei UI\";"
 "}";
 
 /// <summary>

@@ -99,6 +99,7 @@ target_include_directories(
 #___________________ Linking Libraries ______________________
 target_link_libraries(${TARGET_NAME} PUBLIC 
 	common_lib
+	GComponentQtPlugins
 	Qt6::Core
 	Qt6::Widgets
 	Qt6::Gui

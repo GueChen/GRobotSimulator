@@ -228,8 +228,10 @@ std::vector<GComponent::Vertex> GComponent::QtGLRotationAxis::SetupVertexData(in
 {
 	vector<Vertex> vertices;
 	/* Make X Circle */
-	SetupXaxisCircle(segments, radius, 0.0f, vertices);
-	SetupXaxisCircle(segments, 1.35f * radius, 0.0f, vertices);
+	SetupXaxisCircle(segments, radius, 0.04f,  vertices);
+	SetupXaxisCircle(segments, 1.35f * radius, 0.04f, vertices);
+	SetupXaxisCircle(segments, radius, -0.04f, vertices);
+	SetupXaxisCircle(segments, 1.35f * radius, -0.04f, vertices);
 
 	const int vertex_count = vertices.size();
 	/* Make Y-Z Vertex Setup */
@@ -241,14 +243,21 @@ std::vector<GComponent::Vertex> GComponent::QtGLRotationAxis::SetupVertexData(in
 std::vector<GComponent::Triangle> GComponent::QtGLRotationAxis::SetupIndexData(int segments)
 {
 	vector<Triangle> indices;
-	const int strided = 2 * segments;
+	const int strided = 4 * segments;
+	auto link_ring = [&](int stride, int base, int diff) {
+		for (int i = 0; i < segments - 1; ++i) {
+			LinkSquare(stride, base, i, i + 1, i + diff, i + diff + 1, indices);
+		}
+		LinkSquare(stride, base, diff - 1, 0, diff + segments - 1, segments, indices);
+	};
 	for (int k = 0; k < 3; ++k) {
 		int vertex_stride = k * strided;
-		for (int i = 0; i < segments - 1; ++i) {
-			LinkSquare(vertex_stride, 0, i, i + 1, i + segments, i + segments + 1, indices);
-		}
-		LinkSquare(vertex_stride, 0, segments - 1, 0, 2 * segments - 1, segments, indices);
+		link_ring(vertex_stride, 0, segments);
+		link_ring(vertex_stride, 2 * segments, segments);
+		link_ring(vertex_stride, 0, 2 * segments);
+		link_ring(vertex_stride, segments, 2 * segments);
 	}
+	
 	return indices;
 }
 

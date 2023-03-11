@@ -17,6 +17,13 @@ void MaterialComponent::SetFunction(MyShader* shader, ShaderProperty& var)
 	shader->setUniformValue(var.location, std::get<T>(var.val));
 }
 
+template<>
+void MaterialComponent::SetFunction<Texture>(MyShader* shader, ShaderProperty& var)
+{
+	assert(shader && "In MaterialComponent::SetFunction, shader ptr can't be nullptr\n");
+	shader->setUniformValue(var.location, std::get<Texture>(var.val).id);
+}
+
 MaterialComponent::SetterMap MaterialComponent::setter_map = {
 		SetterPair	 (int),
 		SetterPair   (unsigned int),
@@ -26,9 +33,10 @@ MaterialComponent::SetterMap MaterialComponent::setter_map = {
 		GlmSetterPair(vec3),
 		GlmSetterPair(vec4),
 		GlmSetterPair(mat4),
-		{"sampler2D",	   MaterialComponent::SetFunction<int>},
-		{"sampler2DArray", MaterialComponent::SetFunction<int>},
-		{"samplerCUBE",	   MaterialComponent::SetFunction<int>}
+		{"sampler2D",	   MaterialComponent::SetFunction<Texture>},
+		{"sampler2DArray", MaterialComponent::SetFunction<Texture>},
+		{"samplerCUBE",	   MaterialComponent::SetFunction<Texture>},
+		{"color",		   MaterialComponent::SetFunction<glm::vec3>}
 };
 
 void GComponent::MaterialComponent::SetShader(const std::string& shader_name)

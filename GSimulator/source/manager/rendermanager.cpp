@@ -428,10 +428,19 @@ void RenderManager::PostProcessPass()
 		FBOTextureGuard guard(&FBO_.value());		
 		screen_quad_.Draw();		
 	}
-
+	
+	gl_->glEnable(GL_BLEND);
+	gl_->glCullFace(GL_FRONT);
+	gl_->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	PassSpecifiedListNormal(post_process_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetAuxiModelByName(name);
-		});
+	});
+
+	gl_->glCullFace(GL_BACK);
+	PassSpecifiedListNormal(post_process_list_, [](const std::string& name) {
+		return ModelManager::getInstance().GetAuxiModelByName(name);
+	});
+	gl_->glDisable(GL_BLEND);
 }
 
 void RenderManager::PassSpecifiedListPicking(PassType draw_index_type, RenderList& list, function<Model* (const std::string&)> ObjGetter)

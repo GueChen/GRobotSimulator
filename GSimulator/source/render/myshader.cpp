@@ -19,6 +19,7 @@ static std::string ShaderUniformNameProcess(const char* input) {
         else {
             name.push_back(' ');
         }
+        ++input;
     }
     return name;
 }

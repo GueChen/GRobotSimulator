@@ -1,3 +1,7 @@
 [submodule "GComponentBaseLib"]
 	path = GComponentBaseLib
-	url    = https://github.com/GueChen/GComponentBaseLib.git
+	url  = https://github.com/GueChen/GComponentBaseLib.git
+
+[submodule "GComponentQtPluginLib"]
+	path = GComponentQtPluginLib
+	url  = https://github.com/GueChen/GComponentQtPuginLib.git

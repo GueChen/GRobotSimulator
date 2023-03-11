@@ -35,3 +35,4 @@ project ("GSimulator")
 # 包含子项目。
 add_subdirectory ("GSimulator")
 add_subdirectory ("GComponentBaseLib")
+add_subdirectory ("GComponentQtPluginLib")

@@ -13,6 +13,8 @@
 #include "ui/widget/tracker_widget.h"
 #include "ui/widget/line_edit/drag_accept_edit.h"
 
+#include "ColorEdit/color_edit.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QTimer>
 #include <QtWidgets/QDial>
@@ -134,7 +136,7 @@ std::unordered_map<std::string, std::function<QLayout*(std::string, ShaderProper
 		x_spinbox->setValue(value.x);
 		x_spinbox->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Fixed);
 		x_spinbox->setStyleSheet(double_spin_box_qss.data());
-		QObject::connect(x_spinbox, &QDoubleSpinBox::valueChanged, [&val = val](double value) { std::get<glm::vec3>(val).x = value;});
+		QObject::connect(x_spinbox, &QDoubleSpinBox::valueChanged, [&x = value.x](double value) { x = value;});
 		sub_layout->addWidget(x_spinbox);
 
 		QLabel* y_label = new QLabel("y");
@@ -147,7 +149,7 @@ std::unordered_map<std::string, std::function<QLayout*(std::string, ShaderProper
 		y_spinbox->setValue(value.y);
 		y_spinbox->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Fixed);
 		y_spinbox->setStyleSheet(double_spin_box_qss.data());
-		QObject::connect(y_spinbox, &QDoubleSpinBox::valueChanged, [&val = val](double value) { std::get<glm::vec3>(val).y = value; });
+		QObject::connect(y_spinbox, &QDoubleSpinBox::valueChanged, [&y = value.y](double value) { y = value; });
 		sub_layout->addWidget(y_spinbox);
 
 		QLabel* z_label = new QLabel("z");
@@ -160,7 +162,7 @@ std::unordered_map<std::string, std::function<QLayout*(std::string, ShaderProper
 		z_spinbox->setValue(value.z);
 		z_spinbox->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Fixed);
 		z_spinbox->setStyleSheet(double_spin_box_qss.data());
-		QObject::connect(z_spinbox, &QDoubleSpinBox::valueChanged, [&val = val](double value) { std::get<glm::vec3>(val).z = value; });
+		QObject::connect(z_spinbox, &QDoubleSpinBox::valueChanged, [&z = value.z](double value) { z = value; });
 		sub_layout->addWidget(z_spinbox);
 
 		layout->addLayout(sub_layout);
@@ -168,10 +170,23 @@ std::unordered_map<std::string, std::function<QLayout*(std::string, ShaderProper
 	}},
 	{"color",
 	[](std::string name, ShaderProperty::Var& val)->QLayout* {
-		QVBoxLayout* layout = new QVBoxLayout;
-
-		layout->//addWidget(CreateStandardTextLabel(name));
+		glm::vec3& value = std::get<glm::vec3>(val);
+		QColor color; 
+		color.setRedF  (value.x);
+		color.setGreenF(value.y);
+		color.setBlueF (value.z);
 		
+		QVBoxLayout* layout = new QVBoxLayout;
+		layout->addWidget(CreateStandardTextLabel(name));
+		
+		ColorEdit* color_edit = new ColorEdit(nullptr, color);
+		QObject::connect(color_edit, &ColorEdit::ColorChanged, [&val = value](const QColor& color) {
+			val.x = color.redF();
+			val.y = color.greenF();
+			val.z = color.blueF();
+		});
+
+		layout->addWidget(color_edit);
 		return layout;
 	}},
 	{"mat4", [](std::string name, ShaderProperty::Var& val)->QLayout* {return nullptr; }}
@@ -566,6 +581,7 @@ QWidget* ComponentUIFactory::Create(Component& component)
 
 		QWidget* widget = new QWidget;
 		QVBoxLayout* layout = new QVBoxLayout;
+		layout->setSpacing(2);
 
 		QLabel* shader_label = new QLabel("shader");
 		shader_label->setMinimumHeight(kEleMiniHeight);
