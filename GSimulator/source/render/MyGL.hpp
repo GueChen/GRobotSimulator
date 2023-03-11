@@ -34,61 +34,6 @@ public:
     ~MyGL() = default;
 
 /*______________________________________OpenGL Helper METHODS_______________________________________*/
-    unsigned
-    genMatrices()
-    {
-        unsigned uboMatrices;
-
-        glGenBuffers(1, &uboMatrices);
-
-        glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
-        glBufferData(GL_UNIFORM_BUFFER, 2 * GCONST::MAT4_SIZE, NULL, GL_STATIC_DRAW);
-        glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboMatrices);
-
-        return uboMatrices;
-    }
-
-    void
-    setMatrices(unsigned ubo, glm::mat4 pro, glm::mat4 view)
-    {
-        glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-
-        glBufferSubData(GL_UNIFORM_BUFFER,
-                        0, GCONST::MAT4_SIZE,
-                        glm::value_ptr(pro));
-        glBufferSubData(GL_UNIFORM_BUFFER,
-                        GCONST::MAT4_SIZE, GCONST::MAT4_SIZE,
-                        glm::value_ptr(view));
-
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    }
-
-    unsigned
-    genDirLightViewPos()
-    {
-        unsigned uboGlobalParameter;
-        
-        glGenBuffers(1, &uboGlobalParameter);
-
-        glBindBuffer(GL_UNIFORM_BUFFER, uboGlobalParameter);
-        glBufferData(GL_UNIFORM_BUFFER, 3 * GCONST::VEC4_SIZE, NULL, GL_STATIC_DRAW);
-        glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboGlobalParameter);
-
-        return uboGlobalParameter;
-    }
-
-    void
-    setDirLightViewPos(unsigned ubo, glm::vec3 light_dir, glm::vec3 light_color, glm::vec3 view_pos)
-    {
-        glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-
-        glBufferSubData(GL_UNIFORM_BUFFER, 0 * GCONST::VEC4_SIZE, GCONST::VEC3_SIZE, glm::value_ptr(light_dir));
-        glBufferSubData(GL_UNIFORM_BUFFER, 1 * GCONST::VEC4_SIZE, GCONST::VEC3_SIZE, glm::value_ptr(light_color));
-        glBufferSubData(GL_UNIFORM_BUFFER, 2 * GCONST::VEC4_SIZE, GCONST::VEC3_SIZE, glm::value_ptr(view_pos));
-       
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    }
-
     pair<unsigned, unsigned>
     genVABO(void* data, size_t size)
     {

@@ -27,35 +27,6 @@ bool RenderManager::InitFrameBuffer()
 							 m_render_sharing_msg.viewport.window_size.y,		// window height
 							 gl_);
 	
-	if (depth_FBO_) {
-		gl_->glDeleteFramebuffers(1, &depth_FBO_);
-		gl_->glDeleteTextures(1, &depth_texture_);
-		depth_FBO_ = depth_texture_ = 0;
-
-	}
-
-	if (not depth_FBO_) 
-	{
-		gl_->glGenFramebuffers(1, &depth_FBO_);
-		gl_->glGenTextures(1, &depth_texture_);
-		
-		// Configure Texture Properties
-		gl_->glBindTexture(GL_TEXTURE_2D, depth_texture_);
-		gl_->glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 4096, 4096, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-		gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-		// Bind Texture on Frame Buffer
-		gl_->glBindFramebuffer(GL_FRAMEBUFFER, depth_FBO_);
-		gl_->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_texture_, 0);
-		gl_->glDrawBuffer(GL_NONE);
-		gl_->glReadBuffer(GL_NONE);
-		gl_->glBindFramebuffer(GL_FRAMEBUFFER, 0);	
-	
-	}
-
 	if (m_csm_depth_FBO) {
 		gl_->glDeleteFramebuffers(1, &m_csm_depth_FBO);
 		gl_->glDeleteTextures(1, &m_csm_depth_texture);
@@ -95,18 +66,7 @@ bool RenderManager::InitFrameBuffer()
 	}
 
 	// Configure the light space matrices parameters
-	if (m_csm_matrices_UBO) {
-		gl_->glDeleteBuffers(1, &m_csm_matrices_UBO);
-		m_csm_matrices_UBO = 0;
-	}
-
-	if (not m_csm_matrices_UBO) {
-		gl_->glGenBuffers(1, &m_csm_matrices_UBO);
-		gl_->glBindBuffer(GL_UNIFORM_BUFFER, m_csm_matrices_UBO);
-		gl_->glBufferData(GL_UNIFORM_BUFFER, sizeof glm::mat4x4 * 16, nullptr, GL_STATIC_DRAW);
-		gl_->glBindBufferBase(GL_UNIFORM_BUFFER, 2, m_csm_matrices_UBO);
-		gl_->glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	}
+	
 
 	return FBO_ == std::nullopt;	
 }
@@ -169,22 +129,22 @@ void RenderManager::SetGL(const shared_ptr<MyGL>& gl)
 {
 	gl_ = gl;
 	InitFrameBuffer();
+	depth_FBO_ = FrameBufferObject(depth_buffer_resolustion_, 
+								   depth_buffer_resolustion_, 
+								   gl_, 
+								   FrameBufferObject::Depth);
 
-	if (matrices_UBO_) {
-        gl_->glDeleteBuffers(1, (unsigned*) &matrices_UBO_);
-        gl_->glDeleteBuffers(1, (unsigned*) &ambient_observer_UBO_);
-        matrices_UBO_ = ambient_observer_UBO_ 
-                      = 0;         
-    }
-    matrices_UBO_         = gl_->genMatrices();
-    ambient_observer_UBO_ = gl_->genDirLightViewPos();
+	matrices_UBO_		  = UniformBufferObject(0, sizeof glm::mat4x4 * 2,  gl_);
+	ambient_observer_UBO_ = UniformBufferObject(1, sizeof glm::vec4   * 3,  gl_);
+	light_matrices_UBO_	  = UniformBufferObject(2, sizeof glm::mat4x4 * 16, gl_);
+
 }
 
 // 渲染从该处开始，所有的 Draw call 由该部分完成
 /*__________________________tick Methods____________________________________________________*/
 void RenderManager::tick()
 {
-	SetProjectViewMatrices();
+	SetProjectViewMatrices ();
 	SetDirLightViewPosition();
 	// setting light matrices UBO
 	m_csm_cascade_planes = { m_render_sharing_msg.projection_info.far_plane / 50.0f, 
@@ -192,13 +152,14 @@ void RenderManager::tick()
 							 m_render_sharing_msg.projection_info.far_plane / 10.0f, 
 							 m_render_sharing_msg.projection_info.far_plane / 2.0f };
 	const auto light_view_proj_matrices = GetLightViewProjMatrices();
-	gl_->glBindBuffer(GL_UNIFORM_BUFFER, m_csm_matrices_UBO);
-	for (size_t i = 0; i < light_view_proj_matrices.size(); ++i) {
-		gl_->glBufferSubData(GL_UNIFORM_BUFFER, i * sizeof glm::mat4x4, sizeof glm::mat4x4, &light_view_proj_matrices[i]);
-	}
-	gl_->glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	{
+		UBOGaurd gaurd(&light_matrices_UBO_.value());
+		
+		for (size_t i = 0; i < light_view_proj_matrices.size(); ++i) {
+			light_matrices_UBO_->SetSubData(glm::value_ptr(light_view_proj_matrices[i]), sizeof glm::mat4 * i, sizeof glm::mat4);
+		}		
+	}	
 	
-
 	PickingPass();
 	
 	DepthMapPass();
@@ -218,17 +179,21 @@ RenderManager::RenderManager() :grid_(50, 0.20f)
 //_____________________________Datas Setting______________________________________________________//
 void RenderManager::SetProjectViewMatrices()
 {
-	gl_->setMatrices(matrices_UBO_, 
-					 m_render_sharing_msg.projection_mat, 
-					 m_render_sharing_msg.view_mat);
+	UBOGaurd gaurd(&matrices_UBO_.value());
+	
+	matrices_UBO_->SetSubData(glm::value_ptr(m_render_sharing_msg.projection_mat), 0,				 sizeof glm::mat4);
+	matrices_UBO_->SetSubData(glm::value_ptr(m_render_sharing_msg.view_mat),       sizeof glm::mat4, sizeof glm::mat4);
+	
 }
 
 void RenderManager::SetDirLightViewPosition()
 {
-	gl_->setDirLightViewPos(ambient_observer_UBO_, 
-							m_render_sharing_msg.dir_light.dir, 
-							m_render_sharing_msg.dir_light.color,
-							m_render_sharing_msg.view_pos);
+	UBOGaurd gaurd(&ambient_observer_UBO_.value());
+	
+	ambient_observer_UBO_->SetSubData(glm::value_ptr(m_render_sharing_msg.dir_light.dir),   0,					  sizeof glm::vec3);
+	ambient_observer_UBO_->SetSubData(glm::value_ptr(m_render_sharing_msg.dir_light.color), sizeof glm::vec4,	  sizeof glm::vec3);
+	ambient_observer_UBO_->SetSubData(glm::value_ptr(m_render_sharing_msg.view_pos),		sizeof glm::vec4 * 2, sizeof glm::vec3);	
+
 }
 
 std::vector<glm::vec4> RenderManager::GetFrustumCornersWorldSpace(const glm::mat4& projection, const glm::mat4& view)
@@ -343,7 +308,7 @@ void RenderManager::PickingPass()
 
 void RenderManager::DepthMapPass()
 {			
-	gl_->glBindFramebuffer(GL_FRAMEBUFFER, m_csm_depth_FBO);
+	/*gl_->glBindFramebuffer(GL_FRAMEBUFFER, m_csm_depth_FBO);
 	gl_->glFramebufferTexture(GL_FRAMEBUFFER, GL_TEXTURE_2D_ARRAY, m_csm_depth_FBO, 0);
 	gl_->glViewport(0, 0, m_csm_texture_resolusion, m_csm_texture_resolusion);
 	ClearGLScreenBuffer(0.0f, 0.0f, 0.0f, 1.0f);
@@ -357,19 +322,23 @@ void RenderManager::DepthMapPass()
 					m_render_sharing_msg.viewport.window_pos.y,
 					m_render_sharing_msg.viewport.window_size.x,
 					m_render_sharing_msg.viewport.window_size.y
-	);
+	);*/
 
 	// Shadow Pass
-	/*gl_->glViewport(0, 0, 4096, 4096);
-	gl_->glBindFramebuffer(GL_FRAMEBUFFER, depth_FBO_);
+	FBOGuard guard(&depth_FBO_.value());
+	gl_->glViewport(0, 0, 
+					depth_buffer_resolustion_, 
+					depth_buffer_resolustion_);	
 	ClearGLScreenBuffer(0.0f, 0.0f, 0.0f, 1.0f);
 	gl_->glCullFace(GL_FRONT);
 	PassSpecifiedListDepth(render_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetModelByName(name);
 	});	
 	gl_->glCullFace(GL_BACK);
-	gl_->glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	gl_->glViewport(0, 0, m_width, m_height);*/
+	gl_->glViewport(m_render_sharing_msg.viewport.window_pos.x,
+					m_render_sharing_msg.viewport.window_pos.y,
+					m_render_sharing_msg.viewport.window_size.x,
+					m_render_sharing_msg.viewport.window_size.y);
 }
 
 void RenderManager::NormalPass()
@@ -401,14 +370,14 @@ void RenderManager::RenderingPass()
 	});*/
 
 	// with shadow
-	/*PassSpecifiedListShadow(render_list_, [](const std::string& name) {
+	PassSpecifiedListShadow(render_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetModelByName(name);
-	});*/
+	});
 	
 	// without shadow
-	PassSpecifiedListNormal(render_list_, [](const std::string& name) {
+	/*PassSpecifiedListNormal(render_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetModelByName(name);
-		});
+		});*/
 }
 void RenderManager::AuxiliaryPass()
 {
@@ -472,7 +441,7 @@ void RenderManager::PassSpecifiedListDepth(RenderList& list, function<Model* (co
 
 	MyShader*		 depth_shader = scene_manager.GetShaderByName("depth_map"); depth_shader->use();
 
-	glm::mat4 light_view	= glm::lookAt(vec3(0.5f, 1.0f, 1.0f), vec3(0.0f), vec3(0.0f, 0.0f, 1.0f));
+	glm::mat4 light_view	= glm::lookAt(m_render_sharing_msg.dir_light.dir, vec3(0.0f), vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 light_proj	= glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
 	glm::mat4 light_space	= light_proj * light_view;
 	depth_shader->setMat4("light_space_matrix", light_space);
@@ -494,13 +463,13 @@ void RenderManager::PassSpecifiedListShadow(RenderList& list, function<RawptrMod
 
 	MyShader* shadow_shader			= scene_manager.GetShaderByName("shadow_color"); shadow_shader->use();
 
-	glm::mat4 light_view	= glm::lookAt(vec3(0.5, 1.0f, 1.0f), vec3(0.0f), vec3(0.0f, 0.0f, 1.0f));
+	glm::mat4 light_view	= glm::lookAt(m_render_sharing_msg.dir_light.dir, vec3(0.0f), vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 light_proj	= glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
 	glm::mat4 light_space	= light_proj * light_view;
 	shadow_shader->setMat4("light_space_matrix", light_space);
 	shadow_shader->setInt("shadow_map", 0);
-
-	gl_->glBindTexture(GL_TEXTURE_2D, depth_texture_);
+	
+	FBOTextureGuard guard(&depth_FBO_.value(), GL_TEXTURE0);
 	for (auto& [obj_name, mesh_name] : list)
 	{
 		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
@@ -508,8 +477,7 @@ void RenderManager::PassSpecifiedListShadow(RenderList& list, function<RawptrMod
 
 		obj->setShaderProperty(*shadow_shader);
 		if (mesh) mesh->Draw();
-	}
-	gl_->glBindTexture(GL_TEXTURE_2D, 0);
+	}	
 }
 
 void RenderManager::PassSpecifiedListNormal(RenderList& list, std::function<Model* (const std::string&)> ObjGetter)

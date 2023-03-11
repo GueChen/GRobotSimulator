@@ -145,7 +145,7 @@ public:
 /// </summary>
 /// <typeparam name="_TypeComponent">component type</typeparam>
 /// <param name="component_name">the key to find the component</param>
-/// <returns>the specify type component</returns>
+/// <returns>the specific type component</returns>
 template<class _TypeComponent> requires std::is_base_of_v<Component, _TypeComponent>
 _TypeComponent* Model::GetComponent(const string& component_name) {
     for (int i = 0; i < components_ptrs_.size(); ++i) {

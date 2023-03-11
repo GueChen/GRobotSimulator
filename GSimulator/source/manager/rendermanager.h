@@ -12,6 +12,7 @@
 #include "render/rhi/render_global_info.h"
 #include "render/rendermesh.h"
 #include "render/framebufferobject.h"
+#include "render/uniform_buffer_object.h"
 #include "render/mygl.hpp"
 #include "function/picking_helper.h"
 #include "model/basegrid.h"
@@ -132,7 +133,6 @@ public:
 	
 /*______________________Cascade Shadow Map____________________________________________________*/
 	std::vector<float>				m_csm_cascade_planes		= {};
-	unsigned						m_csm_matrices_UBO			= 0;
 	unsigned						m_csm_depth_FBO				= 0;
 	unsigned						m_csm_depth_texture			= 0;
 	unsigned						m_csm_levels				= 5;
@@ -151,11 +151,12 @@ private:
 	PostprocessQuads				screen_quad_;	
 	optional<FrameBufferObject>		FBO_						= std::nullopt;
 
-	unsigned						depth_FBO_					= 0;
-	unsigned						depth_texture_				= 0;
-
-	size_t                          matrices_UBO_				= 0;
-	size_t                          ambient_observer_UBO_		= 0;
+	optional<FrameBufferObject>     depth_FBO_					= std::nullopt;
+	const int                       depth_buffer_resolustion_   = 4096;
+	
+	optional<UniformBufferObject>   matrices_UBO_				= std::nullopt;
+	optional<UniformBufferObject>   light_matrices_UBO_			= std::nullopt;
+	optional<UniformBufferObject>	ambient_observer_UBO_		= std::nullopt;
 
 /*________________________Planning Display Related_____________________________________________*/
 	list<std::shared_ptr<SimplexModel>> 

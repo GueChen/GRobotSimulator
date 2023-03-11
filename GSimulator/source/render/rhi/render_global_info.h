@@ -47,8 +47,8 @@ struct RenderGlobalInfo
 	ProjectionInfo		projection_info;					
 		
 	glm::vec3			view_pos		= glm::vec3(0.0f);
-	glm::mat4			view_mat		= glm::mat4(1.0f);
 	glm::mat4			projection_mat	= glm::mat4(1.0f);
+	glm::mat4			view_mat		= glm::mat4(1.0f);
 	
 	const glm::vec3		GlobalUp		= glm::vec3(0.0f, 0.0f, 1.0f);
 

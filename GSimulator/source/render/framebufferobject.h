@@ -13,6 +13,7 @@
 #include <QtGui/QOpenGLContext>
 
 #include <memory>
+#include <map>
 
 namespace GComponent {
 
@@ -20,9 +21,20 @@ class FrameBufferObject
 {
 public:
 	using type = FrameBufferObject;
-
+	enum BufferType {
+		Color, Depth
+	};
+	struct BufferDefaultOption {
+		int internal_format;
+		int format;
+		int filter;
+		int wrap;
+		int attachment;
+	};
 public:
-	FrameBufferObject(int width, int height, const std::shared_ptr<MyGL>& other);
+	// generate 2D Texture Buffer with a texture
+	FrameBufferObject(int width, int height, const std::shared_ptr<MyGL>& other, BufferType type = Color);
+	
 	~FrameBufferObject();
 
 /// fbo bind/relase methods
@@ -30,25 +42,39 @@ public:
 	inline void Release()			{ gl_->glBindFramebuffer(GL_FRAMEBUFFER, GetDefaultFBO()); }
 
 /// texture bind/release methods
-	inline void BindTexture()		{ gl_->glBindTexture(GL_TEXTURE_2D, texture_buffer_); }
-	inline void ReleaseTexture()	{ gl_->glBindTexture(GL_TEXTURE_2D, 0); }
+	inline void BindTexture(int texture_pos)		
+									{ 
+										texture_pos_ = texture_pos;								
+										gl_->glActiveTexture(texture_pos_);
+										gl_->glBindTexture(GL_TEXTURE_2D, texture_buffer_); 
+									}
+	inline void ReleaseTexture()	{ 
+										gl_->glActiveTexture(texture_pos_);
+										gl_->glBindTexture(GL_TEXTURE_2D, 0); 
+									}
 
 /// copy methods  拷贝函数
 	FrameBufferObject(const FrameBufferObject& other)				= delete;
 	FrameBufferObject& operator=(const FrameBufferObject& other)	= delete;
 
 /// move methods  移动函数
-	FrameBufferObject(FrameBufferObject&& other);
-	FrameBufferObject& operator=(FrameBufferObject&& other);
+	FrameBufferObject(FrameBufferObject&& other)			noexcept;
+	FrameBufferObject& operator=(FrameBufferObject&& other) noexcept;
 private:
 	void Clear();
 /// static methods 静态方法
 	inline static unsigned GetDefaultFBO() { return QOpenGLContext::currentContext()->defaultFramebufferObject(); };
+
 private:	
 	unsigned						frame_buffer_	= 0;
 	unsigned						texture_buffer_ = 0;
 	unsigned						render_buffer_	= 0;
+	unsigned						texture_pos_    = GL_TEXTURE0;
 	std::shared_ptr<MyGL>			gl_				= nullptr;
+
+/// static fileds
+private:
+	static std::map<BufferType, BufferDefaultOption> option_map;
 };
 
 class FBOGuard {
@@ -65,8 +91,8 @@ private:
 
 class FBOTextureGuard {
 public:
-	FBOTextureGuard(FrameBufferObject* fbo) :fbo_ptr(fbo) {
-		if (fbo_ptr) fbo_ptr->BindTexture();
+	FBOTextureGuard(FrameBufferObject* fbo, int texture_pos = GL_TEXTURE0) :fbo_ptr(fbo) {
+		if (fbo_ptr) fbo_ptr->BindTexture(texture_pos);
 	}
 	~FBOTextureGuard() {
 		if (fbo_ptr) fbo_ptr->ReleaseTexture();

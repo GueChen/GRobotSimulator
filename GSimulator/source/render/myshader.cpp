@@ -2,6 +2,7 @@
 
 #include "render/mygl.hpp"
 
+#include <algorithm>
 #ifdef _DEBUG
 #include <iostream>
 #include <format>
@@ -71,7 +72,9 @@ void MyShader::SetGL(std::shared_ptr<MyGL> other)
     if (!init_) {
         GLint num_uniforms = 0;
         gl->glGetProgramInterfaceiv(programId(), GL_UNIFORM, GL_ACTIVE_RESOURCES, &num_uniforms);        
+#ifdef _DEBUG
         std::cout << std::format("{:<30} uniform num: {:<2}\n", name_, num_uniforms);
+#endif
         for (int i = 0; i < num_uniforms; ++i) {
             
             GLenum properties[] = { GL_NAME_LENGTH, GL_TYPE, GL_LOCATION };
@@ -82,9 +85,10 @@ void MyShader::SetGL(std::shared_ptr<MyGL> other)
             std::unique_ptr<char[]> name_buffer(new char[name_length]);
             
             gl->glGetProgramResourceName(programId(), GL_UNIFORM, i, name_length, NULL, name_buffer.get());
-
+#ifdef _DEBUG
             std::cout << std::format("variables {:<2}: name -- {:<30} | type -- {:<20} | location -- {:} \n", 
                 i, name_buffer.get(), GetTypeName(values[1]), values[2]);
+#endif
             if (values[2] >= 0) {
                 ShaderProperty variable;
                 variable.name     = ShaderUniformNameProcess(name_buffer.get());
@@ -93,7 +97,7 @@ void MyShader::SetGL(std::shared_ptr<MyGL> other)
                 if (variable.type == "vec3" && 
                     variable.name.find("color") != std::string::npos) {
                     variable.type = "color";
-                    variable.val  = Color::White;
+                    variable.val  = Color::White;             
                 }
                 else {
                     PropertyInit(values[1], variable);
@@ -101,8 +105,11 @@ void MyShader::SetGL(std::shared_ptr<MyGL> other)
                 uniforms_.push_back(variable);
             }
         }
+        std::sort(uniforms_.begin(), uniforms_.end(), [](auto&& a, auto&& b) { return a.type < b.type; });
+#ifdef _DEBUG
         std::cout << "______________________________________________\n";
         std::cout << "______________________________________________\n";
+#endif // _DEBUG        
         init_ = true;
     }
 }

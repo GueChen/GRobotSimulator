@@ -5,3 +5,4 @@
 [submodule "GComponentQtPluginLib"]
 	path = GComponentQtPluginLib
 	url  = https://github.com/GueChen/GComponentQtPuginLib.git
+	branch = simulator_lib
