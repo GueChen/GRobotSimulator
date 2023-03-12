@@ -62,6 +62,11 @@ class RenderManager : public SingletonBase<RenderManager>
 	friend class SingletonBase<RenderManager>;
 	NonCopyable(RenderManager)
 
+public:
+	enum QueueType {
+		Normal, PostProcess, Depth
+	};
+
 /*_________Public Inteface Methods___________________________________________________________*/
 public:
 	virtual ~RenderManager();
@@ -75,17 +80,8 @@ public:
 	void InitFrameBuffer();
 
 //________________Render relate Invoke inteface______________________________________________//
-	void PushRenderCommand				(const RenderCommand & command);
-	void EmplaceRenderCommand			(string obj_name,   string mesh_name);
-	
-	void PushAuxiRenderCommand			(const RenderCommand& command);
-	void EmplaceAuxiRenderCommand		(string obj_name,   string mesh_name);
-
-	void PushPostProcessRenderCommand	(const RenderCommand& command);
-	void EmplacePostProcessRenderCommand(string obj_name,   string mesh_name);
-	void EmplaceFrontPostProcessRenderCommand
-										(string obj_name,	string mesh_name);
-
+	void EmplaceRenderCommand	  (std::string obj_name, std::string mesh_name, QueueType type);
+	void EmplaceFrontRenderCommand(std::string obj_name, std::string mesh_name, QueueType type);
 //_______________Planing Relate Auxiliry Inteface_______________________________________________//
 	void EmplaceAuxiliaryObj(shared_ptr<SimplexModel>&& obj);
 	void ClearAuxiliaryObj();
@@ -113,7 +109,6 @@ private:
 	void NormalPass();
 	void PostProcessPass();
 	void RenderingPass();
-	void AuxiliaryPass();
 		
 	void PassSpecifiedListPicking	(PassType draw_index_type, 
 									 RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);
@@ -121,7 +116,6 @@ private:
 	void PassSpecifiedListDepth		(RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);	
 	void PassSpecifiedListShadow	(RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);
 	void PassSpecifiedListCSMDepth	(RenderList&,    function<RawptrModel(const std::string&)>ObjGetter);
-	void PassSpecifiedListCSMShadow	(RenderList&,    function<RawptrModel(const std::string&)>ObjGetter);
 
 /*_______________________Planning Simplex Render_____________________________________________*/
 	void SimplexMeshPass();
@@ -132,17 +126,13 @@ public:
 	unsigned						m_selected_id				= 0;
 	
 /*______________________Cascade Shadow Map____________________________________________________*/
-	std::vector<float>				m_csm_cascade_planes		= { 
-							 m_render_sharing_msg.projection_info.far_plane / 100.0f,
-							 m_render_sharing_msg.projection_info.far_plane / 75.0f,
-							 m_render_sharing_msg.projection_info.far_plane / 20.0f,
-							 m_render_sharing_msg.projection_info.far_plane / 2.0f };
+	std::vector<float>				m_csm_cascade_planes		= {};
 	unsigned						m_csm_levels				= 5;
 
 private:
-	list<RenderCommand>				axui_render_list_;
 	list<RenderCommand>				render_list_;
 	list<RenderCommand>				post_process_list_;
+	list<RenderCommand>				shadow_cast_list_;
 
 	optional<PickingController>		picking_controller_handle_;
 	shared_ptr<MyGL>				gl_;

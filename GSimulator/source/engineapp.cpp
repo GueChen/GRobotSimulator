@@ -97,7 +97,7 @@ void GComponent::EngineApp::CreateRobotWithParams(const vector<vector<float>>& p
 	LocalTransformsSE3<float> matrices = LocalTransformsSE3<float>::fromMDH(params);
 
 	Model* base = new Model("robot_base", "");
-	base->RegisterComponent(std::make_unique<MaterialComponent>(base, "color"));
+	base->RegisterComponent(std::make_unique<MaterialComponent>(base, "color", true));
 	std::vector<JointComponent*> joints;
 	ModelManager::getInstance().RegisteredModel(base->getName(), base);
 
@@ -119,7 +119,7 @@ void GComponent::EngineApp::CreateRobotWithParams(const vector<vector<float>>& p
 								r,
 								scale,
 								idx == 0 ? base: models[idx - 1]);
-		models[idx]->RegisterComponent(std::make_unique<MaterialComponent>(models[idx], "color"));
+		models[idx]->RegisterComponent(std::make_unique<MaterialComponent>(models[idx], "color", true));
 		ModelManager::getInstance().RegisteredModel(models[idx]->getName(), models[idx]);
 		
 		// Create Joints Mesh
@@ -132,7 +132,7 @@ void GComponent::EngineApp::CreateRobotWithParams(const vector<vector<float>>& p
 									 Eigen::Vector3<float>::Zero(),
 									 scale,
 									 models[idx]);
-		joint_mesh_model->RegisterComponent(std::make_unique<MaterialComponent>(joint_mesh_model, "color"));
+		joint_mesh_model->RegisterComponent(std::make_unique<MaterialComponent>(joint_mesh_model, "color", true));
 		ModelManager::getInstance().RegisteredModel(joint_mesh_model->getName(), joint_mesh_model);
 
 		// Create Link Mesh
@@ -147,7 +147,7 @@ void GComponent::EngineApp::CreateRobotWithParams(const vector<vector<float>>& p
 										r_link,
 										scale,
 										idx == 0 ? base: models[idx - 1]);
-			link_mesh_model->RegisterComponent(std::make_unique<MaterialComponent>(link_mesh_model, "color"));
+			link_mesh_model->RegisterComponent(std::make_unique<MaterialComponent>(link_mesh_model, "color", true));
 			ModelManager::getInstance().RegisteredModel(link_mesh_model->getName(), link_mesh_model);
 		}
 		

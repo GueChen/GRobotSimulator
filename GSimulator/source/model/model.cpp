@@ -66,7 +66,7 @@ void GComponent::Model::tick(float delta_time)
 
 void GComponent::Model::tickImpl(float delta_time)
 {
-    RenderManager::getInstance().EmplaceRenderCommand(name_, mesh_);    
+  
 }
 
 bool GComponent::Model::eraseChild(int idx)

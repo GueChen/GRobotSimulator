@@ -41,7 +41,6 @@ Viewport::Viewport(QWidget* parent) :
 	qRegisterMetaType<Viewport>("viewport");
 	setFocusPolicy(Qt::StrongFocus);
 	QSurfaceFormat set_format;
-	set_format.setSamples(4);
 	set_format.setVersion(4, 5);
 	setFormat(set_format);
 	setAcceptDrops(true);
@@ -63,6 +62,8 @@ void Viewport::initializeGL()
 	GComponent::RenderManager::getInstance().SetGL(gl_);
 
 	QOpenGLContext::currentContext()->format().setSwapInterval(0);
+	QOpenGLContext::currentContext()->format().setSamples(4);
+	gl_->glEnable(GL_MULTISAMPLE);
 }
 
 void Viewport::resizeGL(int w, int h)
@@ -348,7 +349,7 @@ void Viewport::dropEvent(QDropEvent* event)
 						++number;
 					}
 					Model* model = new Model(obj_name, mesh_name, GComponent::Mat4::Identity(), nullptr);
-					model->RegisterComponent(std::make_unique<MaterialComponent>(model, "color"));
+					model->RegisterComponent(std::make_unique<MaterialComponent>(model, "color", true));
 					ModelManager::getInstance().RegisteredModel(obj_name, model);		
 				}
 			}

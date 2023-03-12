@@ -3,8 +3,10 @@
 layout(triangles, invocations = 5) in;
 layout(triangle_strip, max_vertices = 3) out;
 
-layout (std140, binding = 2) uniform light_space_parameters{
-	mat4 light_space_matrices[16];
+layout(std140, set = 0, binding = 2) uniform light_space_parameter{
+    mat4         light_space_matrices[16];
+    float        cascade_plane[16];
+    int          csm_levels;
 };
 
 void main()

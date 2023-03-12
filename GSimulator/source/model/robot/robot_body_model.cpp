@@ -22,7 +22,7 @@ ROBOT_BODY_MODEL::ROBOT_BODY_MODEL(Mat4 transform)
     InitializeModelResource();
     ModelManager::getInstance().RegisteredModel(name_, this);
 
-    RegisterComponent(std::make_unique<MaterialComponent>(this, "color"));
+    RegisterComponent(std::make_unique<MaterialComponent>(this, "color", true));
 }
 
 void ROBOT_BODY_MODEL::InitializeModelResource()
@@ -34,7 +34,7 @@ void ROBOT_BODY_MODEL::InitializeModelResource()
 
 void GComponent::ROBOT_BODY_MODEL::tickImpl(float delta_time)
 {
-    RenderManager::getInstance().EmplaceRenderCommand(name_, mesh_);
+
 }
 
 void GComponent::ROBOT_BODY_MODEL::setShaderProperty(MyShader& shader)

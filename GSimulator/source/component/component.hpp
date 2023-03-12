@@ -64,7 +64,7 @@ public:
 	virtual void	Derigistered()		  {}
 
 protected:
-	virtual void	tickImpl(float delta) {}		
+	virtual void	tickImpl(float delta) {}
 
 /// Fields 数据域
 protected:

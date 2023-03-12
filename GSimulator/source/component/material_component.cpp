@@ -2,6 +2,7 @@
 
 #include "render/myshader.h"
 #include "manager/resourcemanager.h"
+#include "manager/rendermanager.h"
 
 #include "model/model.h"
 
@@ -56,6 +57,20 @@ void GComponent::MaterialComponent::SetShaderProperties()
 	for (auto&& var : properties_) {
 		if (var.name == "model") var.val = Conversion::fromMat4f(GetParent()->getModelMatrix());
 		setter_map[var.type](shader_ptr_, var);
+	}
+}
+void MaterialComponent::tickImpl(float delta)
+{
+	auto& renderer = RenderManager::getInstance();
+	if (shader_ == "axis") {
+		renderer.EmplaceRenderCommand(ptr_parent_->getName(), ptr_parent_->getMesh(), RenderManager::PostProcess);
+	}
+	else {
+		renderer.EmplaceRenderCommand(ptr_parent_->getName(), ptr_parent_->getMesh(), RenderManager::Normal);
+	}
+
+	if (cast_shadow_) {
+		renderer.EmplaceRenderCommand(ptr_parent_->getName(), ptr_parent_->getMesh(), RenderManager::Depth);
 	}
 }
 }

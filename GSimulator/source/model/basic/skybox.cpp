@@ -55,7 +55,7 @@ void SkyBox::CheckAndRegisteredResource()
     if (count == 0) {
         ResourceManager::getInstance().RegisteredCubemap({ "skybox", Textures, "irradiance", &cube_texture_id_ });
     }
-    RegisterComponent(std::make_unique<MaterialComponent>(this, "skybox"));
+    RegisterComponent(std::make_unique<MaterialComponent>(this, "skybox", false));
     
 }
 
@@ -72,7 +72,7 @@ void SkyBox::Draw()
 
 void SkyBox::tickImpl(float delta_time)
 {
-    RenderManager::getInstance().EmplaceRenderCommand(name_, mesh_);
+
 }
 
 void SkyBox::setShaderProperty(MyShader& shader)

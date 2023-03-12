@@ -33,8 +33,10 @@ layout(std140, set = 0, binding = 1) uniform ambient_observer_parameter{
 layout(std140, set = 0, binding = 2) uniform light_space_parameter{
     mat4         light_space_matrices[16];
     float        cascade_plane[16];
-    unsigned int csm_levels;
+    int          csm_levels;
 };
+
+
 
 // output color in this pixel / fragment
 out vec4 FragColor;
@@ -45,7 +47,6 @@ uniform sampler2DArray  shadow_map;
 // normally shading parameters
 uniform vec3            color;
 uniform bool            accept_shadow = false;
-uniform bool            caster_shadow = true;
 
 vec3 CalcLight(DirLight light, vec3 norm, vec3 view_dir);
 int  GetShadowLayer(vec3 frag_pos_world_space);

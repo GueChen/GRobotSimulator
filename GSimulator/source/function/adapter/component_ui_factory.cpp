@@ -70,7 +70,16 @@ static QLabel* CreateStandardTextLabel(const std::string& name) {
 	return name_text;
 }
 
+static QHBoxLayout* CreateStanardCheckBox(bool & flag) {
+	QHBoxLayout* layout = new QHBoxLayout;
+	layout->addSpacerItem(new QSpacerItem(20, 20, QSizePolicy::Expanding));
 
+	QCheckBox* checkbox = new QCheckBox;
+	checkbox->setChecked(flag);
+	QObject::connect(checkbox, &QCheckBox::stateChanged, [&val = flag](bool value) { val = value; });
+	layout->addWidget(checkbox);
+	return layout;
+}
 
 // ui Create table acoording the class with Shader Properties
 std::unordered_map<std::string, std::function<QLayout*(std::string, ShaderProperty::Var&)>> ComponentUIFactory::build_map = {
@@ -89,18 +98,8 @@ std::unordered_map<std::string, std::function<QLayout*(std::string, ShaderProper
 	{"bool",
 	[](std::string name, ShaderProperty::Var& val)->QLayout* {
 		QVBoxLayout* layout = new QVBoxLayout;
-
 		layout->addWidget(CreateStandardTextLabel(name));
-		
-		QHBoxLayout* sub_layout = new QHBoxLayout;
-		sub_layout->addSpacerItem(new QSpacerItem(20, 20, QSizePolicy::Expanding));
-
-		QCheckBox* checkbox = new QCheckBox;		
-		checkbox->setChecked(std::get<bool>(val));
-		QObject::connect(checkbox, &QCheckBox::stateChanged, [&val = val](bool value) { val = value;});
-		sub_layout->addWidget(checkbox);
-		
-		layout->addLayout(sub_layout);
+		layout->addLayout(CreateStanardCheckBox(std::get<bool>(val)));
 		return layout;
 	}},
 	{"float",
@@ -616,16 +615,15 @@ QWidget* ComponentUIFactory::Create(Component& component)
 		QVBoxLayout* layout = new QVBoxLayout;
 		layout->setSpacing(2);
 
-		QLabel* shader_label = new QLabel("shader");
-		shader_label->setMinimumHeight(kEleMiniHeight);
-		shader_label->setStyleSheet(component_inspector_text.data());
-		layout->addWidget(shader_label);
-
+		layout->addWidget(CreateStandardTextLabel("shader"));
+		
 		QLineEdit* shader_editor = new DragAcceptorEditor(QString::fromStdString(material_component.GetShader()), 
 														  nullptr);
 		shader_editor->setMinimumHeight(kEleMiniHeight);
 		layout->addWidget(shader_editor);
 
+		layout->addWidget(CreateStandardTextLabel("cast shadow"));
+		layout->addLayout(CreateStanardCheckBox(material_component.GetShadowCastRef()));
 		for (auto&& pro : properties) {
 			layout->addLayout(build_map[pro.type](pro.name, pro.val));
 		}

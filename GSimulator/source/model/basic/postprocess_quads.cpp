@@ -26,7 +26,7 @@ PostprocessQuads::PostprocessQuads()
 	if (not resource_manager.GetMeshByName(mesh_)) {
 		resource_manager.RegisteredMesh(mesh_, new RenderMesh(vertices, indeces, {}));
 	}
-	RegisterComponent(std::make_unique<MaterialComponent>(this, "postprocess"));
+	RegisterComponent(std::make_unique<MaterialComponent>(this, "postprocess", false));
 }
 
 void PostprocessQuads::Draw()
@@ -42,7 +42,7 @@ void PostprocessQuads::Draw()
 
 void PostprocessQuads::tickImpl(float delta_time)
 {
-	RenderManager::getInstance().EmplaceFrontPostProcessRenderCommand(name_, mesh_);
+	RenderManager::getInstance().EmplaceFrontRenderCommand(name_, mesh_, RenderManager::PostProcess);
 }
 
 void PostprocessQuads::setShaderProperty(MyShader& shader)

@@ -18,15 +18,16 @@ class MyShader;
 class MaterialComponent : public Component {
 public:
 	friend class RenderManager;
-
+	
 protected:
 	using SetterMap = std::unordered_map<std::string, 
 										 std::function<void(MyShader*, ShaderProperty&)>>;
 
 public:
 	explicit MaterialComponent(Model* ptr_parent) : Component(ptr_parent) {}
-	MaterialComponent(Model* ptr_parent, std::string shader_name): 
+	MaterialComponent(Model* ptr_parent, std::string shader_name, bool cast_shadow): 
 		Component(ptr_parent){
+		cast_shadow_ = cast_shadow;
 		SetShader(shader_name);
 	}
 
@@ -40,8 +41,15 @@ public:
 
 	inline std::string GetShader() const	    { return shader_;}
 
+	// TODO: use reflect to replace this methods
+	bool&  GetShadowCastRef()					{ return cast_shadow_; }
+
 	//	Renderer Invoke Inteface
 	void  SetShaderProperties();
+
+
+protected:
+	void tickImpl(float delta) override;
 
 private:
 	template<class T>
@@ -51,8 +59,9 @@ private:
 protected:
 	//FIXME: not consider multiple pass situation, later consider how to solve it
 	std::string			shader_;
-	MyShader*			shader_ptr_ = nullptr;
-	ShaderProperties			properties_;
+	MyShader*			shader_ptr_	   = nullptr;
+	ShaderProperties	properties_;
+	bool				cast_shadow_   = true;
 
 /// static Fields
 public:

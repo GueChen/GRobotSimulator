@@ -28,7 +28,7 @@ void GComponent::QtGLAbstractAxis::Init(int segments, float radius)
 
 GComponent::QtGLAbstractAxis::QtGLAbstractAxis()
 {
-	RegisterComponent(std::make_unique<MaterialComponent>(this, "axis"));
+	RegisterComponent(std::make_unique<MaterialComponent>(this, "axis", false));
 }
 
 unsigned GComponent::QtGLAbstractAxis::GetStridedSize()
@@ -49,8 +49,7 @@ void GComponent::QtGLAbstractAxis::SetAxisSelected(AxisSelected which)
 
 void GComponent::QtGLAbstractAxis::tickImpl(float delta_time)
 {
-	std::string shader =  GetComponent<MaterialComponent>(MaterialComponent::type_name.data())->GetShader();
-	RenderManager::getInstance().EmplacePostProcessRenderCommand(name_, mesh_);
+	
 }
 
 void GComponent::QtGLAbstractAxis::Draw()

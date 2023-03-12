@@ -28,39 +28,34 @@ void RenderManager::InitFrameBuffer()
 							 FrameBufferObject::Color, gl_);	
 }
 
-void RenderManager::PushRenderCommand(const RenderCommand & command)
+void RenderManager::EmplaceRenderCommand(std::string obj_name, std::string mesh_name, QueueType type)
 {
-	render_list_.push_back(command);
+	switch (type) {
+	case Normal:
+		render_list_.emplace_back(obj_name, mesh_name);
+		break;
+	case PostProcess:
+		post_process_list_.emplace_back(obj_name, mesh_name);
+		break;
+	case Depth:
+		shadow_cast_list_.emplace_back(obj_name, mesh_name);
+		break;
+	}
 }
 
-void RenderManager::EmplaceRenderCommand(string obj_name, string mesh_name)
+void RenderManager::EmplaceFrontRenderCommand(std::string obj_name, std::string mesh_name, QueueType type)
 {
-	render_list_.emplace_back(obj_name, mesh_name);
-}
-
-void RenderManager::PushAuxiRenderCommand(const RenderCommand& command)
-{
-	axui_render_list_.push_back(command);
-}
-
-void RenderManager::EmplaceAuxiRenderCommand(string obj_name, string mesh_name)
-{
-	axui_render_list_.emplace_back(obj_name, mesh_name);
-}
-
-void RenderManager::PushPostProcessRenderCommand(const RenderCommand& command)
-{
-	post_process_list_.push_back(command);
-}
-
-void RenderManager::EmplacePostProcessRenderCommand(string obj_name, string mesh_name)
-{
-	post_process_list_.emplace_back(obj_name, mesh_name);
-}
-
-void RenderManager::EmplaceFrontPostProcessRenderCommand(string obj_name, string mesh_name)
-{
-	post_process_list_.emplace_front(obj_name, mesh_name);
+	switch (type) {
+	case Normal:
+		render_list_.emplace_front(obj_name, mesh_name);
+		break;
+	case PostProcess:
+		post_process_list_.emplace_front(obj_name, mesh_name);
+		break;
+	case Depth:
+		shadow_cast_list_.emplace_front(obj_name, mesh_name);
+		break;
+	}
 }
 
 void RenderManager::EmplaceAuxiliaryObj(shared_ptr<SimplexModel>&& obj)
@@ -107,6 +102,7 @@ void RenderManager::SetGL(const shared_ptr<MyGL>& gl)
 	light_matrices_UBO_	  = UniformBufferObject(2, 
 												sizeof glm::mat4x4 * 16 + sizeof glm::vec4 * 16 + sizeof(unsigned int),
 												gl_);
+	
 }
 
 // 渲染从该处开始，所有的 Draw call 由该部分完成
@@ -116,6 +112,11 @@ void RenderManager::tick()
 	SetProjectViewMatrices ();
 	SetDirLightViewPosition();
 	// setting light matrices UBO
+	m_csm_cascade_planes = {
+							 m_render_sharing_msg.projection_info.far_plane / 100.0f,
+							 m_render_sharing_msg.projection_info.far_plane / 75.0f,
+							 m_render_sharing_msg.projection_info.far_plane / 20.0f,
+							 m_render_sharing_msg.projection_info.far_plane / 2.0f };
 	const auto light_view_proj_matrices = GetLightViewProjMatrices();
 	{
 		UBOGaurd gaurd(&light_matrices_UBO_.value());
@@ -250,7 +251,7 @@ void RenderManager::ClearGLScreenBuffer(float r, float g, float b, float a)
 void RenderManager::ClearList()
 {
 	render_list_.clear();
-	axui_render_list_.clear();
+	shadow_cast_list_.clear();
 	post_process_list_.clear();
 }
 
@@ -281,7 +282,7 @@ void RenderManager::DepthMapPass()
 	gl_->glCullFace(GL_FRONT);
 
 #ifdef _USE_CSM
-	PassSpecifiedListCSMDepth(render_list_, [](const std::string& name) {
+	PassSpecifiedListCSMDepth(shadow_cast_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetModelByName(name);
 	});
 #else
@@ -304,8 +305,6 @@ void RenderManager::NormalPass()
 	ClearGLScreenBuffer(0.0f, 0.0f, 0.05f, 1.0f);
 	
 	RenderingPass();
-
-	AuxiliaryPass();
 	
 	SimplexMeshPass();
 	
@@ -322,9 +321,6 @@ void RenderManager::RenderingPass()
 {
 	// with cascade shadow
 #ifdef _USE_CSM
-	/*PassSpecifiedListCSMShadow(render_list_, [](const std::string& name) {
-		return ModelManager::getInstance().GetModelByName(name);
-	});*/
 	PassSpecifiedListNormal(render_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetModelByName(name);
 	});
@@ -334,16 +330,6 @@ void RenderManager::RenderingPass()
 		return ModelManager::getInstance().GetModelByName(name);
 	});
 #endif
-	// without shadow
-	/*PassSpecifiedListNormal(render_list_, [](const std::string& name) {
-		return ModelManager::getInstance().GetModelByName(name);
-	});*/
-}
-void RenderManager::AuxiliaryPass()
-{
-	PassSpecifiedListNormal(axui_render_list_, [](const std::string& name) {
-		return ModelManager::getInstance().GetAuxiModelByName(name);
-		});
 }
 
 void RenderManager::PostProcessPass()
@@ -471,28 +457,6 @@ void RenderManager::PassSpecifiedListCSMDepth(RenderList& list, function<RawptrM
 
 		obj->setShaderProperty(*depth_shader);
 		if (mesh) mesh->Draw();
-	}
-}
-
-void RenderManager::PassSpecifiedListCSMShadow(RenderList& list, function<RawptrModel(const std::string&)> ObjGetter)
-{
-	ResourceManager& scene_manager	= ResourceManager::getInstance();
-	ModelManager&	 model_manager	= ModelManager::getInstance();
-
-	MyShader* shadow_shader			= scene_manager.GetShaderByName("cascade_shadow_ortho"); shadow_shader->use();
-
-	shadow_shader->setInt("shadow_map", 0);
-	
-	FBOTextureGuard gaurd(&depth_FBO_.value(), GL_TEXTURE0);
-	for (auto& [obj_name, mesh_name] : list)
-	{
-		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
-		Model*		obj	 = ObjGetter(obj_name);
-		
-		obj->setShaderProperty(*shadow_shader);
-		if (mesh) {
-			mesh->Draw();
-		}		
 	}
 }
 
