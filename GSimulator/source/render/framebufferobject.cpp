@@ -2,51 +2,25 @@
 
 #include <QtGui/QOpenGLContext>
 namespace GComponent{
-std::map<FrameBufferObject::BufferType, FrameBufferObject::BufferDefaultOption> 
+std::map<FrameBufferObject::AttachType, FrameBufferObject::BufferOption> 
 FrameBufferObject::option_map = {
-	{FrameBufferObject::Color, {GL_RGB32F,			   GL_RGB,			   GL_LINEAR,  GL_REPEAT,		   GL_COLOR_ATTACHMENT0 }},
-	{FrameBufferObject::Depth, {GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_DEPTH_ATTACHMENT}}
+	{FrameBufferObject::Color, {GL_RGB32F,			   GL_RGB,			   GL_LINEAR,  GL_REPEAT,		   GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0, GL_NONE}},
+	{FrameBufferObject::Depth, {GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_DEPTH_ATTACHMENT,  GL_NONE,			   GL_NONE}}
 };
 
-GComponent::FrameBufferObject::FrameBufferObject(int width, int height, const std::shared_ptr<MyGL>& other, BufferType type)
+GComponent::FrameBufferObject::FrameBufferObject(int width, int height, AttachType type, const std::shared_ptr<MyGL>& other)
 {
 	gl_ = other;
-	
-	const BufferDefaultOption& opt = option_map[type];
-	// gen buffers
-	gl_->glGenFramebuffers(1, &frame_buffer_);
-	gl_->glGenTextures(1, &texture_buffer_);
+	texture_type_ = GL_TEXTURE_2D;
+	Initialize(width, height, 0, type);	
 
-	// allocate memory for color attachment
-	gl_->glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_);
-	gl_->glBindTexture(GL_TEXTURE_2D, texture_buffer_);
-	gl_->glTexImage2D(GL_TEXTURE_2D, 0,  opt.internal_format, width, height, 0, opt.format, GL_FLOAT, nullptr);
-	gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, opt.filter);
-	gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, opt.filter);
-	gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     opt.wrap);
-	gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     opt.wrap);
-	if (opt.wrap == GL_CLAMP_TO_BORDER) {
-		constexpr float bordercolor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-		gl_->glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, bordercolor);
-	}
-	gl_->glBindTexture(GL_TEXTURE_2D, 0);
+}
 
-	if (type == FrameBufferObject::Color) {
-		// allocate memory for render attachment
-		gl_->glGenRenderbuffers(1, &render_buffer_);
-		gl_->glBindRenderbuffer(GL_RENDERBUFFER, render_buffer_);
-		gl_->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-		gl_->glBindRenderbuffer(GL_RENDERBUFFER, 0);
-		gl_->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, render_buffer_);
-	}
-	// set attachment to frame buffer
-	gl_->glFramebufferTexture2D(GL_FRAMEBUFFER, opt.attachment, GL_TEXTURE_2D, texture_buffer_, 0);
-
-	if (gl_->glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		std::printf("FRAME BUFFER INIT ERROR, STATUS: 0x%x\n", gl_->glCheckFramebufferStatus(GL_FRAMEBUFFER));		
-	}
-
-	gl_->glBindFramebuffer(GL_FRAMEBUFFER, GetDefaultFBO());
+FrameBufferObject::FrameBufferObject(int width, int height, int level, AttachType type, const std::shared_ptr<MyGL>& other)
+{
+	gl_ = other;
+	texture_type_ = GL_TEXTURE_2D_ARRAY;
+	Initialize(width, height, level, type);	
 }
 
 GComponent::FrameBufferObject::~FrameBufferObject()
@@ -84,6 +58,69 @@ void GComponent::FrameBufferObject::Clear()
 	if (render_buffer_) {
 		gl_->glDeleteRenderbuffers(1, &render_buffer_);
 	}
+}
+
+void FrameBufferObject::Initialize(int width, int height, int levels, AttachType type)
+{
+	const BufferOption& opt = option_map[type];
+	GenTexture(width, height, levels, opt);	
+	
+	if (type == FrameBufferObject::Color) {		
+		GenRenderBuffer(width, height);
+	}
+
+	GenBindFrameBuffer(opt);
+}
+
+void FrameBufferObject::GenTexture(int width, int height, int level, const BufferOption& opt)
+{
+	gl_->glGenTextures(1, &texture_buffer_);
+
+	gl_->glBindTexture(texture_type_, texture_buffer_);
+	switch (texture_type_) {
+	case GL_TEXTURE_2D:
+		gl_->glTexImage2D(texture_type_, 0, opt.internal_format, width, height, 0, opt.format, GL_FLOAT, nullptr);
+		break;
+	case GL_TEXTURE_2D_ARRAY:
+		gl_->glTexImage3D(texture_type_, 0, opt.internal_format, width, height, level, 0, opt.format, GL_FLOAT, nullptr);
+	}
+	gl_->glTexParameteri(texture_type_, GL_TEXTURE_MIN_FILTER, opt.filter);
+	gl_->glTexParameteri(texture_type_, GL_TEXTURE_MAG_FILTER, opt.filter);
+	gl_->glTexParameteri(texture_type_, GL_TEXTURE_WRAP_S, opt.wrap);
+	gl_->glTexParameteri(texture_type_, GL_TEXTURE_WRAP_T, opt.wrap);
+	if (opt.wrap == GL_CLAMP_TO_BORDER) {
+		constexpr float bordercolor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+		gl_->glTexParameterfv(texture_type_, GL_TEXTURE_BORDER_COLOR, bordercolor);
+	}
+	gl_->glBindTexture(texture_type_, 0);
+}
+
+void FrameBufferObject::GenRenderBuffer(int width, int height)
+{
+	gl_->glGenRenderbuffers(1, &render_buffer_);
+	gl_->glBindRenderbuffer(GL_RENDERBUFFER, render_buffer_);
+	gl_->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	gl_->glBindRenderbuffer(GL_RENDERBUFFER, 0);
+}
+
+void FrameBufferObject::GenBindFrameBuffer(const BufferOption& opt)
+{
+	// binding buffer to frame buffer
+	gl_->glGenFramebuffers(1, &frame_buffer_);
+
+	gl_->glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_);
+	gl_->glFramebufferTexture(GL_FRAMEBUFFER, opt.attachment, texture_buffer_, 0);
+	if (render_buffer_) {
+		gl_->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, render_buffer_);
+	}
+	gl_->glDrawBuffer(opt.draw_buffer);
+	gl_->glReadBuffer(opt.read_buffer);
+
+	if (gl_->glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		std::printf("FRAME BUFFER INIT ERROR, STATUS: 0x%x\n", gl_->glCheckFramebufferStatus(GL_FRAMEBUFFER));
+	}
+
+	gl_->glBindFramebuffer(GL_FRAMEBUFFER, GetDefaultFBO());
 }
 
 }

@@ -189,7 +189,40 @@ std::unordered_map<std::string, std::function<QLayout*(std::string, ShaderProper
 		layout->addWidget(color_edit);
 		return layout;
 	}},
-	{"mat4", [](std::string name, ShaderProperty::Var& val)->QLayout* {return nullptr; }}
+	{"mat4", [](std::string name, ShaderProperty::Var& val)->QLayout* {return nullptr; }},
+	{"sampler2D",
+	 [](std::string name, ShaderProperty::Var& val)->QLayout* {
+			QVBoxLayout* layout = new QVBoxLayout;
+			layout->addWidget(CreateStandardTextLabel(name));
+
+			QHBoxLayout* sub_layout = new QHBoxLayout;
+			sub_layout->addSpacerItem(new QSpacerItem(20, 20, QSizePolicy::Expanding));						
+			sub_layout->addWidget(new ColorEdit(nullptr, QColor(Qt::white)));
+			layout->addLayout(sub_layout);
+			return layout;
+	}},
+	{"samplerCUBE",
+	 [](std::string name, ShaderProperty::Var& val)->QLayout* {
+			QVBoxLayout* layout = new QVBoxLayout;
+			layout->addWidget(CreateStandardTextLabel(name));
+
+			QHBoxLayout* sub_layout = new QHBoxLayout;
+			sub_layout->addSpacerItem(new QSpacerItem(20, 20, QSizePolicy::Expanding));
+			sub_layout->addWidget(new ColorEdit(nullptr, QColor(Qt::white)));
+			layout->addLayout(sub_layout);
+			return layout;
+	} },
+	{"sampler2DArray",
+	 [](std::string name, ShaderProperty::Var& val)->QLayout* {
+			QVBoxLayout* layout = new QVBoxLayout;
+			layout->addWidget(CreateStandardTextLabel(name));
+
+			QHBoxLayout* sub_layout = new QHBoxLayout;
+			sub_layout->addSpacerItem(new QSpacerItem(20, 20, QSizePolicy::Expanding));
+			sub_layout->addWidget(new ColorEdit(nullptr, QColor(Qt::white)));
+			layout->addLayout(sub_layout);
+			return layout;
+	} }
 };
 /*______________________Joint Component UI BUILDER METHODS__________________________________________*/
 void CreateJointComponentUI(QWidgetBuilder& builder) {

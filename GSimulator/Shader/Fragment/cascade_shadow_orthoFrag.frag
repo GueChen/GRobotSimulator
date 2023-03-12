@@ -24,25 +24,28 @@ layout(std140, set = 0, binding = 0) uniform Matrices{
 // ambient observer include the global direct light and the camera position
 layout(std140, set = 0, binding = 1) uniform ambient_observer_parameter{
     DirLight light;
-    vec3     viewpos;
+    vec3     viewpos;    
+    float    near_plane;
+    float    far_plane;
 };
 
 // the cascade lighting projection and ortho matrices
 layout(std140, set = 0, binding = 2) uniform light_space_parameter{
-    mat4 light_space_matrices[16];
+    mat4         light_space_matrices[16];
+    float        cascade_plane[16];
+    unsigned int csm_levels;
 };
 
 // output color in this pixel / fragment
 out vec4 FragColor;
 
 // cascaded shadow map parameters
-uniform float           far_plane;
-uniform float           cascade_plane[16];
-uniform int             csm_levels;
 uniform sampler2DArray  shadow_map;
 
 // normally shading parameters
 uniform vec3            color;
+uniform bool            accept_shadow = false;
+uniform bool            caster_shadow = true;
 
 vec3 CalcLight(DirLight light, vec3 norm, vec3 view_dir);
 int  GetShadowLayer(vec3 frag_pos_world_space);
@@ -69,11 +72,11 @@ vec3 CalcLight(DirLight light, vec3 norm, vec3 view_dir)
     vec3 specular   = vec3(Specular) * pow( max( dot( norm, half_way_dir), 0.0f), 55.0f);
     
     // shadow part
-    float bias      = max(0.0015 * (1.0 - dot(norm, light.dir)), 0.001f);
+    float bias      = max(0.05 * (1.0 - dot(norm, light.dir)), 0.005f);
     int   layer     = GetShadowLayer(FragPos);
     vec4  frag_pos_light_space 
                     = light_space_matrices[layer] * vec4(FragPos, 1.0);
-    float shadow    = ShadowCaculation(frag_pos_light_space, bias, layer);
+    float shadow    = accept_shadow? ShadowCaculation(frag_pos_light_space, bias, layer): 0.0;
 
     return (ambient + (1.0 - shadow) * (diffuse + specular)) * light.color * color;
 }
@@ -84,7 +87,7 @@ int GetShadowLayer(vec3 frag_pos_world_space)
     float   depth_value = abs(frag_pos_view_space.z);
 
     // get the exact layer
-    int layer = csm_levels;
+    int layer = int(csm_levels);
     for(int i = 0; i < csm_levels; ++i)
     {
         if(depth_value < cascade_plane[i]){
@@ -106,16 +109,16 @@ float ShadowCaculation(vec4 frag_pos_light_space, float bias, int layer)
     // modifier the bias acoording the layer
     const float bias_modifier = 0.5f;
     if(layer == csm_levels){
-        bias *= 1 / ( far_plane * bias_modifier);
+        bias *= 1.0f / ( far_plane * bias_modifier);
     }
     else{
-        bias *= 1 / (cascade_plane[layer] * bias_modifier);
+        bias *= 1.0f / (cascade_plane[layer] * bias_modifier);
     }
 
     // percentage closest filter
     float shadow     = 0.0f;
     vec2  texel_size = 1.0 / vec2(textureSize(shadow_map, 0));
-    if(proj_coords.z <= 1.0)
+    
     for(int x = -2; x <= 2; ++x)for(int y = - 2; y <= 2; ++y)
     {
         

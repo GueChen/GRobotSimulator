@@ -21,20 +21,22 @@ class FrameBufferObject
 {
 public:
 	using type = FrameBufferObject;
-	enum BufferType {
+	enum AttachType {
 		Color, Depth
 	};
-	struct BufferDefaultOption {
+	struct BufferOption {
 		int internal_format;
 		int format;
 		int filter;
 		int wrap;
 		int attachment;
+		int draw_buffer;
+		int read_buffer;
 	};
 public:
 	// generate 2D Texture Buffer with a texture
-	FrameBufferObject(int width, int height, const std::shared_ptr<MyGL>& other, BufferType type = Color);
-	
+	FrameBufferObject(int width, int height, AttachType type, const std::shared_ptr<MyGL>& other);
+	FrameBufferObject(int width, int height, int level, AttachType type, const std::shared_ptr<MyGL>& other);
 	~FrameBufferObject();
 
 /// fbo bind/relase methods
@@ -46,11 +48,11 @@ public:
 									{ 
 										texture_pos_ = texture_pos;								
 										gl_->glActiveTexture(texture_pos_);
-										gl_->glBindTexture(GL_TEXTURE_2D, texture_buffer_); 
+										gl_->glBindTexture(texture_type_, texture_buffer_); 
 									}
 	inline void ReleaseTexture()	{ 
 										gl_->glActiveTexture(texture_pos_);
-										gl_->glBindTexture(GL_TEXTURE_2D, 0); 
+										gl_->glBindTexture(texture_type_, 0);
 									}
 
 /// copy methods  ¿½±´º¯Êý
@@ -62,6 +64,11 @@ public:
 	FrameBufferObject& operator=(FrameBufferObject&& other) noexcept;
 private:
 	void Clear();
+	void Initialize(int width, int height, int levels, AttachType type);
+	void GenTexture(int width, int height, int levels, const BufferOption& opt);
+	void GenRenderBuffer(int width, int height);
+	void GenBindFrameBuffer(const BufferOption& opt);
+
 /// static methods ¾²Ì¬·½·¨
 	inline static unsigned GetDefaultFBO() { return QOpenGLContext::currentContext()->defaultFramebufferObject(); };
 
@@ -70,11 +77,12 @@ private:
 	unsigned						texture_buffer_ = 0;
 	unsigned						render_buffer_	= 0;
 	unsigned						texture_pos_    = GL_TEXTURE0;
+	unsigned						texture_type_   = GL_TEXTURE_2D;
 	std::shared_ptr<MyGL>			gl_				= nullptr;
 
 /// static fileds
 private:
-	static std::map<BufferType, BufferDefaultOption> option_map;
+	static std::map<AttachType, BufferOption> option_map;	
 };
 
 class FBOGuard {

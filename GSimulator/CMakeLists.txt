@@ -6,7 +6,7 @@ cmake_minimum_required (VERSION 3.8)
 project(GSimulatorEditor VERSION 0.0.3 LANGUAGES CXX)
 
 add_definitions(-D_COLLISION_TEST)
-
+add_definitions(-D_USE_CSM)
 if(WIN32)
 	add_compile_options(/W4)
 	add_compile_options(/wd4828)

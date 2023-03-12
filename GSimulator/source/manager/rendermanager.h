@@ -72,7 +72,7 @@ public:
 
 	void SetPickingController(PickingController& controller);
 
-	bool InitFrameBuffer();
+	void InitFrameBuffer();
 
 //________________Render relate Invoke inteface______________________________________________//
 	void PushRenderCommand				(const RenderCommand & command);
@@ -132,11 +132,12 @@ public:
 	unsigned						m_selected_id				= 0;
 	
 /*______________________Cascade Shadow Map____________________________________________________*/
-	std::vector<float>				m_csm_cascade_planes		= {};
-	unsigned						m_csm_depth_FBO				= 0;
-	unsigned						m_csm_depth_texture			= 0;
+	std::vector<float>				m_csm_cascade_planes		= { 
+							 m_render_sharing_msg.projection_info.far_plane / 100.0f,
+							 m_render_sharing_msg.projection_info.far_plane / 75.0f,
+							 m_render_sharing_msg.projection_info.far_plane / 20.0f,
+							 m_render_sharing_msg.projection_info.far_plane / 2.0f };
 	unsigned						m_csm_levels				= 5;
-	unsigned						m_csm_texture_resolusion	= 4096;
 
 private:
 	list<RenderCommand>				axui_render_list_;
@@ -149,7 +150,7 @@ private:
 	BaseGrid						grid_;
 	SkyBox							skybox_;
 	PostprocessQuads				screen_quad_;	
-	optional<FrameBufferObject>		FBO_						= std::nullopt;
+	optional<FrameBufferObject>		render_FBO_					= std::nullopt;
 
 	optional<FrameBufferObject>     depth_FBO_					= std::nullopt;
 	const int                       depth_buffer_resolustion_   = 4096;

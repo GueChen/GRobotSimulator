@@ -21,54 +21,11 @@ namespace GComponent {
 /*__________________________PUBLIC METHODS____________________________________*/
 RenderManager::~RenderManager() = default;
 
-bool RenderManager::InitFrameBuffer()
+void RenderManager::InitFrameBuffer()
 {	
-	FBO_ = FrameBufferObject(m_render_sharing_msg.viewport.window_size.x,		// window width
+	render_FBO_ = FrameBufferObject(m_render_sharing_msg.viewport.window_size.x,		// window width
 							 m_render_sharing_msg.viewport.window_size.y,		// window height
-							 gl_);
-	
-	if (m_csm_depth_FBO) {
-		gl_->glDeleteFramebuffers(1, &m_csm_depth_FBO);
-		gl_->glDeleteTextures(1, &m_csm_depth_texture);
-		m_csm_depth_FBO = m_csm_depth_texture = 0;
-	}
-
-	if (not m_csm_depth_FBO) 
-	{		
-		// Generator Handle
-		gl_->glGenFramebuffers(1, &m_csm_depth_FBO);
-		gl_->glGenTextures(1, &m_csm_depth_texture);
-
-		// Configure Texture Properties
-		gl_->glBindTexture(GL_TEXTURE_2D_ARRAY, m_csm_depth_texture);
-		gl_->glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT32F, 
-					      m_csm_texture_resolusion, m_csm_texture_resolusion, m_csm_levels,
-						  0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-		gl_->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		gl_->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		gl_->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		gl_->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		constexpr float bordercolor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-		gl_->glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, bordercolor);
-
-		// Bind Texture on Frame Buffer
-		gl_->glBindFramebuffer(GL_FRAMEBUFFER, m_csm_depth_FBO);
-		gl_->glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_csm_depth_texture, 0);
-		gl_->glDrawBuffer(GL_NONE);
-		gl_->glReadBuffer(GL_NONE);
-
-		int status = gl_->glCheckFramebufferStatus(GL_FRAMEBUFFER);
-		// Check Error
-		if (status != GL_FRAMEBUFFER_COMPLETE) {
-			std::cout << "ERROR::FRAMEBUFFER::CSM_DEPTH_BUFFER:: buffer is not complete!\n";
-		}
-		gl_->glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
-
-	// Configure the light space matrices parameters
-	
-
-	return FBO_ == std::nullopt;	
+							 FrameBufferObject::Color, gl_);	
 }
 
 void RenderManager::PushRenderCommand(const RenderCommand & command)
@@ -128,16 +85,28 @@ void RenderManager::SetPickingController(PickingController& controller)
 void RenderManager::SetGL(const shared_ptr<MyGL>& gl)
 {
 	gl_ = gl;
+
 	InitFrameBuffer();
+#ifdef _USE_CSM
+	depth_FBO_ = FrameBufferObject(depth_buffer_resolustion_,
+								   depth_buffer_resolustion_,
+								   m_csm_levels,
+								   FrameBufferObject::Depth,
+								   gl_);
+#else	
 	depth_FBO_ = FrameBufferObject(depth_buffer_resolustion_, 
 								   depth_buffer_resolustion_, 
-								   gl_, 
-								   FrameBufferObject::Depth);
+								   FrameBufferObject::Depth,
+								   gl_);
+#endif
 
 	matrices_UBO_		  = UniformBufferObject(0, sizeof glm::mat4x4 * 2,  gl_);
-	ambient_observer_UBO_ = UniformBufferObject(1, sizeof glm::vec4   * 3,  gl_);
-	light_matrices_UBO_	  = UniformBufferObject(2, sizeof glm::mat4x4 * 16, gl_);
-
+	ambient_observer_UBO_ = UniformBufferObject(1, 
+												sizeof glm::vec4 * 3 + sizeof(float),  
+												gl_);
+	light_matrices_UBO_	  = UniformBufferObject(2, 
+												sizeof glm::mat4x4 * 16 + sizeof glm::vec4 * 16 + sizeof(unsigned int),
+												gl_);
 }
 
 // 渲染从该处开始，所有的 Draw call 由该部分完成
@@ -147,17 +116,14 @@ void RenderManager::tick()
 	SetProjectViewMatrices ();
 	SetDirLightViewPosition();
 	// setting light matrices UBO
-	m_csm_cascade_planes = { m_render_sharing_msg.projection_info.far_plane / 50.0f, 
-							 m_render_sharing_msg.projection_info.far_plane / 25.0f, 
-							 m_render_sharing_msg.projection_info.far_plane / 10.0f, 
-							 m_render_sharing_msg.projection_info.far_plane / 2.0f };
 	const auto light_view_proj_matrices = GetLightViewProjMatrices();
 	{
 		UBOGaurd gaurd(&light_matrices_UBO_.value());
-		
-		for (size_t i = 0; i < light_view_proj_matrices.size(); ++i) {
-			light_matrices_UBO_->SetSubData(glm::value_ptr(light_view_proj_matrices[i]), sizeof glm::mat4 * i, sizeof glm::mat4);
+		light_matrices_UBO_->SetSubData(light_view_proj_matrices.data(), 0, sizeof glm::mat4 * light_view_proj_matrices.size());
+		for (int i = 0; i < m_csm_cascade_planes.size(); ++i) {
+			light_matrices_UBO_->SetSubData(&m_csm_cascade_planes[i], sizeof glm::mat4 * 16 + sizeof glm::vec4 * i, sizeof(float));
 		}		
+		light_matrices_UBO_->SetSubData(&m_csm_levels, sizeof glm::mat4 * 16 + sizeof glm::vec4 * 16, sizeof(unsigned int));		
 	}	
 	
 	PickingPass();
@@ -190,10 +156,11 @@ void RenderManager::SetDirLightViewPosition()
 {
 	UBOGaurd gaurd(&ambient_observer_UBO_.value());
 	
-	ambient_observer_UBO_->SetSubData(glm::value_ptr(m_render_sharing_msg.dir_light.dir),   0,					  sizeof glm::vec3);
-	ambient_observer_UBO_->SetSubData(glm::value_ptr(m_render_sharing_msg.dir_light.color), sizeof glm::vec4,	  sizeof glm::vec3);
-	ambient_observer_UBO_->SetSubData(glm::value_ptr(m_render_sharing_msg.view_pos),		sizeof glm::vec4 * 2, sizeof glm::vec3);	
-
+	ambient_observer_UBO_->SetSubData(glm::value_ptr(m_render_sharing_msg.dir_light.dir),   0,										 sizeof glm::vec3);
+	ambient_observer_UBO_->SetSubData(glm::value_ptr(m_render_sharing_msg.dir_light.color), sizeof glm::vec4,						 sizeof glm::vec3);
+	ambient_observer_UBO_->SetSubData(glm::value_ptr(m_render_sharing_msg.view_pos),		sizeof glm::vec4 * 2,					 sizeof glm::vec3);	
+	ambient_observer_UBO_->SetSubData(&m_render_sharing_msg.projection_info.near_plane,		sizeof glm::vec4 * 2 + sizeof glm::vec3, sizeof(float));
+	ambient_observer_UBO_->SetSubData(&m_render_sharing_msg.projection_info.far_plane,		sizeof glm::vec4 * 3,					 sizeof(float));
 }
 
 std::vector<glm::vec4> RenderManager::GetFrustumCornersWorldSpace(const glm::mat4& projection, const glm::mat4& view)
@@ -298,8 +265,7 @@ void RenderManager::PickingPass()
 	PassSpecifiedListPicking(PassType::DirLightPass, render_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetModelByName(name);
 	});
-	
-	//DisableGuard guard(gl_.get(), GL_DEPTH_TEST);
+		
 	gl_->glClear(GL_DEPTH_BUFFER_BIT);
 	PassSpecifiedListPicking(PassType::AuxiliaryPass, post_process_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetAuxiModelByName(name);
@@ -307,43 +273,33 @@ void RenderManager::PickingPass()
 }
 
 void RenderManager::DepthMapPass()
-{			
-	/*gl_->glBindFramebuffer(GL_FRAMEBUFFER, m_csm_depth_FBO);
-	gl_->glFramebufferTexture(GL_FRAMEBUFFER, GL_TEXTURE_2D_ARRAY, m_csm_depth_FBO, 0);
-	gl_->glViewport(0, 0, m_csm_texture_resolusion, m_csm_texture_resolusion);
-	ClearGLScreenBuffer(0.0f, 0.0f, 0.0f, 1.0f);
+{				
+	FBOGuard gaurd(&depth_FBO_.value());	
+
+	gl_->glViewport(0, 0, depth_buffer_resolustion_, depth_buffer_resolustion_);
+	ClearGLScreenBuffer(0.0f, 0.0f, 0.0f, 1.0f);	
 	gl_->glCullFace(GL_FRONT);
+
+#ifdef _USE_CSM
 	PassSpecifiedListCSMDepth(render_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetModelByName(name);
 	});
-	gl_->glCullFace(GL_BACK);
-	gl_->glBindFramebuffer(GL_FRAMEBUFFER, QOpenGLContext::currentContext()->defaultFramebufferObject());
+#else
+	PassSpecifiedListDepth(render_list_, [](const std::string& name) {
+		return ModelManager::getInstance().GetModelByName(name);
+	});	
+#endif
+	gl_->glCullFace(GL_BACK);	
 	gl_->glViewport(m_render_sharing_msg.viewport.window_pos.x,
 					m_render_sharing_msg.viewport.window_pos.y,
 					m_render_sharing_msg.viewport.window_size.x,
 					m_render_sharing_msg.viewport.window_size.y
-	);*/
-
-	// Shadow Pass
-	FBOGuard guard(&depth_FBO_.value());
-	gl_->glViewport(0, 0, 
-					depth_buffer_resolustion_, 
-					depth_buffer_resolustion_);	
-	ClearGLScreenBuffer(0.0f, 0.0f, 0.0f, 1.0f);
-	gl_->glCullFace(GL_FRONT);
-	PassSpecifiedListDepth(render_list_, [](const std::string& name) {
-		return ModelManager::getInstance().GetModelByName(name);
-	});	
-	gl_->glCullFace(GL_BACK);
-	gl_->glViewport(m_render_sharing_msg.viewport.window_pos.x,
-					m_render_sharing_msg.viewport.window_pos.y,
-					m_render_sharing_msg.viewport.window_size.x,
-					m_render_sharing_msg.viewport.window_size.y);
+	);		
 }
 
 void RenderManager::NormalPass()
 {
-	FBOGuard fbo_guard(&FBO_.value());
+	FBOGuard fbo_guard(&render_FBO_.value());
 
 	ClearGLScreenBuffer(0.0f, 0.0f, 0.05f, 1.0f);
 	
@@ -365,19 +321,23 @@ void RenderManager::NormalPass()
 void RenderManager::RenderingPass()
 {
 	// with cascade shadow
+#ifdef _USE_CSM
 	/*PassSpecifiedListCSMShadow(render_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetModelByName(name);
 	});*/
-
+	PassSpecifiedListNormal(render_list_, [](const std::string& name) {
+		return ModelManager::getInstance().GetModelByName(name);
+	});
+#else
 	// with shadow
 	PassSpecifiedListShadow(render_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetModelByName(name);
 	});
-	
+#endif
 	// without shadow
 	/*PassSpecifiedListNormal(render_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetModelByName(name);
-		});*/
+	});*/
 }
 void RenderManager::AuxiliaryPass()
 {
@@ -394,7 +354,7 @@ void RenderManager::PostProcessPass()
 	// 3. ambient occlusion
 	ClearGLScreenBuffer(0.0f, 0.0f, 0.05f, 1.0f);
 	{
-		FBOTextureGuard guard(&FBO_.value());		
+		FBOTextureGuard guard(&render_FBO_.value());		
 		screen_quad_.Draw();		
 	}
 	
@@ -484,6 +444,7 @@ void RenderManager::PassSpecifiedListNormal(RenderList& list, std::function<Mode
 {
 	ResourceManager& scene_manager = ResourceManager::getInstance();
 	ModelManager&	 model_manager = ModelManager::getInstance();
+	FBOTextureGuard gaurd(&depth_FBO_.value(), GL_TEXTURE0);
 	for (auto& [obj_name, mesh_name] : list) 
 	{		
 		RenderMesh*		mesh	= scene_manager.GetMeshByName(mesh_name);
@@ -521,13 +482,8 @@ void RenderManager::PassSpecifiedListCSMShadow(RenderList& list, function<Rawptr
 	MyShader* shadow_shader			= scene_manager.GetShaderByName("cascade_shadow_ortho"); shadow_shader->use();
 
 	shadow_shader->setInt("shadow_map", 0);
-	shadow_shader->setFloat("far_plane",   m_render_sharing_msg.projection_info.far_plane);
-	shadow_shader->setInt("csm_levels",	   m_csm_cascade_planes.size());
-	for (size_t i = 0; i < m_csm_cascade_planes.size(); ++i) {
-		shadow_shader->setFloat("cascade_plane[" + std::to_string(i) + "]", m_csm_cascade_planes[i]);
-	}
-
-	gl_->glBindTexture(GL_TEXTURE_2D_ARRAY, m_csm_depth_texture);
+	
+	FBOTextureGuard gaurd(&depth_FBO_.value(), GL_TEXTURE0);
 	for (auto& [obj_name, mesh_name] : list)
 	{
 		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
@@ -538,7 +494,6 @@ void RenderManager::PassSpecifiedListCSMShadow(RenderList& list, function<Rawptr
 			mesh->Draw();
 		}		
 	}
-	gl_->glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void RenderManager::SimplexMeshPass()

@@ -368,15 +368,15 @@ void Viewport::RegisteredShader()
 {
 	ResourceManager::getInstance().RegisteredShader("skybox",				new MyShader(nullptr,	PathVert(skybox),				PathFrag(skybox)));
 	ResourceManager::getInstance().RegisteredShader("postprocess",			new MyShader(nullptr,	PathVert(postprocess),			PathFrag(postprocess)));
-	ResourceManager::getInstance().RegisteredShader("color",				new MyShader(nullptr,	PathVert(Color),				PathFrag(Color)));
+	ResourceManager::getInstance().RegisteredShader("no_shadow_color",		new MyShader(nullptr,	PathVert(Color),				PathFrag(Color)));
     ResourceManager::getInstance().RegisteredShader("axis",					new MyShader(nullptr,	PathVert(axis),					PathFrag(axis)));
     ResourceManager::getInstance().RegisteredShader("picking",				new MyShader(nullptr,	PathVert(picking),				PathFrag(picking)));
     ResourceManager::getInstance().RegisteredShader("base",					new MyShader(nullptr,	PathVert(Base),					PathFrag(Base)));
     ResourceManager::getInstance().RegisteredShader("linecolor",			new MyShader(nullptr,	PathVert(LineColor),			PathFrag(LineColor)));
 	ResourceManager::getInstance().RegisteredShader("depth_map",			new MyShader(nullptr,	PathVert(depthOrtho),			PathFrag(depthOrtho)));
 	ResourceManager::getInstance().RegisteredShader("shadow_color",			new MyShader(nullptr,	PathVert(shadowOrtho),			PathFrag(shadowOrtho)));
-	ResourceManager::getInstance().RegisteredShader("csm_depth_map",		new MyShader(nullptr,	PathVert(csm_depth_ortho),		PathFrag(csm_depth_ortho),	PathGeom(csm_depth_ortho)));
-	ResourceManager::getInstance().RegisteredShader("cascade_shadow_ortho",	new MyShader(nullptr,	PathVert(cascade_shadow_ortho),	PathFrag(cascade_shadow_ortho)));
+	ResourceManager::getInstance().RegisteredShader("csm_depth_map",		new MyShader(nullptr,	PathVert(csm_depth_ortho),		PathFrag(csm_depth_ortho),		PathGeom(csm_depth_ortho)));
+	ResourceManager::getInstance().RegisteredShader("color",				new MyShader(nullptr,	PathVert(cascade_shadow_ortho),	PathFrag(cascade_shadow_ortho)));
 }
 
 }

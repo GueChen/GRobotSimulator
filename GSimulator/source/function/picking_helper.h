@@ -58,7 +58,7 @@ private:
 	shared_ptr<MyGL> gl_;
 
 	unsigned default_FBO_			   = 0;
-	unsigned FBO_					   = 0;
+	unsigned render_FBO_					   = 0;
 	unsigned picking_texture_obeject_  = 0;
 	unsigned depth_texture_object_	   = 0;
 };
