@@ -43,6 +43,8 @@ public:
 
 	// TODO: use reflect to replace this methods
 	bool&  GetShadowCastRef()					{ return cast_shadow_; }
+	inline bool		   GetIsCastShadow() const  { return cast_shadow_; }
+	inline void		   SetIsCastShadow(bool val){ cast_shadow_ = val; }
 
 	//	Renderer Invoke Inteface
 	void  SetShaderProperties();

@@ -102,7 +102,6 @@ void RenderManager::SetGL(const shared_ptr<MyGL>& gl)
 	light_matrices_UBO_	  = UniformBufferObject(2, 
 												sizeof glm::mat4x4 * 16 + sizeof glm::vec4 * 16 + sizeof(unsigned int),
 												gl_);
-	
 }
 
 // 渲染从该处开始，所有的 Draw call 由该部分完成
@@ -125,8 +124,10 @@ void RenderManager::tick()
 			light_matrices_UBO_->SetSubData(&m_csm_cascade_planes[i], sizeof glm::mat4 * 16 + sizeof glm::vec4 * i, sizeof(float));
 		}		
 		light_matrices_UBO_->SetSubData(&m_csm_levels, sizeof glm::mat4 * 16 + sizeof glm::vec4 * 16, sizeof(unsigned int));		
-	}	
-	
+	}		
+	/*direct_light_shadow_UBO_->SetData(&shadow_map_pos_, sizeof(uint32_t));*/
+	gl_->glBindTextureUnit(3, depth_FBO_->GetTextureID());
+
 	PickingPass();
 	
 	DepthMapPass();
@@ -430,7 +431,7 @@ void RenderManager::PassSpecifiedListNormal(RenderList& list, std::function<Mode
 {
 	ResourceManager& scene_manager = ResourceManager::getInstance();
 	ModelManager&	 model_manager = ModelManager::getInstance();
-	FBOTextureGuard gaurd(&depth_FBO_.value(), GL_TEXTURE0);
+	
 	for (auto& [obj_name, mesh_name] : list) 
 	{		
 		RenderMesh*		mesh	= scene_manager.GetMeshByName(mesh_name);

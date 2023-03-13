@@ -1,5 +1,6 @@
 #version 450 core
-
+//#extension GL_ARB_bindless_texture:enable
+#extension GL_KHR_vulkan_glsl: enable
 struct DirLight{
   vec3 dir;
   vec3 color;
@@ -36,13 +37,14 @@ layout(std140, set = 0, binding = 2) uniform light_space_parameter{
     int          csm_levels;
 };
 
-
+//layout(bindless_sampler) uniform;
+layout(binding = 3) uniform sampler2DArray direct_light_shadow_map;
 
 // output color in this pixel / fragment
 out vec4 FragColor;
 
 // cascaded shadow map parameters
-uniform sampler2DArray  shadow_map;
+//uniform sampler2DArray  shadow_map;
 
 // normally shading parameters
 uniform vec3            color;
@@ -118,12 +120,12 @@ float ShadowCaculation(vec4 frag_pos_light_space, float bias, int layer)
 
     // percentage closest filter
     float shadow     = 0.0f;
-    vec2  texel_size = 1.0 / vec2(textureSize(shadow_map, 0));
+    vec2  texel_size = 1.0 / vec2(textureSize(direct_light_shadow_map, 0));
     
     for(int x = -2; x <= 2; ++x)for(int y = - 2; y <= 2; ++y)
     {
         
-        float pcf_depth = texture(shadow_map, vec3(proj_coords.xy + vec2(x, y) * texel_size, layer)).r;
+        float pcf_depth = texture(direct_light_shadow_map, vec3(proj_coords.xy + vec2(x, y) * texel_size, layer)).r;
         shadow += current_depth - bias > pcf_depth ? 1.0 : 0.0;
     }
 

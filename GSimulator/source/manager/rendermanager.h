@@ -147,8 +147,8 @@ private:
 	
 	optional<UniformBufferObject>   matrices_UBO_				= std::nullopt;
 	optional<UniformBufferObject>   light_matrices_UBO_			= std::nullopt;
-	optional<UniformBufferObject>	ambient_observer_UBO_		= std::nullopt;
-
+	optional<UniformBufferObject>	ambient_observer_UBO_		= std::nullopt;	
+	
 /*________________________Planning Display Related_____________________________________________*/
 	list<std::shared_ptr<SimplexModel>> 
 									planning_aux_lists_			= {};

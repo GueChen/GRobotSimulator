@@ -55,6 +55,9 @@ public:
 										gl_->glBindTexture(texture_type_, 0);
 									}
 
+/// setter & getter
+	inline unsigned int GetTextureID() const { return texture_buffer_; }
+
 /// copy methods  ¿½±´º¯Êý
 	FrameBufferObject(const FrameBufferObject& other)				= delete;
 	FrameBufferObject& operator=(const FrameBufferObject& other)	= delete;

@@ -81,6 +81,17 @@ static QHBoxLayout* CreateStanardCheckBox(bool & flag) {
 	return layout;
 }
 
+static QHBoxLayout* CreateStanardCheckBox(std::function<bool(void)> getter, std::function<void(bool)> setter) {
+	QHBoxLayout* layout = new QHBoxLayout;
+	layout->addSpacerItem(new QSpacerItem(20, 20, QSizePolicy::Expanding));
+
+	QCheckBox* checkbox = new QCheckBox;
+	checkbox->setChecked(getter());
+	QObject::connect(checkbox, &QCheckBox::stateChanged, [setter = setter](bool value) { setter(value); });
+	layout->addWidget(checkbox);
+	return layout;
+}
+
 // ui Create table acoording the class with Shader Properties
 std::unordered_map<std::string, std::function<QLayout*(std::string, ShaderProperty::Var&)>> ComponentUIFactory::build_map = {
 	{"int", 
@@ -623,7 +634,9 @@ QWidget* ComponentUIFactory::Create(Component& component)
 		layout->addWidget(shader_editor);
 
 		layout->addWidget(CreateStandardTextLabel("cast shadow"));
-		layout->addLayout(CreateStanardCheckBox(material_component.GetShadowCastRef()));
+		layout->addLayout(CreateStanardCheckBox(std::bind(&MaterialComponent::GetIsCastShadow, &material_component), 
+												std::bind(&MaterialComponent::SetIsCastShadow, &material_component, std::placeholders::_1)));
+
 		for (auto&& pro : properties) {
 			layout->addLayout(build_map[pro.type](pro.name, pro.val));
 		}
