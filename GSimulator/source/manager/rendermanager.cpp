@@ -102,12 +102,14 @@ void RenderManager::SetGL(const shared_ptr<MyGL>& gl)
 	light_matrices_UBO_	  = UniformBufferObject(2, 
 												sizeof glm::mat4x4 * 16 + sizeof glm::vec4 * 16 + sizeof(unsigned int),
 												gl_);
+	InitializeIBLResource();
 }
 
 // 渲染从该处开始，所有的 Draw call 由该部分完成
 /*__________________________tick Methods____________________________________________________*/
 void RenderManager::tick()
-{
+{	
+	InitializeIBLResource();
 	SetProjectViewMatrices ();
 	SetDirLightViewPosition();
 	// setting light matrices UBO
@@ -124,8 +126,7 @@ void RenderManager::tick()
 			light_matrices_UBO_->SetSubData(&m_csm_cascade_planes[i], sizeof glm::mat4 * 16 + sizeof glm::vec4 * i, sizeof(float));
 		}		
 		light_matrices_UBO_->SetSubData(&m_csm_levels, sizeof glm::mat4 * 16 + sizeof glm::vec4 * 16, sizeof(unsigned int));		
-	}		
-	/*direct_light_shadow_UBO_->SetData(&shadow_map_pos_, sizeof(uint32_t));*/
+	}			
 	gl_->glBindTextureUnit(3, depth_FBO_->GetTextureID());
 
 	PickingPass();
@@ -163,6 +164,142 @@ void RenderManager::SetDirLightViewPosition()
 	ambient_observer_UBO_->SetSubData(glm::value_ptr(m_render_sharing_msg.view_pos),		sizeof glm::vec4 * 2,					 sizeof glm::vec3);	
 	ambient_observer_UBO_->SetSubData(&m_render_sharing_msg.projection_info.near_plane,		sizeof glm::vec4 * 2 + sizeof glm::vec3, sizeof(float));
 	ambient_observer_UBO_->SetSubData(&m_render_sharing_msg.projection_info.far_plane,		sizeof glm::vec4 * 3,					 sizeof(float));
+}
+
+void RenderManager::InitializeIBLResource()
+{	
+	static glm::mat4 capture_proj = glm::perspective(glm::radians(90.0f), 1.0f, 0.0f, 10.0f);
+	static glm::mat4 capture_views[] = {
+		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f),  glm::vec3(0.0f, -1.0f, 0.0f)),
+		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f,  0.0f),  glm::vec3(0.0f, -1.0f, 0.0f)),
+		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f),  glm::vec3(0.0f,  0.0f, 1.0f)),
+		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  -1.0f, 0.0f),  glm::vec3(0.0f,  0.0f, -1.0f)),
+		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f),  glm::vec3(0.0f, -1.0f, 0.0f)),
+		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
+	};
+
+	unsigned int hdr_env     = gl_->LoadTexture("./asset/textures/loft_newport/Newport_Loft_Ref.hdr", false);
+	unsigned int environment_cubemap = 0,
+				 irradiance_cubemap  = 0,
+				 prefilter_cubemap   = 0,
+				 brdf_lut			 = 0;
+				 
+	auto& resources = ResourceManager::getInstance();
+	RenderMesh* sky_box_mesh = resources.GetMeshByName(skybox_.getMesh()),
+			  * quad_mesh	 = resources.GetMeshByName(screen_quad_.getMesh());
+	
+	
+	
+	unsigned fbo, rbo;
+	gl_->glGenFramebuffers(1, &fbo);
+	gl_->glGenRenderbuffers(1, &rbo);
+
+	gl_->glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	gl_->glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	gl_->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+	gl_->glEnable(GL_DEPTH_TEST);
+	gl_->glDepthFunc(GL_LEQUAL);
+	gl_->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	//FrameBufferObject fbo(ibl_width, ibl_height, FrameBufferObject::Cube, gl_);
+	/*auto render_cube = [&](int level = 0) {
+		for (uint32_t i = 0; i < 6; ++i) {
+			matrices_UBO_->SetSubData(&capture_views[i], sizeof glm::mat4, sizeof glm::mat4);
+			gl_->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, fbo.GetTextureID(), level);
+			gl_->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BITS);
+			sky_box_mesh->Draw();
+		}
+	};*/
+
+	{				
+		//FBOGuard gaurd(&fbo);
+		UBOGaurd ubo_gaurd(&matrices_UBO_.value());
+		matrices_UBO_->SetSubData(&capture_proj, 0, sizeof glm::mat4);
+		
+		uint32_t ibl_width = 1024, ibl_height = 1024;
+		uint32_t env_cubemap = 0;
+		gl_->glGenTextures(1, &env_cubemap);
+		gl_->glBindTexture(GL_TEXTURE_CUBE_MAP, env_cubemap);
+		for (uint32_t i = 0; i < 6; ++i) {
+			gl_->glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, ibl_width, ibl_height, 0, GL_RGB, GL_FLOAT, nullptr);
+		}
+
+		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		gl_->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, ibl_width, ibl_height);
+
+		gl_->glBindTextureUnit(3, hdr_env);
+		gl_->glViewport(0, 0, ibl_width, ibl_height);
+		
+		MyShader* e2c_shader = resources.GetShaderByName("equirectangular2cube");
+		e2c_shader->use();
+		
+		for (uint32_t i = 0; i < 6; ++i) {
+			matrices_UBO_->SetSubData(&capture_views[i], sizeof glm::mat4, sizeof glm::mat4);
+			gl_->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, env_cubemap, 0);
+			gl_->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BITS);
+			sky_box_mesh->Draw();
+		}
+
+		gl_->glDeleteTextures(1, &env_cubemap);
+		gl_->glDeleteTextures(1, &hdr_env);
+		/*
+		
+		render_cube();
+		environment_cubemap = fbo.TakeTexture();
+
+		uint32_t irr_width = 32, irr_height = 32;
+		fbo.ReAllocateTexture(irr_width, irr_height, FrameBufferObject::Cube);
+
+		MyShader* irr_shader = resources.GetShaderByName("irr_conv");
+		irr_shader->use();
+		gl_->glBindTextureUnit(3, environment_cubemap);
+		gl_->glViewport(0, 0, irr_width, irr_height);
+		render_cube();
+		irradiance_cubemap = fbo.TakeTexture();
+
+		uint32_t pft_width = 128, pft_height = 128;
+		fbo.ReAllocateTexture(pft_width, pft_height, FrameBufferObject::CubeMipmap);
+
+		{
+			FBOTextureGuard tex_gaurd(&fbo);
+			gl_->glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+		}
+
+		MyShader* pft_shader = resources.GetShaderByName("pft_conv");
+		pft_shader->use();
+		uint32_t max_mipmap_levels = 5;
+		for (uint32_t level = 0; level < max_mipmap_levels; ++level) {
+			uint32_t mip_width  = pft_width  * pow(0.5, level);
+			uint32_t mip_height = pft_height * pow(0.5, level);
+			fbo.AdjustRenderBufferStorage(mip_width, mip_height);
+			gl_->glViewport(0, 0, mip_width, mip_height);
+
+			float roughness = (float)level / (float)(max_mipmap_levels - 1);
+			pft_shader->setFloat("roughness", roughness);
+			render_cube(level);
+		}
+		prefilter_cubemap = fbo.TakeTexture();
+
+		uint32_t brdf_width = 512, brdf_height = 512;
+		fbo.ReAllocateTexture(brdf_width, brdf_height, FrameBufferObject::Color);
+
+		MyShader* brdf_shader = resources.GetShaderByName("brdf_lut");
+		brdf_shader->use();
+		gl_->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		quad_mesh->Draw();
+		brdf_lut = fbo.TakeTexture();*/
+	}
+
+	//gl_->glBindTextureUnit(4, irradiance_cubemap);
+	//gl_->glBindTextureUnit(5, prefilter_cubemap);
+	//gl_->glBindTextureUnit(6, brdf_lut);
+	gl_->glDeleteFramebuffers(1,  &fbo);
+	gl_->glDeleteRenderbuffers(1, &rbo);
+	gl_->glDepthFunc(GL_LESS);
 }
 
 std::vector<glm::vec4> RenderManager::GetFrustumCornersWorldSpace(const glm::mat4& projection, const glm::mat4& view)
@@ -283,7 +420,7 @@ void RenderManager::DepthMapPass()
 	gl_->glCullFace(GL_FRONT);
 
 #ifdef _USE_CSM
-	PassSpecifiedListCSMDepth(shadow_cast_list_, [](const std::string& name) {
+	PassSpecifiedListDepth(shadow_cast_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetModelByName(name);
 	});
 #else
@@ -386,12 +523,11 @@ void RenderManager::PassSpecifiedListDepth(RenderList& list, function<Model* (co
 	ResourceManager& scene_manager = ResourceManager::getInstance();
 	ModelManager&	 model_manager = ModelManager::getInstance();
 
-	MyShader*		 depth_shader = scene_manager.GetShaderByName("depth_map"); depth_shader->use();
-
-	glm::mat4 light_view	= glm::lookAt(m_render_sharing_msg.dir_light.dir, vec3(0.0f), vec3(0.0f, 0.0f, 1.0f));
-	glm::mat4 light_proj	= glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
-	glm::mat4 light_space	= light_proj * light_view;
-	depth_shader->setMat4("light_space_matrix", light_space);
+#ifdef _USE_CSM
+	MyShader* depth_shader = scene_manager.GetShaderByName("csm_depth_map"); depth_shader->use();
+#else 
+	MyShader* depth_shader = scene_manager.GetShaderByName("depth_map"); depth_shader->use();
+#endif
 
 	for (auto& [obj_name, mesh_name] : list) 
 	{		
@@ -401,30 +537,6 @@ void RenderManager::PassSpecifiedListDepth(RenderList& list, function<Model* (co
 		obj->setShaderProperty(*depth_shader);
 		if (mesh) mesh->Draw();
 	}
-}
-
-void RenderManager::PassSpecifiedListShadow(RenderList& list, function<RawptrModel(const std::string&)> ObjGetter)
-{
-	ResourceManager& scene_manager	= ResourceManager::getInstance();
-	ModelManager&	 model_manager	= ModelManager::getInstance();
-
-	MyShader* shadow_shader			= scene_manager.GetShaderByName("shadow_color"); shadow_shader->use();
-
-	glm::mat4 light_view	= glm::lookAt(m_render_sharing_msg.dir_light.dir, vec3(0.0f), vec3(0.0f, 0.0f, 1.0f));
-	glm::mat4 light_proj	= glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
-	glm::mat4 light_space	= light_proj * light_view;
-	shadow_shader->setMat4("light_space_matrix", light_space);
-	shadow_shader->setInt("shadow_map", 0);
-	
-	FBOTextureGuard guard(&depth_FBO_.value(), GL_TEXTURE0);
-	for (auto& [obj_name, mesh_name] : list)
-	{
-		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
-		Model*		obj	 = ObjGetter(obj_name);
-
-		obj->setShaderProperty(*shadow_shader);
-		if (mesh) mesh->Draw();
-	}	
 }
 
 void RenderManager::PassSpecifiedListNormal(RenderList& list, std::function<Model* (const std::string&)> ObjGetter)
@@ -441,23 +553,6 @@ void RenderManager::PassSpecifiedListNormal(RenderList& list, std::function<Mode
 		if (!material)	continue;
 		material->SetShaderProperties();						
 		mesh->Draw();	
-	}
-}
-
-void RenderManager::PassSpecifiedListCSMDepth(RenderList& list, function<RawptrModel(const std::string&)> ObjGetter)
-{
-	ResourceManager& scene_manager = ResourceManager::getInstance();
-	ModelManager&	 model_manager = ModelManager::getInstance();
-
-	MyShader*		 depth_shader = scene_manager.GetShaderByName("csm_depth_map"); depth_shader->use();
-
-	for (auto& [obj_name, mesh_name] : list) 
-	{		
-		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
-		Model*		obj  = ObjGetter(obj_name);
-
-		obj->setShaderProperty(*depth_shader);
-		if (mesh) mesh->Draw();
 	}
 }
 

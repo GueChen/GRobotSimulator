@@ -1,10 +1,7 @@
 #version 450 core
 //#extension GL_ARB_bindless_texture:enable
 #extension GL_KHR_vulkan_glsl: enable
-struct DirLight{
-  vec3 dir;
-  vec3 color;
-};
+
 
 // Passing from vertex shader
 in vec3 FragPos;
@@ -15,6 +12,10 @@ in vec2 TexCoords;
 #define Ambient     0.1
 #define Specular    0.70
 #define Diffuse     0.55
+struct DirLight{
+  vec3 dir;
+  vec3 color;
+};
 
 // the global parameter use from camera and screen size
 layout(std140, set = 0, binding = 0) uniform Matrices{
@@ -42,9 +43,6 @@ layout(binding = 3) uniform sampler2DArray direct_light_shadow_map;
 
 // output color in this pixel / fragment
 out vec4 FragColor;
-
-// cascaded shadow map parameters
-//uniform sampler2DArray  shadow_map;
 
 // normally shading parameters
 uniform vec3            color;

@@ -121,6 +121,9 @@ std::unordered_map<std::string, std::function<QLayout*(std::string, ShaderProper
 
 		QDoubleSpinBox* spinbox = new QDoubleSpinBox;		
 		spinbox->setValue(std::get<float>(val));
+		spinbox->setMinimum(0.0);
+		spinbox->setMaximum(1.0);
+		spinbox->setSingleStep(0.01);
 		spinbox->setStyleSheet(double_spin_box_qss.data());
 		QObject::connect(spinbox, &QDoubleSpinBox::valueChanged, [&val = val](double value) { val = static_cast<float>(value); });
 		layout->addWidget(spinbox);

@@ -93,7 +93,9 @@ private:
 /*_______________________Rendering Datas Setting___________________________________________*/
 	void SetProjectViewMatrices();
 	void SetDirLightViewPosition();
-
+/*_______________________Physics Based Rendering and Image Based Lighting__________________*/
+	void InitializeIBLResource();
+	
 /*_______________________Cascade Shadow Map Helper Methods_________________________________*/
 	std::vector<glm::vec4>	GetFrustumCornersWorldSpace(const glm::mat4& projection, const glm::mat4& view);
 	glm::mat4				GetLightViewProjMatrix(const float near_plane, const float far_plane);
@@ -113,9 +115,7 @@ private:
 	void PassSpecifiedListPicking	(PassType draw_index_type, 
 									 RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);
 	void PassSpecifiedListNormal	(RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);
-	void PassSpecifiedListDepth		(RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);	
-	void PassSpecifiedListShadow	(RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);
-	void PassSpecifiedListCSMDepth	(RenderList&,    function<RawptrModel(const std::string&)>ObjGetter);
+	void PassSpecifiedListDepth		(RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);			
 
 /*_______________________Planning Simplex Render_____________________________________________*/
 	void SimplexMeshPass();

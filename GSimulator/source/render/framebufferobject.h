@@ -22,12 +22,13 @@ class FrameBufferObject
 public:
 	using type = FrameBufferObject;
 	enum AttachType {
-		Color, Depth
+		Color, Depth, Cube, CubeMipmap
 	};
 	struct BufferOption {
 		int internal_format;
 		int format;
-		int filter;
+		int min_filter;
+		int mag_filter;
 		int wrap;
 		int attachment;
 		int draw_buffer;
@@ -57,6 +58,14 @@ public:
 
 /// setter & getter
 	inline unsigned int GetTextureID() const { return texture_buffer_; }
+	inline void			SetTextureID(unsigned int id) { texture_buffer_ = id; }
+	
+	[[nodiscard("return texture ID may leak GPU memory")]]
+	unsigned int		TakeTexture();
+
+	unsigned int		ReAllocateTexture(int width, int height, AttachType type);
+
+	void				AdjustRenderBufferStorage(int width, int height);
 
 /// copy methods  ¿½±´º¯Êý
 	FrameBufferObject(const FrameBufferObject& other)				= delete;
@@ -70,7 +79,8 @@ private:
 	void Initialize(int width, int height, int levels, AttachType type);
 	void GenTexture(int width, int height, int levels, const BufferOption& opt);
 	void GenRenderBuffer(int width, int height);
-	void GenBindFrameBuffer(const BufferOption& opt);
+	void BindTextureOnFrameBuffer(const BufferOption& opt);
+	
 
 /// static methods ¾²Ì¬·½·¨
 	inline static unsigned GetDefaultFBO() { return QOpenGLContext::currentContext()->defaultFramebufferObject(); };

@@ -50,7 +50,7 @@ bool GComponent::ObjectManager::CreateInstanceWithModelMat(const string& obj_nam
 	string name = obj_name + std::to_string(obj_lists_count_table_[obj_name]);
 	auto&  mesh = obj_properties_table_[obj_name];
 	Model* model= new Model(name, mesh, model_mat);
-	model->RegisterComponent(std::make_unique<MaterialComponent>(model, "color", true));
+	model->RegisterComponent(std::make_unique<MaterialComponent>(model, "pbr", true));
 	ModelManager::getInstance().RegisteredModel(name, std::move(model));	
 	++obj_lists_count_table_[obj_name];
 	return true;

@@ -378,6 +378,12 @@ void Viewport::RegisteredShader()
 	ResourceManager::getInstance().RegisteredShader("shadow_color",			new MyShader(nullptr,	PathVert(shadowOrtho),			PathFrag(shadowOrtho)));
 	ResourceManager::getInstance().RegisteredShader("csm_depth_map",		new MyShader(nullptr,	PathVert(csm_depth_ortho),		PathFrag(csm_depth_ortho),		PathGeom(csm_depth_ortho)));
 	ResourceManager::getInstance().RegisteredShader("color",				new MyShader(nullptr,	PathVert(cascade_shadow_ortho),	PathFrag(cascade_shadow_ortho)));
+	// pbr relative
+	ResourceManager::getInstance().RegisteredShader("pbr",					new MyShader(nullptr,   PathVert(pbr),					PathFrag(pbr)));		
+	ResourceManager::getInstance().RegisteredShader("equirectangular2cube", new MyShader(nullptr,   PathVert(skybox),				PathFrag(equirectangular2cubemap)));
+	ResourceManager::getInstance().RegisteredShader("irr_conv",				new MyShader(nullptr,   PathVert(skybox),				PathFrag(irradiance_conv)));
+	ResourceManager::getInstance().RegisteredShader("pft_conv",				new MyShader(nullptr,   PathVert(skybox),				PathFrag(prefilter_conv)));
+	ResourceManager::getInstance().RegisteredShader("brdf_lut",				new MyShader(nullptr,   PathVert(brdf_lut),				PathFrag(brdf_lut)));
 }
 
 }
