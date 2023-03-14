@@ -2,6 +2,8 @@
 
 #include "base/global/global_qss.h"
 
+#include "manager/resourcemanager.h"
+
 #include "component/joint_component.h"
 #include "component/joint_group_component.h"
 #include "component/kinematic_component.h"
@@ -11,9 +13,9 @@
 
 #include "ui/widget/kinematic_widget.h"
 #include "ui/widget/tracker_widget.h"
-#include "ui/widget/line_edit/drag_accept_edit.h"
 
 #include "ColorEdit/color_edit.h"
+#include "Selector/selector.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QTimer>
@@ -26,9 +28,10 @@
 #include <QtWidgets/QLayout>
 #include <QtWidgets/QToolButton>
 #include <QtWidgets/QHBoxLayout>
-
 #include <QtGui/QDropEvent>
 #include <QtGui/QDragEnterEvent>
+
+#include <iostream>
 
 namespace GComponent {
 using std::string;
@@ -94,6 +97,19 @@ static QHBoxLayout* CreateStanardCheckBox(std::function<bool(void)> getter, std:
 
 // ui Create table acoording the class with Shader Properties
 std::unordered_map<std::string, std::function<QLayout*(std::string, ShaderProperty::Var&)>> ComponentUIFactory::build_map = {
+	{"unsigned int",
+	[](std::string name, ShaderProperty::Var& val)->QLayout* {
+		QHBoxLayout* layout = new QHBoxLayout;
+
+		layout->addWidget(CreateStandardTextLabel(name));
+
+		QSpinBox* spinbox = new QSpinBox;
+		spinbox->setValue(std::get<unsigned int>(val));
+		spinbox->setMinimum(0);
+		QObject::connect(spinbox, &QSpinBox::valueChanged, [&val = val](int value) { val = value; });
+		layout->addWidget(spinbox);
+		return layout;
+	}},
 	{"int", 
 	 [](std::string name, ShaderProperty::Var& val)->QLayout*{
 		QHBoxLayout* layout = new QHBoxLayout;
@@ -623,28 +639,70 @@ QWidget* ComponentUIFactory::Create(Component& component)
 	}
 	else if (s == "MaterialComponent") {
 		MaterialComponent& material_component = dynamic_cast<MaterialComponent&>(component);
-		auto& properties = material_component.GetProperties();
-
-		QWidget* widget = new QWidget;
+		auto add_property_ui = [](auto&& com, auto&& layout) {
+			for (auto& pro : com.GetProperties()) {
+				QLayout* new_layout = build_map[pro.type](pro.name, pro.val);
+				if (new_layout) {
+					layout->addLayout(new_layout);
+				}
+			}
+			layout->addItem(new QSpacerItem(20, 20, QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Expanding));
+		};
+		
+		QWidget*     widget	= new QWidget;
 		QVBoxLayout* layout = new QVBoxLayout;
+		
 		layout->setSpacing(2);
-
 		layout->addWidget(CreateStandardTextLabel("shader"));
 		
-		QLineEdit* shader_editor = new DragAcceptorEditor(QString::fromStdString(material_component.GetShader()), 
-														  nullptr);
-		shader_editor->setMinimumHeight(kEleMiniHeight);
-		layout->addWidget(shader_editor);
+		auto shader_names = ResourceManager::getInstance().GetShadersName();
+		QStringList names_list; names_list.reserve(shader_names.size());
+		for (auto& name : shader_names) names_list.append(QString::fromStdString(name));		
+		GSelector* selector = new GSelector(nullptr, QString::fromStdString(material_component.GetShader()), names_list);	
+		selector->setMinimumHeight(kEleMiniHeight);
+		QObject::connect(selector, &GSelector::textChanged, 
+			[&com = material_component, layout = layout, ui_func = add_property_ui]
+			(const QString& shader_name) {
+				
+				com.SetShader(shader_name.toStdString());
+				auto clear_layout = [](auto&& clear_layout, QLayout* layout, int remain)->void{
+					int item_count = layout->count();
+					while (item_count > remain) {
+						auto item = layout->itemAt(item_count - 1);
+						if (QWidget* widget = item->widget()) {
+							layout->removeWidget(widget);
+							widget->deleteLater();
+						}
+						else if (QLayout* child_layout = item->layout()) {
+							clear_layout(clear_layout, child_layout, 0);
+							delete child_layout;
+						}
+						else if (QSpacerItem* spacer = item->spacerItem()) {
+							layout->removeItem(spacer);
+							delete spacer;
+						}						
+						--item_count;
+					}
+				};
+				clear_layout(clear_layout, layout, 4);
+				ui_func(com, layout);
+		});
+		layout->addWidget(selector);
 
 		layout->addWidget(CreateStandardTextLabel("cast shadow"));
 		layout->addLayout(CreateStanardCheckBox(std::bind(&MaterialComponent::GetIsCastShadow, &material_component), 
 												std::bind(&MaterialComponent::SetIsCastShadow, &material_component, std::placeholders::_1)));
 
-		for (auto&& pro : properties) {
-			layout->addLayout(build_map[pro.type](pro.name, pro.val));
+
+		add_property_ui(material_component, layout);
+		/*for (auto&& pro : material_component.GetProperties()) {
+			QLayout* new_layout = build_map[pro.type](pro.name, pro.val);
+			if (new_layout) {
+				layout->addLayout(new_layout);
+			}
 		}
 
-		layout->addItem(new QSpacerItem(20, 20, QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Expanding));
+		layout->addItem(new QSpacerItem(20, 20, QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Expanding));*/
 		widget->setLayout(layout);
 		widget->setSizePolicy(QSizePolicy::Policy::Ignored, QSizePolicy::Policy::Expanding);
 		return widget;

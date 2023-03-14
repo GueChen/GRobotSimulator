@@ -477,7 +477,7 @@ QComboBox QAbstractItemView {
 }</string>
      </property>
      <property name="currentIndex">
-      <number>4</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="null_page"/>
      <widget class="QWidget" name="ptp_page">

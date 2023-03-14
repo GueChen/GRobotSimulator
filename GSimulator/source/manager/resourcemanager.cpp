@@ -49,6 +49,17 @@ namespace GComponent {
 		}
 		return nullptr;
 	}
+
+	std::vector<std::string> ResourceManager::GetShadersName() const
+	{
+		std::vector<std::string> shaders_names;
+		shaders_names.reserve(shader_map_.size());
+		for (auto& [name, _] : shader_map_) {
+			shaders_names.push_back(name);
+		}
+		return shaders_names;
+	}
+
 	void ResourceManager::RegisteredUIHandle(const string& name, QOpenGLWidget* ui_handle)
 	{
 		DeregisteredUIHandle(name);

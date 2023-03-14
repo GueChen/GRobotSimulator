@@ -68,7 +68,9 @@ public:
     void            RegisteredShader(const string& name, MyShader* raw_ptr_shader);
     inline void     DeregisteredShader(const string& name)  { DeregisteredSpecificMapElement(shader_map_, name); }
     MyShader*       GetShaderByName(const string& name);
-    
+    std::vector<std::string>
+                    GetShadersName() const;
+
     void            RegisteredUIHandle(const string& name, QOpenGLWidget* ui_handle);
     void            DeregisteredUIHandle(const string& name);
     QOpenGLWidget*  GetUISurfaceByName(const string& name);

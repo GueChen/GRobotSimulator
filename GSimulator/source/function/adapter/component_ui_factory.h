@@ -22,10 +22,6 @@
 namespace GComponent {
 
 class Component;
-class JointComponent;
-class JointGroupComponent;
-class TrackerComponent;
-class KinematicComponent;
 
 class ComponentUIFactory {
 public:

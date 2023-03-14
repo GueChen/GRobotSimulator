@@ -108,8 +108,7 @@ void RenderManager::SetGL(const shared_ptr<MyGL>& gl)
 // 渲染从该处开始，所有的 Draw call 由该部分完成
 /*__________________________tick Methods____________________________________________________*/
 void RenderManager::tick()
-{	
-	//InitializeIBLResource();
+{		
 	SetProjectViewMatrices ();
 	SetDirLightViewPosition();
 	// setting light matrices UBO
@@ -314,7 +313,6 @@ void RenderManager::InitializeIBLResource()
 
 	}
 
-	//resources.RegisteredTexture("skybox", environment_cubemap);
 	gl_->glBindTextureUnit(4, irradiance_cubemap);
 	gl_->glBindTextureUnit(5, prefilter_cubemap);
 	gl_->glBindTextureUnit(6, brdf_lut);
