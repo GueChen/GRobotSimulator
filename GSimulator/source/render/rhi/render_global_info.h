@@ -22,7 +22,7 @@ struct RenderViewport {
 struct SimpleDirLight {
 	glm::vec3 dir		= glm::vec3(0.0f);
 	glm::vec3 color		= glm::vec3(0.0f);
-
+	float	  intensity = 5.0f;
 	void Rotate(float radians, glm::vec3 axis) {
 		dir = glm::rotate(glm::mat4(1.0f), radians, axis) * glm::vec4(dir, 1.0f);
 	}

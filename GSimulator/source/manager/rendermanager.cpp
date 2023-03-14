@@ -161,6 +161,7 @@ void RenderManager::SetDirLightViewPosition()
 	
 	ambient_observer_UBO_->SetSubData(glm::value_ptr(m_render_sharing_msg.dir_light.dir),   0,										 sizeof glm::vec3);
 	ambient_observer_UBO_->SetSubData(glm::value_ptr(m_render_sharing_msg.dir_light.color), sizeof glm::vec4,						 sizeof glm::vec3);
+	ambient_observer_UBO_->SetSubData(&m_render_sharing_msg.dir_light.intensity,			sizeof glm::vec4 + sizeof glm::vec3,     sizeof(float));		
 	ambient_observer_UBO_->SetSubData(glm::value_ptr(m_render_sharing_msg.view_pos),		sizeof glm::vec4 * 2,					 sizeof glm::vec3);	
 	ambient_observer_UBO_->SetSubData(&m_render_sharing_msg.projection_info.near_plane,		sizeof glm::vec4 * 2 + sizeof glm::vec3, sizeof(float));
 	ambient_observer_UBO_->SetSubData(&m_render_sharing_msg.projection_info.far_plane,		sizeof glm::vec4 * 3,					 sizeof(float));
