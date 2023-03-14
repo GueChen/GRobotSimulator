@@ -9,7 +9,7 @@ uniform sampler2D equirectangular_map;
 const vec2 kInvActan = vec2(0.15991, 0.3183);
 
 vec2 SamplerShpericalMap(vec3 v){
-	vec2 uv = vec2(atan(v.z, v.x), asin(v.y));
+	vec2 uv = vec2(atan(v.y, v.x), -asin(v.z));
 	uv *= kInvActan;
 	uv += 0.5;
 	return uv;

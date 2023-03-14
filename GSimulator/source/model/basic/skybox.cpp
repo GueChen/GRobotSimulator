@@ -52,8 +52,9 @@ void SkyBox::CheckAndRegisteredResource()
     {
         ResourceManager::getInstance().RegisteredMesh(mesh_, new RenderMesh(SetupVertexData(), SetupTrangle(), {}));
     }
-    if (count == 0) {
-        ResourceManager::getInstance().RegisteredCubemap({ "skybox", Textures, "irradiance", &cube_texture_id_ });
+    if (count == 0 && ResourceManager::getInstance().GetTextureByName("skybox").id == 0) {
+
+        //ResourceManager::getInstance().RegisteredCubemap({ "skybox", Textures, "irradiance", &cube_texture_id_ });
     }
     RegisterComponent(std::make_unique<MaterialComponent>(this, "skybox", false));
     

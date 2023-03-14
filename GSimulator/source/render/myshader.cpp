@@ -92,8 +92,8 @@ void MyShader::SetGL(std::shared_ptr<MyGL> other)
             if (values[2] >= 0) {
                 ShaderProperty variable;
                 variable.name     = ShaderUniformNameProcess(name_buffer.get());
-                if (variable.name.find("shadow map") != std::string::npos) continue;
                 variable.type     = GetTypeName(values[1]);
+                if (variable.type.find("sampler") != std::string::npos) continue;
                 variable.location = values[2];
                 if (variable.type == "vec3" && 
                     variable.name.find("color") != std::string::npos) {

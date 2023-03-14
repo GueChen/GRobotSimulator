@@ -99,13 +99,19 @@ namespace GComponent {
 		}
 	}
 
+	void ResourceManager::RegisteredTexture(const std::string& name, unsigned int tex)
+	{
+		DeregisteredTexture(name);
+		texture_map_[name] = Texture{tex};
+	}
+
 	Texture ResourceManager::GetTextureByName(const string& name)
 	{
 		auto iter = texture_map_.find(name);
 		if (iter != texture_map_.end()) {
 			return iter->second;
 		}
-		return Texture{};
+		return Texture{0};
 	}
 
 	void ResourceManager::SetGL(const shared_ptr<MyGL>& gl)

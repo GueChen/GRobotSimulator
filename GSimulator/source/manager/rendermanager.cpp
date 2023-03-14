@@ -109,7 +109,7 @@ void RenderManager::SetGL(const shared_ptr<MyGL>& gl)
 /*__________________________tick Methods____________________________________________________*/
 void RenderManager::tick()
 {	
-	InitializeIBLResource();
+	//InitializeIBLResource();
 	SetProjectViewMatrices ();
 	SetDirLightViewPosition();
 	// setting light matrices UBO
@@ -177,7 +177,7 @@ void RenderManager::InitializeIBLResource()
 		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f),  glm::vec3(0.0f, -1.0f, 0.0f)),
 		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
 	};
-
+	
 	unsigned int hdr_env     = gl_->LoadTexture("./asset/textures/loft_newport/Newport_Loft_Ref.hdr", false);
 	unsigned int environment_cubemap = 0,
 				 irradiance_cubemap  = 0,
@@ -201,25 +201,17 @@ void RenderManager::InitializeIBLResource()
 	gl_->glEnable(GL_DEPTH_TEST);
 	gl_->glDepthFunc(GL_LEQUAL);
 	gl_->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	//FrameBufferObject fbo(ibl_width, ibl_height, FrameBufferObject::Cube, gl_);
-	/*auto render_cube = [&](int level = 0) {
-		for (uint32_t i = 0; i < 6; ++i) {
-			matrices_UBO_->SetSubData(&capture_views[i], sizeof glm::mat4, sizeof glm::mat4);
-			gl_->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, fbo.GetTextureID(), level);
-			gl_->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BITS);
-			sky_box_mesh->Draw();
-		}
-	};*/
 
 	{				
 		//FBOGuard gaurd(&fbo);
 		UBOGaurd ubo_gaurd(&matrices_UBO_.value());
 		matrices_UBO_->SetSubData(&capture_proj, 0, sizeof glm::mat4);
-		
+		int maxTextureSize;
+		gl_->glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
+		std::cout << maxTextureSize << std::endl;
 		uint32_t ibl_width = 1024, ibl_height = 1024;
-		uint32_t env_cubemap = 0;
-		gl_->glGenTextures(1, &env_cubemap);
-		gl_->glBindTexture(GL_TEXTURE_CUBE_MAP, env_cubemap);
+		gl_->glGenTextures(1, &environment_cubemap);
+		gl_->glBindTexture(GL_TEXTURE_CUBE_MAP, environment_cubemap);
 		for (uint32_t i = 0; i < 6; ++i) {
 			gl_->glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, ibl_width, ibl_height, 0, GL_RGB, GL_FLOAT, nullptr);
 		}
@@ -231,72 +223,101 @@ void RenderManager::InitializeIBLResource()
 		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		gl_->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, ibl_width, ibl_height);
 
+		MyShader* e2c_shader = resources.GetShaderByName("equirectangular2cube");
 		gl_->glBindTextureUnit(3, hdr_env);
 		gl_->glViewport(0, 0, ibl_width, ibl_height);
-		
-		MyShader* e2c_shader = resources.GetShaderByName("equirectangular2cube");
 		e2c_shader->use();
-		
 		for (uint32_t i = 0; i < 6; ++i) {
 			matrices_UBO_->SetSubData(&capture_views[i], sizeof glm::mat4, sizeof glm::mat4);
-			gl_->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, env_cubemap, 0);
-			gl_->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BITS);
+			gl_->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, environment_cubemap, 0);
+			gl_->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			sky_box_mesh->Draw();
+		}
+		
+		uint32_t irr_width = 128, irr_height = 128;
+		gl_->glGenTextures(1, &irradiance_cubemap);
+		gl_->glBindTexture(GL_TEXTURE_CUBE_MAP, irradiance_cubemap);
+		for (uint32_t i = 0; i < 6; ++i) {
+			gl_->glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, irr_width, irr_height, 0, GL_RGB, GL_FLOAT, nullptr);
+		}
+
+		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		gl_->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, irr_width, irr_height);
+
+		MyShader* irr_shader = resources.GetShaderByName("irr_conv");
+		gl_->glBindTextureUnit(3, environment_cubemap);
+		gl_->glViewport(0, 0, irr_width, irr_height);
+		irr_shader->use();
+		for (uint32_t i = 0; i < 6; ++i) {
+			matrices_UBO_->SetSubData(&capture_views[i], sizeof glm::mat4, sizeof glm::mat4);
+			gl_->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradiance_cubemap, 0);
+			gl_->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			sky_box_mesh->Draw();
 		}
 
-		gl_->glDeleteTextures(1, &env_cubemap);
-		gl_->glDeleteTextures(1, &hdr_env);
-		/*
-		
-		render_cube();
-		environment_cubemap = fbo.TakeTexture();
-
-		uint32_t irr_width = 32, irr_height = 32;
-		fbo.ReAllocateTexture(irr_width, irr_height, FrameBufferObject::Cube);
-
-		MyShader* irr_shader = resources.GetShaderByName("irr_conv");
-		irr_shader->use();
-		gl_->glBindTextureUnit(3, environment_cubemap);
-		gl_->glViewport(0, 0, irr_width, irr_height);
-		render_cube();
-		irradiance_cubemap = fbo.TakeTexture();
-
 		uint32_t pft_width = 128, pft_height = 128;
-		fbo.ReAllocateTexture(pft_width, pft_height, FrameBufferObject::CubeMipmap);
-
-		{
-			FBOTextureGuard tex_gaurd(&fbo);
-			gl_->glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+		gl_->glGenTextures(1, &prefilter_cubemap);
+		gl_->glBindTexture(GL_TEXTURE_CUBE_MAP, prefilter_cubemap);
+		for (uint32_t i = 0; i < 6; ++i) {
+			gl_->glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, pft_width, pft_height, 0, GL_RGB, GL_FLOAT, nullptr);
 		}
+		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		gl_->glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
 
 		MyShader* pft_shader = resources.GetShaderByName("pft_conv");
 		pft_shader->use();
 		uint32_t max_mipmap_levels = 5;
 		for (uint32_t level = 0; level < max_mipmap_levels; ++level) {
-			uint32_t mip_width  = pft_width  * pow(0.5, level);
+			uint32_t mip_width = pft_width * pow(0.5, level);
 			uint32_t mip_height = pft_height * pow(0.5, level);
-			fbo.AdjustRenderBufferStorage(mip_width, mip_height);
+			gl_->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mip_width, mip_height);
 			gl_->glViewport(0, 0, mip_width, mip_height);
 
 			float roughness = (float)level / (float)(max_mipmap_levels - 1);
 			pft_shader->setFloat("roughness", roughness);
-			render_cube(level);
+			for (uint32_t i = 0; i < 6; ++i) {
+				matrices_UBO_->SetSubData(&capture_views[i], sizeof glm::mat4, sizeof glm::mat4);
+				gl_->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilter_cubemap, level);
+				gl_->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				sky_box_mesh->Draw();
+			}
 		}
-		prefilter_cubemap = fbo.TakeTexture();
 
 		uint32_t brdf_width = 512, brdf_height = 512;
-		fbo.ReAllocateTexture(brdf_width, brdf_height, FrameBufferObject::Color);
+		gl_->glGenTextures(1, &brdf_lut);
+		gl_->glBindTexture(GL_TEXTURE_2D, brdf_lut);
+		gl_->glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, brdf_width, brdf_height, 0, GL_RG, GL_FLOAT, 0);
+
+		gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		gl_->glViewport(0, 0, brdf_width, brdf_height);
+		gl_->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, brdf_width, brdf_height);
+		gl_->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdf_lut, 0);
 
 		MyShader* brdf_shader = resources.GetShaderByName("brdf_lut");
 		brdf_shader->use();
 		gl_->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		quad_mesh->Draw();
-		brdf_lut = fbo.TakeTexture();*/
+
 	}
 
-	//gl_->glBindTextureUnit(4, irradiance_cubemap);
-	//gl_->glBindTextureUnit(5, prefilter_cubemap);
-	//gl_->glBindTextureUnit(6, brdf_lut);
+	//resources.RegisteredTexture("skybox", environment_cubemap);
+	gl_->glBindTextureUnit(4, irradiance_cubemap);
+	gl_->glBindTextureUnit(5, prefilter_cubemap);
+	gl_->glBindTextureUnit(6, brdf_lut);
+	gl_->glBindTextureUnit(7, environment_cubemap);
 	gl_->glDeleteFramebuffers(1,  &fbo);
 	gl_->glDeleteRenderbuffers(1, &rbo);
 	gl_->glDepthFunc(GL_LESS);

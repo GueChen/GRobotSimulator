@@ -77,7 +77,9 @@ public:
     void            RegisteredTexture(const TextureMsg& msg);
     void            RegisteredCubemap(const CubemapMsg& msg);
     void            DeregisteredTexture(const string& name);
+    void            RegisteredTexture(const std::string& name, unsigned int tex);
     Texture         GetTextureByName(const string& name);
+
 
     void            SetGL(const shared_ptr<MyGL>& gl);
 

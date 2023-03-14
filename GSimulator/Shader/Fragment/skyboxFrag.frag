@@ -2,7 +2,7 @@
 
 in vec3 tex_coords;
 
-uniform samplerCube cubemap_texture;
+layout(binding = 7)uniform samplerCube cubemap_texture;
 
 out vec4 FragColor;
 
@@ -10,7 +10,8 @@ out vec4 FragColor;
 
 void main()
 {
-	FragColor = texture(cubemap_texture, vec3(tex_coords.y, tex_coords.z, -tex_coords.x));
+	//FragColor = texture(cubemap_texture, vec3(tex_coords.y, tex_coords.z, -tex_coords.x));
+	FragColor = texture(cubemap_texture, vec3(tex_coords.x, tex_coords.y, tex_coords.z));
 //	float r		= length(tex_coords);
 //	float theta = (tex_coords.z / r + PI / 2.0f) / PI;
 //	
