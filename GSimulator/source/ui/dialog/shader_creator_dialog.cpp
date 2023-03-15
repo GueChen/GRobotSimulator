@@ -26,6 +26,8 @@ ShaderCreatorDialog::ShaderCreatorDialog(QWidget* parent):
 	ui_->fragment_shader->setAlignment(Qt::AlignHCenter);
 	ui_->geometry_shader->setAlignment(Qt::AlignHCenter);
 
+	ui_->list_box->hide();
+
 	connect(ui_->vertex_shader,   &ClickedEdit::Clicked, [this]() {
 		QString file_path = QFileDialog::getOpenFileName(this, "Select Vert File", "./Shader/Vertex", "Text files(*.vert)");
 		QFileInfo file(file_path);
