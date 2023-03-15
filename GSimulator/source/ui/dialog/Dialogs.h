@@ -1,0 +1,5 @@
+#include "ui/dialog/planningdialog.h"
+#include "ui/dialog/networkdialog.h"
+#include "ui/dialog/skindialog.h"
+#include "ui/dialog/robot_creator_dialog.h"
+#include "ui/dialog/shader_creator_dialog.h"

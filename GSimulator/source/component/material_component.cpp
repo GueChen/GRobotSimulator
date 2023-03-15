@@ -51,8 +51,13 @@ void GComponent::MaterialComponent::SetShader(const std::string& shader_name)
 
 void GComponent::MaterialComponent::SetShaderProperties()
 {
-	if (!shader_ptr_) SetShader(shader_);	
-	if (!shader_ptr_) return;
+	if (!shader_ptr_) SetShader(shader_);
+	shader_ptr_ = ResourceManager::getInstance().GetShaderByName(shader_);
+	if (!shader_ptr_) {
+		shader_ = "null";
+		properties_.clear();
+		return;
+	}
 	shader_ptr_->use();
 	for (auto&& var : properties_) {
 		if (var.name == "model") var.val = Conversion::fromMat4f(GetParent()->getModelMatrix());

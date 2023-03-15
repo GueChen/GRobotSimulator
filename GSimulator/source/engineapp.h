@@ -38,9 +38,10 @@ class Component;
 // UI Ralated Class
 class EditorTreeModel;
 class PlanningDialog;
-class RobotCreateDialog;
+class RobotCreatorDialog;
 class NetworkDialog;
 class SkinDialog;
+class ShaderCreatorDialog;
 }
 
 namespace GComponent {
@@ -71,6 +72,8 @@ protected:
 
 // FIXME: puts it into a proper position
 	void CreateRobotWithParams(const vector<vector<float>>& params);
+// FIXME: puts it into a proper position
+	void CreateShader(const QString& name, const QString& vert, const QString& frag, const QString& geom);
 
 private:
 	void ConnectModules();
@@ -81,17 +84,18 @@ signals:
 	void RequestCreateComponentUI(Component* component_ptr, const QString& com_name);
 
 private:
-	unique_ptr<QApplication>		gui_app_ptr_			 = nullptr;
-	_PtrWithDel<EditorTreeModel>	model_tree_				 = nullptr;
-	_PtrWithDel<MainWindow>			window_ptr_				 = nullptr;
-	_PtrWithDel<RobotCreateDialog>  robot_create_dialog_ptr_ = nullptr;
-	_PtrWithDel<PlanningDialog>		planning_dialog_ptr_	 = nullptr;
-	_PtrWithDel<NetworkDialog>		network_dialog_ptr_		 = nullptr;
-	_PtrWithDel<SkinDialog>         skin_dialog_ptr_		 = nullptr;
+	unique_ptr<QApplication>		gui_app_ptr_				= nullptr;
+	_PtrWithDel<EditorTreeModel>	model_tree_					= nullptr;
+	_PtrWithDel<MainWindow>			window_ptr_					= nullptr;
+	_PtrWithDel<RobotCreatorDialog>  robot_create_dialog_ptr_	= nullptr;
+	_PtrWithDel<PlanningDialog>		planning_dialog_ptr_		= nullptr;
+	_PtrWithDel<NetworkDialog>		network_dialog_ptr_			= nullptr;
+	_PtrWithDel<SkinDialog>         skin_dialog_ptr_			= nullptr;
+	_PtrWithDel<ShaderCreatorDialog>shader_creator_dialog_ptr_	= nullptr;
 	//unique_ptr<>
-	steady_clock::time_point		last_time_point_		 = steady_clock::now();
+	steady_clock::time_point		last_time_point_			= steady_clock::now();
 	std::unordered_map<QString, QThread*> 
-									threads_map_			 = {};
+									threads_map_				= {};
 };
 
 }

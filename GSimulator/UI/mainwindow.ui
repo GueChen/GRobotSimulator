@@ -813,7 +813,7 @@ QLineEdit[readOnly=&quot;true&quot;]{}
            <widget class="QComboBox" name="selected_combo">
             <property name="minimumSize">
              <size>
-              <width>100</width>
+              <width>113</width>
               <height>0</height>
              </size>
             </property>
@@ -928,8 +928,8 @@ font: 9pt &quot;Fixedsys&quot;;</string>
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>156</width>
-               <height>377</height>
+               <width>83</width>
+               <height>159</height>
               </rect>
              </property>
              <attribute name="label">
@@ -1035,72 +1035,6 @@ border-radius: 3px;
                   </widget>
                  </item>
                  <item row="2" column="0" colspan="2">
-                  <widget class="QLabel" name="shader_label">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>10</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>12</pointsize>
-                     <italic>false</italic>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">QLabel{
-	color:white;
-	font: 12pt &quot;Sitka&quot;;
-}
-</string>
-                   </property>
-                   <property name="text">
-                    <string> shader</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="0" colspan="2">
-                  <widget class="QLineEdit" name="shader_edit">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>25</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>1677215</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">QLineEdit{
-font:  9pt &quot;Cascadia Code&quot;;
-color: black;
-background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                 stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
-                                 stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);
-border: 1px solid gray;
-border-radius: 3px;
-}</string>
-                   </property>
-                   <property name="text">
-                    <string>NULL</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="0" colspan="2">
                   <widget class="QLabel" name="mesh_label">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1133,7 +1067,7 @@ border-radius: 3px;
                    </property>
                   </widget>
                  </item>
-                 <item row="5" column="0" colspan="2">
+                 <item row="3" column="0" colspan="2">
                   <widget class="QLineEdit" name="mesh_edit">
                    <property name="minimumSize">
                     <size>
@@ -1166,7 +1100,7 @@ border-radius: 3px;
                    </property>
                   </widget>
                  </item>
-                 <item row="6" column="0" colspan="2">
+                 <item row="4" column="0" colspan="2">
                   <widget class="QLabel" name="parent_label">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1199,7 +1133,7 @@ border-radius: 3px;
                    </property>
                   </widget>
                  </item>
-                 <item row="7" column="0" colspan="2">
+                 <item row="5" column="0" colspan="2">
                   <widget class="QLineEdit" name="parent_edit">
                    <property name="minimumSize">
                     <size>
@@ -1232,7 +1166,7 @@ border-radius: 3px;
                    </property>
                   </widget>
                  </item>
-                 <item row="8" column="0" colspan="2">
+                 <item row="6" column="0" colspan="2">
                   <spacer name="verticalSpacer_2">
                    <property name="orientation">
                     <enum>Qt::Vertical</enum>
@@ -2361,14 +2295,23 @@ QMenu::separator{
      </property>
      <addaction name="actionCamera"/>
     </widget>
-    <addaction name="cube_add_action"/>
-    <addaction name="sphere_add_action"/>
-    <addaction name="cylinder_add_action"/>
-    <addaction name="capsule_add_action"/>
+    <widget class="QMenu" name="menu3D_Object">
+     <property name="title">
+      <string>3D Object</string>
+     </property>
+     <addaction name="cube_add_action"/>
+     <addaction name="sphere_add_action"/>
+     <addaction name="cylinder_add_action"/>
+     <addaction name="capsule_add_action"/>
+     <addaction name="separator"/>
+     <addaction name="plane_add_action"/>
+     <addaction name="robot_add_action"/>
+    </widget>
     <addaction name="separator"/>
-    <addaction name="robot_add_action"/>
     <addaction name="separator"/>
     <addaction name="menuSensor"/>
+    <addaction name="menu3D_Object"/>
+    <addaction name="shader_add_action"/>
    </widget>
    <widget class="QMenu" name="menu_4">
     <property name="minimumSize">
@@ -2825,6 +2768,16 @@ QMenu::separator{
   <action name="skin_module_action">
    <property name="text">
     <string>Skin</string>
+   </property>
+  </action>
+  <action name="shader_add_action">
+   <property name="text">
+    <string>Shader</string>
+   </property>
+  </action>
+  <action name="plane_add_action">
+   <property name="text">
+    <string>Plane</string>
    </property>
   </action>
   <zorder>logger</zorder>

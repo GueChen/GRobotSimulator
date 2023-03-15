@@ -1,4 +1,4 @@
-#include "ui/dialog/robotcreatedialog.h"
+#include "ui/dialog/robot_creator_dialog.h"
 
 #include "ui_robotcreatedialog.h"
 
@@ -13,20 +13,20 @@
 #endif // _DEBUG
 
 namespace GComponent {
-RobotCreateDialog::RobotCreateDialog(QWidget* parent):
+RobotCreatorDialog::RobotCreatorDialog(QWidget* parent):
 	QDialog(parent),
 	ui_ptr_(new Ui::RobotCreateDialog)
 {
 	ui_ptr_->setupUi(this);		
 }
 
-RobotCreateDialog::~RobotCreateDialog()
+RobotCreatorDialog::~RobotCreatorDialog()
 {
 	delete ui_ptr_;
 }
 
 /*__________________________PRIVATE METHODS___________________________________________________*/
-void GComponent::RobotCreateDialog::ClearItem()
+void GComponent::RobotCreatorDialog::ClearItem()
 {
 	while (robot_joint_num_ > 0) 
 	{
@@ -34,7 +34,7 @@ void GComponent::RobotCreateDialog::ClearItem()
 	}	
 }
 
-void GComponent::RobotCreateDialog::AddItem()
+void GComponent::RobotCreatorDialog::AddItem()
 {
 	if (ui_ptr_->extensible_list->AddItem()) 
 	{
@@ -42,7 +42,7 @@ void GComponent::RobotCreateDialog::AddItem()
 	}
 }
 
-void GComponent::RobotCreateDialog::RemoveItem()
+void GComponent::RobotCreatorDialog::RemoveItem()
 {
 	if (ui_ptr_->extensible_list->RemoveItem()) 
 	{
@@ -51,17 +51,17 @@ void GComponent::RobotCreateDialog::RemoveItem()
 }
 
 /*__________________________PRIVATE SLOTS METHODS_____________________________________________*/
-void RobotCreateDialog::on_add_button_clicked()
+void RobotCreatorDialog::on_add_button_clicked()
 {	
 	AddItem();
 }
 
-void RobotCreateDialog::on_remove_button_clicked()
+void RobotCreatorDialog::on_remove_button_clicked()
 {
 	RemoveItem();
 }
 
-void RobotCreateDialog::on_ok_button_clicked()
+void RobotCreatorDialog::on_ok_button_clicked()
 {
 	auto line_edits = ui_ptr_->extensible_list->findChildren<QLineEdit*>();
 	const int parameter_num = 4;
@@ -97,7 +97,7 @@ void RobotCreateDialog::on_ok_button_clicked()
 	ClearItem();	
 }
 
-void RobotCreateDialog::on_cancel_button_clicked()
+void RobotCreatorDialog::on_cancel_button_clicked()
 {
 	ClearItem();
 }

@@ -695,16 +695,12 @@ QWidget* ComponentUIFactory::Create(Component& component)
 
 
 		add_property_ui(material_component, layout);
-		/*for (auto&& pro : material_component.GetProperties()) {
-			QLayout* new_layout = build_map[pro.type](pro.name, pro.val);
-			if (new_layout) {
-				layout->addLayout(new_layout);
-			}
-		}
-
-		layout->addItem(new QSpacerItem(20, 20, QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Expanding));*/
+		
 		widget->setLayout(layout);
 		widget->setSizePolicy(QSizePolicy::Policy::Ignored, QSizePolicy::Policy::Expanding);
+		component.RegisterDelFunction([widget](){
+			widget->disconnect();
+		});
 		return widget;
 	}
 	else {

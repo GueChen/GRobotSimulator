@@ -23,7 +23,7 @@ RenderManager::~RenderManager() = default;
 
 void RenderManager::InitFrameBuffer()
 {	
-	render_FBO_ = FrameBufferObject(m_render_sharing_msg.viewport.window_size.x,		// window width
+	render_FBO_ = FrameBufferObject(m_render_sharing_msg.viewport.window_size.x,// window width
 							 m_render_sharing_msg.viewport.window_size.y,		// window height
 							 FrameBufferObject::Color, gl_);	
 }
@@ -570,8 +570,10 @@ void RenderManager::PassSpecifiedListNormal(RenderList& list, std::function<Mode
 		Model*			obj		= ObjGetter(obj_name);
 		if (!obj || !mesh) continue;		
 		auto material = obj->GetComponent<MaterialComponent>(MaterialComponent::type_name.data());		
-		if (!material)	continue;
-		material->SetShaderProperties();						
+		if (!material || material->GetShader() == "null") {
+			continue;
+		}
+		material->SetShaderProperties();
 		mesh->Draw();	
 	}
 }

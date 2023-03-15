@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <functional>
 #include <memory>
+#include <string>
 
 using std::unique_ptr;
 using std::vector;
@@ -63,11 +64,12 @@ private slots:
 
 signals:
     void RequestDeleteComponent(const QString& component_name);
-    void RequestAddComponent(const QString& component_name);
-    void RequestShowDialog(const QString& dialog_name);
+    void RequestAddComponent   (const QString& component_name);
+    void RequestShowDialog     (const QString& dialog_name);
+    void CreateRequest         (const std::string& name);
+    void CreateRobotRequest    ();
 
 private:
-
     Ui::MainWindow*             ui_;
     QTimer*                     updated_timer_ptr_;
 

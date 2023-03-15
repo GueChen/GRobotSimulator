@@ -165,7 +165,7 @@ bool GComponent::Model::DeregisterComponent(const string& component_name)
     size_t size = components_ptrs_.size();
     std::erase_if(components_ptrs_, [&component_name](auto& com) {
         return com->GetTypeName() == component_name;
-    });     
+    });
     return size == components_ptrs_.size();
 }
 

@@ -15,12 +15,12 @@ namespace GComponent{
 
 using std::vector;
 
-class RobotCreateDialog : public QDialog
+class RobotCreatorDialog : public QDialog
 {
 	Q_OBJECT
 public:
-	explicit RobotCreateDialog(QWidget* parent = nullptr);
-	~RobotCreateDialog();
+	explicit RobotCreatorDialog(QWidget* parent = nullptr);
+	~RobotCreatorDialog();
 
 private:
 	void AddItem();

@@ -6,10 +6,7 @@
 #include "ui/widget/viewport.h"
 
 #include "ui/mainwindow.h"
-#include "ui/dialog/robotcreatedialog.h"
-#include "ui/dialog/planningdialog.h"
-#include "ui/dialog/networkdialog.h"
-#include "ui/dialog/skindialog.h"
+#include "ui/dialog/Dialogs.h"
 #include "base/editortreemodel.h"
 
 #include "component/component_factory.h"
@@ -27,7 +24,7 @@
 #include "component/material_component.h"
 
 #include <QtCore/QThread>
-
+#include <QtWidgets/QMessageBox>
 #include <unordered_map>
 
 #ifndef _DEBUG
@@ -35,7 +32,7 @@
 #include <format>
 #endif // !_DEBUG
 
-std::unordered_map<QString, QDialog*> dialog_table;
+static std::unordered_map<QString, QDialog*> dialog_table;
 
 GComponent::EngineApp& GComponent::EngineApp::getInstance()
 {
@@ -163,6 +160,15 @@ void GComponent::EngineApp::CreateRobotWithParams(const vector<vector<float>>& p
 	base->RegisterComponent(make_unique<TrackerComponent>(base, ""));
 }
 
+void GComponent::EngineApp::CreateShader(const QString& name, const QString& vert, const QString& frag, const QString& geom)
+{
+	if (ResourceManager::getInstance().GetShaderByName(name.toStdString())) {
+		QMessageBox::warning(nullptr, "same name find", "already exist same name Shader", QMessageBox::Ok);
+		return;
+	}
+	ResourceManager::getInstance().RegisteredShader(name.toStdString(), new MyShader(nullptr, vert.toStdString(), frag.toStdString(), geom.toStdString()));
+}
+
 /*_________________________________________PRIVATE METHODS______________________________________________________*/
 void GComponent::EngineApp::ConnectModules()
 {
@@ -198,7 +204,7 @@ void GComponent::EngineApp::ConnectModules()
     connect(treeview,						 &GLModelTreeView::CreateRequest,
             &ObjectManager::getInstance(),   &ObjectManager::CreateInstance);
 	connect(treeview,						 &GLModelTreeView::RobotCreateRequest,
-			robot_create_dialog_ptr_.get(),  &RobotCreateDialog::show);
+			robot_create_dialog_ptr_.get(),  &RobotCreatorDialog::show);
 
 	/* ADPATER CONNECTIONS */
 	/* UI_STATE  >> TREEVIEW */
@@ -228,7 +234,7 @@ void GComponent::EngineApp::ConnectModules()
 			});
 
 	/* robotcreatedialog >> ? */
-	connect(robot_create_dialog_ptr_.get(), &RobotCreateDialog::RobotCreateRequestMDH,
+	connect(robot_create_dialog_ptr_.get(), &RobotCreatorDialog::RobotCreateRequestMDH,
 			this,							&EngineApp::CreateRobotWithParams);
 	
 	/* close all window */
@@ -252,7 +258,7 @@ void GComponent::EngineApp::ConnectModules()
 		if (model) model->DeregisterComponent(com_name.toStdString() + "Component");		
 	});
 
-	connect(window_ptr_.get(), &MainWindow::RequestAddComponent,
+	connect(window_ptr_.get(),				&MainWindow::RequestAddComponent,
 		[window_ptr = window_ptr_.get(), ui_state_ptr](const QString& com_name) {
 			Model* model = ui_state_ptr->GetSelectedObject();
 			if (model) {
@@ -262,6 +268,11 @@ void GComponent::EngineApp::ConnectModules()
 				}
 			}
 	});
+
+	connect(window_ptr_.get(),				&MainWindow::CreateRequest,
+			&ObjectManager::getInstance(),  &ObjectManager::CreateInstance);
+	connect(window_ptr_.get(),				&MainWindow::CreateRobotRequest,
+			robot_create_dialog_ptr_.get(), &RobotCreatorDialog::show);
 
 	/* planning usage */
 	// JPTP
@@ -296,10 +307,10 @@ void GComponent::EngineApp::ConnectModules()
 			&TransmitSystem::getInstance(),		&TransmitSystem::ReceiveJointsAngle);
 
 	connect(planning_dialog_ptr_.get(),			&PlanningDialog::GetTargetOptimizer,
-			&PlanningSystem::getInstance(),			&PlanningSystem::SetTargetOptimizer);
+			&PlanningSystem::getInstance(),		&PlanningSystem::SetTargetOptimizer);
 
 	connect(planning_dialog_ptr_.get(),			&PlanningDialog::GetSelfMotionOptimizer,
-			&PlanningSystem::getInstance(),			&PlanningSystem::SetSelfMotionOptimier);
+			&PlanningSystem::getInstance(),		&PlanningSystem::SetSelfMotionOptimier);
 
 	
 
@@ -361,7 +372,12 @@ void GComponent::EngineApp::ConnectModules()
 			&SkinSystem::getInstance(),			&SkinSystem::SetSensorVector);
 	connect(skin_dialog_ptr_.get(),				&SkinDialog::SetSkinUsedMask,
 			&SkinSystem::getInstance(),			&SkinSystem::SetUsingMask);
+
+	connect(shader_creator_dialog_ptr_.get(), &ShaderCreatorDialog::ShaderCreateRequest,
+			this,							  &EngineApp::CreateShader);
 }
+
+
 
 void GComponent::EngineApp::InitializeMembers(int argc, char* argv[])
 {
@@ -374,25 +390,31 @@ void GComponent::EngineApp::InitializeMembers(int argc, char* argv[])
 	window_ptr_->setWindowIconText("机械臂规划仿真软件");
 	//window_ptr_->setWindowFlag(Qt::FramelessWindowHint);
 
-	robot_create_dialog_ptr_ = _PtrWithDel<RobotCreateDialog>(new RobotCreateDialog(window_ptr_.get()), deleter);
+	// create dialog ptr and register them to table
+#define PTR_CREATE(ptr_name, Type) \
+do{	\
+	ptr_name = _PtrWithDel<Type>(new Type(window_ptr_.get()), deleter); \
+	dialog_table.emplace(QString((#Type)), (ptr_name).get());\
+}while(false)
+
+	PTR_CREATE(robot_create_dialog_ptr_,	RobotCreatorDialog);	
+	PTR_CREATE(planning_dialog_ptr_,		PlanningDialog);	
+	PTR_CREATE(network_dialog_ptr_,			NetworkDialog);	
+	PTR_CREATE(skin_dialog_ptr_,			SkinDialog);	
+	PTR_CREATE(shader_creator_dialog_ptr_,	ShaderCreatorDialog);
+	
+#undef PTR_CREATE
+	
 	robot_create_dialog_ptr_->setWindowTitle("Create Ur Robot(*^_^*)");
-	dialog_table.emplace(QString("RobotCreatorDialog"), robot_create_dialog_ptr_.get());
-
-	planning_dialog_ptr_	 = _PtrWithDel<PlanningDialog>(new PlanningDialog(window_ptr_.get()), deleter);
-	planning_dialog_ptr_->setWindowTitle("Planning As ur Wish");
-	dialog_table.emplace(QString("PlanningDialog"), planning_dialog_ptr_.get());
-
-	network_dialog_ptr_ = _PtrWithDel<NetworkDialog>(new NetworkDialog(window_ptr_.get()), deleter);
-	network_dialog_ptr_->setWindowTitle("Link the World");
-	dialog_table.emplace(QString("NetworkDialog"), network_dialog_ptr_.get());
-
-	skin_dialog_ptr_ = _PtrWithDel<SkinDialog>(new SkinDialog(window_ptr_.get()), deleter);
-	skin_dialog_ptr_->setWindowTitle("Read sensor data");
-	dialog_table.emplace(QString("SkinDialog"), skin_dialog_ptr_.get());
+	planning_dialog_ptr_	->setWindowTitle("Planning As ur Wish");
+	network_dialog_ptr_		->setWindowTitle("Link the World");
+	skin_dialog_ptr_		->setWindowTitle("Read sensor data");
 
 	// model initialize	
 	model_tree_ = _PtrWithDel<EditorTreeModel>(new EditorTreeModel(""), deleter);
 }
+
+
 
 void GComponent::EngineApp::MoveSomeToThread()
 {

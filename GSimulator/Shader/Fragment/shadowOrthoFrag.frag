@@ -15,13 +15,15 @@ layout(std140, set = 0, binding = 1) uniform ambient_observer_parameter{
     vec3     viewpos;
 };
 
+layout(binding = 3) uniform sampler2DArray direct_light_shadow_map;
+
 out vec4 FragColor;
 
 #define Ambient 0.1
 #define Specular 0.70
 #define Diffuse 0.55
 
-uniform sampler2D   shadow_map;
+//uniform sampler2D   shadow_map;
 uniform vec3        color;
 
 vec3    CalcLight(DirLight light, vec3 norm, vec3 viewDir);
@@ -61,10 +63,10 @@ float ShadowCalculation(vec4 frag_pos_light_space, float bias)
     float current_depth = proj_coords.z;
 
     float shadow        = 0;    
-    vec2  texel_size     = 1.0 / textureSize(shadow_map, 0);
+    vec2  texel_size     = 1.0 / textureSize(direct_light_shadow_map, 0).xy;
     for(int x = -1; x <= 1; ++x)for(int y = - 1; y <= 1; ++y)
     {
-        float pcf_depth = texture(shadow_map, proj_coords.xy + vec2(x, y) * texel_size).r;
+        float pcf_depth = texture(direct_light_shadow_map, vec3(proj_coords.xy + vec2(x, y) * texel_size, 0)).r;
         shadow += current_depth - bias > pcf_depth ? 1.0 : 0.0;
     }
     

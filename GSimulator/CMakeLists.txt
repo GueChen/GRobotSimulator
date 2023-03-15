@@ -25,7 +25,10 @@ file(GLOB_RECURSE SOURCE_FILES "source/*.cpp" "source/*.c")
 file(GLOB_RECURSE UI_FILES "UI/*.ui")
 file(GLOB_RECURSE QRC_FILES "resource/*.qrc")
 
-set(UI_DIR "${CMAKE_CURRENT_SOURCE_DIR}/UI")
+#____________________ Keep File Path Structrue ________________________________________
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${HEADER_FILES} ${SOURCE_FILES} ${UI_FILES} ${QRC_FILES})
+
+#___________________ Aditional Auto UIC Path Setting __________________________________
 set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_AUTOUIC_SEARCH_PATHS} 
 	"${CMAKE_CURRENT_SOURCE_DIR}/UI"
 	"${CMAKE_CURRENT_SOURCE_DIR}/UI/Dialog"
@@ -58,7 +61,6 @@ find_library(PHYSX_STATIC_PVD PhysXPvdSDK_static_64     PATHS ${VCPKG_STATIC_LIB
 #___________________ Display _____________________________________________________________
 message("UI files	 = ${UI_FILES}")
 message("Qt6 dir	 = ${Qt6_DIR}")
-message("UI dir		 = ${UI_DIR}")
 message("HEADER_FILES = ${HEADER_FILES}")
 message("CMAKE_CUURENT_SOURCE_DIR = ${CMAKE_CURRENT_SOURCE_DIR}")
 #

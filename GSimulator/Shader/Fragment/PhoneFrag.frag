@@ -9,15 +9,20 @@ out vec4 FragColor;
 struct DirLight{
   vec3 dir;
   vec3 color;
+  float intensity;
 };
 
 #define Ambient 0.2
 #define Specular 0.8
 #define Diffuse 0.5
 
-uniform DirLight light;
+layout(std140, set = 0, binding = 1) uniform ambient_observer_parameter{
+    DirLight light;
+    vec3     viewpos;    
+    float    near_plane;
+    float    far_plane;
+};
 
-uniform vec3 viewPos;
 
 vec3 CalcLight(DirLight light, vec3 norm, vec3 viewDir);
 
@@ -25,7 +30,7 @@ void main(void)
 {
     vec3 result = vec3(0.0f);
     vec3 norm = normalize(Norm);
-    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 viewDir = normalize(viewpos - FragPos);
 
     result += CalcLight(light, norm, viewDir);
 

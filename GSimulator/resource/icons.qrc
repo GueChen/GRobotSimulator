@@ -4,6 +4,9 @@
     <file>leftarrow.png</file>
     <file>rightarrow.png</file>
   </qresource>
+  <qresource prefix="qss">
+    <file alias="edit">selectable_edit.qss</file>
+  </qresource>
   <qresource prefix="16x16">
     <file>downarrow16x16.png</file>
     <file>uparrow16x16 .png</file>

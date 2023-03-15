@@ -141,14 +141,29 @@ namespace GComponent {
 	void ResourceManager::tick(const shared_ptr<MyGL>& gl)
 	{
 		gl_ = gl;
+		
+		// setting gl context to mesh resource
 		for (auto& mesh_not_set : mesh_require_gl_) {
 			mesh_map_[mesh_not_set]->SetGL(gl);
 		}
 		mesh_require_gl_.clear();
+
+		// setting gl context to shader resources
+		std::list<std::string> failed_link_shader;
 		for (auto& shader_not_set : shader_require_gl_) {
 			shader_map_[shader_not_set]->SetGL(gl);
+			if (!shader_map_[shader_not_set]->isLinked()) {
+				std::cout << shader_not_set + " shader link failed\n";
+				failed_link_shader.push_back(shader_not_set);
+			}
+		}
+		// cleaning the failed register shader
+		for (auto& shader_failed : failed_link_shader) {
+			shader_map_.erase(shader_failed);
 		}
 		shader_require_gl_.clear();
+
+		// register gl contex for texture
 		for (auto& [name, path, type, handle] : texture_require_gl_) {
 			Texture texture;
 			texture.id   =  gl_->LoadTexture(path.data());
@@ -157,8 +172,10 @@ namespace GComponent {
 			if (texture.id) {
 				texture_map_.emplace(name, texture);
 			}
-		}
+		}		
 		texture_require_gl_.clear();
+
+		// register gl contex for cubemap
 		for (auto& [name, paths, type, handle] : cubemap_require_gl_) {
 			Texture cubemap_texture;
 			cubemap_texture.id = gl_->LoadCubemap(paths);

@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui_->componentstoolbox->setContextMenuPolicy(Qt::CustomContextMenu);
     component_menu_->setStyleSheet(menu_qss.data());
     ConnectionInit();   
+    
 }
 
 MainWindow::~MainWindow()
@@ -131,8 +132,38 @@ void MainWindow::ConnectionInit()
         emit RequestShowDialog("SkinDialog");
     });
 
+    connect(ui_->shader_add_action,                       &QAction::triggered, [this](){
+        emit RequestShowDialog("ShaderCreatorDialog");
+    });
+
+    connect(ui_->cube_add_action,                         &QAction::triggered, [this]() {
+        emit CreateRequest("cube");
+    });
+    
+    connect(ui_->sphere_add_action,                       &QAction::triggered, [this]() {
+        emit CreateRequest("sphere");
+    });
+
+    connect(ui_->cylinder_add_action,                     &QAction::triggered, [this]() {
+        emit CreateRequest("cylinder");
+    });
+
+    connect(ui_->capsule_add_action,                      &QAction::triggered, [this]() {
+        emit CreateRequest("capsule");
+    });
+
+    connect(ui_->plane_add_action,                        &QAction::triggered, [this]() {
+        emit CreateRequest("plane");
+    });
+    
+    connect(ui_->robot_add_action,                        &QAction::triggered, [this](){
+        emit CreateRobotRequest();
+    });
+
     connect(ui_->quit_action,                             &QAction::triggered,
             this,                                         &MainWindow::close);
+
+
 }
 
 
@@ -171,23 +202,24 @@ void MainWindow::CheckSelected()
         while (ui_->componentstoolbox->count() > 2) {
             QWidget* w = ui_->componentstoolbox->widget(2);
             ui_->componentstoolbox->removeItem(2);
-            delete w;
+            w->deleteLater();
         }
     }
 
     if (!selected_obj_ptr) {
-        if (last_ptr != selected_obj_ptr) {            
-            for (QString text = "NULL"; auto& edit : ui_->component_observer->findChildren<QLineEdit*>()) {
-                edit->setText(text);
-            }
+        if (last_ptr != selected_obj_ptr) {
+            for (int i = 0; i < 2; ++i) {
+                for (QString text = "NULL"; auto & edit : ui_->componentstoolbox->widget(i)->findChildren<QLineEdit*>()) {
+                    edit->setText(text);
+                }
+            }            
         }
     }
     else {
         // Setting Properties
         Model* parent_ptr = selected_obj_ptr->getParent();
         ui_->name_edit->setText(QString::fromStdString(selected_obj_ptr->getName()));
-        ui_->mesh_edit->setText(QString::fromStdString(selected_obj_ptr->getMesh()));
-        //ui_->shader_edit->setText(QString::fromStdString(selected_obj_ptr->getShader()));
+        ui_->mesh_edit->setText(QString::fromStdString(selected_obj_ptr->getMesh()));       
         ui_->parent_edit->setText(QString::fromStdString(parent_ptr ? parent_ptr->getName() : "None"));
 
         // Setting Transforms

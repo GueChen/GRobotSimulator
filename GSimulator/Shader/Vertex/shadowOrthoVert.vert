@@ -13,8 +13,11 @@ layout(std140, set = 0, binding = 0) uniform Matrices{
     mat4 projection;
     mat4 view;
 };
-layout(std140, set = 0, binding = 2) uniform light_sapce_parameter{
-	mat4 light_space_matrices[16];
+
+layout(std140, set = 0, binding = 2) uniform light_space_parameter{
+    mat4         light_space_matrices[16];
+    float        cascade_plane[16];
+    int          csm_levels;
 };
 
 uniform mat4 model;
