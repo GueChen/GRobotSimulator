@@ -11,11 +11,17 @@ namespace GComponent {
 
 	}
 
+	ResourceManager& ResourceManager::getInstance()
+	{
+		static ResourceManager instance;
+		return instance;
+	}
+
 	ResourceManager::~ResourceManager() = default;
 
 	void ResourceManager::EnablePickingMode()
 	{
-		shader_map_.emplace("picking", std::make_unique<MyShader>(this, PathVert(picking), PathFrag(picking)));
+		shader_map_.emplace("picking", std::make_unique<MyShader>(nullptr, PathVert(picking), PathFrag(picking)));
 	}
 
 	void ResourceManager::RegisteredMesh(const string& name, RenderMesh* raw_ptr_mesh) 
@@ -66,8 +72,8 @@ namespace GComponent {
 
 		draw_ui_map_.emplace(name, ui_handle);
 
-		QTimer* timer = new QTimer(this);
-		connect(timer, &QTimer::timeout, [ui_handle]() {ui_handle->update(); });
+		QTimer* timer = new QTimer;
+		QObject::connect(timer, &QTimer::timeout, [ui_handle]() {ui_handle->update(); });
 		timer->start(5);
 		ui_update_timer_map_.emplace(name, unique_ptr<QTimer>(timer));
 	}
@@ -128,33 +134,21 @@ namespace GComponent {
 	void ResourceManager::SetGL(const shared_ptr<MyGL>& gl)
 	{
 		gl_ = gl;
-		for (auto& [name, mesh] : mesh_map_) {
-			mesh->SetGL(gl);
-		}
-		for (auto& [name, shader] : shader_map_) {			
-			shader->SetGL(gl);			
-		}
-		mesh_require_gl_.clear();
-		shader_require_gl_.clear();
-	}
-
-	void ResourceManager::tick(const shared_ptr<MyGL>& gl)
-	{
-		gl_ = gl;
-		
 		// setting gl context to mesh resource
 		for (auto& mesh_not_set : mesh_require_gl_) {
 			mesh_map_[mesh_not_set]->SetGL(gl);
 		}
 		mesh_require_gl_.clear();
 
-		// setting gl context to shader resources
 		std::list<std::string> failed_link_shader;
 		for (auto& shader_not_set : shader_require_gl_) {
 			shader_map_[shader_not_set]->SetGL(gl);
 			if (!shader_map_[shader_not_set]->isLinked()) {
 				std::cout << shader_not_set + " shader link failed\n";
 				failed_link_shader.push_back(shader_not_set);
+			}
+			else {
+				emit ShaderRegistered(shader_not_set);
 			}
 		}
 		// cleaning the failed register shader
@@ -166,13 +160,13 @@ namespace GComponent {
 		// register gl contex for texture
 		for (auto& [name, path, type, handle] : texture_require_gl_) {
 			Texture texture;
-			texture.id   =  gl_->LoadTexture(path.data());
+			texture.id = gl_->LoadTexture(path.data());
 			texture.type = type;
 			if (handle) *handle = texture.id;
 			if (texture.id) {
 				texture_map_.emplace(name, texture);
 			}
-		}		
+		}
 		texture_require_gl_.clear();
 
 		// register gl contex for cubemap
@@ -186,5 +180,10 @@ namespace GComponent {
 			}
 		}
 		cubemap_require_gl_.clear();
+	}
+
+	void ResourceManager::tick(const shared_ptr<MyGL>& gl)
+	{
+		SetGL(gl);
 	}
 }

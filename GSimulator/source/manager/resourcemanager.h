@@ -51,12 +51,14 @@ struct CubemapMsg {
     unsigned*               handle = nullptr;
 };
 
-class ResourceManager : public SingletonBase<ResourceManager>, public QObject
+class ResourceManager : public QObject
 {
-    friend class SingletonBase<ResourceManager>;
+    Q_OBJECT
+
     NonCopyable(ResourceManager)
 
 public:
+    static ResourceManager& getInstance();
     ~ResourceManager();
 
     void EnablePickingMode();
@@ -92,6 +94,9 @@ protected:
     requires std::_Is_specialization_v<_Map, unordered_map> &&  std::same_as<typename _Map::key_type, string>
     void            DeregisteredSpecificMapElement(_Map& map, const string& name);
 
+signals:
+    void            ShaderRegistered  (const std::string& name);
+    void            ShaderDeregistered(const std::string& name);
 
 /// Fields 数据域
 private:

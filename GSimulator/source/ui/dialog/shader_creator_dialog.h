@@ -29,6 +29,14 @@ public:
 	explicit ShaderCreatorDialog(QWidget* parent = nullptr);
 	~ShaderCreatorDialog();
 
+	void SetShaderList(const QStringList& shaders);
+	
+	void AddShaders	  (const QStringList& shaders);
+	void AddShader	  (const QString& shader);
+
+	void RemoveShader (const QString& shader);
+	void ClearItems   ();
+
 signals:
 	void ShaderCreateRequest(const QString& name, const QString& vert, const QString& frag, const QString& geom);
 

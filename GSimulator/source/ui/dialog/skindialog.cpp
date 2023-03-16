@@ -13,6 +13,8 @@ SkinDialog::SkinDialog(QWidget* parent) :
 
 {
     skin_ui->setupUi(this);
+
+    
     InitChart();
     Connection();
 }

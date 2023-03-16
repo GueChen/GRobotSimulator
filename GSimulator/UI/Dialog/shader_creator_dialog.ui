@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>558</width>
-    <height>282</height>
+    <width>388</width>
+    <height>250</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,57 +25,56 @@
 	background-color: rgb(35, 35, 35);
 }</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
+  <layout class="QHBoxLayout" name="horizontalLayout_6">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_7">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <property name="spacing">
+      <number>9</number>
+     </property>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_6">
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_4">
-           <item>
-            <widget class="QLabel" name="name_label">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>65</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">QLabel{
+        <widget class="QLabel" name="name_label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>65</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QLabel{
 	color:white;
 	font: 12pt &quot;Sitka&quot;;
 }
 </string>
-             </property>
-             <property name="text">
-              <string>Name</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="shader_name">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">QLineEdit{
+         </property>
+         <property name="text">
+          <string>Name</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="shader_name">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>180</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QLineEdit{
     font:  9pt &quot;Cascadia Code&quot;;
     color: black;
     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
@@ -88,67 +87,67 @@
 QLineEdit::PlaceHolder{
 	color: grey;
 }</string>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="readOnly">
-              <bool>false</bool>
-             </property>
-             <property name="placeholderText">
-              <string>输入 Shader 名称</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout">
-           <item>
-            <widget class="QLabel" name="vertex_label">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>65</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">QLabel{
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="readOnly">
+          <bool>false</bool>
+         </property>
+         <property name="placeholderText">
+          <string>输入 Shader 名称</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="vertex_label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>65</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QLabel{
 	color:white;
 	font: 12pt &quot;Sitka&quot;;
 }
 </string>
-             </property>
-             <property name="text">
-              <string>Vertex</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="ClickedEdit" name="vertex_shader" native="true">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">QLineEdit{
+         </property>
+         <property name="text">
+          <string>Vertex</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="ClickedEdit" name="vertex_shader" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>180</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QLineEdit{
     font:  9pt &quot;Cascadia Code&quot;;
     color: black;
     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
@@ -166,254 +165,134 @@ QLineEdit::hover{
     border: 2px solid #dfdfdf;
     border-radius: 3px;
 }</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
-            <widget class="QLabel" name="fragment_label">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>65</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">QLabel{
-	color:white;
-	font: 12pt &quot;Sitka&quot;;
-}
-</string>
-             </property>
-             <property name="text">
-              <string>Fragment</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="ClickedEdit" name="fragment_shader" native="true">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>25</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_3">
-           <item>
-            <widget class="QLabel" name="geometry_label">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>65</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">QLabel{
-	color:white;
-	font: 12pt &quot;Sitka&quot;;
-}
-</string>
-             </property>
-             <property name="text">
-              <string>Geometry</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="ClickedEdit" name="geometry_shader" native="true">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>25</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QPushButton" name="list_show_button">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>10</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string/>
          </property>
         </widget>
        </item>
       </layout>
      </item>
      <item>
-      <widget class="QGroupBox" name="list_box">
-       <property name="title">
-        <string/>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <widget class="QLabel" name="shader_lists_label">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>65</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QLabel{
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLabel" name="fragment_label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>65</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QLabel{
 	color:white;
 	font: 12pt &quot;Sitka&quot;;
 }
 </string>
-          </property>
-          <property name="text">
-           <string>Shader List</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QListWidget" name="shader_lists"/>
-        </item>
-       </layout>
-      </widget>
+         </property>
+         <property name="text">
+          <string>Fragment</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="ClickedEdit" name="fragment_shader" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>180</width>
+           <height>25</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_5">
      <item>
-      <widget class="QPushButton" name="generate_button">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>70</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QPushButton{
-border: 1px solid white;
-border-radius:4px;
-border-bottom: 2px solid gray;
-border-right: 2px solid gray;
-background-color: 
-qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, 
-			stop:0     rgba(100, 100, 100, 255),
-			stop:0.35 rgba(20, 20, 20, 255), 
-			stop:0.65 rgba(25, 25, 25, 255),
-			stop:1 	  rgba(35, 35, 65, 255));
-color: 
-qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1,
- stop:0 rgba(175, 175, 200, 255), 
- stop:1 rgba(220, 220, 255, 255));
-}
-QPushButton::hover{
-background-color: 
-qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, 
-			stop:0     rgba(120, 120, 120, 255),
-			stop:0.35 rgba(40, 40, 40, 255), 
-			stop:0.65 rgba(45, 45, 45, 255),
-			stop:1 	  rgba(55, 55, 85, 255));
-color: 
-qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1,
- stop:0 rgba(200, 200, 240, 255), 
- stop:1 rgba(235, 245, 255, 255));
-border: 1px solid rgb(200, 245, 255);
-border-radius:4px;
-border-bottom: 1px solid rgb(175, 220, 230);
-border-right: 1px solid rgb(175, 220, 230);
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QLabel" name="geometry_label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>65</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QLabel{
+	color:white;
+	font: 12pt &quot;Sitka&quot;;
 }
 </string>
-       </property>
-       <property name="text">
-        <string>Generate</string>
-       </property>
-      </widget>
+         </property>
+         <property name="text">
+          <string>Geometry</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="ClickedEdit" name="geometry_shader" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>180</width>
+           <height>25</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
-      <spacer name="horizontalSpacer">
+      <spacer name="verticalSpacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Vertical</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
-         <height>20</height>
+         <width>20</width>
+         <height>40</height>
         </size>
        </property>
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="cancel_button">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>70</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QPushButton{
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QPushButton" name="generate_button">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton{
 border: 1px solid white;
 border-radius:4px;
 border-bottom: 2px solid gray;
@@ -446,13 +325,194 @@ border-bottom: 1px solid rgb(175, 220, 230);
 border-right: 1px solid rgb(175, 220, 230);
 }
 </string>
-       </property>
-       <property name="text">
-        <string>Cancel</string>
-       </property>
-      </widget>
+         </property>
+         <property name="text">
+          <string>Generate</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="cancel_button">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton{
+border: 1px solid white;
+border-radius:4px;
+border-bottom: 2px solid gray;
+border-right: 2px solid gray;
+background-color: 
+qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, 
+			stop:0     rgba(100, 100, 100, 255),
+			stop:0.35 rgba(20, 20, 20, 255), 
+			stop:0.65 rgba(25, 25, 25, 255),
+			stop:1 	  rgba(35, 35, 65, 255));
+color: 
+qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1,
+ stop:0 rgba(175, 175, 200, 255), 
+ stop:1 rgba(220, 220, 255, 255));
+}
+QPushButton::hover{
+background-color: 
+qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, 
+			stop:0     rgba(120, 120, 120, 255),
+			stop:0.35 rgba(40, 40, 40, 255), 
+			stop:0.65 rgba(45, 45, 45, 255),
+			stop:1 	  rgba(55, 55, 85, 255));
+color: 
+qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1,
+ stop:0 rgba(200, 200, 240, 255), 
+ stop:1 rgba(235, 245, 255, 255));
+border: 1px solid rgb(200, 245, 255);
+border-radius:4px;
+border-bottom: 1px solid rgb(175, 220, 230);
+border-right: 1px solid rgb(175, 220, 230);
+}
+</string>
+         </property>
+         <property name="text">
+          <string>Cancel</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QPushButton" name="list_show_button">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>10</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton{
+	background-color: rgba(255, 255, 255, 0);
+}
+
+QPushButton:hover{
+	background-color: rgba(155, 155, 155, 100);
+}</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="list_box">
+     <property name="title">
+      <string/>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="shader_lists_label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>65</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel{
+	color:white;
+	font: 12pt &quot;Sitka&quot;;
+}
+</string>
+        </property>
+        <property name="text">
+         <string>Shader List</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QListWidget" name="shader_lists">
+        <property name="styleSheet">
+         <string notr="true">QListView{	
+	border-style: dot-dot-dash;
+	border-width: 1px;
+	border-radius: 5px;
+	border-color: white;
+	
+	font: 9pt &quot;Cascadia Code&quot;;
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, 
+		stop:0 		rgba(0, 0, 0, 255), 
+		stop:0.5 	rgba(25, 25, 25, 255),
+		stop:0.7    rgba(30, 30, 30, 255),
+	    stop:1 		rgba(55, 55, 55, 255));
+}
+
+QListView::item{
+	font: 9pt &quot;微软雅黑&quot;;
+	color: rgb(220, 220, 255);
+}
+
+QListView::item::hover{
+
+	font: 9pt &quot;微软雅黑&quot;;
+	background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, 
+			stop:1 #333377, 
+			stop: 0 #995599);
+	color: rgb(220, 220, 255);
+}
+
+QListView::item::selected {
+	background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop:0 #559977, stop: 1 #224455);
+	color: rgb(255, 230, 20);
+}
+
+QListView::item:selected:active{
+	font: bold 12pt &quot;微软雅黑&quot;;
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #6ea1f1, stop: 1 #567dbc);
+}</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
   </layout>
  </widget>

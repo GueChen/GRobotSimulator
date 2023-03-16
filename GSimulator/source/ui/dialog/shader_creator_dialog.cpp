@@ -27,7 +27,7 @@ ShaderCreatorDialog::ShaderCreatorDialog(QWidget* parent):
 	ui_->geometry_shader->setAlignment(Qt::AlignHCenter);
 
 	ui_->list_box->hide();
-
+	
 	connect(ui_->vertex_shader,   &ClickedEdit::Clicked, [this]() {
 		QString file_path = QFileDialog::getOpenFileName(this, "Select Vert File", "./Shader/Vertex", "Text files(*.vert)");
 		QFileInfo file(file_path);
@@ -56,6 +56,15 @@ ShaderCreatorDialog::ShaderCreatorDialog(QWidget* parent):
 		emit ShaderCreateRequest(ui_->shader_name->text(), path_.vert_path, path_.frag_path, path_.geom_path);
 	});
 
+	connect(ui_->list_show_button, &QPushButton::clicked, [this]() {
+		bool hidden_flag = ui_->list_box->isHidden();
+		ui_->list_box->setHidden(!hidden_flag);
+		const QRect& rect = geometry();
+		setGeometry(rect.x(), rect.y(), rect.width() + hidden_flag ? 300 :0, rect.height());
+		adjustSize();						
+
+	});
+
 	connect(this, &ShaderCreatorDialog::finished, [this](int) { 
 		path_ = {};
 		ui_->vertex_shader  ->clear();
@@ -67,5 +76,34 @@ ShaderCreatorDialog::ShaderCreatorDialog(QWidget* parent):
 
 ShaderCreatorDialog::~ShaderCreatorDialog() = default;
 
+void ShaderCreatorDialog::SetShaderList(const QStringList& shaders)
+{
+	ClearItems();
+	ui_->shader_lists->addItems(shaders);
+}
+
+void ShaderCreatorDialog::AddShaders(const QStringList& shaders)
+{
+	ui_->shader_lists->addItems(shaders);
+}
+
+void ShaderCreatorDialog::AddShader(const QString& shader)
+{
+	ui_->shader_lists->addItem(shader);
+}
+
+void ShaderCreatorDialog::RemoveShader(const QString& shader)
+{
+	QListWidget* list_widget = ui_->shader_lists;
+	auto items = list_widget->findItems(shader, Qt::MatchExactly);
+	for (auto&& item : items) {
+		list_widget->removeItemWidget(item);
+	}
+}
+
+void ShaderCreatorDialog::ClearItems()
+{
+	ui_->shader_lists->clear();
+}
 
 }

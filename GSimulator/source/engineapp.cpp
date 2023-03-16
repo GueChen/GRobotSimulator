@@ -375,6 +375,11 @@ void GComponent::EngineApp::ConnectModules()
 
 	connect(shader_creator_dialog_ptr_.get(), &ShaderCreatorDialog::ShaderCreateRequest,
 			this,							  &EngineApp::CreateShader);
+
+	connect(&ResourceManager::getInstance(), &ResourceManager::ShaderRegistered,
+		[dialog = shader_creator_dialog_ptr_.get()](const std::string& name){
+		dialog->AddShader(QString::fromStdString(name));
+	});
 }
 
 
