@@ -18,11 +18,17 @@ public:
     QAction*    m_copy_component_actoin;
     QAction*    m_paste_component_action;
     QAction*    m_properties_action;
+    
     QMenu*      m_add_component_menu;
     QAction*    m_add_joint_component;
     QAction*    m_add_joint_group_component;
     QAction*    m_add_kinematic_component;
     QAction*    m_add_tracker_component;
+    
+    QMenu*      m_edit_menu;
+    QAction*    m_morph_into_convex_decompositions;
+    QAction*    m_morph_into_convex_hull;
+
 };
 
 } // !namespace GComponent

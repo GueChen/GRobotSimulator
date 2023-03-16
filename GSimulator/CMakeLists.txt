@@ -47,9 +47,13 @@ find_package(Qt6 COMPONENTS				# QT Dependencies
 	Network
 	REQUIRED
 )
+
+# vcpkg Supply Packages
 find_package(Stb REQUIRED)				# Stb
 find_package(tinyobjloader REQUIRED)	# tinyobjloader
 find_package(glad REQUIRED)				# sky box design problems
+
+# physx lib
 find_library(PHYSX_FOUNDATION PhysxFoundation_64  PATHS ${VCPKG_DYNAMIC_LIB})
 find_library(PHYSX_COMMON     PhysXCommon_64	  PATHS ${VCPKG_DYNAMIC_LIB})
 find_library(PHYSX_COOKING	  PhysXCooking_64     PATHS ${VCPKG_DYNAMIC_LIB})
@@ -101,6 +105,7 @@ target_include_directories(
 #___________________ Linking Libraries ______________________
 target_link_libraries(${TARGET_NAME} PUBLIC 
 	common_lib
+	vhacd_lib
 	GComponentQtPlugins
 	Qt6::Core
 	Qt6::Widgets

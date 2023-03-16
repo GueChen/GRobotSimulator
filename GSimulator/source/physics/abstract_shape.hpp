@@ -8,6 +8,7 @@
 #define __ABSTRACT_SHAPE_HPP
 
 #include "physics/physics_datastructure.hpp"
+#include "render/rendering_datastructure.hpp"
 
 #include <Eigen/Dense>
 #include <vector>
@@ -90,9 +91,7 @@ public:
 		int second;
 	};
 	struct Facelet {
-		int first;
-		int second;
-		int third;
+		
 	};
 
 	ConvexShape() {
@@ -101,9 +100,8 @@ public:
 	}
 public:
 	
-	std::vector<Eigen::Vector3f> m_vertices;
-	std::vector<Line>			 m_lines;
-	std::vector<Facelet>	     m_faces;
+	std::vector<Eigen::Vector3f> m_positions;	
+	std::vector<Triangle>	     m_faces;
 	static const ShapeEnum		 m_type_enum = ShapeEnum::ConvexHull;
 };
 
