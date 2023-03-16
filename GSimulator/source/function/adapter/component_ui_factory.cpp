@@ -701,6 +701,9 @@ QWidget* ComponentUIFactory::Create(Component& component)
 		component.RegisterDelFunction([widget](){
 			widget->disconnect();
 		});
+		QObject::connect(widget, &QWidget::destroyed, [&component]() {
+			component.DeregisterDelFunction();
+		});
 		return widget;
 	}
 	else {

@@ -235,7 +235,7 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> GComponent::ModelLoader::
             pos.y = attrib.vertices[3 * index.vertex_index + 1];
             pos.z = attrib.vertices[3 * index.vertex_index + 2];
             /* Process Normal */
-            if (attrib.normals.size() >= 0)
+            if (attrib.normals.size() > 0)
             {
                 norm.x = attrib.normals[3 * index.normal_index + 0];
                 norm.y = attrib.normals[3 * index.normal_index + 1];
@@ -246,7 +246,7 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> GComponent::ModelLoader::
                 norm.x = norm.y = norm.z = 0.0f;
             }
             /* Process Texcoord UV */
-            if (attrib.texcoords.size() >= 0)
+            if (attrib.texcoords.size() > 0)
             {
                 coord.x = attrib.texcoords[2 * index.texcoord_index + 0];
                 coord.y = attrib.texcoords[2 * index.texcoord_index + 1];
