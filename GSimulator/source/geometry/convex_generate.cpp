@@ -21,14 +21,10 @@ virtual void Update(const double overallProgress,
 					const double stageProgress, 
 					const char* const stage, 
 					const char* operation) override {
-	std::string stage_progress_bar(20, '-');
-	std::fill(stage_progress_bar.begin(), std::next(stage_progress_bar.begin(), static_cast<int>(20 * stageProgress)), '>');
-	std::string overall_progress_bar(20, '-');
-	std::fill(stage_progress_bar.begin(), std::next(stage_progress_bar.begin(), static_cast<int>(20 * overallProgress)), '>');
-
+	
 	std::cout << std::format(
-		"VHACD caculating operation <{:}>: {:} -- [{:}] | overall -- [{:}]\r",
-		operation, stage, stage_progress_bar, overall_progress_bar
+		"VHACD caculating operation <{:<20}>: {:<20} -- [{:<.5}] | overall -- [{:<.5}]\r",
+		operation, stage, stageProgress, overallProgress
 	);
 }
 };

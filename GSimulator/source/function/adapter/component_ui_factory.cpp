@@ -4,12 +4,7 @@
 
 #include "manager/resourcemanager.h"
 
-#include "component/joint_component.h"
-#include "component/joint_group_component.h"
-#include "component/kinematic_component.h"
-#include "component/tracker_component.h"
-#include "component/rigidbody_component.h"
-#include "component/material_component.h"
+#include "component/Components.h"
 
 #include "ui/widget/kinematic_widget.h"
 #include "ui/widget/tracker_widget.h"
@@ -705,6 +700,9 @@ QWidget* ComponentUIFactory::Create(Component& component)
 			component.DeregisterDelFunction();
 		});
 		return widget;
+	}
+	else if (s == "ColliderComponent") {
+		
 	}
 	else {
 		// TODO: add the widget

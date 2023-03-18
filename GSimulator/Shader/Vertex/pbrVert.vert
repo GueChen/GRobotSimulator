@@ -9,6 +9,7 @@ layout (std140, binding = 0) uniform Matrices{
     mat4 view;
 };
 
+uniform bool normal_reverse = false;
 uniform mat4 model;
 
 out vec3 world_pos;
@@ -19,6 +20,7 @@ void main(void)
 {
     world_pos    = vec3(model * vec4(aPos, 1.0f));
     normal      = transpose(inverse(mat3(model))) * aNorm;
+    if(normal_reverse) normal = -normal;
     tex_coords  = aTexCoords;    
     gl_Position = projection * view * vec4(world_pos, 1.0f);
 }

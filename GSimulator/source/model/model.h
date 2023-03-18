@@ -49,7 +49,22 @@ class Model
 /// Class Methods
 public:
     explicit        Model(_RawPtr parent = nullptr, const string & meshKey = "");
+
+                    /// <summary>
+                    /// Create a new {name}ed Model with a specific  bind named {mesh}.                    
+                    /// NOTICE: the {model_mat} is relative transform from parent, 
+                    /// if no parent exist that means the absolute transform from world coordinates                    
+                    /// <para>
+                    /// 创建一个新的以 name 命名的 Model 对象，并将名称为 mesh 的网格绑定给它。                   
+                    /// 注意：模型矩阵是相对于父对象的相对变换，若无父对象则是相对于世界坐标的绝对变换
+                    /// </para>
+                    /// </summary>
+                    /// <param name="name"></param>
+                    /// <param name="mesh"></param>
+                    /// <param name="model_mat"></param>
+                    /// <param name="parent"></param>
                     Model(const string& name, const string& mesh, const Mat4& model_mat, _RawPtr parent =nullptr);
+
                     Model(const string& name, const string& mesh,  
                           const Vec3& trans = Vec3::Zero(), const Vec3& rot = Vec3::Zero(), const Vec3& scale = Vec3::Ones(),
                           _RawPtr parent = nullptr);

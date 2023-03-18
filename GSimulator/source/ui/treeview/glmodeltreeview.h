@@ -47,6 +47,7 @@ private slots:
 	
 signals:
 	void RobotCreateRequest();
+	void MorphIntoConvexRequest();
 	void CreateRequest(const string& name);
 	void SelectRequest(const string& name);
 	void DeleteRequest(const string& name);
@@ -64,6 +65,8 @@ private:
 	QMenu				 m_add_menu;			/* 3D Objects |>		  */	
 	QAction*			 robot_create_action_;	/* robot				  */
 /*________________________________________________________________________*/
+	QMenu				 m_edit_menu;			/* Edit					  */	
+/*________________________________________________________________________*/
 	
 /*_______________________ADD MENU ACTIONS_________________________________*/
 	QAction*			 cube_create_action_;
@@ -73,6 +76,10 @@ private:
 	QAction*			 plane_create_action_;
 /*________________________________________________________________________*/
 	
+/*_______________________Edit Menu Actions________________________________*/
+	QAction*			 morph_into_convex_decompositions_;
+	QAction*			 morph_into_convex_hull_;
+/*________________________________________________________________________*/
 };
 
 }

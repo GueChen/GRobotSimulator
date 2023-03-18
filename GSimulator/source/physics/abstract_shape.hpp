@@ -11,7 +11,9 @@
 #include "render/rendering_datastructure.hpp"
 
 #include <Eigen/Dense>
+
 #include <vector>
+#include <memory>
 
 namespace GComponent {
 
@@ -86,18 +88,12 @@ public:
 
 class ConvexShape : public AbstractShape {
 public:
-	struct Line {
-		int first;
-		int second;
-	};
-	struct Facelet {
-		
-	};
+	ConvexShape(std::vector<Eigen::Vector3f> vert, std::vector<Triangle> tri):
+		m_positions(std::move(vert)),
+		m_faces(std::move(tri))
+	{}
 
-	ConvexShape() {
-		// No Implementation
-		assert(false);
-	}
+	ShapeEnum GetShapeType() const override { return m_type_enum; }
 public:
 	
 	std::vector<Eigen::Vector3f> m_positions;	

@@ -24,8 +24,8 @@ GLModelTreeView::GLModelTreeView(QWidget *parent)
     
     /* Set Style Sheet */
     m_basic_menu.setStyleSheet(menu_qss.data());
-    m_add_menu.setStyleSheet(menu_qss.data());
-       
+    m_add_menu.setStyleSheet  (menu_qss.data());
+    m_edit_menu.setStyleSheet (menu_qss.data());
 }   
 
 GLModelTreeView::~GLModelTreeView()
@@ -81,6 +81,7 @@ void GLModelTreeView::dropEvent(QDropEvent* event)
 void GLModelTreeView::InitMenuActions()
 {
     m_add_menu.setTitle("3D Objects");
+    m_edit_menu.setTitle("Edit");
 
     copy_action_         = new QAction("copy");
     cut_action_          = new QAction("cut");
@@ -98,6 +99,7 @@ void GLModelTreeView::InitMenuActions()
     m_basic_menu.addSeparator();
     m_basic_menu.addAction(m_add_menu.menuAction());
     m_basic_menu.addAction(robot_create_action_);
+    m_basic_menu.addAction(m_edit_menu.menuAction());
 
     cube_create_action_     = new QAction("Cube");
     sphere_create_action_   = new QAction("Sphere");
@@ -111,6 +113,12 @@ void GLModelTreeView::InitMenuActions()
     m_add_menu.addAction(capsule_create_action_);
     m_add_menu.addAction(plane_create_action_);
 
+    morph_into_convex_decompositions_ = new QAction("Morph into Convex Decompositions");
+    morph_into_convex_hull_           = new QAction("Morph into Convex Hull");
+
+    m_edit_menu.addAction(morph_into_convex_decompositions_);
+    m_edit_menu.addAction(morph_into_convex_hull_);
+
     connect(cube_create_action_,     &QAction::triggered, [this]() { emit CreateRequest("cube"); });
     connect(sphere_create_action_,   &QAction::triggered, [this]() { emit CreateRequest("sphere"); });
     connect(cylinder_create_action_, &QAction::triggered, [this]() { emit CreateRequest("cylinder"); });
@@ -118,10 +126,11 @@ void GLModelTreeView::InitMenuActions()
     connect(plane_create_action_,    &QAction::triggered, [this]() { emit CreateRequest("plane"); });
     connect(robot_create_action_,    &QAction::triggered, [this]() { emit RobotCreateRequest();});
 
+    connect(morph_into_convex_decompositions_, &QAction::triggered, [this]() { emit MorphIntoConvexRequest(); });
+
     copy_action_->setEnabled(false);
     cut_action_->setEnabled(false);
     paste_action_->setEnabled(false);
-
     delete_action_->setEnabled(false);
     rename_action_->setEnabled(false);
 }

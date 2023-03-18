@@ -21,11 +21,7 @@ ComponentMenu::ComponentMenu(QWidget* parent):
     m_add_kinematic_component     = m_add_component_menu->addAction("Kinematic Component");   //                  || Kinematic Component
     m_add_tracker_component       = m_add_component_menu->addAction("Tracker Component");     // 
 
-    addSeparator();
-    m_edit_menu               = addMenu("Edit");
-    m_morph_into_convex_decompositions = addAction("Morph into Convex Decompositions");
-
-
+    
     
 }
 

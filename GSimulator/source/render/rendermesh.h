@@ -54,6 +54,8 @@ class RenderMesh
 
         void SetGL(const std::shared_ptr<MyGL> & other);
         
+        inline RawMesh GetRawData()    const { return mesh_datas_; }
+
         /// <summary>
         /// 获取所持有的渲染单纯形的数目（通常为三角形）
         /// </summary>

@@ -1,0 +1,7 @@
+#include "component/joint_component.h"
+#include "component/joint_group_component.h"
+#include "component/kinematic_component.h"
+#include "component/tracker_component.h"
+#include "component/rigidbody_component.h"
+#include "component/material_component.h"
+#include "component/collider_component.h"

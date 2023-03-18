@@ -4,12 +4,13 @@
 
 #include "ui/treeview/glmodeltreeview.h"
 #include "ui/widget/viewport.h"
-
 #include "ui/mainwindow.h"
 #include "ui/dialog/Dialogs.h"
+
 #include "base/editortreemodel.h"
 
-#include "component/component_factory.h"
+#include "function/conversion.hpp"
+
 #include "manager/objectmanager.h"
 #include "manager/modelmanager.h"
 #include "manager/resourcemanager.h"
@@ -21,11 +22,18 @@
 #include "system/transmitsystem.h"
 #include "system/skinsystem.h"
 
+#include "component/component_factory.h"
 #include "component/material_component.h"
+#include "component/collider_component.h"
+
+#include "geometry/convex_generate.h"
 
 #include <QtCore/QThread>
+#include <QtCore/QthreadPool>
 #include <QtWidgets/QMessageBox>
+
 #include <unordered_map>
+#include <regex>
 
 #ifndef _DEBUG
 #include <iostream>
@@ -169,6 +177,68 @@ void GComponent::EngineApp::CreateShader(const QString& name, const QString& ver
 	ResourceManager::getInstance().RegisteredShader(name.toStdString(), new MyShader(nullptr, vert.toStdString(), frag.toStdString(), geom.toStdString()));
 }
 
+void GComponent::EngineApp::CreateConvexDecomposition()
+{
+	UIState* ui_state_ptr   = window_ptr_->getUIState();
+	Model* selected_obj_ptr = ui_state_ptr->GetSelectedObject();
+	QThreadPool::globalInstance()->start([obj_ptr = selected_obj_ptr]() {
+		if (!obj_ptr) return;
+		std::string obj_name = obj_ptr->getName();
+		std::string mesh_name = obj_ptr->getMesh();
+		auto mesh = ResourceManager::getInstance().GetMeshByName(mesh_name);
+		if (!mesh)	  return;
+				
+		std::string convex_name_pre = obj_name + "_ch";
+		RawMesh raw_data = mesh->GetRawData();
+		auto convex_hulls = GenerateConvexHull(raw_data.vertices, raw_data.indices, 10, 32, true);
+		
+		std::vector<AbstractShape*> shapes; shapes.reserve(convex_hulls.size());
+		// traversal all convex hull and transfer to mesh model data
+		for (int  mesh_count = 1; auto& convex_hull : convex_hulls) {			
+			// find a proper name with regex for model then create
+			// 使用正则表达式替换并设置合适的模型名并用此模型名创建
+			std::string ch_name = convex_name_pre;
+			std::string mesh_ch_name = mesh_name + "convex_" + std::to_string(mesh_count);
+			int number = 0;
+			do {
+				std::regex  regex("\\d+$");
+				std::string new_name = std::regex_replace(ch_name, regex, std::to_string(number));
+				if (new_name == ch_name) {
+					new_name.append("_" + std::to_string(number));
+				}
+				ch_name = new_name;
+				++number;
+			} while (ModelManager::getInstance().GetModelByName(ch_name));
+			Model* convex_model = new Model(ch_name, mesh_ch_name, Mat4::Identity(), obj_ptr);
+
+			// register mesh component
+			// 注册模型的网格资源与材质组件
+			ResourceManager::getInstance().RegisteredMesh(mesh_ch_name, new RenderMesh(convex_hull.m_vertices, convex_hull.m_triangles, {}));			
+			MaterialComponent* material = new MaterialComponent(nullptr, "pbr", true);
+			for (auto& pro : material->GetProperties()) {
+				if (pro.name.find("color") != std::string::npos) {
+					pro.val = glm::vec3(mesh_count % 3 * 0.5f, mesh_count % 5 * 0.25f, mesh_count % 11 * 0.10f);
+					break;
+				}
+			}
+			convex_model->RegisterComponent(std::unique_ptr<MaterialComponent>(material));			
+
+			// register model in model manager
+			// 在模型管理者中注册模型
+			ModelManager::getInstance().RegisteredModel(ch_name, convex_model);
+
+			// 
+			std::vector<Eigen::Vector3f> poses(convex_hull.m_vertices.size());
+			std::transform(convex_hull.m_vertices.begin(), convex_hull.m_vertices.end(), poses.begin(), [](auto&& vert) { return Conversion::toVec3f(vert.position); });
+			shapes.push_back(new ConvexShape(poses, convex_hull.m_triangles));
+			++mesh_count;
+		}
+		obj_ptr->RegisterComponent(std::make_unique<ColliderComponent>(obj_ptr, shapes));
+
+	});
+
+}
+
 /*_________________________________________PRIVATE METHODS______________________________________________________*/
 void GComponent::EngineApp::ConnectModules()
 {
@@ -237,6 +307,9 @@ void GComponent::EngineApp::ConnectModules()
 	connect(robot_create_dialog_ptr_.get(), &RobotCreatorDialog::RobotCreateRequestMDH,
 			this,							&EngineApp::CreateRobotWithParams);
 	
+	connect(treeview,					    &GLModelTreeView::MorphIntoConvexRequest,
+			this,							&EngineApp::CreateConvexDecomposition);
+
 	/* close all window */
 	/*connect(window_ptr_.get(),				&MainWindow::deleteLater,
 			robot_create_dialog_ptr_.get(), &RobotCreateDialog::close);*/
@@ -423,17 +496,22 @@ do{	\
 
 void GComponent::EngineApp::MoveSomeToThread()
 {
-	threads_map_["Planning"]	= new QThread;
-	PlanningSystem::getInstance().moveToThread(threads_map_["Planning"]);
+#define CREATE_AND_MOVE_2_THREAD(obj, thread_name)	\
+	do{												\
+	QThread* new_thread = new QThread;				\
+	threads_map_[#thread_name] = new_thread;		\
+	obj.moveToThread(new_thread);					\
+	}while(0)	
 
-	threads_map_["Network"]		= new QThread;
-	NetworkSystem::getInstance().moveToThread(threads_map_["Network"]);
+	CREATE_AND_MOVE_2_THREAD(PlanningSystem::getInstance(),		Planning);
 	
-	threads_map_["TcpSocket"]	= new QThread;
-	TcpSocketManager::getInstance().moveToThread(threads_map_["TcpSocket"]);
+	CREATE_AND_MOVE_2_THREAD(NetworkSystem::getInstance(),		Network);
 
-	threads_map_["Skin"]		= new QThread;
-	SkinSystem::getInstance().moveToThread(threads_map_["Skin"]);
+	CREATE_AND_MOVE_2_THREAD(TcpSocketManager::getInstance(),	TcpSocket);
+			
+	CREATE_AND_MOVE_2_THREAD(SkinSystem::getInstance(),			Skin);	
+
+#undef CREATE_AND_MOVE_2_THREAD
 
 	for (auto&& [__, t_thread] : threads_map_) {
 		t_thread->start();

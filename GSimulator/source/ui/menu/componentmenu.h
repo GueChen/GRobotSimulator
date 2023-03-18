@@ -24,10 +24,7 @@ public:
     QAction*    m_add_joint_group_component;
     QAction*    m_add_kinematic_component;
     QAction*    m_add_tracker_component;
-    
-    QMenu*      m_edit_menu;
-    QAction*    m_morph_into_convex_decompositions;
-    QAction*    m_morph_into_convex_hull;
+   
 
 };
 
