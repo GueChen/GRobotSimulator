@@ -228,8 +228,8 @@ void GComponent::EngineApp::CreateConvexDecomposition()
 			ModelManager::getInstance().RegisteredModel(ch_name, convex_model);
 
 			// 
-			std::vector<Eigen::Vector3f> poses(convex_hull.m_vertices.size());
-			std::transform(convex_hull.m_vertices.begin(), convex_hull.m_vertices.end(), poses.begin(), [](auto&& vert) { return Conversion::toVec3f(vert.position); });
+			std::vector<Eigen::Vector3f> poses;
+			std::ranges::transform(convex_hull.m_vertices, std::back_inserter(poses), [](auto&& vert)->Eigen::Vector3f { return Conversion::toVec3f(vert.position); });
 			shapes.push_back(new ConvexShape(poses, convex_hull.m_triangles));
 			++mesh_count;
 		}

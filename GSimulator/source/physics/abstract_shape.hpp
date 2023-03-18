@@ -17,7 +17,7 @@
 
 namespace GComponent {
 
-enum class ShapeEnum {
+enum ShapeEnum {
 	Sphere		= 0,
 	Capsule		= 1,
 	Box			= 2,
@@ -32,7 +32,7 @@ public:
 	virtual ~AbstractShape()	= default;
 	///AbstractShape(const AbstractShape&) = default;
 public:	
-	virtual ShapeEnum GetShapeType() const = 0;
+	virtual ShapeEnum GetShapeType() const = 0;	
 };
 
 class SphereShape : public AbstractShape {

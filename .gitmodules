@@ -6,3 +6,8 @@
 	path = GComponentQtPluginLib
 	url  = https://github.com/GueChen/GComponentQtPuginLib.git
 	branch = simulator_lib
+
+
+[submodule "v-hacd"]
+	path = 3rdparty/v-hacd
+	url = https://github.com/kmammou/v-hacd.git
