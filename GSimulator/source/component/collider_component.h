@@ -25,13 +25,17 @@ class ColliderComponent: public Component{
 public:
 	explicit	  ColliderComponent(Model* parent = nullptr, _ShapeRawPtrs shapes= {});
 
-	void		  RegisterShape(_ShapeRawPtr ptr);
-	_ShapeRawPtrs GetShapes();
+	void		  RegisterShape	 (_ShapeRawPtr ptr);
+	void		  DeregisterShape(_ShapeRawPtr ptr);
+
+	_ShapeRawPtr  GetShape		 (int idx);
+	_ShapeRawPtrs GetShapes		 ();
 
 	virtual const string_view& GetTypeName() const override;
 
 protected:
 	_ShapePtrs shapes_ = {};
+	
 
 public:
 	constexpr static const std::string_view type_name = "ColliderComponent";

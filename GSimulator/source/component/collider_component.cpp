@@ -4,16 +4,26 @@ namespace GComponent {
 
 GComponent::ColliderComponent::ColliderComponent(Model* parent, _ShapeRawPtrs shapes) :
 	Component(parent)
-{
-	shapes_.resize(shapes.size());
-	for (int count = 0; auto & ptr : shapes) {
-		shapes[count++] = ptr;
+{	
+	for (auto & ptr : shapes) {
+		RegisterShape(ptr);
 	}
 }
 
 void GComponent::ColliderComponent::RegisterShape(_ShapeRawPtr ptr)
 {
 	shapes_.push_back(_ShapePtr(ptr));
+}
+
+void ColliderComponent::DeregisterShape(_ShapeRawPtr ptr)
+{
+	std::erase_if(shapes_, [ptr = ptr](auto&& it_ptr) { return it_ptr.get() == ptr; });
+}
+
+ColliderComponent::_ShapeRawPtr ColliderComponent::GetShape(int idx)
+{
+	if (idx < 0 || idx >= shapes_.size()) return nullptr;
+	return shapes_[idx].get();
 }
 
 ColliderComponent::_ShapeRawPtrs GComponent::ColliderComponent::GetShapes()

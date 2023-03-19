@@ -17,10 +17,12 @@
 #include <QtWidgets/QDial>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QDoubleSpinBox>
+#include <QtWidgets/QStackedWidget>
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QLayout>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QToolButton>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QComboBox>
@@ -63,6 +65,7 @@ static constexpr const string_view JointSliderGroupObjName = "joint_slider";
 static constexpr const string_view JointGroupValObjName = "value";
 static constexpr const string_view SettingButtonObjName = "setting_button";
 
+/*________________________Create Standard Methods_________________________________________________*/
 static QLabel* CreateStandardTextLabel(const std::string& name) {
 	QLabel* name_text = new QLabel(QString::fromStdString(name));
 	name_text->setStyleSheet(component_inspector_text.data());
@@ -92,6 +95,16 @@ static QHBoxLayout* CreateStanardCheckBox(std::function<bool(void)> getter, std:
 	layout->addWidget(checkbox);
 	return layout;
 }
+
+static QLineEdit* CreateStandardLineEdit(const std::string& name, bool read_only = true) {
+	QLineEdit* line_edit = new QLineEdit(QString::fromStdString(name));
+	
+	line_edit->setStyleSheet(component_inspector_editor.data());
+	line_edit->setReadOnly(read_only);
+	line_edit->setAlignment(Qt::AlignHCenter);
+
+	return line_edit;
+}
 /*___________________________________Normal Variables Builder Map___________________________________*/
 // TODO: complete this and remove redundancy map
 static unordered_map<std::string, std::function<QLayout* (const std::string&, std::any)>> normal_builder_map = {
@@ -113,6 +126,7 @@ static unordered_map<std::string, std::function<QLayout* (const std::string&, st
 		spinbox->setValue(*std::any_cast<float*>(val));
 		spinbox->setStyleSheet(double_spin_box_qss.data());
 		QObject::connect(spinbox, &QDoubleSpinBox::valueChanged,[val = val](double value) { (*std::any_cast<float*>(val)) = value; });
+		layout->addWidget(spinbox);
 		return layout;
 	}}
 };
@@ -156,11 +170,16 @@ std::unordered_map<std::string, std::function<QLayout*(std::string, ShaderProper
 	[](std::string name, ShaderProperty::Var& val)->QLayout* {
 		QHBoxLayout* layout = new QHBoxLayout;
 		
-		QLayout* float_layout  = normal_builder_map["float"](name, std::any(&std::get<float>(val)));
-		QDoubleSpinBox* spinbox = float_layout->findChild<QDoubleSpinBox*>();
-		spinbox->setMinimum(0.0);
-		spinbox->setMaximum(1.0);
-		spinbox->setSingleStep(0.01);		
+		QLayout* float_layout  = normal_builder_map["float"](name, std::any(&std::get<float>(val)));		
+				
+		for (int i = 0; i < float_layout->count(); ++i) {
+			QLayoutItem* item = float_layout->itemAt(i);
+			if (auto spin_box = dynamic_cast<QDoubleSpinBox*>(item->widget())) {
+				spin_box->setMinimum(0.0);
+				spin_box->setMaximum(1.0);
+				spin_box->setSingleStep(0.01);
+			}
+		}				
 		layout->addLayout(float_layout);		
 		return layout;		
 	}},
@@ -281,32 +300,56 @@ static std::map<ShapeEnum, std::function<QLayout* (AbstractShape*)>> shapes_buil
 		(ptr)->setSingleStep(single);					  \
 	} while(0)
 
+#define AddShapeDisplayer(layout_ptr, ShapeType)						\
+	do {																\
+		(layout_ptr)->addWidget(CreateStandardTextLabel("shape type"));	\
+		(layout_ptr)->addWidget(CreateStandardLineEdit(#ShapeType));	\
+	} while(0)
+
+#define FindTypeInLayout(ret, layout, Type)								\
+	do{																	\
+		for (int __i = 0; __i < layout->count(); ++__i) {				\
+			QLayoutItem* __item = layout->itemAt(__i);					\
+			if (auto __ptr = dynamic_cast<Type*>(__item->widget())) {	\
+				ret = __ptr;											\
+				break;													\
+			}															\
+		}																\
+	} while(0)
+
 	{ShapeEnum::Sphere,
 	[](AbstractShape* shape)->QLayout* {
 		SphereShape*	sphere = dynamic_cast<SphereShape*>(shape);
-		QHBoxLayout*	layout = new QHBoxLayout;
+		QVBoxLayout*	layout = new QVBoxLayout;
+		AddShapeDisplayer(layout, Sphere);
+
 		QLayout*		radius_layout = normal_builder_map["float"]("radius", std::any(&sphere->m_radius));
-		QDoubleSpinBox* spinbox = radius_layout->findChild<QDoubleSpinBox*>();
+		QDoubleSpinBox* spinbox = nullptr;
+		FindTypeInLayout(spinbox, radius_layout, QDoubleSpinBox);
 		SetFloatLimitation(spinbox, 0.0, 999999.9, 0.01);
 		layout->addLayout(radius_layout);
+		
 		return layout;
 	}},
 	{ShapeEnum::Capsule,
 	[](AbstractShape* shape)->QLayout*{
 		CapsuleShape* capsule = dynamic_cast<CapsuleShape*>(shape);
 
-		QHBoxLayout* layout = new QHBoxLayout;
-		
-		QLayout* capsule_layout = normal_builder_map["float"]("radius", std::any(&capsule->m_radius));
+		QVBoxLayout* layout = new QVBoxLayout;
+		AddShapeDisplayer(layout, Capsule);
+
+		QLayout* radius_layout = normal_builder_map["float"]("radius", std::any(&capsule->m_radius));
 		{
-			QDoubleSpinBox* spinbox = capsule_layout->findChild<QDoubleSpinBox*>();
+			QDoubleSpinBox* spinbox = nullptr;
+			FindTypeInLayout(spinbox, radius_layout, QDoubleSpinBox);
 			SetFloatLimitation(spinbox, 0.0, 999999.9, 0.01);
 		}
-		layout->addLayout(capsule_layout);
+		layout->addLayout(radius_layout);
 
 		QLayout* half_height_layout = normal_builder_map["float"]("half height", std::any(&capsule->m_radius));
 		{
-			QDoubleSpinBox* spinbox = half_height_layout->findChild<QDoubleSpinBox*>();
+			QDoubleSpinBox* spinbox = nullptr;
+			FindTypeInLayout(spinbox, half_height_layout, QDoubleSpinBox);
 			SetFloatLimitation(spinbox, 0.0, 999999.9, 0.01);
 		}
 		layout->addLayout(half_height_layout);
@@ -316,9 +359,54 @@ static std::map<ShapeEnum, std::function<QLayout* (AbstractShape*)>> shapes_buil
 	{ShapeEnum::Box,
 	[](AbstractShape* shape)->QLayout* {
 		BoxShape* box = dynamic_cast<BoxShape*>(shape);
+		
+		QVBoxLayout* layout = new QVBoxLayout;		
+		AddShapeDisplayer(layout, Box);
 
-	}}\\
+		QLayout* half_x_layout = normal_builder_map["float"]("half x", std::any(&box->m_half_x));
+		{
+			QDoubleSpinBox* spinbox = nullptr;
+			FindTypeInLayout(spinbox, half_x_layout, QDoubleSpinBox);
+			SetFloatLimitation(spinbox, 0.0, 999999.9, 0.01);
+		}
+		layout->addLayout(half_x_layout);
 
+		QLayout* half_y_layout = normal_builder_map["float"]("half y", std::any(&box->m_half_y));
+		{
+			QDoubleSpinBox* spinbox = nullptr;
+			FindTypeInLayout(spinbox, half_y_layout, QDoubleSpinBox);
+			SetFloatLimitation(spinbox, 0.0, 999999.9, 0.01);
+		}
+		layout->addLayout(half_y_layout);
+		
+		QLayout* half_z_layout = normal_builder_map["float"]("half z", std::any(&box->m_half_z));
+		{
+			QDoubleSpinBox* spinbox = nullptr;
+			FindTypeInLayout(spinbox, half_z_layout, QDoubleSpinBox);
+			SetFloatLimitation(spinbox, 0.0, 999999.9, 0.01);
+		}
+		layout->addLayout(half_z_layout);
+
+		return layout;
+	}},
+	{ShapeEnum::ConvexHull,
+	[](AbstractShape* shape)->QLayout* {
+		ConvexShape* convex = dynamic_cast<ConvexShape*>(shape);
+
+		QVBoxLayout* layout = new QVBoxLayout;
+		AddShapeDisplayer(layout, ConvexHull);
+
+		layout->addWidget(CreateStandardTextLabel("vert size"));
+		layout->addWidget(CreateStandardLineEdit(std::to_string(convex->m_positions.size())));
+
+		layout->addWidget(CreateStandardTextLabel("face size"));
+		layout->addWidget(CreateStandardLineEdit(std::to_string(convex->m_faces.size())));
+
+		return layout;
+	}}
+
+#undef AddShapeDisplayer
+#undef FindTypeInLayout
 #undef SetFloatLimitation
 };
 
@@ -668,6 +756,8 @@ QWidget* ComponentUIFactory::Create(Component& component)
 {
 	string_view s = component.GetTypeName();
 	QWidgetBuilder builder;
+
+	// set delete functions for component and widget both
 	auto set_del_function = [&com = component](QWidget* widget) {
 		com.RegisterDelFunction([widget]() { widget->disconnect(); });
 		QObject::connect(widget, &QWidget::destroyed, [&com]() { com.DeregisterDelFunction(); });
@@ -766,7 +856,6 @@ QWidget* ComponentUIFactory::Create(Component& component)
 		layout->addLayout(CreateStanardCheckBox(std::bind(&MaterialComponent::GetIsCastShadow, &material_component), 
 												std::bind(&MaterialComponent::SetIsCastShadow, &material_component, std::placeholders::_1)));
 
-
 		add_property_ui(material_component, layout);
 		
 		widget->setLayout(layout);
@@ -782,16 +871,41 @@ QWidget* ComponentUIFactory::Create(Component& component)
 		QWidget*	 widget = new QWidget;
 		QVBoxLayout* layout = new QVBoxLayout;
 
-		QComboBox*   box    = new QComboBox(widget);
+		QComboBox*   selector    = new QComboBox(widget);
+		selector->setStyleSheet(combo_editor_qss.data());
 		QStringList  lists(shapes.size(), "shape");
 		for (int i = 1; auto & s : lists) s.append("_" + QString::number(i++));
-		box->addItems(lists);
-		box->setStyleSheet(combo_editor_qss.data());
-		layout->addWidget(box);
+		selector->addItems(lists);		
+		layout->addWidget(selector);
+		
 
-		QObject::connect(box, QComboBox::currentIndexChanged, [shapes = shapes](int idx) {
+		QStackedWidget* stacked = new QStackedWidget;
+		for (int count = 0; auto & shape : shapes) {
+			QWidget* sub_widget = new QWidget;
+			QLayout* sub_layout = shapes_builder_map[shape->GetShapeType()](shape);
+			
+			QPushButton* del_button = new QPushButton("Del");
+			del_button->setStyleSheet(normal_button_qss.data());
+			QObject::connect(del_button, &QPushButton::clicked, [&com = collider_component, stacked = stacked, selector = selector]() {
+				int idx = stacked->currentIndex();
+				com.DeregisterShape(com.GetShape(idx));
+				stacked->removeWidget(stacked->widget(idx));
+				selector->removeItem(idx);
+			});
+			sub_layout->addWidget(del_button);
+			sub_layout->addItem(new QSpacerItem(20, 20, QSizePolicy::Ignored, QSizePolicy::Expanding));
+			sub_widget->setLayout(sub_layout);
+			stacked->addWidget(sub_widget);
 
-		});
+			++count;
+		}
+		layout->addWidget(stacked);
+
+		// TODO: add a inteface that when ColliderComponent is Changed the ui can modify
+		QObject::connect(selector, &QComboBox::activated, stacked, &QStackedWidget::setCurrentIndex);
+
+		widget->setLayout(layout);
+		widget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
 
 		set_del_function(widget);
 		return widget;

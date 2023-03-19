@@ -71,10 +71,15 @@ constexpr std::string_view tabify_dockwidget_qss =
 "}";
 
 constexpr std::string_view normal_button_qss =
-"QWidget{"
+"QPushButton{"
 "background-color: qlineargradient(spread:pad, x1:0, y1:0.75, x2:0, y2:1,"
 "stop: 0 rgba(20, 20, 20, 255), stop:1 rgba(45, 45, 65, 255));"
 "color:white;"
+"}"
+"QPushButton::hover{"
+"background-color: qlineargradient(spread:pad, x1:0, y1:0.75, x2:0, y2:1,"
+"stop: 0 rgba(100, 100, 155, 255), stop:1 rgba(155, 155, 200, 255));"
+"color:gray;"
 "}";
 
 constexpr std::string_view red_button_qss =
