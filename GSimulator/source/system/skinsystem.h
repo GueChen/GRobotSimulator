@@ -1,7 +1,7 @@
 /**
 * 
 * 
-* 
+* @author Gwz
 * 
 **/
 #ifndef CONTROLLER_H

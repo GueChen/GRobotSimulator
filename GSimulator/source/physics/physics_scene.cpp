@@ -90,6 +90,8 @@ void PhysicsScene::tick(float time_step)
 	if (time_step <= 0.0f) return;
 	physics_impl_->m_scene->simulate(time_step);
 	physics_impl_->m_scene->fetchResults(true);
+
+	
 }
 
 RigidBodyActor* PhysicsScene::CreateRigidBodyActor(const Mat4& global_mat, const Mat4& local_mat, AbstractShape& shape_res, CollisionGroup group)

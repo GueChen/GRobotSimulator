@@ -1,5 +1,11 @@
-#include "collider_component.h"
+#include "component/collider_component.h"
+
+#include "system/collisionsystem.h"
+
+#include "model/model.h"
+
 #include <algorithm>
+
 namespace GComponent {
 
 GComponent::ColliderComponent::ColliderComponent(Model* parent, _ShapeRawPtrs shapes) :
@@ -36,6 +42,11 @@ ColliderComponent::_ShapeRawPtrs GComponent::ColliderComponent::GetShapes()
 const std::string_view& GComponent::ColliderComponent::GetTypeName() const
 {
 	return type_name;
+}
+
+void ColliderComponent::tickImpl(float delta)
+{	
+	CollisionSystem::getInstance().AddProcessShapes(GetShapes(), ptr_parent_->getModelMatrixWithoutScale());
 }
 
 }

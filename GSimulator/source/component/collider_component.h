@@ -8,7 +8,7 @@
 #define __COLLIDER_COMPONENT_H
 
 #include "component/component.hpp"
-#include "physics/abstract_shape.hpp"
+#include "geometry/abstract_shape.hpp"
 
 #include <vector>
 #include <memory>
@@ -32,6 +32,9 @@ public:
 	_ShapeRawPtrs GetShapes		 ();
 
 	virtual const string_view& GetTypeName() const override;
+
+protected:
+	void		  tickImpl(float delta) override;
 
 protected:
 	_ShapePtrs shapes_ = {};

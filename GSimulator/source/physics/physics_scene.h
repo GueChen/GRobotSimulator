@@ -8,7 +8,7 @@
 #ifndef __PHYSICS_SCENE
 #define __PHYSICS_SCENE
 
-#include "physics/abstract_shape.hpp"
+#include "geometry/abstract_shape.hpp"
 #include "physics/physics_datastructure.hpp"
 #include "physics/rigidbody_actor.h"
 

@@ -8,7 +8,7 @@
 #define __RIGIDBODY_ACTOR_H
 
 #include "model/model.h"
-#include "physics/abstract_shape.hpp"
+#include "geometry/abstract_shape.hpp"
 
 #include <vector>
 #include <memory>
@@ -60,7 +60,7 @@ public:
 	//void			DetachShape(shared_ptr<AbstractShape> acotr_shape);
 
 /// Fields
-protected:
+protected:	
 	_ShapePtrs		actor_shapes_		= {};
 	Mat4			global_transform_	= Mat4::Identity();
 	uint32_t		actor_id_			= -1;

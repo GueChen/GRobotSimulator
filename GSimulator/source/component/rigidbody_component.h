@@ -9,7 +9,7 @@
 
 #include "component/component.hpp"
 
-#include "physics/abstract_shape.hpp"
+#include "geometry/abstract_shape.hpp"
 #include "physics/rigidbody_actor.h"
 
 #include <string>

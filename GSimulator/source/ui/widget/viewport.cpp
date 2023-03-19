@@ -107,6 +107,8 @@ void Viewport::paintGL()
 	ModelManager::getInstance().tickAll(delta_time.count());
 	// Adjust all resources
 	ResourceManager::getInstance().tick(gl_);
+	// Process all collision Event
+
 	// Adjust all the physics actors
 	PhysicsManager::getInstance().tick(delta_time.count());
 	// Draw all renderable process Passes
@@ -123,75 +125,7 @@ void Viewport::paintGL()
 
 void Viewport::CustomUpdateImpl()
 {
-	/*Model* cube0 = ModelManager::getInstance().GetModelByName("cube0");
-	Model* cube1 = ModelManager::getInstance().GetModelByName("cube1");
-	Model* sphere0 = ModelManager::getInstance().GetModelByName("sphere0");
-	Model* capsule0 = ModelManager::getInstance().GetModelByName("capsule0");
 	
-	auto col_com0 = cube0->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());
-	auto col_com1 = cube1->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());
-	auto col_com2 = sphere0->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());
-	auto cap_com3 = capsule0->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());	
-
-	auto shapes0 = col_com0->GetShapes();
-	auto shapes1 = col_com1->GetShapes();
-	auto shapes2 = col_com2->GetShapes();
-	auto shape_cap0 = cap_com3->GetShapes();
-
-	cube0->intesection_ = cube1->intesection_ 
-						= sphere0->intesection_
-						= capsule0->intesection_
-						= false;
-
-	for (auto& s0 : shapes0) {
-		auto box0 = dynamic_cast<BoxShape*>(s0);
-		for (auto& s1 : shapes1) {
-			auto box1 = dynamic_cast<BoxShape*>(s1);
-			if (IntersectOBBOBB(Vec3(box0->m_half_x, box0->m_half_y, box0->m_half_z), cube0->getTransGlobal(), cube0->getRotGlobal(),
-				Vec3(box1->m_half_x, box1->m_half_y, box1->m_half_z), cube1->getTransGlobal(), cube1->getRotGlobal())) {
-				cube0->intesection_ = true;
-				cube1->intesection_ = true;
-				goto boxcheckfinish;
-			}
-		}
-	}
-
-boxcheckfinish:
-	for (auto& s0 : shapes0) {
-		auto box0 = dynamic_cast<BoxShape*>(s0);
-		for (auto& s1 : shapes2) {
-			auto sshape = dynamic_cast<SphereShape*>(s1);
-			if (IntersectOBBSphere(Vec3(box0->m_half_x, box0->m_half_y, box0->m_half_z), cube0->getTransGlobal(), cube0->getRotGlobal(),
-				sshape->m_radius, sphere0->getTransGlobal())) {
-				cube0->intesection_   = true;
-				sphere0->intesection_ = true;				
-			}
-		}
-	}
-
-	for (auto& s0 : shapes1) {
-		auto box0 = dynamic_cast<BoxShape*>(s0);
-		for (auto& s1 : shapes2) {
-			auto sshape = dynamic_cast<SphereShape*>(s1);
-			if (IntersectOBBSphere(Vec3(box0->m_half_x, box0->m_half_y, box0->m_half_z), cube1->getTransGlobal(), cube1->getRotGlobal(),
-				sshape->m_radius, sphere0->getTransGlobal())) {
-				cube1->intesection_   = true;
-				sphere0->intesection_ = true;				
-			}
-		}
-	}
-
-	for (auto& s0 : shape_cap0) {
-		auto shape_cap0 = dynamic_cast<CapsuleShape*>(s0);
-		for (auto& s1 : shapes0) {
-			auto box_shape = dynamic_cast<BoxShape*>(s1);
-			if (IntersectOBBCaspsule(Vec3(box_shape->m_half_x, box_shape->m_half_y, box_shape->m_half_z), cube0->getTransGlobal(), cube0->getRotGlobal(),
-				shape_cap0->m_radius, shape_cap0->m_half_height, capsule0->getTransGlobal(), capsule0->getRotGlobal())) {
-				cube0->intesection_ = true;
-				capsule0->intesection_ = true;
-			}
-		}
-	}*/
 }
 
 /*________________________________Events Implementations_____________________________________________*/

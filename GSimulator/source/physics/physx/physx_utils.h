@@ -7,7 +7,7 @@
 #ifndef __PHYSX_UTILS_H
 #define __PHYSX_UTILS_H
 
-#include "physics/abstract_shape.hpp"
+#include "geometry/abstract_shape.hpp"
 
 #include <Eigen/Dense>
 #include <foundation/PxVec4.h>
