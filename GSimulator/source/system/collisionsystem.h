@@ -49,8 +49,8 @@ protected:
 	CollisionSystem() = default;
 
 private:
-	void OverlapCheck(CRefShapePtrs shapes_a, CRefTransform pose_a, 
-					  CRefShapePtrs shapes_b, CRefTransform pose_b);
+	void OverlapCheck(CRefShapePtrs shapes_a, Transform pose_a, 
+					  CRefShapePtrs shapes_b, Transform pose_b);
 
 private:
 	std::vector<std::pair<ShapePtrs, Transform>> need_process_;

@@ -2,7 +2,7 @@
 #include "engineapp.h"
 
 #include <QtWidgets/QApplication>
-// Delete Later
+// TODO: add Serializer and Deserializer then Delete Later
 #include "model/robot/dual_arm_platform.h"
 #include "model/robot/kuka_iiwa_model.h"
 #include "manager/objectmanager.h"
@@ -10,6 +10,7 @@
 #include "component/collider_component.h"
 
 #include <glm/glm.hpp>
+#include <map>
 
 void CreateSphereObstacle(float x, float y, float z, float radius) {
     using namespace GComponent;
@@ -50,6 +51,8 @@ void CreateCapsuleObstacle(float x, float y, float z, float radius, float half_z
     col_com->RegisterShape(new CapsuleShape(radius, half_z));
 }
 
+
+
 int main(int argc, char *argv[])
 {
     using namespace GComponent;
@@ -60,12 +63,8 @@ int main(int argc, char *argv[])
     CreateSphereObstacle(0.35f, 0.45f, 2.5f, 0.8f);
     CreateCapsuleObstacle(0.0f, 0.0f, 0.0f, 0.3f, 0.7f);
     CreateCubeObstacle(-0.30f, -0.4f, 1.2f, 0.5f, 0.5f, 0.5f);
-
-    //CreateCubeObstacle(0.35f, 0.4f,  0.2f,  0.1f,  0.25f,  0.1f);
-    //CreateCubeObstacle(0.45f, 0.25f, 0.85f, 0.05f, 0.20f,  0.15f);
-    //GComponent::KUKA_IIWA_MODEL   robot;
-    //GComponent::DUAL_ARM_PLATFORM robot;
-
+    CreateCapsuleObstacle(0.55f, -0.5f, 0.0f, 0.1f, 0.3f);
+   
     GComponent::EngineApp::getInstance().Exec();
     
     return 0;

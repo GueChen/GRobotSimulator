@@ -6,6 +6,7 @@
 #include "manager/physicsmanager.h"
 #include "manager/planningmanager.h"
 #include "manager/tcpsocketmanager.h"
+#include "system/collisionsystem.h"
 
 #include "function/adapter/modelloader_qgladapter.h"
 
@@ -28,8 +29,6 @@
 #include <QDebug>
 #endif
 #include "component/collider_component.h"
-
-#include <GComponent/Geometry/gcollision_detection.h>
 
 namespace GComponent {
 
@@ -108,7 +107,7 @@ void Viewport::paintGL()
 	// Adjust all resources
 	ResourceManager::getInstance().tick(gl_);
 	// Process all collision Event
-
+	CollisionSystem::getInstance().tick(delta_time.count());
 	// Adjust all the physics actors
 	PhysicsManager::getInstance().tick(delta_time.count());
 	// Draw all renderable process Passes
