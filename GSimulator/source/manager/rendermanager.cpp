@@ -178,7 +178,10 @@ void RenderManager::InitializeIBLResource()
 		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
 	};
 	
-	unsigned int hdr_env     = gl_->LoadTexture("./asset/textures/loft_newport/Newport_Loft_Ref.hdr", false);
+	unsigned int hdr_env     = gl_->LoadTexture(//"./asset/textures/loft_newport/Newport_Loft_Ref.hdr", 
+												"./asset/textures/hdr/Workshop-Novoselci.hdr",
+												//"./asset/textures/hdr/Abandoned-Hall-Silverblue-Nurnberg.hdr",
+												false);
 	unsigned int environment_cubemap = 0,
 				 irradiance_cubemap  = 0,
 				 prefilter_cubemap   = 0,
@@ -467,12 +470,16 @@ void RenderManager::NormalPass()
 	SimplexMeshPass();
 	
 	// TODO: not so good try to hide it
-	grid_.SetGL(gl_);
-	grid_.Draw();
 
 	gl_->glDepthFunc(GL_LEQUAL);
 	skybox_.Draw();
 	gl_->glDepthFunc(GL_LESS);
+
+	gl_->glEnable(GL_BLEND);	
+	gl_->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	grid_.SetGL(gl_);
+	grid_.Draw();
+	gl_->glDisable(GL_BLEND);
 }
 
 void RenderManager::RenderingPass()

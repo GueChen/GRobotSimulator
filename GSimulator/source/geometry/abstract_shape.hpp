@@ -7,7 +7,6 @@
 #ifndef __ABSTRACT_SHAPE_HPP
 #define __ABSTRACT_SHAPE_HPP
 
-#include "physics/physics_datastructure.hpp"
 #include "render/rendering_datastructure.hpp"
 
 #include <Eigen/Dense>

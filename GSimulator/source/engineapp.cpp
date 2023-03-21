@@ -190,7 +190,7 @@ void GComponent::EngineApp::CreateConvexDecomposition()
 				
 		std::string convex_name_pre = obj_name + "_ch";
 		RawMesh raw_data = mesh->GetRawData();
-		auto convex_hulls = GenerateConvexHull(raw_data.vertices, raw_data.indices, 10, 32, true);
+		auto convex_hulls = GenerateConvexHull(raw_data.vertices, raw_data.indices, 3, 32, true);
 		
 		std::vector<AbstractShape*> shapes; shapes.reserve(convex_hulls.size());
 		// traversal all convex hull and transfer to mesh model data

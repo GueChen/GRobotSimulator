@@ -100,6 +100,7 @@ set_property(TARGET ${TARGET_NAME} PROPERTY LINKER_LANGUAGE CXX)
 target_include_directories(
 	${TARGET_NAME} PUBLIC		
 	./source
+	${common_lib_INCLUDER_DIR}
 )
 
 #___________________ Linking Libraries ______________________

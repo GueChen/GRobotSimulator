@@ -1,5 +1,7 @@
 #include "system/collisionsystem.h"
 
+#include "geometry/convex_wrapper/convex_wrapper.h"
+
 #include "GComponent/Geometry/gcollision_detection.h"
 
 #include <iostream>
@@ -61,9 +63,11 @@ static bool OverlapSpherePlane		(OVERLAP_PARAMS) {
 }
 
 static bool OverlapSphereConvexHull	(OVERLAP_PARAMS) {
-	return false
-		//IntersectGJK(Convex(Sphere), Convex(Convex))
-		;
+	SphereShape* sphere = dynamic_cast<SphereShape*>(shape_a);
+	ConvexShape* convex = dynamic_cast<ConvexShape*>(shape_b);
+	return IntersectGJK(ConvexSphere  (*sphere, GetPoseRot_PARAMS(pose_a)), 
+						ConvexHullMesh(*convex, GetPoseRot_PARAMS(pose_b)),
+					    GetPose(pose_a) - GetPose(pose_b));
 }
 
 static bool OverlapCapsuleCapsule	(OVERLAP_PARAMS) {
@@ -195,6 +199,7 @@ void CollisionSystem::AddProcessShapes(CRefShapePtrs shapes, CRefTransform pose)
 
 void CollisionSystem::tick(float delta_time)
 {
+	(void)delta_time;
 	//TODO: add broad phase collision checking to accelerate the whole process
 	for (int i = 0; i < need_process_.size(); ++i) {
 		auto& [col_a, pose_a] = need_process_[i];
