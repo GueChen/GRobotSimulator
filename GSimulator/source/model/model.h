@@ -150,7 +150,7 @@ protected:
 
 #ifdef _COLLISION_TEST
 public:
-    bool                    intesection_            = true;
+    bool                    intesection_            = false;
 #endif // _COLLISION_TEST
 
 };

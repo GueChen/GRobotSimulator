@@ -469,8 +469,18 @@ void RenderManager::NormalPass()
 	
 	SimplexMeshPass();
 	
-	// TODO: not so good try to hide it
+#ifdef _COLLISION_TEST
+	gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	gl_->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	gl_->glEnable(GL_BLEND);
+	CollisionPass(render_list_, [](const std::string& name) {
+		return ModelManager::getInstance().GetModelByName(name);
+	});
+	gl_->glDisable(GL_BLEND);	
+	gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 
+	// TODO: not so good try to hide it
 	gl_->glDepthFunc(GL_LEQUAL);
 	skybox_.Draw();
 	gl_->glDepthFunc(GL_LESS);
@@ -566,10 +576,38 @@ void RenderManager::PassSpecifiedListDepth(RenderList& list, function<Model* (co
 	}
 }
 
+#ifdef _COLLISION_TEST
+void RenderManager::CollisionPass(RenderList&list, function<RawptrModel(const std::string&)> ObjGetter)
+{
+	ResourceManager& scene_manager = ResourceManager::getInstance();
+	MyShader*		 base_shader   = scene_manager.GetShaderByName("base"); base_shader->use();
+	
+	for (auto& [obj_name, mesh_name] : list) {
+		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
+		Model*      obj  = ObjGetter(obj_name);
+		if (!obj || !mesh) continue;
+		base_shader->setMat4("model", Conversion::fromMat4f(obj->getModelMatrix()));
+		if (obj->intesection_) {
+			gl_->glDisable(GL_DEPTH_TEST);
+			gl_->glCullFace(GL_FRONT);
+			gl_->glLineWidth(0.5f);
+			mesh->Draw();
+			gl_->glEnable(GL_DEPTH_TEST);
+			gl_->glLineWidth(2.5f);
+			gl_->glCullFace(GL_BACK);
+			mesh->Draw();
+			gl_->glLineWidth(1.0f);
+
+		}
+	}
+	
+
+}
+#endif
+
 void RenderManager::PassSpecifiedListNormal(RenderList& list, std::function<Model* (const std::string&)> ObjGetter)
 {
 	ResourceManager& scene_manager = ResourceManager::getInstance();
-	ModelManager&	 model_manager = ModelManager::getInstance();
 	
 	for (auto& [obj_name, mesh_name] : list) 
 	{		
@@ -581,7 +619,7 @@ void RenderManager::PassSpecifiedListNormal(RenderList& list, std::function<Mode
 			continue;
 		}
 		material->SetShaderProperties();
-		mesh->Draw();	
+		mesh->Draw();
 	}
 }
 

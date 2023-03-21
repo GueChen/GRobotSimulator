@@ -14,12 +14,11 @@ Vec3f ConvexHullMesh::SupportLocal(const Vec3f& local_dir) const
 	// brute force search
 	// TODO : optimize using physx hill climbing searching
 	const std::vector<Vec3f>& poses = shape_data_.m_positions;
-	const Vec3f trans = rot_.transpose() * center_;
 
-	float max_dot = (poses[0] + trans).dot(local_dir);
+	float max_dot = poses[0].dot(local_dir);
 	int   max_idx = 0;
 	for (int i = 1; i < poses.size(); ++i) {
-		const float dot_val = (poses[i] + trans).dot(local_dir);
+		const float dot_val = poses[i].dot(local_dir);
 		if (dot_val > max_dot) {
 			max_dot = dot_val;
 			max_idx = i;

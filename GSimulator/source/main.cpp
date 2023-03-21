@@ -62,7 +62,9 @@ int main(int argc, char *argv[])
     //CreateCapsuleObstacle(0.0f, 0.0f, 0.0f, 0.3f, 0.7f);
     //CreateCubeObstacle(-0.30f, -0.4f, 1.2f, 0.5f, 0.5f, 0.5f);
     //CreateCapsuleObstacle(0.55f, -0.5f, 0.0f, 0.1f, 0.3f);
-   
+    CreateSphereObstacle(0.0f, 0.0f, 0.0f, 1.0f);
+    CreateCubeObstacle(0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f);
+
     GComponent::EngineApp::getInstance().Exec();
     
     return 0;

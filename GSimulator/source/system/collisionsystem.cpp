@@ -4,6 +4,8 @@
 
 #include "GComponent/Geometry/gcollision_detection.h"
 
+#include "model/model.h"
+
 #include <iostream>
 
 namespace GComponent {
@@ -192,9 +194,9 @@ CollisionSystem::~CollisionSystem() = default;
 void CollisionSystem::Initialize()
 {}
 
-void CollisionSystem::AddProcessShapes(CRefShapePtrs shapes, CRefTransform pose)
+void CollisionSystem::AddProcessShapes(CRefShapePtrs shapes, CRefTransform pose, Model* model)
 {
-	need_process_.push_back(std::make_pair(shapes, pose));
+	need_process_.push_back(std::make_tuple(shapes, pose, model));
 }
 
 void CollisionSystem::tick(float delta_time)
@@ -202,17 +204,22 @@ void CollisionSystem::tick(float delta_time)
 	(void)delta_time;
 	//TODO: add broad phase collision checking to accelerate the whole process
 	for (int i = 0; i < need_process_.size(); ++i) {
-		auto& [col_a, pose_a] = need_process_[i];
+		auto& [col_a, pose_a, m_a] = need_process_[i];
 	for (int j = i + 1; j < need_process_.size(); ++j) {
-		auto& [col_b, pose_b] = need_process_[j];
-		OverlapCheck(col_a, pose_a, col_b, pose_b);
+		auto& [col_b, pose_b, m_b] = need_process_[j];
+		if (OverlapCheck(col_a, pose_a, col_b, pose_b)) {
+#ifdef _COLLISION_TEST
+			m_a->intesection_ = true;
+			m_b->intesection_ = true;
+#endif
+		}
 	}
 	}
 
 	need_process_.clear();	
 }
 
-void CollisionSystem::OverlapCheck(CRefShapePtrs shapes_a, Transform pose_a,
+bool CollisionSystem::OverlapCheck(CRefShapePtrs shapes_a, Transform pose_a,
 								   CRefShapePtrs shapes_b, Transform pose_b)
 {
 	for (auto shape_a : shapes_a) {
@@ -228,6 +235,7 @@ void CollisionSystem::OverlapCheck(CRefShapePtrs shapes_a, Transform pose_a,
 
 			if (collision_func(shape_a, pose_a, shape_b, pose_b)) {
 				std::cout << "collision happened\n";
+				return true;
 			}
 
 			if (need_swap) {
@@ -235,6 +243,7 @@ void CollisionSystem::OverlapCheck(CRefShapePtrs shapes_a, Transform pose_a,
 			}
 		}
 	}
+	return false;
 }
 
 

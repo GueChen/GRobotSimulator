@@ -19,6 +19,8 @@
 
 namespace GComponent {
 
+class Model;
+
 struct CollisionMessage {
 	uintptr_t m_belong = 0ull;	
 };
@@ -41,7 +43,7 @@ public:
 	~CollisionSystem();
 	void  Initialize();
 
-	void  AddProcessShapes(CRefShapePtrs shapes, CRefTransform pose);
+	void  AddProcessShapes(CRefShapePtrs shapes, CRefTransform pose, Model* model);
 
 	void  tick(float delta_time);
 
@@ -49,11 +51,11 @@ protected:
 	CollisionSystem() = default;
 
 private:
-	void OverlapCheck(CRefShapePtrs shapes_a, Transform pose_a, 
+	bool OverlapCheck(CRefShapePtrs shapes_a, Transform pose_a, 
 					  CRefShapePtrs shapes_b, Transform pose_b);
 
 private:
-	std::vector<std::pair<ShapePtrs, Transform>> need_process_;
+	std::vector<std::tuple<ShapePtrs, Transform, Model*>> need_process_;
 	
 /*____________________STATIC FIELDS____________________________________________*/	
 private:

@@ -117,6 +117,11 @@ private:
 	void PassSpecifiedListNormal	(RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);
 	void PassSpecifiedListDepth		(RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);			
 
+#ifdef _COLLISION_TEST
+	void CollisionPass(RenderList&, function<RawptrModel(const std::string&)>ObjGetter);
+#endif
+
+
 /*_______________________Planning Simplex Render_____________________________________________*/
 	void SimplexMeshPass();
 

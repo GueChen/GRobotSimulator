@@ -46,7 +46,10 @@ const std::string_view& GComponent::ColliderComponent::GetTypeName() const
 
 void ColliderComponent::tickImpl(float delta)
 {	
-	CollisionSystem::getInstance().AddProcessShapes(GetShapes(), ptr_parent_->getModelMatrixWithoutScale());
+#ifdef _COLLISION_TEST
+	ptr_parent_->intesection_ = false;
+#endif
+	CollisionSystem::getInstance().AddProcessShapes(GetShapes(), ptr_parent_->getModelMatrixWithoutScale(), ptr_parent_);
 }
 
 }
