@@ -246,7 +246,7 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> GComponent::ModelLoader::
                 norm.x = norm.y = norm.z = 0.0f;
             }
             /* Process Texcoord UV */
-            if (attrib.texcoords.size() > 0)
+            if (attrib.texcoords.size() > 0 && index.texcoord_index >= 0)
             {
                 coord.x = attrib.texcoords[2 * index.texcoord_index + 0];
                 coord.y = attrib.texcoords[2 * index.texcoord_index + 1];
