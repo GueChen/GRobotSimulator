@@ -9,7 +9,7 @@
 
 #include "geometry/abstract_shape.hpp"
 
-#include <Eigen/Core>
+#include <memory>
 
 namespace GComponent{
 

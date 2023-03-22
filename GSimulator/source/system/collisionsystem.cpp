@@ -96,7 +96,11 @@ static bool OverlapCapsulePlane		(OVERLAP_PARAMS) {
 }
 
 static bool OverlapCapsuleConvexHull(OVERLAP_PARAMS) {
-	return false;
+	CapsuleShape* capsule = dynamic_cast<CapsuleShape*>(shape_a);
+	ConvexShape*  convex = dynamic_cast<ConvexShape*>(shape_b);
+	return IntersectGJK(ConvexCapsule(*capsule, GetPoseRot_PARAMS(pose_a)),
+						ConvexHullMesh(*convex, GetPoseRot_PARAMS(pose_b)),
+						GetPose(pose_a) - GetPose(pose_b));
 }
 
 static bool OverlapBoxBox			(OVERLAP_PARAMS) {
@@ -114,7 +118,11 @@ static bool OverlapBoxPlane			(OVERLAP_PARAMS) {
 }
 
 static bool OverlapBoxConvexHull	(OVERLAP_PARAMS) {
-	return false;
+	BoxShape*    box    = dynamic_cast<BoxShape*>(shape_a);
+	ConvexShape* convex = dynamic_cast<ConvexShape*>(shape_b);
+	return IntersectGJK(ConvexBox(*box, GetPoseRot_PARAMS(pose_a)),
+						ConvexHullMesh(*convex, GetPoseRot_PARAMS(pose_b)),
+						GetPose(pose_a) - GetPose(pose_b));
 }
 
 static bool OverlapPlanePlane		(OVERLAP_PARAMS) {
@@ -128,7 +136,11 @@ static bool OverlapPlaneConvexHull	(OVERLAP_PARAMS) {
 }
 
 static bool OverlapConvexHullConvexHull(OVERLAP_PARAMS) {
-	return false;
+	ConvexShape* convex_a = dynamic_cast<ConvexShape*>(shape_a);
+	ConvexShape* convex_b = dynamic_cast<ConvexShape*>(shape_b);
+	return IntersectGJK(ConvexHullMesh(*convex_a, GetPoseRot_PARAMS(pose_a)),
+						ConvexHullMesh(*convex_b, GetPoseRot_PARAMS(pose_b)),
+						GetPose(pose_a) - GetPose(pose_b));
 }
 
 /*____________________________COLLISION MAPS____________________________________*/
