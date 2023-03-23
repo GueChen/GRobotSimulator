@@ -246,7 +246,6 @@ bool CollisionSystem::OverlapCheck(CRefShapePtrs shapes_a, Transform pose_a,
 			}
 
 			if (collision_func(shape_a, pose_a, shape_b, pose_b)) {
-				std::cout << "collision happened\n";
 				return true;
 			}
 
