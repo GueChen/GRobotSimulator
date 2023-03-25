@@ -5,11 +5,13 @@
 
 #include <Eigen/Dense>
 
+#include <numeric>
+
 namespace GComponent {
 
 struct RawBoundingBox {
-	Eigen::Vector3<float>  m_min;
-	Eigen::Vector3<float>  m_max;
+	Eigen::Vector3<float>  m_min = Vec3f::Ones() * std::numeric_limits<float>::max();
+	Eigen::Vector3<float>  m_max = Vec3f::Ones() * std::numeric_limits<float>::lowest();
 };
 
 struct RawConvex {

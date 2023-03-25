@@ -1,7 +1,7 @@
 /**
 * 
 * 
-* 
+* @author Gwz
 * 
 **/
 #ifndef __SKIN_DIALOG_H

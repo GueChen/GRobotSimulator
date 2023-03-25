@@ -143,6 +143,13 @@ static bool OverlapConvexHullConvexHull(OVERLAP_PARAMS) {
 						GetPose(pose_a) - GetPose(pose_b));
 }
 
+#undef OVERLAP_PARAMS
+#undef CAPSULE_PARAMS
+#undef BOX_PARAMS
+#undef GetPose
+#undef GetRot
+#undef GetPoseRot_PARAMS
+
 /*____________________________COLLISION MAPS____________________________________*/
 static std::map<ShapeEnum, CollisionSystem::CollisionFunc> sphere_col_map = {
  {Sphere,		OverlapSphereSphere},

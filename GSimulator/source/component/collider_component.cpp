@@ -18,6 +18,7 @@ GComponent::ColliderComponent::ColliderComponent(Model* parent, _ShapeRawPtrs sh
 
 void GComponent::ColliderComponent::RegisterShape(_ShapeRawPtr ptr)
 {
+	boundings_.push_back(BoundingBox::CompouteBoundingBox(*ptr, ptr_parent_->getTransGlobal(), Roderigues(ptr_parent_->getRotGlobal())));
 	shapes_.push_back(_ShapePtr(ptr));
 }
 

@@ -9,6 +9,7 @@
 
 #include "component/component.hpp"
 #include "geometry/abstract_shape.hpp"
+#include "geometry/bounding_box.h"
 
 #include <vector>
 #include <memory>
@@ -19,6 +20,7 @@ namespace GComponent {
 class ColliderComponent: public Component{
 	using _ShapePtr		= std::unique_ptr<AbstractShape>;
 	using _ShapePtrs    = std::vector<std::unique_ptr<AbstractShape>>;
+	using _Boundings    = std::vector<BoundingBox>;
 	using _ShapeRawPtrs = std::vector<AbstractShape*>;
 	using _ShapeRawPtr  = AbstractShape*;
 	
@@ -37,8 +39,9 @@ protected:
 	void		  tickImpl(float delta) override;
 
 protected:
-	_ShapePtrs shapes_ = {};
-	
+	_ShapePtrs shapes_	  = {};
+	// TODO: create a new class combine shape and bounding box
+	_Boundings boundings_ = {};
 
 public:
 	constexpr static const std::string_view type_name = "ColliderComponent";
