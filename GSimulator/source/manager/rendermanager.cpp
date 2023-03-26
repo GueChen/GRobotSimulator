@@ -12,6 +12,10 @@
 #include "model/model.h"
 #include "component/material_component.h"
 
+#ifdef _COLLISION_TEST
+#include "component/collider_component.h"
+#endif
+
 #include <QtGUI/QOpenGLContext>
 
 #include <iostream>
@@ -478,6 +482,10 @@ void RenderManager::NormalPass()
 	});
 	gl_->glDisable(GL_BLEND);	
 	gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	
+	BoundingBoxPass(render_list_, [](const std::string& name) {
+		return ModelManager::getInstance().GetModelByName(name);
+	});
 #endif
 
 	// TODO: not so good try to hide it
@@ -601,6 +609,22 @@ void RenderManager::CollisionPass(RenderList&list, function<RawptrModel(const st
 		}
 	}
 	
+
+}
+void RenderManager::BoundingBoxPass(RenderList& list, function<RawptrModel(const std::string&)> ObjGetter)
+{
+	GLineBox box(vec3(-1.0f), vec3(1.0f));
+	box.SetGL(gl_);
+	for (auto& [obj_name, _] : list) {
+		Model* obj = ObjGetter(obj_name);
+		if (!obj) continue;
+		auto col = obj->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());
+		if (!col) continue;
+		const auto& bound = col->GetBound();
+		box.Update(Conversion::fromVec3f(bound.m_min), 
+				   Conversion::fromVec3f(bound.m_max));
+		box.Draw();
+	}
 
 }
 #endif

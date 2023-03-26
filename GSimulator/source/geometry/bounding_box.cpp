@@ -36,8 +36,11 @@ BoundingBox BoundingBox::CompouteBoundingBox(const AbstractShape& shape, const V
 	}
 	case ShapeEnum::Box: {
 		const BoxShape&		box		= dynamic_cast<const BoxShape&>(shape);
-		Vec3f extend(box.m_half_x, box.m_half_y, box.m_half_z);
-		extend = rot * extend;
+		Vec3f ori_extend(box.m_half_x, box.m_half_y, box.m_half_z);
+		Vec3f extend = Vec3f::Zero();
+		for (int j = 0; j < 3; ++j) for (int i = 0; i < 3; ++i){
+			extend(i) += std::abs(rot(i, j)) * ori_extend(j);			
+		}		
 		extend.x() = std::abs(extend.x());
 		extend.y() = std::abs(extend.y());
 		extend.z() = std::abs(extend.z());
@@ -48,12 +51,13 @@ BoundingBox BoundingBox::CompouteBoundingBox(const AbstractShape& shape, const V
 	case ShapeEnum::ConvexHull: {
 		const ConvexShape&	convex	= dynamic_cast<const ConvexShape&>(shape);
 		for (auto& vert : convex.m_positions) {
-			bound_box.m_min.x() = std::min(bound_box.m_min.x(), vert.x());
-			bound_box.m_min.y() = std::min(bound_box.m_min.y(), vert.y());
-			bound_box.m_min.z() = std::min(bound_box.m_min.z(), vert.z());
-			bound_box.m_max.x() = std::max(bound_box.m_max.x(), vert.x());
-			bound_box.m_max.y() = std::max(bound_box.m_max.y(), vert.y());
-			bound_box.m_max.z() = std::max(bound_box.m_max.z(), vert.z());
+			Vec3f cur_vert = rot * vert + trans;
+			bound_box.m_min.x() = std::min(bound_box.m_min.x(), cur_vert.x());
+			bound_box.m_min.y() = std::min(bound_box.m_min.y(), cur_vert.y());
+			bound_box.m_min.z() = std::min(bound_box.m_min.z(), cur_vert.z());
+			bound_box.m_max.x() = std::max(bound_box.m_max.x(), cur_vert.x());
+			bound_box.m_max.y() = std::max(bound_box.m_max.y(), cur_vert.y());
+			bound_box.m_max.z() = std::max(bound_box.m_max.z(), cur_vert.z());
 		}
 		break;
 	}

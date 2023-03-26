@@ -33,15 +33,20 @@ public:
 	_ShapeRawPtr  GetShape		 (int idx);
 	_ShapeRawPtrs GetShapes		 ();
 
+	inline const BoundingBox& GetBound() const		{ return bound_; }
+	inline const _Boundings& GetShapesBounds()const { return boundings_; }
+
 	virtual const string_view& GetTypeName() const override;
 
 protected:
 	void		  tickImpl(float delta) override;
+	void		  UpdateBoundingBox();
 
 protected:
-	_ShapePtrs shapes_	  = {};
+	_ShapePtrs  shapes_	   = {};
 	// TODO: create a new class combine shape and bounding box
-	_Boundings boundings_ = {};
+	_Boundings  boundings_ = {};
+	BoundingBox bound_;
 
 public:
 	constexpr static const std::string_view type_name = "ColliderComponent";
