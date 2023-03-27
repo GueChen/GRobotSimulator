@@ -22,7 +22,7 @@ file(GLOB_RECURSE HEADER_FILES "source/*.h" "source/*.hpp")
 file(GLOB_RECURSE SOURCE_FILES "source/*.cpp" "source/*.c")
 file(GLOB_RECURSE UI_FILES "UI/*.ui")
 file(GLOB_RECURSE QRC_FILES "resource/*.qrc")
-file(GLOB_RECURSE SHADER_FILES "Shader/*")
+file(GLOB_RECURSE SHADER_FILES "Shader/*.frag" "Shader/*.vert" "Shader/*.geom")
 
 #____________________ Keep File Path Structrue ________________________________________
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${HEADER_FILES} ${SOURCE_FILES} ${UI_FILES} ${QRC_FILES} ${SHADER_FILES})

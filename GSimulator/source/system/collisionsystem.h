@@ -9,6 +9,7 @@
 
 #include "base/singleton.h"
 #include "geometry/abstract_shape.hpp"
+#include "geometry/bounding_box.h"
 
 #include <QtCore/QObject>
 
@@ -44,7 +45,7 @@ public:
 	void  Initialize();
 
 	void  AddProcessShapes(CRefShapePtrs shapes, CRefTransform pose, Model* model);
-
+	void  AddBroadPhaseQuery(Model* key, const BoundingBox& box);
 	void  tick(float delta_time);
 
 protected:
@@ -53,10 +54,12 @@ protected:
 private:
 	bool OverlapCheck(CRefShapePtrs shapes_a, Transform pose_a, 
 					  CRefShapePtrs shapes_b, Transform pose_b);
+	void BroadPhaseQuery();
 
 private:
 	std::vector<std::tuple<ShapePtrs, Transform, Model*>> need_process_;
-	
+	std::vector<std::pair<Model*, BoundingBox>>			  broad_need_process_;
+
 /*____________________STATIC FIELDS____________________________________________*/	
 private:
 	static std::map<ShapeEnum, std::map<ShapeEnum, CollisionFunc>> collision_func_map;

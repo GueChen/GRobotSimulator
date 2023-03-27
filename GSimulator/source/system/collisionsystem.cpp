@@ -7,6 +7,10 @@
 #include "model/model.h"
 
 #include <iostream>
+#include <algorithm>
+#include <unordered_map>
+#include <unordered_set>
+#include <queue>
 
 namespace GComponent {
 
@@ -218,10 +222,19 @@ void CollisionSystem::AddProcessShapes(CRefShapePtrs shapes, CRefTransform pose,
 	need_process_.push_back(std::make_tuple(shapes, pose, model));
 }
 
+void CollisionSystem::AddBroadPhaseQuery(Model* key, const BoundingBox& box)
+{
+	broad_need_process_.push_back(std::make_pair(key, box));
+}
+
 void CollisionSystem::tick(float delta_time)
 {
 	(void)delta_time;
+	// Broad Phase Query
+	BroadPhaseQuery();
+
 	//TODO: add broad phase collision checking to accelerate the whole process
+	// Narrow Phase Overlap Test
 	for (int i = 0; i < need_process_.size(); ++i) {
 		auto& [col_a, pose_a, m_a] = need_process_[i];
 	for (int j = i + 1; j < need_process_.size(); ++j) {
@@ -235,6 +248,7 @@ void CollisionSystem::tick(float delta_time)
 	}
 	}
 
+	
 	need_process_.clear();	
 }
 
@@ -262,6 +276,61 @@ bool CollisionSystem::OverlapCheck(CRefShapePtrs shapes_a, Transform pose_a,
 		}
 	}
 	return false;
+}
+
+void CollisionSystem::BroadPhaseQuery()
+{
+	// sweep-and-prune
+	struct SapInterval {		
+		float point;		
+		void* key;
+	};
+
+	std::unordered_map<void*, std::array<std::pair<float, float>, 2>>
+		sap_box_map;
+	
+	std::vector<SapInterval> sweep_queue;
+	for (auto& [key, bounding] : broad_need_process_) {
+		auto& part = sap_box_map[key];
+		sweep_queue.emplace_back(bounding.m_min.x(), key);
+		sweep_queue.emplace_back(bounding.m_max.x(), key);
+		part[0] = { bounding.m_min.y(), bounding.m_max.y()};
+		part[1] = { bounding.m_min.z(), bounding.m_max.z()};		
+	}
+
+	std::sort(sweep_queue.begin(), sweep_queue.end(), [](auto&& i1, auto&& i2) {
+		return i1.point < i2.point;
+		});
+	
+	auto check_overlap = [&map =sap_box_map](auto key1, auto key2) {
+		auto& col1 = map[key1], &col2 = map[key2];
+		return !(col1[0].second < col2[0].first || col2[0].second < col1[0].first) &&
+			   !(col1[1].second < col2[1].first || col2[1].second < col1[1].first);
+	};	
+	std::vector<std::pair<void*, void*>> col_pairs;
+
+	{
+		std::unordered_set<void*> visited;
+
+		for(auto it = sweep_queue.begin(); it != sweep_queue.end();++it){
+			if (visited.count(it->key)) continue;
+			auto cur = std::next(it);
+			while (cur->key != it->key) {				
+				if (!visited.count(cur->key) && check_overlap(cur->key, it->key)) {
+					col_pairs.emplace_back(it->key, cur->key);
+				}
+				cur = std::next(cur);
+			}
+			visited.insert(it->key);
+		}
+	}
+	
+	for (auto& [col1, col2] : col_pairs) {
+		std::cout << std::format("pairs may collision : {:<20} -- {:<20}\n",
+			((Model*)col1)->getName(), ((Model*)col2)->getName());
+	}
+
+	broad_need_process_.clear();
 }
 
 

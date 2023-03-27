@@ -71,6 +71,7 @@ void ColliderComponent::tickImpl(float delta)
 		UpdateBoundingBox(boundings_[i]);
 	}
 
+	CollisionSystem::getInstance().AddBroadPhaseQuery(ptr_parent_, bound_);
 	//CollisionSystem::getInstance().AddProcessShapes(GetShapes(), cur_pose, ptr_parent_);
 }
 
