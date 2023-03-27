@@ -615,17 +615,24 @@ void RenderManager::BoundingBoxPass(RenderList& list, function<RawptrModel(const
 {
 	GLineBox box(vec3(-1.0f), vec3(1.0f));
 	box.SetGL(gl_);
+	BoundingBox large;
 	for (auto& [obj_name, _] : list) {
 		Model* obj = ObjGetter(obj_name);
 		if (!obj) continue;
 		auto col = obj->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());
 		if (!col) continue;
 		const auto& bound = col->GetBound();
+		large = BoundingBox::MergeTwoBoundingBox(large, bound);
 		box.Update(Conversion::fromVec3f(bound.m_min), 
 				   Conversion::fromVec3f(bound.m_max));
 		box.Draw();
-	}
+		const auto& bounds = col->GetShapesBounds();
+		if (bounds.size() == 1) continue;
 
+	}
+	box.Update(Conversion::fromVec3f(large.m_min),
+			   Conversion::fromVec3f(large.m_max));
+	box.Draw();
 }
 #endif
 

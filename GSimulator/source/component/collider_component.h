@@ -40,7 +40,7 @@ public:
 
 protected:
 	void		  tickImpl(float delta) override;
-	void		  UpdateBoundingBox();
+	void		  UpdateBoundingBox(const BoundingBox& box);
 
 protected:
 	_ShapePtrs  shapes_	   = {};

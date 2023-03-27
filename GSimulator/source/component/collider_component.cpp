@@ -21,12 +21,21 @@ void GComponent::ColliderComponent::RegisterShape(_ShapeRawPtr ptr)
 {
 	boundings_.push_back(BoundingBox::CompouteBoundingBox(*ptr, ptr_parent_->getTransGlobal(), Roderigues(ptr_parent_->getRotGlobal())));
 	shapes_.push_back(_ShapePtr(ptr));
-	UpdateBoundingBox();
+	UpdateBoundingBox(boundings_.back());
 }
 
 void ColliderComponent::DeregisterShape(_ShapeRawPtr ptr)
 {
-	std::erase_if(shapes_, [ptr = ptr](auto&& it_ptr) { return it_ptr.get() == ptr; });
+	auto s_iter = shapes_.begin(),    s_end = shapes_.end();
+	auto b_iter = boundings_.begin(), b_end = boundings_.end();
+
+	for (; s_iter != s_end && b_iter != b_end; ++s_iter, ++b_iter) 
+	if (s_iter->get() == ptr) {			
+		break;
+	}
+
+	shapes_.erase(s_iter);
+	boundings_.erase(b_iter);	
 }
 
 ColliderComponent::_ShapeRawPtr ColliderComponent::GetShape(int idx)
@@ -59,14 +68,15 @@ void ColliderComponent::tickImpl(float delta)
 	SO3f  cur_rot   = cur_pose.block(0, 0, 3, 3);
 	for (int i = 0; i < shapes_.size(); ++i) {
 		boundings_[i] = BoundingBox::CompouteBoundingBox(*shapes_[i], cur_trans, cur_rot);
-		UpdateBoundingBox();
+		UpdateBoundingBox(boundings_[i]);
 	}
-	CollisionSystem::getInstance().AddProcessShapes(GetShapes(), cur_pose, ptr_parent_);
+
+	//CollisionSystem::getInstance().AddProcessShapes(GetShapes(), cur_pose, ptr_parent_);
 }
 
-void ColliderComponent::UpdateBoundingBox()
+void ColliderComponent::UpdateBoundingBox(const BoundingBox& box)
 {
-	bound_ = BoundingBox::MergeTwoBoundingBox(bound_, boundings_.back());
+	bound_ = BoundingBox::MergeTwoBoundingBox(bound_, box);
 }
 
 }

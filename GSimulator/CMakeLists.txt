@@ -7,6 +7,7 @@ add_definitions(-D_USE_CSM)
 if(WIN32)
 	add_compile_options(/W4)
 	add_compile_options(/wd4828)
+	add_compile_options(/MP)
 endif()
 
 set(TARGET_NAME GSimulatorEditor)
@@ -21,9 +22,10 @@ file(GLOB_RECURSE HEADER_FILES "source/*.h" "source/*.hpp")
 file(GLOB_RECURSE SOURCE_FILES "source/*.cpp" "source/*.c")
 file(GLOB_RECURSE UI_FILES "UI/*.ui")
 file(GLOB_RECURSE QRC_FILES "resource/*.qrc")
+file(GLOB_RECURSE SHADER_FILES "Shader/*")
 
 #____________________ Keep File Path Structrue ________________________________________
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${HEADER_FILES} ${SOURCE_FILES} ${UI_FILES} ${QRC_FILES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${HEADER_FILES} ${SOURCE_FILES} ${UI_FILES} ${QRC_FILES} ${SHADER_FILES})
 
 #___________________ Aditional Auto UIC Path Setting __________________________________
 set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_AUTOUIC_SEARCH_PATHS} 

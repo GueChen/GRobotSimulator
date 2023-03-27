@@ -20,10 +20,17 @@ namespace GComponent {
 using Vec3f = Eigen::Vector3f;
 using SO3f  = Eigen::Matrix3f;
 struct BoundingBox {
-	BoundingBox() = default;
+	BoundingBox()  = default;
 	BoundingBox(const Vec3f& min, const Vec3f& max): 
 		m_min(min), m_max(max) {}
-	
+	~BoundingBox() = default;
+
+	BoundingBox(const BoundingBox& other) = default;
+	BoundingBox(BoundingBox&& other)	  = default;
+
+	BoundingBox& operator=(const BoundingBox& other) = default;
+	BoundingBox& operator=(BoundingBox&& other)		 = default;
+
 /// Static Methods
 	static BoundingBox MergeTwoBoundingBox(const BoundingBox& box_a, const BoundingBox& box_b);
 	static BoundingBox CompouteBoundingBox(const AbstractShape& shape, const Vec3f& trans, const SO3f& rot);
