@@ -217,9 +217,9 @@ CollisionSystem::~CollisionSystem() = default;
 void CollisionSystem::Initialize()
 {}
 
-void CollisionSystem::AddProcessShapes(CRefShapePtrs shapes, CRefTransform pose, Model* model)
+void CollisionSystem::AddProcessShapes(Model* key, CRefShapePtrs shapes, CRefTransform pose)
 {
-	need_process_.push_back(std::make_tuple(shapes, pose, model));
+	shape_table_[key] = std::make_pair(shapes, pose);	
 }
 
 void CollisionSystem::AddBroadPhaseQuery(Model* key, const BoundingBox& box)
@@ -235,21 +235,17 @@ void CollisionSystem::tick(float delta_time)
 
 	//TODO: add broad phase collision checking to accelerate the whole process
 	// Narrow Phase Overlap Test
-	for (int i = 0; i < need_process_.size(); ++i) {
-		auto& [col_a, pose_a, m_a] = need_process_[i];
-	for (int j = i + 1; j < need_process_.size(); ++j) {
-		auto& [col_b, pose_b, m_b] = need_process_[j];
-		if (OverlapCheck(col_a, pose_a, col_b, pose_b)) {
-#ifdef _COLLISION_TEST
-			m_a->intesection_ = true;
-			m_b->intesection_ = true;
-#endif
+	for (auto& [obj_a, obj_b] : narrow_need_process_) {
+		auto&& [shape_a, pose_a] = shape_table_[obj_a];
+		auto&& [shape_b, pose_b] = shape_table_[obj_b];
+		if (OverlapCheck(shape_a, pose_a, shape_b, pose_b)) {
+			obj_a->intesection_ = true;
+			obj_b->intesection_ = true;
 		}
 	}
-	}
-
-	
-	need_process_.clear();	
+		
+	shape_table_.clear();
+	narrow_need_process_.clear();	
 }
 
 bool CollisionSystem::OverlapCheck(CRefShapePtrs shapes_a, Transform pose_a,
@@ -307,8 +303,7 @@ void CollisionSystem::BroadPhaseQuery()
 		return !(col1[0].second < col2[0].first || col2[0].second < col1[0].first) &&
 			   !(col1[1].second < col2[1].first || col2[1].second < col1[1].first);
 	};	
-	std::vector<std::pair<void*, void*>> col_pairs;
-
+	
 	{
 		std::unordered_set<void*> visited;
 
@@ -317,7 +312,7 @@ void CollisionSystem::BroadPhaseQuery()
 			auto cur = std::next(it);
 			while (cur->key != it->key) {				
 				if (!visited.count(cur->key) && check_overlap(cur->key, it->key)) {
-					col_pairs.emplace_back(it->key, cur->key);
+					narrow_need_process_.emplace_back((Model*)it->key, (Model*)cur->key);					
 				}
 				cur = std::next(cur);
 			}
@@ -325,11 +320,6 @@ void CollisionSystem::BroadPhaseQuery()
 		}
 	}
 	
-	for (auto& [col1, col2] : col_pairs) {
-		std::cout << std::format("pairs may collision : {:<20} -- {:<20}\n",
-			((Model*)col1)->getName(), ((Model*)col2)->getName());
-	}
-
 	broad_need_process_.clear();
 }
 

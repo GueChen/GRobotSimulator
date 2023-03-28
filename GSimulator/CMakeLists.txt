@@ -64,8 +64,8 @@ find_library(PHYSX_STATIC_PVD PhysXPvdSDK_static_64     PATHS ${VCPKG_STATIC_LIB
 #___________________ Display _____________________________________________________________
 message("UI files	 = ${UI_FILES}")
 message("Qt6 dir	 = ${Qt6_DIR}")
-message("HEADER_FILES = ${HEADER_FILES}")
 message("CMAKE_CUURENT_SOURCE_DIR = ${CMAKE_CURRENT_SOURCE_DIR}")
+
 #
 get_target_property(_QMAKE_EXECUTABLE Qt6::qmake IMPRTED_LOCATION)
 get_filename_component(_QT_BIN_DIR "${_QMAKE_EXECUTABLE}" DIRECTORY)
