@@ -62,15 +62,17 @@ void ColliderComponent::tickImpl(float delta)
 #ifdef _COLLISION_TEST
 	ptr_parent_->intesection_ = false;
 #endif
-	bound_ = BoundingBox();
+	
 	SE3f  cur_pose  = ptr_parent_->getModelMatrixWithoutScale();
 	Vec3f cur_trans = cur_pose.block(0, 3, 3, 1);
 	SO3f  cur_rot   = cur_pose.block(0, 0, 3, 3);
-	for (int i = 0; i < shapes_.size(); ++i) {
-		boundings_[i] = BoundingBox::CompouteBoundingBox(*shapes_[i], cur_trans, cur_rot);
-		UpdateBoundingBox(boundings_[i]);
+	if (ptr_parent_->getDirty()) {
+		bound_ = BoundingBox();
+		for (int i = 0; i < shapes_.size(); ++i) {
+			boundings_[i] = BoundingBox::CompouteBoundingBox(*shapes_[i], cur_trans, cur_rot);
+			UpdateBoundingBox(boundings_[i]);
+		}
 	}
-
 	CollisionSystem::getInstance().AddBroadPhaseQuery(ptr_parent_, bound_);
 	CollisionSystem::getInstance().AddProcessShapes(ptr_parent_, GetShapes(), cur_pose);
 }

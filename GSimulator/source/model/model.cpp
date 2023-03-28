@@ -62,6 +62,8 @@ void GComponent::Model::tick(float delta_time)
     for (auto& child : children_) {
         child->tick(delta_time);
     }
+
+    is_dirty_ = false;
 }
 
 void GComponent::Model::tickImpl(float delta_time)
@@ -208,6 +210,9 @@ void GComponent::Model::updateModelMatrix()
         shear_part.block(0, 0, 3, 3) = Shear(shear_);
     }
     model_mat_ = af_model.matrix() * scale_part * shear_part;
+
+    is_dirty_  = true;
+
     updateChildrenMatrix(Mat3::Identity()/*scale_part.block(0, 0, 3, 3) * shear_part.block(0, 0, 3, 3)*/);
 }
 

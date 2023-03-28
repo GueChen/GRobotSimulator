@@ -112,6 +112,8 @@ public:
     // TODO: add QR Decomposition then set global scale
     //vec3          getScaleGlobal() const;
 
+    inline bool     getDirty()       const               { return is_dirty_; }
+
     bool            RegisterComponent(_PtrComponent && component_ptr);
     bool            DeregisterComponent(const string& component_name);
     inline const vector<_PtrComponent>&
@@ -148,6 +150,7 @@ protected:
     string                  name_                   = "";
     string                  mesh_                   = "";
 
+    bool                    is_dirty_               = false;
 #ifdef _COLLISION_TEST
 public:
     bool                    intesection_            = false;
