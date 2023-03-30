@@ -1,6 +1,7 @@
 #include "system/collisionsystem.h"
 
 #include "geometry/convex_wrapper/convex_wrapper.h"
+#include "geometry/bounding_volume_hierarchy.h"
 
 #include "GComponent/Geometry/gcollision_detection.h"
 
@@ -282,6 +283,7 @@ void CollisionSystem::BroadPhaseQuery()
 		void* key;
 	};
 
+#ifdef SAP
 	std::unordered_map<void*, std::array<std::pair<float, float>, 2>>
 		sap_box_map;
 	
@@ -319,7 +321,7 @@ void CollisionSystem::BroadPhaseQuery()
 			visited.insert(it->key);
 		}
 	}
-	
+#endif
 	broad_need_process_.clear();
 }
 

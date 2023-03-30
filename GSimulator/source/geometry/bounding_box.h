@@ -20,6 +20,9 @@ namespace GComponent {
 using Vec3f = Eigen::Vector3f;
 using SO3f  = Eigen::Matrix3f;
 struct BoundingBox {
+	enum Dim {
+		X = 0, Y, Z
+	};
 	BoundingBox()  = default;
 	BoundingBox(const Vec3f& min, const Vec3f& max): 
 		m_min(min), m_max(max) {}
@@ -31,10 +34,18 @@ struct BoundingBox {
 	BoundingBox& operator=(const BoundingBox& other) = default;
 	BoundingBox& operator=(BoundingBox&& other)		 = default;
 
+	Vec3f	Differ()	  const;
+	Vec3f	Centroid()	  const;
+	Dim		MaxExtent()	  const;
+	float	SurfaceArea() const;
+
+	BoundingBox& Merge(const BoundingBox& other);
+	BoundingBox& Merge(const Vec3f& p);
+
 /// Static Methods
 	static BoundingBox MergeTwoBoundingBox(const BoundingBox& box_a, const BoundingBox& box_b);
+	static BoundingBox MergeWithPoint	  (const BoundingBox& box,	 const Vec3f& p);
 	static BoundingBox CompouteBoundingBox(const AbstractShape& shape, const Vec3f& trans, const SO3f& rot);
-
 /// Fields
 	Vec3f m_min = Vec3f::Ones() * std::numeric_limits<float>::max();
 	Vec3f m_max = Vec3f::Ones() * std::numeric_limits<float>::lowest();

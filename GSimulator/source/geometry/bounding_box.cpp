@@ -1,6 +1,53 @@
 #include "geometry/bounding_box.h"
 
 namespace GComponent {
+Vec3f BoundingBox::Differ() const
+{
+	return m_max - m_min;
+}
+
+Vec3f BoundingBox::Centroid() const
+{
+	return 0.5f * m_min + 0.5f * m_max;
+}
+
+BoundingBox::Dim BoundingBox::MaxExtent() const
+{
+	Vec3f differ = Differ();
+	if (differ.x() >= differ.y() && differ.x() >= differ.z()) {
+		return Dim::X;
+	}
+	else if (differ.y() >= differ.z()) {
+		return Dim::Y;
+	}
+	else {
+		return Dim::Z;
+	}
+	
+}
+
+float BoundingBox::SurfaceArea() const
+{
+	Vec3f differ = Differ();
+	return 2.0f * (differ.x() * differ.y() +	// bottom surface
+				   differ.x() * differ.z() +	// front
+				   differ.y() * differ.z());	// right
+}
+
+BoundingBox& BoundingBox::Merge(const BoundingBox& other)
+{
+	*this = MergeTwoBoundingBox(*this, other);
+	return *this;	
+}
+
+BoundingBox& BoundingBox::Merge(const Vec3f& p)
+{
+	*this = MergeWithPoint(*this, p);
+	return *this;
+}
+
+
+/*_______________________________________________STATIC METHODS_____________________________________________*/
 BoundingBox BoundingBox::MergeTwoBoundingBox(const BoundingBox& box_a, const BoundingBox& box_b)
 {	
 	return BoundingBox(
@@ -10,6 +57,18 @@ BoundingBox BoundingBox::MergeTwoBoundingBox(const BoundingBox& box_a, const Bou
 		Vec3f(std::max(box_a.m_max.x(), box_b.m_max.x()),
 			  std::max(box_a.m_max.y(), box_b.m_max.y()),
 			  std::max(box_a.m_max.z(), box_b.m_max.z()))
+	);
+}
+
+BoundingBox BoundingBox::MergeWithPoint(const BoundingBox& box, const Vec3f& p)
+{
+	return BoundingBox(
+		Vec3f(std::min(box.m_min.x(), p.x()),
+			  std::min(box.m_min.y(), p.y()),
+			  std::min(box.m_min.z(), p.z())),
+		Vec3f(std::max(box.m_max.x(), p.x()),
+			  std::max(box.m_max.y(), p.y()),
+			  std::max(box.m_max.z(), p.z()))
 	);
 }
 

@@ -14,6 +14,7 @@
 
 #ifdef _COLLISION_TEST
 #include "component/collider_component.h"
+#include "geometry/bounding_volume_hierarchy.h"
 #endif
 
 #include <QtGUI/QOpenGLContext>
@@ -616,19 +617,26 @@ void RenderManager::BoundingBoxPass(RenderList& list, function<RawptrModel(const
 	GLineBox box(vec3(-1.0f), vec3(1.0f));
 	box.SetGL(gl_);
 	BoundingBox large;
+	std::vector<BoundingBox> boundings;
 	for (auto& [obj_name, _] : list) {
 		Model* obj = ObjGetter(obj_name);
 		if (!obj) continue;
 		auto col = obj->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());
 		if (!col) continue;
 		const auto& bound = col->GetBound();
+		boundings.push_back(bound);
 		large = BoundingBox::MergeTwoBoundingBox(large, bound);
 		box.Update(Conversion::fromVec3f(bound.m_min), 
 				   Conversion::fromVec3f(bound.m_max));
-		box.Draw();
-		const auto& bounds = col->GetShapesBounds();
-		if (bounds.size() == 1) continue;
+		box.Draw();		
+	}
 
+	BVHTree tree(boundings, BVHTree::Middle);
+	auto bvh = tree.GetBoundings();
+	for (auto& b : bvh) {
+		box.Update(Conversion::fromVec3f(b.m_min),
+				   Conversion::fromVec3f(b.m_max));
+		box.Draw();
 	}
 	box.Update(Conversion::fromVec3f(large.m_min),
 			   Conversion::fromVec3f(large.m_max));
