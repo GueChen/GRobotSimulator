@@ -3,6 +3,16 @@
 #include <algorithm>
 #include <stack>
 namespace GComponent {
+
+static int EqualSplit(std::vector<BVHInfo>& eles, int start, int end, int dim) {
+	int mid = (start + end) / 2;
+	std::nth_element(std::next(eles.begin(), start), std::next(eles.begin(), mid), std::next(eles.begin(), end),
+		[dim = dim](const BVHInfo& i1, const BVHInfo& i2) {								// use infos[mid] to divide bounds into 2 parts
+			return i1.m_centroid(dim) < i2.m_centroid(dim);
+		});
+	return mid;
+}
+
 BVHTree::BVHTree(const std::vector<BoundingBox>& bounds, SplitMethod split_method):
 	bounds_(bounds), 
 	split_(split_method)	// FIXME: is rebundunt ?
@@ -52,12 +62,15 @@ BVHNode* BVHTree::RecursiveBuild(int& tot, std::vector<BoundingBox>& ordered_bou
 {
 	BVHNode* node = new BVHNode;
 	++tot;
+	// Current Node 
 	BoundingBox bounds;
 	for (int i = start; i < end; ++i) {
 		bounds.Merge(infos[i].m_bounds);
 	}
 
 	int nb_bound = end - start;
+
+	// push all bounds elements into ordered bounds array
 	auto create_leaf_node = [&]() {
 		int first_offset = ordered_bounds.size();
 		for (int i = start; i < end; ++i) {
@@ -94,14 +107,73 @@ BVHNode* BVHTree::RecursiveBuild(int& tot, std::vector<BoundingBox>& ordered_bou
 				if (mid != start && mid != end) break;												// one equal means not divide infos into 2 different parts				
 			}
 			case SplitMethod::EqualCounts: {
-				mid = (start + end) / 2;
-				std::nth_element(std::next(infos.begin(), start), std::next(infos.begin(), mid), std::next(infos.begin(), end),
-					[dim = dim](const BVHInfo& i1, const BVHInfo& i2) {								// use infos[mid] to divide bounds into 2 parts
-						return i1.m_centroid(dim) < i2.m_centroid(dim);
-					});
+				mid = EqualSplit(infos, start, end, dim);
 				break;
 			}
 			case SplitMethod::SAH: {
+				if (nb_bound <= 4) {
+					mid = EqualSplit(infos, start, end, dim);
+				}
+				else {
+					constexpr int nb_buckets = 12;
+					struct BucketInfo {
+						int			m_count = 0;
+						BoundingBox m_bounds;
+					};
+					BucketInfo buckets[nb_buckets];
+					
+					// split all bounding box into bucket according to its relative scale coordinate of centroid 
+					// from centorid bounding box minimum corner point 
+					for (int i = start; i < end; ++i) {
+						int buck_idx = nb_bound * centroid_bound.RelativeScale(infos[i].m_centroid)(dim);
+						buck_idx = std::min(buck_idx, nb_bound - 1);						
+						buckets[buck_idx].m_bounds.Merge(infos[i].m_bounds);
+						++buckets[buck_idx].m_count;
+					}
+
+					// O(n^2) operation to caculate all possible split method costs
+					float buckets_costs[nb_buckets];
+					for (int i = 0; i < nb_buckets - 1; ++i) {
+						BoundingBox b0, b1;
+						int count0 = 0, count1 = 0;
+						for (int j = 0; j <= i; ++j) {
+							b0.Merge(buckets[j].m_bounds);
+							count0 += buckets[j].m_count;
+						}
+						for (int j = i + 1; j < nb_buckets; ++j) {
+							b1.Merge(buckets[j].m_bounds);
+							count1 += buckets[j].m_count;
+						}
+						buckets_costs[i] = 0.125f + (count0 * b0.SurfaceArea() + count1 * b1.SurfaceArea()) / bounds.SurfaceArea();					
+					}
+
+					// traversal to find which split cost is the minimum cost
+					float min_cost = buckets_costs[0];
+					int   min_cost_split_bucket = 0;
+					for (int i = 1; i < nb_bound - 1; ++i) {
+						if (buckets_costs[i] < min_cost) {
+							min_cost = buckets_costs[i];
+							min_cost_split_bucket = i;
+						}
+					}
+
+					float leaf_cost = nb_bound;
+					if (min_cost < leaf_cost) {
+						// using min cost split idx to split bounds into 2 parts acoording to bucket idx						
+						auto mid_iter = std::partition(
+							std::next(infos.begin(), start), std::next(infos.begin(), end),
+							[max_idx = nb_bound - 1, dim = dim, scale_bound = centroid_bound, split_idx = min_cost_split_bucket]
+							(const BVHInfo& i) {
+								int buck_idx = nb_buckets * scale_bound.RelativeScale(i.m_centroid)(dim);
+								buck_idx = std::min(buck_idx, max_idx);
+								return buck_idx <= split_idx;
+							}
+						);
+					}
+					else {
+						create_leaf_node();
+					}
+				}
 				assert(false && "SAH No Implementation\n");
 				break;
 			}

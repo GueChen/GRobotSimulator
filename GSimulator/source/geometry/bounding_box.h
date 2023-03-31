@@ -39,6 +39,16 @@ struct BoundingBox {
 	Dim		MaxExtent()	  const;
 	float	SurfaceArea() const;
 
+	/// <summary>
+	/// return the relative value scaled by box extent using {m_min} as original point
+	/// <para>
+	/// 返回一个相对于盒子最小点的缩放值，缩放比例以盒子扩充轴为基准
+	/// </para>
+	/// </summary>
+	/// <param name="p"> cref {Vec3f} 输入点 </param>
+	/// <returns> cref {Vec3f} 输出比值点，若点在盒子内，则取值范围为 [0, 1], 盒子外则超出该范围 </returns>
+	Vec3f	RelativeScale(const Vec3f& p) const;
+
 	BoundingBox& Merge(const BoundingBox& other);
 	BoundingBox& Merge(const Vec3f& p);
 

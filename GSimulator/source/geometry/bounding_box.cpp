@@ -34,6 +34,15 @@ float BoundingBox::SurfaceArea() const
 				   differ.y() * differ.z());	// right
 }
 
+Vec3f BoundingBox::RelativeScale(const Vec3f& p) const
+{
+	Vec3f rel = p - m_min;
+	if (m_max.x() > m_min.x()) rel.x() /= m_max.x() - m_min.x();
+	if (m_max.y() > m_min.y()) rel.y() /= m_max.y() - m_min.y();
+	if (m_max.z() > m_min.z()) rel.z() /= m_max.z() - m_min.z();
+	return rel;
+}
+
 BoundingBox& BoundingBox::Merge(const BoundingBox& other)
 {
 	*this = MergeTwoBoundingBox(*this, other);

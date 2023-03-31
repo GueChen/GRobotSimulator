@@ -56,15 +56,15 @@ int main(int argc, char *argv[])
     using namespace GComponent;
     GComponent::EngineApp::getInstance().Init(argc, argv);
     
-    //CreateCubeObstacle(0.5f,    0.8f,  1.0f,  0.2f,  0.7f,   0.3f);
-    //CreateCubeObstacle(-2.5f,   -1.8f, 0.0f,  0.4f,  0.3f,   0.5f);
-    //CreateSphereObstacle(0.35f, 0.45f, 2.5f, 0.8f);
+    /*CreateCubeObstacle(0.5f,    0.8f,  1.0f,  0.2f,  0.7f,   0.3f);
+    CreateCubeObstacle(-2.5f,   -1.8f, 0.0f,  0.4f,  0.3f,   0.5f);
+    CreateSphereObstacle(0.35f, 0.45f, 2.5f, 0.8f);
     
-    //CreateCubeObstacle(-0.30f, -0.4f, 1.2f, 0.5f, 0.5f, 0.5f);
-    //CreateCapsuleObstacle(0.55f, -0.5f, 0.0f, 0.1f, 0.3f);
+    CreateCubeObstacle(-0.30f, -0.4f, 1.2f, 0.5f, 0.5f, 0.5f);
+    CreateCapsuleObstacle(0.55f, -0.5f, 0.0f, 0.1f, 0.3f);
     CreateCapsuleObstacle(0.0f, 0.0f, 0.0f, 0.3f, 0.7f);
     CreateSphereObstacle(0.0f, 0.0f, 0.0f, 1.0f);
-    CreateCubeObstacle(0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f);
+    CreateCubeObstacle(0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f);*/
 
     GComponent::EngineApp::getInstance().Exec();
     
