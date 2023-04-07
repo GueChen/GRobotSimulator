@@ -100,6 +100,11 @@ public:
 	static const ShapeEnum		 m_type_enum = ShapeEnum::ConvexHull;
 };
 
+
+using ShapePtrs		= std::vector<AbstractShape*>;
+using CRefShapePtrs = const ShapePtrs&;
+using Transform		= Eigen::Matrix4f;
+using CRefTransform = const Transform&;
 } // !namespace GComponent
 
 #endif // !__ABSTRACT_SHAPE_HPP

@@ -7,6 +7,8 @@
 #ifndef __GCONVEX_BOX_H
 #define __GCONVEX_BOX_H
 
+#include "GComponent/Geometry/gjk_convex.h"
+
 #include "geometry/geometry_datastructure.hpp"
 #include "geometry/abstract_shape.hpp"
 
@@ -16,7 +18,7 @@ namespace GComponent {
 
 using Vec3f = Eigen::Vector3f;
 using SO3f  = Eigen::Matrix3f;
-class ConvexBox {
+class ConvexBox final: public GJKConvex{
 public:
 	ConvexBox(BoxShape& input, Vec3f trans, SO3f rot):
 		shape_data_(input),
@@ -24,7 +26,7 @@ public:
 		rot_	   (std::move(rot))
 	{}
 
-	Vec3f Support(const Vec3f&) const;
+	Vec3f Support(const Vec3f&) const override;
 
 private:
 	BoxShape& shape_data_;

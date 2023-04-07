@@ -7,6 +7,8 @@
 #ifndef __GCONVEX_HULL_H
 #define __GCONVEX_HULL_H
 
+#include "GComponent/Geometry/gjk_convex.h"
+
 #include "geometry/geometry_datastructure.hpp"
 #include "geometry/abstract_shape.hpp"
 
@@ -16,7 +18,7 @@ namespace GComponent {
 // TODO: Not Considering the Scale situations
 using Vec3f = Eigen::Vector3f;
 using SO3f  = Eigen::Matrix3f;
-class ConvexHullMesh {
+class ConvexHullMesh : public GJKConvex {
 public:
 	ConvexHullMesh(ConvexShape& input, Vec3f trans, SO3f rot):
 		shape_data_(input),
@@ -24,7 +26,7 @@ public:
 		rot_	   (std::move(rot))
 	{}
 
-	Vec3f Support(const Vec3f& dir) const;
+	Vec3f Support(const Vec3f& dir) const override;
 
 private:
 	Vec3f SupportLocal(const Vec3f& local_dir) const;

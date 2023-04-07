@@ -51,6 +51,7 @@ find_package(Qt6 COMPONENTS				# QT Dependencies
 find_package(Stb REQUIRED)				# Stb
 find_package(tinyobjloader REQUIRED)	# tinyobjloader
 find_package(glad REQUIRED)				# sky box design problems
+find_package(spdlog REQUIRED)
 
 # physx lib
 find_library(PHYSX_FOUNDATION PhysxFoundation_64  PATHS ${VCPKG_DYNAMIC_LIB})
@@ -60,6 +61,8 @@ find_library(PHYSX_PHYSICS	  PhysX_64			  PATHS ${VCPKG_DYNAMIC_LIB})
 # static lib
 find_library(PHYSX_STATIC_EXT PhysXExtensions_static_64 PATHS ${VCPKG_STATIC_LIB})
 find_library(PHYSX_STATIC_PVD PhysXPvdSDK_static_64     PATHS ${VCPKG_STATIC_LIB})
+
+message("${VCPKG_DYNAMIC_LIB}")
 
 #___________________ Display _____________________________________________________________
 message("UI files	 = ${UI_FILES}")
@@ -115,6 +118,8 @@ target_link_libraries(${TARGET_NAME} PUBLIC
 	Qt6::SerialPort
 	Qt6::Network
 	tinyobjloader::tinyobjloader
+	spdlog::spdlog
+	spdlog::spdlog_header_only
 	glad::glad
 	${PHYSX_FOUNDATION}
 	${PHYSX_COMMON}

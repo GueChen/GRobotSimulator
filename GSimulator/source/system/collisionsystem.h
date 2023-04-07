@@ -30,15 +30,6 @@ class CollisionSystem : public QObject {
 	Q_OBJECT
 
 	NonCopyable(CollisionSystem)
-
-public:
-	using ShapePtrs		= std::vector<AbstractShape*>;
-	using CRefShapePtrs = const ShapePtrs&;
-	using Transform		= Eigen::Matrix4f;
-	using CRefTransform = const Transform&;
-	using CollisionFunc = std::function<bool(AbstractShape*, CRefTransform,
-											 AbstractShape*, CRefTransform)>;
-
 public:
 	static CollisionSystem& getInstance();
 	~CollisionSystem();
@@ -61,9 +52,6 @@ private:
 	std::vector<std::pair<Model*, Model*>>						narrow_need_process_;
 	std::vector<std::pair<Model*, BoundingBox>>					broad_need_process_;
 
-/*____________________STATIC FIELDS____________________________________________*/	
-private:
-	static std::map<ShapeEnum, std::map<ShapeEnum, CollisionFunc>> collision_func_map;
 };
 
 }	// ! namespace GComponent
