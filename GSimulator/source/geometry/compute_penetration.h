@@ -9,6 +9,8 @@
 
 #include "geometry/abstract_shape.hpp"
 
+#include "GComponent/Geometry/gjk_convex.h"
+
 #include <functional>
 #include <map>
 
@@ -16,13 +18,13 @@ namespace GComponent {
 
 using Vec3f	  = Eigen::Vector3f;
 // Minimal Translation Distance(MTD) function table
-using MTDFunc = std::function<bool(Vec3f&,
+using MTDFunc = std::function<bool(GJKOutput& mtd,
 								   AbstractShape*, CRefTransform,
 								   AbstractShape*, CRefTransform)>;
 
 class CollisionPenetration {
 public:
-	static bool Penetration(Vec3f& mtd, 
+	static bool Penetration(GJKOutput& mtd, 
 						    CRefShapePtrs shapes_a, CRefTransform pose_a,
 						    CRefShapePtrs shapes_b, CRefTransform pose_b);
 private:

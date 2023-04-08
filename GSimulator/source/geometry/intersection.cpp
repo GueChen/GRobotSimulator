@@ -196,7 +196,7 @@ bool Intersection::IntersectCheck(CRefShapePtrs shapes_a, CRefTransform pose_a, 
 		ShapeEnum type_a = shape_a->GetShapeType();
 		for (auto shape_b : shapes_b) {
 			auto& intersect = intersection_funcs[type_a][shape_b->GetShapeType()];
-			if (type_a > shape_b->GetShapeType()) {
+			if (type_a <= shape_b->GetShapeType()) {
 				if (intersect(shape_a, pose_a, shape_b, pose_b)) {
 					return true;
 				}			

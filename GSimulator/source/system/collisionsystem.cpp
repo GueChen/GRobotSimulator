@@ -2,6 +2,7 @@
 
 #include "geometry/bounding_volume_hierarchy.h"
 #include "geometry/intersection.h"
+#include "geometry/compute_penetration.h"
 #include "model/model.h"
 
 #include <iostream>
@@ -59,6 +60,14 @@ void CollisionSystem::tick(float delta_time)
 		auto&& [shape_b, pose_b] = shape_table_[obj_b];
 		
 		// ComputePenetration(shae_a, pose_a, shape_b, pose_b)
+		GJKOutput output;
+		if (CollisionPenetration::Penetration(output, shape_a, pose_a, shape_b, pose_b)) {
+			obj_a->intesection_ = true;
+			obj_b->intesection_ = true;
+			std::cout << "a should tranlation: " << output.closest_a.transpose() << std::endl;
+			std::cout << "b should tranlation: " << output.closest_b.transpose() << std::endl;
+		}
+
 
 	}
 
