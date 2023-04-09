@@ -35,7 +35,7 @@ public:
 	~CollisionSystem();
 	void  Initialize();
 
-	void  AddProcessShapes  (Model* key, CRefShapePtrs shapes, CRefTransform pose);
+	void  AddProcessShapes  (Model* key, CRefShapePtrs shapes, CRefTransform pose, bool is_static);
 	void  AddBroadPhaseQuery(Model* key, const BoundingBox& box);
 	void  tick(float delta_time);
 
@@ -48,7 +48,7 @@ private:
 	void BroadPhaseQuery();
 
 private:
-	std::unordered_map<Model*, std::pair<ShapePtrs, Transform>> shape_table_;
+	std::unordered_map<Model*, std::tuple<ShapePtrs, Transform, bool>> shape_table_;
 	std::vector<std::pair<Model*, Model*>>						narrow_need_process_;
 	std::vector<std::pair<Model*, BoundingBox>>					broad_need_process_;
 

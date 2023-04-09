@@ -484,9 +484,11 @@ void RenderManager::NormalPass()
 	gl_->glDisable(GL_BLEND);	
 	gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	
+#ifdef _DRAW_DBOUNDING_BOX
 	BoundingBoxPass(render_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetModelByName(name);
 	});
+#endif
 #endif
 
 	// TODO: not so good try to hide it
@@ -609,9 +611,9 @@ void RenderManager::CollisionPass(RenderList&list, function<RawptrModel(const st
 
 		}
 	}
-	
-
 }
+
+
 void RenderManager::BoundingBoxPass(RenderList& list, function<RawptrModel(const std::string&)> ObjGetter)
 {
 	GLineBox box(vec3(-1.0f), vec3(1.0f));

@@ -26,9 +26,9 @@ CollisionSystem::~CollisionSystem() = default;
 void CollisionSystem::Initialize()
 {}
 
-void CollisionSystem::AddProcessShapes(Model* key, CRefShapePtrs shapes, CRefTransform pose)
+void CollisionSystem::AddProcessShapes(Model* key, CRefShapePtrs shapes, CRefTransform pose, bool is_static)
 {
-	shape_table_[key] = std::make_pair(shapes, pose);	
+	shape_table_[key] = std::make_tuple(shapes, pose, is_static);	
 }
 
 void CollisionSystem::AddBroadPhaseQuery(Model* key, const BoundingBox& box)
@@ -46,8 +46,8 @@ void CollisionSystem::tick(float delta_time)
 	//TODO: add broad phase collision checking to accelerate the whole process
 	// Narrow Phase Overlap Test
 	for (auto& [obj_a, obj_b] : narrow_need_process_) {
-		auto&& [shape_a, pose_a] = shape_table_[obj_a];
-		auto&& [shape_b, pose_b] = shape_table_[obj_b];
+		auto&& [shape_a, pose_a, is_static_a] = shape_table_[obj_a];
+		auto&& [shape_b, pose_b, is_static_b] = shape_table_[obj_b];
 		if (OverlapCheck(shape_a, pose_a, shape_b, pose_b)) {
 			obj_a->intesection_ = true;
 			obj_b->intesection_ = true;
@@ -56,16 +56,26 @@ void CollisionSystem::tick(float delta_time)
 	}
 	
 	for (auto& [obj_a, obj_b] : narrow_need_process_) {
-		auto&& [shape_a, pose_a] = shape_table_[obj_a];
-		auto&& [shape_b, pose_b] = shape_table_[obj_b];
+		auto&& [shape_a, pose_a, is_static_a] = shape_table_[obj_a];
+		auto&& [shape_b, pose_b, is_static_b] = shape_table_[obj_b];
 		
 		// ComputePenetration(shae_a, pose_a, shape_b, pose_b)
 		GJKOutput output;
 		if (CollisionPenetration::Penetration(output, shape_a, pose_a, shape_b, pose_b)) {
-			obj_a->intesection_ = true;
-			obj_b->intesection_ = true;
-			std::cout << "a should tranlation: " << output.closest_a.transpose() << std::endl;
-			std::cout << "b should tranlation: " << output.closest_b.transpose() << std::endl;
+			std::cout << std::format("collision pair <{:<20}, {:<20}>:\n", obj_a->getName(), obj_b->getName());
+			std::cout << "closest on A : " << output.closest_a.transpose() << std::endl;
+			std::cout << "closest on B : " << output.closest_b.transpose() << std::endl;
+			std::cout << "depth dir    : " << output.normal.transpose()    << std::endl;
+			std::cout << "depth        : " << output.depth                 << std::endl;
+			if (!is_static_a) {
+				auto trans_a = obj_a->getTransGlobal() - 0.5f * output.depth * output.normal;
+				obj_a->setTransLocal(trans_a);
+			}
+			if (!is_static_b) {
+				auto trans_b = obj_b->getTransGlobal() + 0.5f * output.depth * output.normal;
+				obj_b->setTransLocal(trans_b);
+			}
+
 		}
 
 

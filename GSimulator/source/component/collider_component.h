@@ -33,6 +33,9 @@ public:
 	_ShapeRawPtr  GetShape		 (int idx);
 	_ShapeRawPtrs GetShapes		 ();
 
+	inline bool	  IsStatic() const					{ return is_static_; }
+	inline void	  SetStatic(bool flag)				{ is_static_ = flag; }
+
 	inline const BoundingBox& GetBound() const		{ return bound_; }
 	inline const _Boundings& GetShapesBounds()const { return boundings_; }
 
@@ -42,11 +45,12 @@ protected:
 	void		  tickImpl(float delta) override;
 	void		  UpdateBoundingBox(const BoundingBox& box);
 
-protected:
+protected:	
 	_ShapePtrs  shapes_	   = {};
 	// TODO: create a new class combine shape and bounding box
 	_Boundings  boundings_ = {};
 	BoundingBox bound_;
+	bool		is_static_  = false;
 
 public:
 	constexpr static const std::string_view type_name = "ColliderComponent";

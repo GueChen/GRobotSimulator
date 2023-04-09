@@ -871,6 +871,10 @@ QWidget* ComponentUIFactory::Create(Component& component)
 		QWidget*	 widget = new QWidget;
 		QVBoxLayout* layout = new QVBoxLayout;
 
+		layout->addWidget(CreateStandardTextLabel("static"));
+		layout->addLayout(CreateStanardCheckBox(std::bind(&ColliderComponent::IsStatic,  &collider_component),
+												std::bind(&ColliderComponent::SetStatic, &collider_component, std::placeholders::_1)));
+
 		QComboBox*   selector    = new QComboBox(widget);
 		selector->setStyleSheet(combo_editor_qss.data());
 		QStringList  lists(shapes.size(), "shape");
