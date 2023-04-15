@@ -6,7 +6,7 @@ if(DEFINED ENV{VCPKG})
 	set(VCPKG_ROOT "$ENV{VCPKG}\\scripts\\buildsystems\\vcpkg.cmake")
 	set(CMAKE_TOOLCHAIN_FILE ${VCPKG_ROOT})
 	set(VCPKG_DYNAMIC_LIB $ENV{VCPKG}/installed/${VCPKG_TARGET_TRIPLET}/bin)
-	set(VCPKG_STATIC_LIB $ENV{VCPKG}/installed/${VCPKG_TARGET_TRIPLET}/lib)
+	set(VCPKG_STATIC_LIB  $ENV{VCPKG}/installed/${VCPKG_TARGET_TRIPLET}/lib)
 else()
 	message(FATAL_ERROR 
 			"vcpkg not exist, please set it to environment variables\n"

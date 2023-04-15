@@ -60,25 +60,31 @@ void CollisionSystem::tick(float delta_time)
 		auto&& [shape_b, pose_b, is_static_b] = shape_table_[obj_b];
 		
 		// ComputePenetration(shae_a, pose_a, shape_b, pose_b)
-		GJKOutput output;
+		PenetrationOutput output;
 		if (CollisionPenetration::Penetration(output, shape_a, pose_a, shape_b, pose_b)) {
 			std::cout << std::format("collision pair <{:<20}, {:<20}>:\n", obj_a->getName(), obj_b->getName());
 			std::cout << "closest on A : " << output.closest_a.transpose() << std::endl;
 			std::cout << "closest on B : " << output.closest_b.transpose() << std::endl;
 			std::cout << "depth dir    : " << output.normal.transpose()    << std::endl;
 			std::cout << "depth        : " << output.depth                 << std::endl;
-			if (!is_static_a) {
-				auto trans_a = obj_a->getTransGlobal() - 0.5f * output.depth * output.normal;
-				obj_a->setTransLocal(trans_a);
+			if (is_static_a && is_static_b) {
+				// do nothing
 			}
-			if (!is_static_b) {
-				auto trans_b = obj_b->getTransGlobal() + 0.5f * output.depth * output.normal;
+			else if (is_static_a) {
+				auto trans_b = obj_b->getTransGlobal() + 1.0f * output.depth * output.normal;
 				obj_b->setTransLocal(trans_b);
 			}
-
+			else if (is_static_b) {
+				auto trans_a = obj_a->getTransGlobal() - 1.0f * output.depth * output.normal;
+				obj_a->setTransLocal(trans_a);
+			}
+			else {
+				auto trans_a = obj_a->getTransGlobal() - 0.5f * output.depth * output.normal;
+				obj_a->setTransLocal(trans_a);
+				auto trans_b = obj_b->getTransGlobal() + 0.5f * output.depth * output.normal;
+				obj_b->setTransLocal(trans_b);
+			}										
 		}
-
-
 	}
 
 	shape_table_.clear();

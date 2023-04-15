@@ -4,7 +4,7 @@
 
 namespace GComponent{
 
-#define CONTACT_PARAMS GJKOutput& output,							 \
+#define CONTACT_PARAMS PenetrationOutput& output,							 \
 					   AbstractShape* shape_a, CRefTransform pose_a, \
 					   AbstractShape* shape_b, CRefTransform pose_b
 
@@ -26,41 +26,37 @@ namespace GComponent{
 	static_cast<SO3f>((Trans).block(0, 0, 3, 3))
 
 
-static bool PenetrationSphereSphere		(CONTACT_PARAMS) {
-	/*return IntersectSphereSphere(dynamic_cast<SphereShape*>(shape_a)->m_radius, 
-								 pose_a.block(0, 3, 3, 1),
-								 dynamic_cast<SphereShape*>(shape_b)->m_radius, 
-								 pose_b.block(0, 3, 3, 1));*/
-	return false;
+static bool MTDSphereSphere		(CONTACT_PARAMS) {
+	SphereShape* sphere_a = dynamic_cast<SphereShape*>(shape_a);
+	SphereShape* sphere_b = dynamic_cast<SphereShape*>(shape_b);
+	return PenetrationSphereSphere(output,
+								   sphere_a->m_radius, GetPose(pose_a),
+								   sphere_b->m_radius, GetPose(pose_b));	
 }
 
-static bool PenetrationSphereCapsule	(CONTACT_PARAMS) {
+static bool MTDSphereCapsule	(CONTACT_PARAMS) {
 	SphereShape*  sphere  = dynamic_cast<SphereShape*>(shape_a);
 	CapsuleShape* capsule = dynamic_cast<CapsuleShape*>(shape_b);
-	/*return IntersectSphereCapsule(sphere->m_radius,  
-								  pose_a.block(0, 3, 3, 1),
-								  CAPSULE_PARAMS(capsule),
-								  GetPoseRot_PARAMS(pose_b));*/
-	return false;
+	return PenetrationSphereCapsule(output, 
+								    sphere->m_radius, GetPose(pose_a),
+								    CAPSULE_PARAMS(capsule),
+								    GetPoseRot_PARAMS(pose_b));
 }
 
-static bool PenetrationSphereBox		(CONTACT_PARAMS) {
+static bool MTDSphereBox		(CONTACT_PARAMS) {
 	SphereShape* sphere = dynamic_cast<SphereShape*>(shape_a);
 	BoxShape*    box    = dynamic_cast<BoxShape*>(shape_b);
-	/*return IntersectOBBSphere(BOX_PARAMS(box),
-							  pose_a.block(0, 3, 3, 1), 
-							  static_cast<SO3f>(pose_a.block(0, 0, 3, 3)),
-							  sphere->m_radius, 
-							  pose_b.block(0, 3, 3, 1));*/
-	return false;
+	return PenetrationOBBSphere(output,
+								BOX_PARAMS(box),  GetPoseRot_PARAMS(pose_a),								
+								sphere->m_radius, GetPose(pose_b));	
 }
 
-static bool PenetrationSpherePlane		(CONTACT_PARAMS) {
+static bool MTDSpherePlane		(CONTACT_PARAMS) {
 	assert(false, "No Implementation");
 	return false;
 }
 
-static bool PenetrationSphereConvexHull	(CONTACT_PARAMS) {
+static bool MTDSphereConvexHull	(CONTACT_PARAMS) {
 	SphereShape* sphere = dynamic_cast<SphereShape*>(shape_a);
 	ConvexShape* convex = dynamic_cast<ConvexShape*>(shape_b);
 
@@ -70,32 +66,28 @@ static bool PenetrationSphereConvexHull	(CONTACT_PARAMS) {
 	return PenetrationGjkEpa(output, capsule_hull, convex_hull, GetPose(pose_a) - GetPose(pose_b));
 }
 
-static bool PenetrationCapsuleCapsule	(CONTACT_PARAMS) {
+static bool MTDCapsuleCapsule	(CONTACT_PARAMS) {
 	CapsuleShape* capsule_a = dynamic_cast<CapsuleShape*>(shape_a);
 	CapsuleShape* capsule_b = dynamic_cast<CapsuleShape*>(shape_b);
-	/*return IntersectCapsuleCapsule(CAPSULE_PARAMS(capsule_a),
-								   GetPoseRot_PARAMS(pose_a),
-								   CAPSULE_PARAMS(capsule_b),
-								   GetPoseRot_PARAMS(pose_b));*/
-	return false;
+	return PenetrationCapsuleCapsule(output,
+									 CAPSULE_PARAMS(capsule_a), GetPoseRot_PARAMS(pose_a),
+								     CAPSULE_PARAMS(capsule_b), GetPoseRot_PARAMS(pose_b));
 }
 
-static bool PenetrationCapsuleBox		(CONTACT_PARAMS) {
+static bool MTDCapsuleBox		(CONTACT_PARAMS) {
 	CapsuleShape* capsule = dynamic_cast<CapsuleShape*>(shape_a);
 	BoxShape*	  box	  = dynamic_cast<BoxShape*>(shape_b);
-	/*return IntersectOBBCapsule(BOX_PARAMS(box),
-							   GetPoseRot_PARAMS(pose_b),
-							   CAPSULE_PARAMS(capsule),
-							   GetPoseRot_PARAMS(pose_a));*/
-	return false;
+	return PenetrationOBBCapsule(output,
+								 BOX_PARAMS(box),		  GetPoseRot_PARAMS(pose_b),
+							     CAPSULE_PARAMS(capsule), GetPoseRot_PARAMS(pose_a));	
 }
 
-static bool PenetrationCapsulePlane		(CONTACT_PARAMS) {
+static bool MTDCapsulePlane		(CONTACT_PARAMS) {
 	assert(false, "No Implementation");
 	return false;
 }
 
-static bool PenetrationCapsuleConvexHull(CONTACT_PARAMS) {
+static bool MTDCapsuleConvexHull(CONTACT_PARAMS) {
 	CapsuleShape* capsule = dynamic_cast<CapsuleShape*>(shape_a);
 	ConvexShape*  convex = dynamic_cast<ConvexShape*>(shape_b);
 		
@@ -105,23 +97,21 @@ static bool PenetrationCapsuleConvexHull(CONTACT_PARAMS) {
 	return PenetrationGjkEpa(output, capsule_hull, convex_hull, GetPose(pose_a) - GetPose(pose_b));
 }
 
-static bool PenetrationBoxBox			(CONTACT_PARAMS) {
+static bool MTDBoxBox			(CONTACT_PARAMS) {
 	BoxShape* box_a = dynamic_cast<BoxShape*>(shape_a);
 	BoxShape* box_b = dynamic_cast<BoxShape*>(shape_b);
 
-	/*return IntersectOBBOBB(BOX_PARAMS(box_a),
-						   GetPoseRot_PARAMS(pose_a),
-						   BOX_PARAMS(box_b),
-						   GetPoseRot_PARAMS(pose_b));*/
-	return false;
+	return PenetrationOBBOBB(output,
+							 BOX_PARAMS(box_a), GetPoseRot_PARAMS(pose_a),
+						     BOX_PARAMS(box_b), GetPoseRot_PARAMS(pose_b));
 }
 
-static bool PenetrationBoxPlane			(CONTACT_PARAMS) {
+static bool MTDBoxPlane			(CONTACT_PARAMS) {
 	assert(false, "No Implementation");
 	return false;
 }
 
-static bool PenetrationBoxConvexHull	(CONTACT_PARAMS) {
+static bool MTDBoxConvexHull	(CONTACT_PARAMS) {
 	BoxShape*    box    = dynamic_cast<BoxShape*>(shape_a);
 	ConvexShape* convex = dynamic_cast<ConvexShape*>(shape_b);
 
@@ -131,17 +121,17 @@ static bool PenetrationBoxConvexHull	(CONTACT_PARAMS) {
 	return PenetrationGjkEpa(output, box_hull, convex_hull, GetPose(pose_a) - GetPose(pose_b));
 }
 
-static bool PenetrationPlanePlane		(CONTACT_PARAMS) {
+static bool MTDPlanePlane		(CONTACT_PARAMS) {
 	assert(false, "No Implementation");
 	return false;
 }
 
-static bool PenetrationPlaneConvexHull	(CONTACT_PARAMS) {
+static bool MTDPlaneConvexHull	(CONTACT_PARAMS) {
 	assert(false, "No Implementation");
 	return false;
 }
 
-static bool PenetrationConvexHullConvexHull(CONTACT_PARAMS) {
+static bool MTDConvexHullConvexHull(CONTACT_PARAMS) {
 	ConvexShape* convex_a = dynamic_cast<ConvexShape*>(shape_a);
 	ConvexShape* convex_b = dynamic_cast<ConvexShape*>(shape_b);
 
@@ -160,43 +150,43 @@ static bool PenetrationConvexHullConvexHull(CONTACT_PARAMS) {
 
 /*____________________________COLLISION MAPS____________________________________*/
 static std::map<ShapeEnum, MTDFunc> sphere_mtd_funcs = {
- {Sphere,		PenetrationSphereSphere},
- {Capsule,		PenetrationSphereCapsule},
- {Box,			PenetrationSphereBox},
- {Plane,		PenetrationSpherePlane},
- {ConvexHull,	PenetrationSphereConvexHull}
+ {Sphere,		MTDSphereSphere},
+ {Capsule,		MTDSphereCapsule},
+ {Box,			MTDSphereBox},
+ {Plane,		MTDSpherePlane},
+ {ConvexHull,	MTDSphereConvexHull}
 };
 
 static std::map<ShapeEnum, MTDFunc> capsule_mtd_funcs = {
- {Sphere,		PenetrationSphereCapsule},
- {Capsule,		PenetrationCapsuleCapsule},
- {Box,			PenetrationCapsuleBox},
- {Plane,		PenetrationCapsulePlane},
- {ConvexHull,	PenetrationCapsuleConvexHull}
+ {Sphere,		MTDSphereCapsule},
+ {Capsule,		MTDCapsuleCapsule},
+ {Box,			MTDCapsuleBox},
+ {Plane,		MTDCapsulePlane},
+ {ConvexHull,	MTDCapsuleConvexHull}
 };
 
 static std::map<ShapeEnum, MTDFunc> box_mtd_funcs	 = {
- {Sphere,		PenetrationSphereBox},
- {Capsule,		PenetrationCapsuleBox},
- {Box,			PenetrationBoxBox},
- {Plane,		PenetrationBoxPlane},
- {ConvexHull,	PenetrationBoxConvexHull}
+ {Sphere,		MTDSphereBox},
+ {Capsule,		MTDCapsuleBox},
+ {Box,			MTDBoxBox},
+ {Plane,		MTDBoxPlane},
+ {ConvexHull,	MTDBoxConvexHull}
 };
 
 static std::map<ShapeEnum, MTDFunc> plane_mtd_funcs = {
-{Sphere,		PenetrationSpherePlane},
-{Capsule,		PenetrationCapsulePlane},
-{Box,			PenetrationBoxPlane},
-{Plane,			PenetrationPlanePlane},
-{ConvexHull,	PenetrationPlaneConvexHull}
+{Sphere,		MTDSpherePlane},
+{Capsule,		MTDCapsulePlane},
+{Box,			MTDBoxPlane},
+{Plane,			MTDPlanePlane},
+{ConvexHull,	MTDPlaneConvexHull}
 };
 
 static std::map<ShapeEnum, MTDFunc> convex_mtd_funcs = {
-{Sphere,		PenetrationSphereConvexHull},
-{Capsule,		PenetrationCapsuleConvexHull},
-{Box,			PenetrationBoxConvexHull},
-{Plane,			PenetrationPlaneConvexHull},
-{ConvexHull,	PenetrationConvexHullConvexHull}
+{Sphere,		MTDSphereConvexHull},
+{Capsule,		MTDCapsuleConvexHull},
+{Box,			MTDBoxConvexHull},
+{Plane,			MTDPlaneConvexHull},
+{ConvexHull,	MTDConvexHullConvexHull}
 };
 
 std::map<ShapeEnum, std::map<ShapeEnum, MTDFunc>>
@@ -208,7 +198,7 @@ CollisionPenetration::mtd_funcs = {
 {ConvexHull,	convex_mtd_funcs}
 };
 
-bool GComponent::CollisionPenetration::Penetration(GJKOutput& mtd, CRefShapePtrs shapes_a, CRefTransform pose_a, CRefShapePtrs shapes_b, CRefTransform pose_b)
+bool GComponent::CollisionPenetration::Penetration(PenetrationOutput& mtd, CRefShapePtrs shapes_a, CRefTransform pose_a, CRefShapePtrs shapes_b, CRefTransform pose_b)
 {
 	for (auto shape_a : shapes_a) {
 		ShapeEnum type_a = shape_a->GetShapeType();
@@ -222,8 +212,7 @@ bool GComponent::CollisionPenetration::Penetration(GJKOutput& mtd, CRefShapePtrs
 			else {
 				if (mtd_func(mtd, shape_b, pose_b, shape_a, pose_a)) {
 					std::swap(mtd.closest_a, mtd.closest_b);
-					mtd.normal	   = -mtd.normal;
-					mtd.search_dir = -mtd.search_dir;
+					mtd.normal = -mtd.normal;
 					return true;
 				}
 			}
