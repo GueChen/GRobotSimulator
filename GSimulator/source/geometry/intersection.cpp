@@ -45,10 +45,10 @@ static bool OverlapSphereBox		(OVERLAP_PARAMS) {
 	SphereShape* sphere = dynamic_cast<SphereShape*>(shape_a);
 	BoxShape*    box    = dynamic_cast<BoxShape*>(shape_b);
 	return IntersectOBBSphere(BOX_PARAMS(box),
-							  pose_a.block(0, 3, 3, 1), 
-							  static_cast<SO3f>(pose_a.block(0, 0, 3, 3)),
+							  pose_b.block(0, 3, 3, 1), 
+							  static_cast<SO3f>(pose_b.block(0, 0, 3, 3)),
 							  sphere->m_radius, 
-							  pose_b.block(0, 3, 3, 1));
+							  pose_a.block(0, 3, 3, 1));
 }
 
 static bool OverlapSpherePlane		(OVERLAP_PARAMS) {

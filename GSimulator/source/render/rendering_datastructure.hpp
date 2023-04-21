@@ -30,12 +30,31 @@ struct Color {
 struct Line{
     int first;
     int second;
+
+    int& operator[](int idx) {
+        switch (idx) {
+        case 0: return first;
+        case 1: return second;
+        default:
+            assert(false && "idx out of range!!");
+        }
+    }
 };
 
 struct Triangle {
     int first;
     int second;
     int third;
+
+    int& operator[](int idx) {
+        switch (idx) {
+        case 0:return first;
+        case 1:return second;
+        case 2:return third;
+        default:
+            assert(false && "idx out of range!!");
+        }        
+    }
 };
 
 struct Vertex {

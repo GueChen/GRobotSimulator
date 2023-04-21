@@ -47,8 +47,8 @@ static bool MTDSphereBox		(CONTACT_PARAMS) {
 	SphereShape* sphere = dynamic_cast<SphereShape*>(shape_a);
 	BoxShape*    box    = dynamic_cast<BoxShape*>(shape_b);
 	return PenetrationOBBSphere(output,
-								BOX_PARAMS(box),  GetPoseRot_PARAMS(pose_a),								
-								sphere->m_radius, GetPose(pose_b));	
+								BOX_PARAMS(box),  GetPoseRot_PARAMS(pose_b),								
+								sphere->m_radius, GetPose(pose_a));	
 }
 
 static bool MTDSpherePlane		(CONTACT_PARAMS) {

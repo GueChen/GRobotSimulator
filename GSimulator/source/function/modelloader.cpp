@@ -274,6 +274,23 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> GComponent::ModelLoader::
         }
     }
 
+    if (attrib.normals.size() == 0) {   // caculate normal by triangle idx
+        for (auto& tri : triangles) {
+            Vertex& a = vertices[tri[0]],
+                  & b = vertices[tri[1]],
+                  & c = vertices[tri[2]];
+            vec3 ab = b.position - a.position,
+                 ac = c.position - a.position;
+            vec3 normal = glm::cross(ab, ac);
+            a.normal += normal;
+            b.normal += normal;
+            c.normal += normal;
+        }
+        for (auto& vert : vertices) {
+            vert.normal = glm::normalize(vert.normal);
+        }
+    }
+
     return {vertices, triangles};
 }
 

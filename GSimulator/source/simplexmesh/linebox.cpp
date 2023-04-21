@@ -3,9 +3,21 @@
 #include "manager/resourcemanager.h"
 #include "render/mygl.hpp"
 
+static int color_idx = 0;
+static std::vector<glm::vec3> color_lists = {	
+	{1.0, 0.0, 0.0},
+	{1.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 1.0},
+	{0.0, 0.0, 1.0},
+	{0.0, 1.0, 1.0},
+	{1.0, 1.0, 1.0},
+	{1.0, 1.0, 0.0}
+};
 namespace GComponent {
 GLineBox::GLineBox(const vec3& min_pos, const vec3& max_pos)
 {
+	color_idx = 0;
 	verts.resize(8);
 	Update(min_pos, max_pos);
 }
@@ -31,7 +43,10 @@ void GLineBox::Update(const vec3& min_pos, const vec3& max_pos)
 	verts[6].position = vec3(max_pos.x, max_pos.y, min_pos.z);
 	verts[7].position = vec3(max_pos.x, max_pos.y, max_pos.z);
 
-	for (auto& vert : verts) vert.Color = vec3(1.0f);
+	for (auto& vert : verts) {
+		vert.Color = color_lists[color_idx];
+	}
+	color_idx = (++color_idx % color_lists.size());
 
 	if (isInit) {		
 		gl->glBindBuffer(GL_ARRAY_BUFFER, VBO);

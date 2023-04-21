@@ -483,7 +483,7 @@ void RenderManager::NormalPass()
 	});
 	gl_->glDisable(GL_BLEND);	
 	gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	
+#define _DRAW_DBOUNDING_BOX
 #ifdef _DRAW_DBOUNDING_BOX
 	BoundingBoxPass(render_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetModelByName(name);
@@ -672,11 +672,11 @@ void RenderManager::SimplexMeshPass()
 		planning_aux_lists_.pop_front();
 	}
 	delete_count_ = 0;
-	gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	
 	for (auto& obj : planning_aux_lists_) {
 		obj->SetGL(gl_);
 		obj->Draw(nullptr);
-	}
+	}	
 	gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	
 }

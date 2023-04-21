@@ -33,9 +33,9 @@ void GCurves::Draw(MyShader *)
     MyShader* shader = ResourceManager::getInstance().GetShaderByName("linecolor");
     shader->use();
     shader->setMat4("model", glm::mat4(1.0f));
-    gl->glBindVertexArray(VAO);
+    gl->glBindVertexArray(VAO);    
     gl->glDrawArrays(GL_LINE_STRIP, 0, verteces.size());
-
+  
 }
 
 void GCurves::GLBufferInitialize()
