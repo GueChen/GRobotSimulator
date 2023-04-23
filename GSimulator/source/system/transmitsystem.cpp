@@ -6,7 +6,10 @@
 #include "function/adapter/kuka_iiwa/kuka_iiwa_decoder.h"
 #include "component/joint_group_component.h"
 
+#include "system/loggersystem.h"
+
 #include <map>
+#include <format>
 
 namespace GComponent {
 
@@ -40,6 +43,14 @@ void TransmitSystem::ReceiveJointsAngle(const QString& obj_name, std::vector<flo
 		auto   joints_sdk = robot->GetComponent<JointGroupComponent>(JointGroupComponent::type_name.data());
 		if (!joints_sdk) return;
 		joints_sdk->SetPositionsWithTimeStamp(joints, time_stamp);
+		
+		std::string datas;
+		for (auto& j : joints) {
+			datas.append("," + std::to_string(j));
+		}
+		std::string log_msg = std::format("joint,{:}{:}", time_stamp, datas);
+		LoggerSystem::getInstance().Log(LoggerObject::Cmd, log_msg);
+		LoggerSystem::getInstance().Log(LoggerObject::File, log_msg);		
 	}
 }
 

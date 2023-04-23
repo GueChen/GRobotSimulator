@@ -31,6 +31,7 @@ private:
     Vec3        color_ = Vec3(0.85f, 0.85f, 0.75f);
 
     static bool is_init_;
+    static bool pbr_init_;
     static size_t count_;
 };
 

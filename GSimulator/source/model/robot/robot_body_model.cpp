@@ -13,6 +13,7 @@ using namespace GComponent;
 
 bool    ROBOT_BODY_MODEL::is_init_  = false;
 size_t  ROBOT_BODY_MODEL::count_    = 0;
+bool    ROBOT_BODY_MODEL::pbr_init_ = false;
 
 ROBOT_BODY_MODEL::ROBOT_BODY_MODEL(Mat4 transform)
 {    
@@ -22,7 +23,9 @@ ROBOT_BODY_MODEL::ROBOT_BODY_MODEL(Mat4 transform)
     InitializeModelResource();
     ModelManager::getInstance().RegisteredModel(name_, this);
 
-    RegisterComponent(std::make_unique<MaterialComponent>(this, "color", true));
+    RegisterComponent(std::make_unique<MaterialComponent>(this, "pbr", true));
+
+   
 }
 
 void ROBOT_BODY_MODEL::InitializeModelResource()
@@ -34,7 +37,27 @@ void ROBOT_BODY_MODEL::InitializeModelResource()
 
 void GComponent::ROBOT_BODY_MODEL::tickImpl(float delta_time)
 {
-
+    if (!pbr_init_) {
+        // Setting PBR Material Properties
+        auto material = GetComponent<MaterialComponent>(MaterialComponent::type_name.data());
+        auto& props = material->GetProperties();
+        if (props.empty()) return;
+        for (auto& [_, name, __, val] : props) {
+            if (name == "accept shadow") {
+                val = true;
+            }
+            else if (name == "ao") {
+                val = 0.05f;
+            }
+            else if (name == "metallic") {
+                val = 1.00f;
+            }
+            else if (name == "roughness") {
+                val = 0.25f;
+            }
+        }
+        pbr_init_ = true;
+    }
 }
 
 void GComponent::ROBOT_BODY_MODEL::setShaderProperty(MyShader& shader)

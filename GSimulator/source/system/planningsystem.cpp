@@ -14,6 +14,25 @@
 #include <iostream>
 #endif // _DEBUG
 
+#ifdef _LOG_RECORD
+#include "system/loggersystem.h"
+
+namespace GComponent{
+static void LogEndPos(MotionBase& motion, Model& robot, Trajectory & func) {
+	KinematicComponent& kine = *robot.GetComponent<KinematicComponent>(KinematicComponent::type_name.data());
+
+	float tot = motion.GetTotalTime(), interval = std::max(1e-15f, tot / 100.0f);
+	for (float i = 0.0f; i <= tot; i += interval) {
+		auto ret = func(i);
+		SE3f mat; kine.ForwardKinematic(mat, ret.first);
+		Vec3f pos = (robot.getModelMatrixWithoutScale() * mat).block(0, 3, 3, 1);
+		std::string msg = std::format("end_pos,{:},{:},{:},{:}", i, pos.x(), pos.y(), pos.z());
+		LoggerSystem::getInstance().Log(LoggerObject::File, msg);
+	}
+}
+
+}
+#endif
 
 namespace GComponent {
 
@@ -72,7 +91,8 @@ void PlanningSystem::ResponsePTPMotionJSpace(const QString& obj_name, float max_
 		for (float i = 0.0f; i <= tot; i += interval) {
 			auto ret = func(i);									
 			SE3f mat; kine.ForwardKinematic(mat, ret.first);
-			samples.push_back(Conversion::fromVec3f((robot->getModelMatrixWithoutScale() *  mat).block(0, 3, 3, 1)));
+			Vec3f pos = (robot->getModelMatrixWithoutScale() * mat).block(0, 3, 3, 1);
+			samples.push_back(Conversion::fromVec3f(pos));
 		}
 		if (samples.size() >= 2) {
 			render.EmplaceAuxiliaryObj(std::make_shared<GCurves>(samples, kRed, kBlue));
@@ -140,7 +160,10 @@ void PlanningSystem::ResponseLineMotion(const QString& obj_name, float max_vel, 
 	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(ini),  0.010f, kRed));
 	render.EmplaceAuxiliaryObj(std::make_shared<GBall>(Conversion::fromVec3f(goal), 0.010f, kBlue));
 	render.EmplaceAuxiliaryObj(std::make_shared<GLine>(Conversion::fromVec3f(ini), Conversion::fromVec3f(goal),
-													   kRed, kBlue));	
+													   kRed, kBlue));
+#ifdef _LOG_RECORD		
+	LogEndPos(motion, *robot, func);	
+#endif
 }
 
 void PlanningSystem::ResponseCircleMotion(const QString& obj_name, float max_vel, float max_acc, float max_ang_vel, float max_ang_acc, std::vector<float> target_descarte, std::vector<float> waypoint)
@@ -169,7 +192,9 @@ void PlanningSystem::ResponseCircleMotion(const QString& obj_name, float max_vel
 	std::transform(samples_stl.begin(), samples_stl.end(), samples.begin(), Conversion::fromVec3f);
 	render.EmplaceAuxiliaryObj(std::make_shared<GCurves>(samples, kRed, kBlue));
 
-	
+#ifdef _LOG_RECORD		
+	LogEndPos(motion, *robot, func);
+#endif
 }
 
 void PlanningSystem::ResponseSplineMotion(const QString& obj_name, float max_vel, float max_acc, float max_ang_vel, float max_ang_acc, std::vector<float> target_descarte, std::vector<std::vector<float>> waypoints)
@@ -200,7 +225,9 @@ void PlanningSystem::ResponseSplineMotion(const QString& obj_name, float max_vel
 	std::transform(samples_stl.begin(), samples_stl.end(), samples.begin(), Conversion::fromVec3f);
 	render.EmplaceAuxiliaryObj(std::make_shared<GCurves>(samples, kRed, kBlue));
 
-	
+#ifdef _LOG_RECORD
+	LogEndPos(motion, *robot, func);
+#endif
 }
 
 void PlanningSystem::ResponseKeeperMotion(const QString& obj_name, float time_total, std::vector<float> target_descarte)

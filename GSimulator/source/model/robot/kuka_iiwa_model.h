@@ -55,8 +55,9 @@ private:
 private:
 // 当前单一颜色着色器下的显示颜色
     Vec3            _color     = Vec3::Ones();
-
+    bool            pbr_init_  = false;;
     static bool is_init_;
+    
     static int  count;
 
 };

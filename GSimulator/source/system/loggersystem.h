@@ -15,35 +15,21 @@
 #include <QtCore/QObject>
 
 namespace GComponent {
-
+enum class LoggerObject {
+	Cmd,
+	Ui,
+	File
+};
 class LoggerSystem final : public QObject
 {
 	Q_OBJECT
-
 public:
-	enum class LoggerObject {
-		Cmd,
-		Ui,
-		File
-	};
+
 
 public:
 	static LoggerSystem& getInstance();
 
-	//template<typename... Args>
-	//void Log(LoggerObject obj, Args&&... args) {
-	//	switch (obj) {
-	//	case LoggerObject::Cmd:
-	//		//logger_->info(std::forward<Args>(args)...);
-
-	//		break;
-	//	case LoggerObject::Ui:
-	//		//emit LoggerDisplayRequest(std::format(std::forward<Args>(args)...));
-	//		break;
-	//	case LoggerObject::File:
-
-	//	}
-	//}
+	void Log(LoggerObject obj, const std::string& str);
 
 
 protected:
@@ -55,6 +41,7 @@ signals:
 
 private:
 	std::shared_ptr<spdlog::logger> logger_;
+	std::shared_ptr<spdlog::logger> file_logger_;
 
 };
 

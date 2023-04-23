@@ -23,13 +23,12 @@ class DUAL_ARM_PLATFORM: public Model
 public:
     explicit DUAL_ARM_PLATFORM(Mat4 transform = Mat4::Identity());
     ~DUAL_ARM_PLATFORM() = default;
- 
-    void setLeftColor(const Vec3 & color);
-    void setRightColor(const Vec3 & color);
 
     Ptr_KUKA_IIWA_MODEL getLeftRobot()  const;
     Ptr_KUKA_IIWA_MODEL getRightRobot() const;
-
+    
+    /// Tick Functions
+    void tickImpl(float delta_time) override;
 private:
     void InitializeModel();
 
@@ -37,6 +36,8 @@ private:
 private:
     KUKA_IIWA_MODEL*  _left = nullptr, *_right = nullptr;
     ROBOT_BODY_MODEL* _body = nullptr;
+
+    static bool pbr_init_;
 };
 
 }

@@ -6,13 +6,15 @@
 #include "model/robot/robot_body_model.h"
 #include "component/tracker_component.h"
 #include "component/kinematic_component.h"
+#include "component/material_component.h"
 
 #include <memory>
-
+#include <stack>
 using std::make_unique;
 using std::make_shared;
 using namespace GComponent;
 
+bool DUAL_ARM_PLATFORM::pbr_init_ = false;
 
 DUAL_ARM_PLATFORM::DUAL_ARM_PLATFORM(Mat4 transform)
 {
@@ -21,6 +23,43 @@ DUAL_ARM_PLATFORM::DUAL_ARM_PLATFORM(Mat4 transform)
     _body  = new  ROBOT_BODY_MODEL;
     setModelMatrix(transform);
     InitializeModel();
+}
+
+void GComponent::DUAL_ARM_PLATFORM::tickImpl(float delta_time)
+{
+    if (!pbr_init_) {
+        // left arm
+        {
+            Model* left = getLeftRobot();
+            std::stack<Model*> st; st.push(left->getChildren().front());
+            while (!st.empty()) {
+                Model* cur = st.top(); st.pop();
+                // Setting PBR Material Properties
+                auto material = cur->GetComponent<MaterialComponent>(MaterialComponent::type_name.data());
+                auto& props = material->GetProperties();
+                if (props.empty()) return;
+                for (auto& [_, name, __, val] : props) {
+                    if (name == "accept shadow") {
+                        val = true;
+                    }
+                    else if (name == "ao") {
+                        val = 0.05f;
+                    }
+                    else if (name == "metallic") {
+                        val = 0.98f;
+                    }
+                    else if (name == "roughness") {
+                        val = 0.25f;
+                    }
+                }
+                auto children = cur->getChildren();
+                for (auto& child : children) { st.push(child);}
+            }
+        }
+
+
+        pbr_init_ = true;
+    }
 }
 
 void DUAL_ARM_PLATFORM::InitializeModel()
@@ -44,16 +83,6 @@ void DUAL_ARM_PLATFORM::InitializeModel()
     _right->setColor(Vec3(0.2f, 0.6f, 0.8f));
     ModelManager::getInstance().ChangeModelParent(_left->getName(),  _body->getName());
     ModelManager::getInstance().ChangeModelParent(_right->getName(), _body->getName());
-}
-
-void DUAL_ARM_PLATFORM::setLeftColor(const Vec3 &color)
-{
-    _left->setColor(color);
-}
-
-void DUAL_ARM_PLATFORM::setRightColor(const Vec3 &color)
-{
-    _right->setColor(color);
 }
 
 Ptr_KUKA_IIWA_MODEL DUAL_ARM_PLATFORM::getLeftRobot() const
