@@ -17,7 +17,11 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>参数化建模</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../resource/icons.qrc">
+    <normaloff>:/icon/setting.png</normaloff>:/icon/setting.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0.75, x2:0, y2:1, stop:0 rgba(20, 20, 20, 255), stop:1 rgba(45, 45, 65, 255));</string>
@@ -235,7 +239,9 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgb
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../resource/icons.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>ok_button</sender>

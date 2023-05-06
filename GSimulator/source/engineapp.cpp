@@ -110,6 +110,27 @@ void GComponent::EngineApp::CreateRobotWithParams(const vector<vector<float>>& p
 	string name = "robot_joint_";
 	Eigen::Matrix4f transform_mat;
 	transform_mat.setIdentity();
+
+	auto set_pbr_prop = [](Model* model, const glm::vec3& albedo, float ao, float metallic, float roughness) {
+		auto& material = *model->GetComponent<MaterialComponent>(MaterialComponent::type_name.data());
+		auto& properties = material.GetProperties();
+		for (auto& prop : properties) {
+			std::cout << prop.name << std::endl;
+			if (prop.name == "albedo color") {
+				prop.val = albedo;
+			}
+			else if (prop.name == "ao") {
+				prop.val = ao;
+			}
+			else if (prop.name == "metallic") {
+				prop.val = metallic;
+			}
+			else if (prop.name == "roughness") {
+				prop.val = roughness;
+			}
+		}
+	};
+
 	for (int idx = 0; auto& mat : matrices.getMatrices()) 
 	{
 		// Get Neccessary Datas
@@ -124,21 +145,23 @@ void GComponent::EngineApp::CreateRobotWithParams(const vector<vector<float>>& p
 								r,
 								scale,
 								idx == 0 ? base: models[idx - 1]);
-		models[idx]->RegisterComponent(std::make_unique<MaterialComponent>(models[idx], "color", true));
+		models[idx]->RegisterComponent(std::make_unique<MaterialComponent>(models[idx], "pbr", true));
+		set_pbr_prop(models[idx], glm::vec3(0.75f, 0.75f, 0.75f), 0.05f, 0.98f, 0.75f);
 		ModelManager::getInstance().RegisteredModel(models[idx]->getName(), models[idx]);
 		
 		// Create Joints Mesh
-		scale = 0.04f * Eigen::Vector3<float>::Ones();
-		scale.z() = 0.15f;
-		Model* 
-		joint_mesh_model = new Model("joint_mesh_" + std::to_string(idx),
+		scale = 0.02f * Eigen::Vector3<float>::Ones(); scale.z() = 0.15f;
+		Model* joint_mesh_model = new Model("joint_mesh_" + std::to_string(idx),
 									 "cylinder",
 							 		 Eigen::Vector3<float>::Zero(),
 									 Eigen::Vector3<float>::Zero(),
 									 scale,
 									 models[idx]);
-		joint_mesh_model->RegisterComponent(std::make_unique<MaterialComponent>(joint_mesh_model, "color", true));
+		joint_mesh_model->RegisterComponent(std::make_unique<MaterialComponent>(joint_mesh_model, "pbr", true));
+		set_pbr_prop(joint_mesh_model, glm::vec3(1.0f, 0.0f, 0.0f), 0.05f, 0.55f, 0.75f);
 		ModelManager::getInstance().RegisteredModel(joint_mesh_model->getName(), joint_mesh_model);
+		
+
 
 		// Create Link Mesh
 		if (t.norm() > 1e-5) {
@@ -152,7 +175,8 @@ void GComponent::EngineApp::CreateRobotWithParams(const vector<vector<float>>& p
 										r_link,
 										scale,
 										idx == 0 ? base: models[idx - 1]);
-			link_mesh_model->RegisterComponent(std::make_unique<MaterialComponent>(link_mesh_model, "color", true));
+			link_mesh_model->RegisterComponent(std::make_unique<MaterialComponent>(link_mesh_model, "pbr", true));
+			set_pbr_prop(link_mesh_model, glm::vec3(0.0f, 0.0f, 1.0f), 0.05f, 0.15f, 0.20f);
 			ModelManager::getInstance().RegisteredModel(link_mesh_model->getName(), link_mesh_model);
 		}
 		
@@ -489,10 +513,10 @@ do{	\
 	
 #undef PTR_CREATE
 	
-	robot_create_dialog_ptr_->setWindowTitle("Create Ur Robot(*^_^*)");
-	planning_dialog_ptr_	->setWindowTitle("Planning As ur Wish");
+	robot_create_dialog_ptr_->setWindowTitle("Robot Creator");
+	planning_dialog_ptr_	->setWindowTitle("Planning");
 	network_dialog_ptr_		->setWindowTitle("Link the World");
-	skin_dialog_ptr_		->setWindowTitle("Read sensor data");
+	skin_dialog_ptr_		->setWindowTitle("Skin Reader");
 
 	// model initialize	
 	model_tree_ = _PtrWithDel<EditorTreeModel>(new EditorTreeModel(""), deleter);

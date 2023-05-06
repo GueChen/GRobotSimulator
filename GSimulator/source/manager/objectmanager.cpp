@@ -6,6 +6,10 @@
 
 #include "component/material_component.h"
 
+// delete all using a better method as replace
+#include "simplexmesh/gball.h"
+//
+
 GComponent::ObjectManager& GComponent::ObjectManager::getInstance() {
 	static ObjectManager instance;
 	return instance;
@@ -18,6 +22,11 @@ void GComponent::ObjectManager::Initialize()
 	RegisterObject("capsule",	"capsule",	 "./asset/objects/capsule.obj");
 	RegisterObject("cylinder",	"cylinder",  "./asset/objects/cylinder.obj");
 	RegisterObject("plane",		"floor",	 "./asset/objects/floor.obj");
+
+	// FIX THIS: Use custom to replce all obj
+	{				
+		ResourceManager::getInstance().RegisteredMesh("sphere", new RenderMesh(GBall(glm::zero<glm::vec3>(), 0.5, glm::zero<glm::vec3>(), 20).GetBallMesh()));
+	}
 }
 
 bool GComponent::ObjectManager::RegisterObject(const string& obj_name, const string& mesh_name, const string& mesh_asset_path)

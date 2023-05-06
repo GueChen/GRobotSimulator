@@ -44,13 +44,16 @@ void TransmitSystem::ReceiveJointsAngle(const QString& obj_name, std::vector<flo
 		if (!joints_sdk) return;
 		joints_sdk->SetPositionsWithTimeStamp(joints, time_stamp);
 		
+
+#ifdef _LOG_RECORD
 		std::string datas;
 		for (auto& j : joints) {
 			datas.append("," + std::to_string(j));
 		}
-		std::string log_msg = std::format("joint,{:}{:}", time_stamp, datas);
-		LoggerSystem::getInstance().Log(LoggerObject::Cmd, log_msg);
+		std::string log_msg = std::format("{:}_joint,{:}{:}",obj_name.toStdString(), time_stamp, datas);
+
 		LoggerSystem::getInstance().Log(LoggerObject::File, log_msg);		
+#endif
 	}
 }
 

@@ -31,6 +31,27 @@ static void LogEndPos(MotionBase& motion, Model& robot, Trajectory & func) {
 	}
 }
 
+static void LogEndPosDual(Model& l_robot, Trajectory& l_func, Model& r_robot, Trajectory& r_func) {
+	KinematicComponent& l_kine = *l_robot.GetComponent<KinematicComponent>(KinematicComponent::type_name.data()),
+					  & r_kine = *r_robot.GetComponent<KinematicComponent>(KinematicComponent::type_name.data());
+	float tot = l_func.GetTimeTotal(), interval = std::max(1e-15f, tot / 100.0f);
+	for (float i = 0.0f; i <= tot; i += interval) {
+		{	auto ret = l_func(i);
+			SE3f mat; l_kine.ForwardKinematic(mat, ret.first);
+			Vec3f pos = (l_robot.getModelMatrixWithoutScale() * mat).block(0, 3, 3, 1);
+			std::string msg = std::format("left_end_pos,{:},{:},{:},{:}", i, pos.x(), pos.y(), pos.z());
+			LoggerSystem::getInstance().Log(LoggerObject::File, msg);
+		}
+		{
+			auto ret = r_func(i);
+			SE3f mat; r_kine.ForwardKinematic(mat, ret.first);
+			Vec3f pos = (r_robot.getModelMatrixWithoutScale() * mat).block(0, 3, 3, 1);
+			std::string msg = std::format("right_end_pos,{:},{:},{:},{:}", i, pos.x(), pos.y(), pos.z());
+			LoggerSystem::getInstance().Log(LoggerObject::File, msg);
+		}
+	}
+}
+
 }
 #endif
 
@@ -283,6 +304,10 @@ void PlanningSystem::ResponseDualSyncLineMotion(const std::vector<QString>& obj_
 		kRed, kYellow));
 	render.EmplaceAuxiliaryObj(std::make_shared<GLine>(Conversion::fromVec3f(r_ini), Conversion::fromVec3f(r_goal),
 		kRed, kYellow));	
+
+#ifdef _LOG_RECORD
+	LogEndPosDual(*robots[0], l_func, *robots[1], r_func);
+#endif
 }
 
 void PlanningSystem::ResponseDualSyncCircleMotion(const std::vector<QString>& obj_names, std::vector<float> max_vels, std::vector<float> max_accs, std::vector<float> target, std::vector<std::vector<float>> bias, std::vector<float> waypoint)
@@ -304,6 +329,8 @@ void PlanningSystem::ResponseDualSyncCircleMotion(const std::vector<QString>& ob
 	auto [l_func, r_func] = motion(robots[0], robots[1]);
 	funcs.emplace_back(l_func);
 	funcs.emplace_back(r_func);
+
+	PlanningManager::getInstance().RegisterDualPlanningTask(robots, funcs, l_func.GetTimeTotal(), 5);
 
 	Vec3 l_ini  = l_func.GetInitialPoint().block(0, 3, 3, 1),
 		 l_goal = l_func.GetGoalPoint().block(0, 3, 3, 1),
@@ -329,7 +356,10 @@ void PlanningSystem::ResponseDualSyncCircleMotion(const std::vector<QString>& ob
 	std::transform(r_samples_stl.begin(), r_samples_stl.end(), r_samples.begin(), Conversion::fromVec3f);
 	render.EmplaceAuxiliaryObj(std::make_shared<GCurves>(r_samples, kRed, kBlue));
 
-	PlanningManager::getInstance().RegisterDualPlanningTask(robots, funcs, l_func.GetTimeTotal(), 5);
+#ifdef _LOG_RECORD
+	LogEndPosDual(*robots[0], l_func, *robots[1], r_func);
+#endif
+	
 }
 
 void PlanningSystem::ResponseChangeCurrentTaskStatus(const std::vector<QString>& obj_name, int status)

@@ -58,6 +58,8 @@ public:
         return  center + (radius + 0.01f) * (p - center)/length(p - center);
     }
 
+    RenderMesh GetBallMesh() const { return mesh; };
+
 private:
     void GLBufferInitialize() override;
 

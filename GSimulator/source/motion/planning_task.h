@@ -67,7 +67,7 @@ public:
 	inline TaskStatus GetStatus()						   { return status_; }
 	inline void		  SetStatus(TaskStatus status)		   { status_ = status; }
 
-	inline void		  SetPauseNotifyer	 (_PauseNotifyFn fn){ pause_notifyer_	= std::move(fn); }
+	inline void		  SetPauseNotifyer	 (_PauseNotifyFn fn){ pause_notifyer_	 = std::move(fn); }
 	inline void		  SetFinishNotifyer  (_FinNotifyFn fn)  { finish_notifyer_   = std::move(fn); }
 	inline void		  SetControlMessenger(_CtrMsgerFn fn)   { control_messenger_ = std::move(fn); }
 	

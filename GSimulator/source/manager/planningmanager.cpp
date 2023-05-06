@@ -41,7 +41,7 @@ void PlanningManager::RegisterPlanningTask(Trajectory* traj) {
 	Model*		  key	= &traj->GetModel();
 	std::mutex&   lock	= lock_map_[key];
 	auto&		  queue	= task_dict_[key];
-	PlanningTask* task	= new PlanningTask(traj, lock);	
+	PlanningTask* task	= new PlanningTask(traj, lock);
 	task->SetFinishNotifyer([&queue = task_dict_[key]]() {
 		auto task = queue.front(); 
 		queue.pop_front();
