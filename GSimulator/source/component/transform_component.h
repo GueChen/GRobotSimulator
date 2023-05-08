@@ -8,13 +8,13 @@
 #include <Eigen/Dense>
 
 namespace GComponent {
-using Vector3 = Eigen::Vector3d;
+using Vector3 = Eigen::Vector3f;
 
 class Transform : public Component {		
 public:
 	Transform() = default;
-	//Transform(const Transform& transform, Model* parent);
-	~Transform() override = default;
+
+	~Transform() = default;
 
 	Vector3 getPosition () const { return position_; }
 	Vector3 getScale	() const { return scale_; }
@@ -24,7 +24,7 @@ public:
 	void setScale	(const Vector3& scale);
 	void setRotation(const Vector3& rotation);
 
-	SE3d getMatrix4x4() const;
+	SE3f getMatrix4x4() const;
 
 protected:
 	Vector3 position_ = Vector3::Zero();

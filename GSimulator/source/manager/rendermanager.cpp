@@ -183,8 +183,8 @@ void RenderManager::InitializeIBLResource()
 		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
 	};
 	
-	unsigned int hdr_env     = gl_->LoadTexture(//"./asset/textures/loft_newport/Newport_Loft_Ref.hdr", 
-												"./asset/textures/hdr/Workshop-Novoselci.hdr",
+	unsigned int hdr_env     = gl_->LoadTexture("./asset/textures/loft_newport/Newport_Loft_Ref.hdr", 
+												//"./asset/textures/hdr/Workshop-Novoselci.hdr",
 												//"./asset/textures/hdr/Abandoned-Hall-Silverblue-Nurnberg.hdr",
 												false);
 	unsigned int environment_cubemap = 0,
