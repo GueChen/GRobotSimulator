@@ -44,10 +44,11 @@ signals:
 								float max_ang_vel,			  float max_ang_acc,
 								std::vector<float> target_descarte, 
 								std::vector<float> waypoint);
-	void RequestSplineMotion   (const QString& obj_name, 
+	void RequestSplineMotion   (const QString& obj_name,
+								const QString& spline_type,
 								float max_vel,				  float max_acc, 
 								float max_ang_vel,			  float max_ang_acc,
-								std::vector<float> target_descarte, 
+								std::vector<float> target_descarte,
 								std::vector<std::vector<float>> waypoints);
 	void RequestKeeperMotion   (const QString& obj_name,
 								float time,

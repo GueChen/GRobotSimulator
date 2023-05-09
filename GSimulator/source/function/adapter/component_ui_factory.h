@@ -37,7 +37,8 @@ private:
 
 	/*_________________________Material Component UI Create Methods__________________________________*/
 public:
-	static constexpr const int kEleMiniHeight = 20;
+	static const std::string	kTag;
+	static constexpr const int  kEleMiniHeight = 20;
 	static std::unordered_map<std::string, std::function<QLayout*(std::string, ShaderProperty::Var&)>> build_map;
 };
 } 

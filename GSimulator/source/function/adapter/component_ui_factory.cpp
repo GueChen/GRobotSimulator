@@ -479,11 +479,11 @@ void ConnectJointComponentUI(QWidget* widget, JointComponent& joint_component)
 	QLineEdit* min_val = widget->findChild<QLineEdit*>(JointMinValObjName.data());
 
 	// Component >> UI
-	joint_component.RegisterUpdateFunction([val, &joint_component](float delta) {
+	joint_component.RegisterUpdateFunction(ComponentUIFactory::kTag, [val, &joint_component](float delta) {
 		val->setText(QString::number(RadiusToDegree(joint_component.GetPosition()), 10, 2));
 		}
 	);
-	joint_component.RegisterDelFunction([w = widget]() {
+	joint_component.RegisterDelFunction(ComponentUIFactory::kTag, [w = widget]() {
 		w->disconnect();
 		}
 	);
@@ -504,8 +504,8 @@ void ConnectJointComponentUI(QWidget* widget, JointComponent& joint_component)
 		timer->start(30);
 		});
 	QObject::connect(widget, &QWidget::destroyed, [&timer, component = &joint_component]() {		
-		component->DeregisterUpdateFunction();
-		component->DeregisterDelFunction();
+		component->DeregisterUpdateFunction(ComponentUIFactory::kTag);
+		component->DeregisterDelFunction(ComponentUIFactory::kTag);
 		});
 }
 
@@ -656,14 +656,14 @@ void ConnectJointGroupComponentUI(QWidget* widget, JointGroupComponent& componen
 		QToolButton* setting	  = widget->findChild<QToolButton*>(SettingButtonObjName.data() + count_s);
 
 		// Component >> UI
-		component.RegisterUpdateFunction([val, &joint = *joints[i]](float delta){
+		component.RegisterUpdateFunction(ComponentUIFactory::kTag, [val, &joint = *joints[i]](float delta){
 			val->setText(QString::number(RadiusToDegree(joint.GetPosition()), 10, 2));
 		});
-		component.RegisterDelFunction([widget]() {
+		component.RegisterDelFunction(ComponentUIFactory::kTag, [widget]() {
 			widget->disconnect();
 		});			
 
-		// Set Timer as child of Widget make us not conseder about the memory manager 
+		// Set Timer as child of Widget make us not consider about the memory manager 
 		QTimer* timer = new QTimer(widget);
 		// UI >> Component
 		QObject::connect(timer, &QTimer::timeout, [&joint = *joints[i], slider]() mutable {
@@ -678,8 +678,8 @@ void ConnectJointGroupComponentUI(QWidget* widget, JointGroupComponent& componen
 			timer->start(30);
 			});
 		QObject::connect(widget, &QWidget::destroyed, [&timer, &component]() {
-			component.DeregisterUpdateFunction();
-			component.DeregisterDelFunction();
+			component.DeregisterUpdateFunction(ComponentUIFactory::kTag);
+			component.DeregisterDelFunction(ComponentUIFactory::kTag);
 			});
 	}
 }
@@ -707,7 +707,7 @@ void ConnectTrackerComponentUI(TrackerComponentWidget* widget, TrackerComponent&
 	widget->SetButtonChecked(static_cast<int>(component.GetState()));
 
 	// Component >> UI
-	component.RegisterDelFunction([widget]() {
+	component.RegisterDelFunction(ComponentUIFactory::kTag, [widget]() {
 		widget->disconnect();
 		});
 
@@ -719,8 +719,8 @@ void ConnectTrackerComponentUI(TrackerComponentWidget* widget, TrackerComponent&
 		tracker.SetGoal(goal_name.toStdString());
 		});
 	QObject::connect(widget, &TrackerComponentWidget::destroyed, [&component]() {
-		component.DeregisterUpdateFunction();
-		component.DeregisterDelFunction();
+		component.DeregisterUpdateFunction(ComponentUIFactory::kTag);
+		component.DeregisterDelFunction(ComponentUIFactory::kTag);
 		});
 }
 
@@ -735,7 +735,7 @@ void ConnectKinematicComponentUI(KinematicComponentWidget* widget, KinematicComp
 	
 	// TODO: complete the rest connect
 	// Component >> UI
-	component.RegisterDelFunction([widget]() {
+	component.RegisterDelFunction(ComponentUIFactory::kTag, [widget]() {
 		widget->disconnect();
 		});
 	
@@ -744,13 +744,13 @@ void ConnectKinematicComponentUI(KinematicComponentWidget* widget, KinematicComp
 		component.SetIKSolver(static_cast<IKSolverEnum>(idx));
 		});
 	QObject::connect(widget, &KinematicComponentWidget::destroyed, [&component]() {
-		component.DeregisterUpdateFunction();
-		component.DeregisterDelFunction();
+		component.DeregisterUpdateFunction(ComponentUIFactory::kTag);
+		component.DeregisterDelFunction(ComponentUIFactory::kTag);
 		});
 }
 
 /*__________________________Material Component UI BUILDER METHODS______________________________________*/
-
+const std::string ComponentUIFactory::kTag = "UI";
 
 QWidget* ComponentUIFactory::Create(Component& component)
 {
@@ -759,8 +759,8 @@ QWidget* ComponentUIFactory::Create(Component& component)
 
 	// set delete functions for component and widget both
 	auto set_del_function = [&com = component](QWidget* widget) {
-		com.RegisterDelFunction([widget]() { widget->disconnect(); });
-		QObject::connect(widget, &QWidget::destroyed, [&com]() { com.DeregisterDelFunction(); });
+		com.RegisterDelFunction(ComponentUIFactory::kTag, [widget]() { widget->disconnect(); });
+		QObject::connect(widget, &QWidget::destroyed, [&com]() { com.DeregisterDelFunction(ComponentUIFactory::kTag); });
 	};
 
 	if (s == "JointComponent") {

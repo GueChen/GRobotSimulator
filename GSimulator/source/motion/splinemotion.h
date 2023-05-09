@@ -9,7 +9,7 @@ namespace GComponent {
 class SPlineMotion : public CMotionBase
 {
 public:
-    SPlineMotion(const SE3f&, const vector<Vec3f>&);
+    SPlineMotion(const SE3f&, const vector<Vec3f>&, SplineType type = SplineType::Cubic);
     ~SPlineMotion() = default;
 
 protected:
@@ -18,6 +18,7 @@ protected:
 
 private:
     vector<Vec3f> mid_poses_;
+    SplineType    type_;
     
 };
 

@@ -8,7 +8,7 @@
 #define _COMPONENT_HPP
 
 #include <string>
-#include <vector>
+#include <map>
 #include <functional>
 
 namespace GComponent {
@@ -32,27 +32,33 @@ public:
 		// derived class 
 		Derigistered();
 		// external class
-		for (auto& del_fun : delete_functions_)
-		{
-			del_fun();
+		for (auto& [key, func] : delete_functions_) {
+			func();
 		}
 		ptr_parent_ = nullptr;
 	}
 
 // The Public Interface to Invoke the Component
 	void			tick(float delta) {
-		for (auto& update_fun : update_functions_)
-		{
-			update_fun(delta);
-		}
+		for (auto& [key, func] : update_functions_) {
+			func(delta);
+		}		
 		tickImpl(delta);
 	}
 
-	void			RegisterDelFunction(const _DelFun& fun)		  { delete_functions_.push_back(fun); }
-	void			DeregisterDelFunction() { delete_functions_.clear(); }
+	void			RegisterDelFunction(const std::string& key, const _DelFun& fun) 
+					{ delete_functions_.emplace(key, fun); }
+	void			ClearDelFunction()												
+					{ delete_functions_.clear(); }
+	void			DeregisterDelFunction(const std::string& key)					
+					{ delete_functions_.erase(key); }
 	
-	void			RegisterUpdateFunction(const _UpdateFun& fun) { update_functions_.push_back(fun); }
-	void			DeregisterUpdateFunction()					  { update_functions_.clear(); }
+	void			RegisterUpdateFunction(const std::string& key, const _UpdateFun& fun) 
+					{ update_functions_.emplace(key, fun); }
+	void			ClearUpdateFunction()
+					{ update_functions_.clear(); }
+	void			DeregisterUpdateFunction(const std::string& key)					  
+					{ update_functions_.erase(key); }
 
 // Getter & Setter		
 	inline void		SetParent(Model* ptr_parent)				  { ptr_parent_ = ptr_parent; }
@@ -71,8 +77,9 @@ protected:
 	Model* ptr_parent_ = nullptr;
 
 private:
-	vector<_UpdateFun> update_functions_;
-	vector<_DelFun>	   delete_functions_;
+	std::map<std::string, _UpdateFun> update_functions_;
+	std::map<std::string, _DelFun>    delete_functions_;
+
 };
 
 }

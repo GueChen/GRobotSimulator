@@ -218,14 +218,29 @@ void PlanningSystem::ResponseCircleMotion(const QString& obj_name, float max_vel
 #endif
 }
 
-void PlanningSystem::ResponseSplineMotion(const QString& obj_name, float max_vel, float max_acc, float max_ang_vel, float max_ang_acc, std::vector<float> target_descarte, std::vector<std::vector<float>> waypoints)
+void PlanningSystem::ResponseSplineMotion(const QString& obj_name, const QString& spline_type, float max_vel, float max_acc, float max_ang_vel, float max_ang_acc, std::vector<float> target_descarte, std::vector<std::vector<float>> waypoints)
 {
+/*  mapping table */
+	static std::map<QString, SplineType> type_entries = {
+#define TypeNamePair(type) \
+	{SplineName::type.data(), SplineType::type} 
+
+		TypeNamePair(Cubic),
+		TypeNamePair(Bezier),
+		TypeNamePair(BezierInter),
+		TypeNamePair(BSpline),
+		TypeNamePair(BSplineInter),
+
+#undef TypeNamePair
+
+	};
+
 	Model* robot = ModelManager::getInstance().GetModelByName(SimpleGetObjName(obj_name));
 	if (!robot)		return; // object not exist
 	Eigen::Matrix4f goal_mat = STLUtils::toMat4f(target_descarte);
 	std::vector<Eigen::Vector3f> way_vecs(waypoints.size());
 	std::transform(waypoints.begin(), waypoints.end(), way_vecs.begin(), STLUtils::toVec3f);
-	SPlineMotion motion(goal_mat, way_vecs);
+	SPlineMotion motion(goal_mat, way_vecs, type_entries[spline_type]);
 	motion.SetMaxLinVel(max_vel).SetMaxLinAcc(max_acc).
 		   SetMaxAngVel(max_ang_vel).SetMaxAngAcc(max_ang_acc);
 

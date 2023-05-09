@@ -87,6 +87,7 @@ namespace GComponent {
 	void PlanningDialog::SplineMotionExecution()
 	{
 		QString				  obj_name    = ui_ptr_->spline_obj_combo->currentText();
+		QString				  spline_name = ui_ptr_->spline_type_combo->currentText();
 		float				  max_vel     = ui_ptr_->spline_vel_val->text().toFloat();
 		float				  max_acc     = ui_ptr_->spline_acc_val->text().toFloat();
 		float				  max_ang_vel = ui_ptr_->spline_ang_vel_val->text().toFloat();
@@ -94,7 +95,7 @@ namespace GComponent {
 		vector<float>		  targets     = GetOneRowFromTable(ui_ptr_->spline_cspace_table, 0);
 		vector<vector<float>> waypoints   = GetDatasFromTable(ui_ptr_->spline_waypoints_table);
 
-		emit RequestSplineMotion(obj_name, max_vel, max_acc, max_ang_vel, max_ang_acc, targets, waypoints);
+		emit RequestSplineMotion(obj_name, spline_name, max_vel, max_acc, max_ang_vel, max_ang_acc, targets, waypoints);
 	}
 
 	void PlanningDialog::KeeperMotionExecution()

@@ -65,7 +65,7 @@ public:
                     /// <param name="parent"></param>
                     Model(const string& name, const string& mesh, const Mat4& model_mat, _RawPtr parent =nullptr);
 
-                    Model(const string& name, const string& mesh,  
+                    Model(const string& name, const string& mesh,
                           const Vec3& trans = Vec3::Zero(), const Vec3& rot = Vec3::Zero(), const Vec3& scale = Vec3::Ones(),
                           _RawPtr parent = nullptr);
     

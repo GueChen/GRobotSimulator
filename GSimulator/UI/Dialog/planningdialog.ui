@@ -477,7 +477,7 @@ QComboBox QAbstractItemView {
 }</string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="null_page"/>
      <widget class="QWidget" name="ptp_page">
@@ -3886,12 +3886,12 @@ QComboBox QAbstractItemView {
            </item>
            <item>
             <property name="text">
-             <string>BSpline Uniform</string>
+             <string>BSpline</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>BSpline Quasi Uniform</string>
+             <string>BSpline Inter</string>
             </property>
            </item>
           </widget>

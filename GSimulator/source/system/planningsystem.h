@@ -67,6 +67,7 @@ public slots:
 								 std::vector<float> target_descarte,
 								 std::vector<float> waypoint);
 	void ResponseSplineMotion   (const QString& obj_name,
+								 const QString& spline_type,
 							     float max_vel,		float max_acc,
 								 float max_ang_vel,	float max_ang_acc,
 							     std::vector<float> target_descarte,

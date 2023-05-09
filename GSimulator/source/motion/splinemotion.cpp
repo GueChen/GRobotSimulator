@@ -2,13 +2,29 @@
 
 namespace GComponent {
 
-SPlineMotion::SPlineMotion(const SE3f& mat, const vector<Vec3f>& poses):
-    CMotionBase(mat), mid_poses_(poses)
+SPlineMotion::SPlineMotion(const SE3f& mat, const vector<Vec3f>& poses, SplineType type):
+    CMotionBase(mat), mid_poses_(poses), type_(type)
 {}
 
 PathFunc SPlineMotion::PathFuncImpl(const SE3f & mat_ini, const SE3f & mat_end)
 {
-    return GetCubicSplineFunction(LogMapSE3Tose3(mat_ini), LogMapSE3Tose3(mat_end), mid_poses_);
+    Twistf t_ini = LogMapSE3Tose3(mat_ini), 
+           t_end = LogMapSE3Tose3(mat_end);
+    switch (type_) {
+    case SplineType::Cubic:     
+        return GetCubicSplineFunction(t_ini, t_end, mid_poses_);
+    case SplineType::Bezier:    
+        return GetBezierSplineFunctoin(t_ini, t_end, mid_poses_);
+    case SplineType::BezierInter:
+        return GetBezierInterSplineFunction(t_ini, t_end, mid_poses_);
+    case SplineType::BSpline: 
+        return GetBSplineInterFunction(t_ini, t_end, mid_poses_, false);
+    case SplineType::BSplineInter:
+        return GetBSplineInterFunction(t_ini, t_end, mid_poses_, true);
+    default:
+        assert(false && "Never Happen, Undefined Case");
+    }
+    
 }
 
 float SPlineMotion::ExecutionTimeImpl(const SE3f& mat_ini, const SE3f& mat_end)
