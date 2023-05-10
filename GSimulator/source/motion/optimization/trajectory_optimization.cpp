@@ -1,6 +1,7 @@
 #include "motion/optimization/trajectory_optimization.h"
 #include "system/skinsystem.h"
 #include "model/model.h"
+#include "component/transform_component.h"
 #include "component/rigidbody_component.h"
 #include "component/kinematic_component.h"
 #include "component/joint_group_component.h"
@@ -41,8 +42,10 @@ std::vector<float> GComponent::PhysxCheckerOptimizer::Optimize(Model & obj, cons
 	std::vector<float> ret = thetas;
 	if (!hit_infos_.empty()) {
 		//DisplayHitterInformations(obj);
-		auto& j_sdk = *obj.GetComponent<JointGroupComponent>(JointGroupComponent::type_name.data());
-		auto& kine  = *obj.GetComponent<KinematicComponent>(KinematicComponent::type_name.data());		
+		auto& j_sdk = *obj.GetComponent<JointGroupComponent>();
+		auto& kine  = *obj.GetComponent<KinematicComponent>();
+		auto& trans = *obj.GetTransform();
+
 		const int kN = j_sdk.GetJointsSize();
 		std::vector<SE3f>  transforms; kine.Transforms(transforms, thetas);
 		std::vector<SE3f>  difftrans;  kine.DifferentialTransforms(difftrans, thetas);
@@ -58,12 +61,13 @@ std::vector<float> GComponent::PhysxCheckerOptimizer::Optimize(Model & obj, cons
 				diff_cur[i] = i == 0 ? SE3f::Identity() : transforms[i - 1];
 				diff_cur[i]	= diff_cur[i] * difftrans[i] * InverseSE3(transforms[i]) * transforms[checker_idx - 1];				
 			}
+
 			// one checker version
 			DynMat<float>& grad_mat    = grad_mat_map[checker_idx];			
 			Vec3		   checker_pos = (
 								InverseSE3(transforms[checker_idx - 2]) *
-								InverseSE3(kine.GetParent()->getModelMatrixWithoutScale()) *
-								actor.GetParent()->getModelMatrixWithoutScale() *
+								InverseSE3(trans.GetModelMatrixWithoutScale()) *
+								actor.GetParent()->GetTransform()->GetModelMatrixWithoutScale() *
 								actor.GetLocalModelMat()).block(0, 3, 3, 1);
 			grad_mat.setZero(kN, 3);
 			for (int i = 0; i < kN; ++i) {
@@ -73,7 +77,7 @@ std::vector<float> GComponent::PhysxCheckerOptimizer::Optimize(Model & obj, cons
 			DisplayJacobi(checker_idx, grad_mat, kine, thetas, checker_pos, transforms);
 		}
 				
-		Mat3 orientation = obj.getModelMatrixWithoutScale().block(0, 0, 3, 3);// .transpose();
+		Mat3 orientation = trans.GetModelMatrixWithoutScale().block(0, 0, 3, 3);// .transpose();
 		DynVec<float> ret_grad_vec = DynVec<float>::Zero(kN);		
 		for (auto&& [checker_idx, hitter] : hit_infos_) {
 			for (auto&& [hitter_id, vec] : hitter) {
@@ -119,7 +123,7 @@ bool PhysxCheckerOptimizer::ConditionCheck(Model& obj, const std::shared_ptr<Phy
 {	
 	// Self Checking
 	if (RigidbodyComponent* collider_com = 
-		obj.GetComponent<RigidbodyComponent>(RigidbodyComponent::type_name.data());
+		obj.GetComponent<RigidbodyComponent>();
 		collider_com) {
 		std::vector<OverlapHitInfo> hit_info;	
 		if (scene->Overlap(collider_com->GetActor(), 5, hit_info)) {
@@ -143,8 +147,9 @@ Eigen::Vector<float, Eigen::Dynamic> SelfmotionOptimizer::IncVector(Model& obj, 
 	//return Eigen::Vector<float, Eigen::Dynamic>();
 	if (!hit_infos_.empty()) {
 		//DisplayHitterInformations(obj);
-		auto& j_sdk = *obj.GetComponent<JointGroupComponent>(JointGroupComponent::type_name.data());
-		auto& kine = *obj.GetComponent<KinematicComponent>(KinematicComponent::type_name.data());
+		auto& j_sdk = *obj.GetComponent<JointGroupComponent>();
+		auto& kine  = *obj.GetComponent<KinematicComponent>();
+		auto& trans = *obj.GetTransform();
 		const int kN = j_sdk.GetJointsSize();
 		std::vector<SE3f>  transforms; kine.Transforms(transforms, thetas);
 		std::vector<SE3f>  difftrans;  kine.DifferentialTransforms(difftrans, thetas);
@@ -164,8 +169,8 @@ Eigen::Vector<float, Eigen::Dynamic> SelfmotionOptimizer::IncVector(Model& obj, 
 			DynMat<float>& grad_mat = grad_mat_map[checker_idx];
 			Vec3		   checker_pos = (
 				InverseSE3(transforms[checker_idx - 2]) *
-				InverseSE3(kine.GetParent()->getModelMatrixWithoutScale()) *
-				actor.GetParent()->getModelMatrixWithoutScale() *
+				InverseSE3(trans.GetModelMatrixWithoutScale()) *
+				actor.GetParent()->GetTransform()->GetModelMatrixWithoutScale() *
 				actor.GetLocalModelMat()).block(0, 3, 3, 1);
 			/*grad_mat.setZero(kN, 3);
 			for (int i = 0; i < kN; ++i) {
@@ -176,7 +181,7 @@ Eigen::Vector<float, Eigen::Dynamic> SelfmotionOptimizer::IncVector(Model& obj, 
 			//DisplayJacobi(checker_idx, grad_mat, kine, thetas, checker_pos, transforms);
 		}
 
-		Mat3 orientation = obj.getModelMatrixWithoutScale().block(0, 0, 3, 3);// .transpose();
+		Mat3 orientation = trans.GetModelMatrixWithoutScale().block(0, 0, 3, 3);// .transpose();
 		DynVec<float> ret_grad_vec = DynVec<float>::Zero(kN);
 		for (auto&& [checker_idx, hitter] : hit_infos_) {
 			for (auto&& [hitter_id, vec] : hitter) {
@@ -215,7 +220,7 @@ bool SelfmotionOptimizer::ConditionCheck(Model& obj, const std::shared_ptr<Physi
 {
 	// Self Checking
 	if (RigidbodyComponent* collider_com =
-		obj.GetComponent<RigidbodyComponent>(RigidbodyComponent::type_name.data());
+		obj.GetComponent<RigidbodyComponent>();
 		collider_com) {
 		std::vector<OverlapHitInfo> hit_info;
 		if (scene->Overlap(collider_com->GetActor(), 5, hit_info)) {

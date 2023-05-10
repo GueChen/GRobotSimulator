@@ -23,6 +23,7 @@ namespace GComponent {
 
 class MyGL;
 class MyShader;
+class TransformComponent;
 
 using std::vector;
 using std::string;
@@ -48,7 +49,15 @@ class Model
 
 /// Class Methods
 public:
-    explicit        Model(_RawPtr parent = nullptr, const string & meshKey = "");
+   /// <summary>
+   /// no parameter ctor for some special type derived
+   /// <para>
+   /// 无参构造版本针对一些特殊类型子类
+   /// </para>
+   /// </summary>
+   /// <param name="parent"></param>
+   /// <param name="meshKey"></param>
+   explicit        Model(_RawPtr parent = nullptr, const string & meshKey = "");
 
                     /// <summary>
                     /// Create a new {name}ed Model with a specific  bind named {mesh}.                    
@@ -82,14 +91,6 @@ public:
 
     bool            eraseChild(int idx);
 
-    [[deprecated("no implementation for glm axis getting")]]
-    void            setModelMatrix(const Mat4 & mat, bool update = true);
-    inline Mat4     getModelMatrix() const               { return parent_model_mat_ * model_mat_; }
-        
-    Mat4            getTranslationModelMatrix() const;
-    Mat4            getModelMatrixWithoutScale()const;
-    inline Mat4     getParentModelMatrix()      const    { return parent_model_mat_;}
-
     inline void     setMesh(const string & mesh_name)    { mesh_ = mesh_name;}
     inline string   getMesh()        const               { return mesh_;}
 
@@ -98,62 +99,46 @@ public:
 
     void            setParent(Model* parent); 
     inline _RawPtr  getParent()      const               { return parent_;}
-
-    void            setTransLocal(const Vec3& translation, bool updateflag = true);
-    inline Vec3     getTransLocal()  const               { return trans_;}
-    Vec3            getTransGlobal() const;
-
-    void            setRotLocal(const Vec3& rotation, bool updateflag = true);
-    inline Vec3     getRotLocal()    const               { return rot_;}
-    Vec3            getRotGlobal()   const;
-
-    void            setScale(const Vec3 scale, bool updateflag = true);
-    inline Vec3     getScale()       const               { return scale_;}
+   
     // TODO: add QR Decomposition then set global scale
     //vec3          getScaleGlobal() const;
-
-    inline bool     getDirty()       const               { return is_dirty_; }
 
     Component*      RegisterComponent(_PtrComponent && component_ptr);
     bool            DeregisterComponent(const string& component_name);
     inline const vector<_PtrComponent>&
                     GetComponents()  const              { return components_ptrs_;}
     template<class _TypeComponent> requires std::is_base_of_v<Component, _TypeComponent>
-    _TypeComponent* GetComponent(const string & component_name);
+    _TypeComponent* GetComponent();
     
+    inline TransformComponent* 
+                    GetTransform() { return transform_; }
 protected:
-    int             getChildIndex(_RawPtr ptr);
-    void            updateModelMatrix();
-    void            updateChildrenMatrix(const Mat3& parent_scale_mat);
-    virtual void    setShaderProperty(MyShader& shader);
+    int             getChildIndex(_RawPtr ptr);   
+
+private:
+    void            Initialize(Model* parent);
 
 /// Fields 数据域
 protected:
     // Components 组件体系
-    vector<_PtrComponent>   components_ptrs_        = {};
+    vector<_PtrComponent>   components_ptrs_    = {};
 
     /// Transform 变换相关
-    Vec3                    trans_                  = Vec3::Zero();
-    Vec3                    rot_                    = Vec3::Zero();
-    Vec3                    scale_                  = Vec3::Ones();
-    Vec3                    shear_                  = Vec3::Zero();
-    Mat4                    parent_model_mat_       = Mat4::Identity();    
-    Mat4                    model_mat_              = Mat4::Identity();
-    Mat3                    inv_parent_U_mat_       = Mat3::Identity();
+    TransformComponent*     transform_          = nullptr;
 
     // Relationships 父子关系
-    _RawPtr                 parent_                 = nullptr;
-    vector<_RawPtr>         children_               = {};
+    _RawPtr                 parent_             = nullptr;
+    vector<_RawPtr>         children_           = {};
+
 
     /// Structure 结构相关
-    int                     model_id_               = -1;
-    string                  name_                   = "";
-    string                  mesh_                   = "";
+    int                     model_id_           = -1;
+    string                  name_               = "";
+    string                  mesh_               = "";
 
-    bool                    is_dirty_               = false;
 #ifdef _COLLISION_TEST
 public:
-    bool                    intesection_            = false;
+    bool                    intesection_        = false;
 #endif // _COLLISION_TEST
 
 };
@@ -165,9 +150,9 @@ public:
 /// <param name="component_name">the key to find the component</param>
 /// <returns>the specific type component</returns>
 template<class _TypeComponent> requires std::is_base_of_v<Component, _TypeComponent>
-_TypeComponent* Model::GetComponent(const string& component_name) {
+_TypeComponent* Model::GetComponent() {
     for (int i = 0; i < components_ptrs_.size(); ++i) {
-        if (components_ptrs_[i]->GetTypeName() == component_name) {
+        if (components_ptrs_[i]->GetTypeName() == _TypeComponent::type_name) {
             return dynamic_cast<_TypeComponent*>(components_ptrs_[i].get());
         }
     }

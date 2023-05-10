@@ -5,8 +5,10 @@
 #include "model/robot/kuka_iiwa_model.h"
 #include "model/robot/robot_body_model.h"
 #include "component/tracker_component.h"
+
 #include "component/kinematic_component.h"
 #include "component/material_component.h"
+#include "component/transform_component.h"
 
 #include <memory>
 #include <stack>
@@ -21,7 +23,7 @@ DUAL_ARM_PLATFORM::DUAL_ARM_PLATFORM(Mat4 transform)
     _left  = new  KUKA_IIWA_MODEL;
     _right = new  KUKA_IIWA_MODEL;
     _body  = new  ROBOT_BODY_MODEL;
-    setModelMatrix(transform);
+    GetTransform()->SetModelLocal(transform);
     InitializeModel();
 }
 
@@ -59,7 +61,7 @@ void DUAL_ARM_PLATFORM::InitializeModel()
         while (!st.empty()) {
             Model* cur = st.top(); st.pop();
             // Setting PBR Material Properties
-            auto material = cur->GetComponent<MaterialComponent>(MaterialComponent::type_name.data());
+            auto material = cur->GetComponent<MaterialComponent>();
             auto& props = material->GetProperties();            
             for (auto& [_, name, __, val] : props) {
                 if (name == "accept shadow") {
@@ -88,7 +90,7 @@ void DUAL_ARM_PLATFORM::InitializeModel()
         while (!st.empty()) {
             Model* cur = st.top(); st.pop();            
             // Setting PBR Material Properties
-            auto material = cur->GetComponent<MaterialComponent>(MaterialComponent::type_name.data());
+            auto material = cur->GetComponent<MaterialComponent>();
             auto& props = material->GetProperties();            
             for (auto& [_, name, __, val] : props) {
                 if (name == "accept shadow") {

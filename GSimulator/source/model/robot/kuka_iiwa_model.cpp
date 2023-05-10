@@ -6,6 +6,7 @@
 
 #include "render/rendermesh.h"
 
+#include "component/transform_component.h"
 #include "component/joint_component.h"
 #include "component/joint_group_component.h"
 #include "component/kinematic_component.h"
@@ -27,7 +28,7 @@ int KUKA_IIWA_MODEL::count     = 0;
 
 KUKA_IIWA_MODEL::KUKA_IIWA_MODEL(Mat4 transform) 
 {    
-    setModelMatrix(transform); 
+    GetTransform()->SetModelLocal(transform);    
     InitializeMeshResource();
     InitializeModelResource();
     ++count;
@@ -86,7 +87,7 @@ void KUKA_IIWA_MODEL::InitializeModelResource()
     // setting joint limitations
     vector<JointComponent*> joints;
     for (int i = 1; i < 8; ++i) {
-        JointComponent* joint = models_tmp[i]->GetComponent<JointComponent>("JointComponent");
+        JointComponent* joint = models_tmp[i]->GetComponent<JointComponent>();
         joint->SetPosLimit(kLimitTable[i - 1][0], kLimitTable[i - 1][1]);
         joints.push_back(joint);
     }
@@ -170,49 +171,8 @@ void GComponent::KUKA_IIWA_MODEL::InitializeMeshResource()
     }
 }
 
-void GComponent::KUKA_IIWA_MODEL::setShaderProperty(MyShader & shader)
-{
-    shader.setMat4("model", Conversion::fromMat4f(getModelMatrix()));
-    shader.setVec3("color", Conversion::fromVec3f(_color));
-    shader.setBool("NormReverse", false);
-}
-
 void GComponent::KUKA_IIWA_MODEL::tickImpl(float delta_time)
 {   
-    if (!pbr_init_) {
-        std::stack<Model*> st;
-        st.push(getChildren().front());
-        while (!st.empty()) {
-            auto cur = st.top(); st.pop();
-
-            // Setting PBR Material Properties
-            auto material = cur->GetComponent<MaterialComponent>(MaterialComponent::type_name.data());
-            auto& props = material->GetProperties();
-            if (props.empty()) return;
-            for (auto& [_, name, __, val] : props) {
-                if (name == "accept shadow") {
-                    val = true;
-                }
-                else if (name == "ao") {
-                    val = 0.05f;
-                }
-                else if (name == "metallic") {
-                    val = 0.98f;
-                }
-                else if (name == "roughness") {
-                    val = 0.25f;
-                }
-                else if (name == "albedo") {
-                    val = Conversion::fromVec3f(_color);
-                }
-            }
-
-            for (auto& child : cur->getChildren()) {
-                st.push(child);
-            }
-        }
-        pbr_init_ = true;
-    }
 }
 
 void KUKA_IIWA_MODEL::setColor(const Vec3 &color)

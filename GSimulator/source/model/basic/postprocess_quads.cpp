@@ -32,7 +32,7 @@ PostprocessQuads::PostprocessQuads()
 void PostprocessQuads::Draw()
 {
 	ResourceManager& resource_manager = ResourceManager::getInstance();	
-	if (auto mat_ptr = GetComponent<MaterialComponent>(MaterialComponent::type_name.data()); mat_ptr) {
+	if (auto mat_ptr = GetComponent<MaterialComponent>(); mat_ptr) {
 		mat_ptr->SetShaderProperties();
 	}
 	if (RenderMesh* mesh = resource_manager.GetMeshByName(mesh_); mesh) {
@@ -45,8 +45,4 @@ void PostprocessQuads::tickImpl(float delta_time)
 	RenderManager::getInstance().EmplaceFrontRenderCommand(name_, mesh_, RenderManager::PostProcess);
 }
 
-void PostprocessQuads::setShaderProperty(MyShader& shader)
-{
-	shader.setInt("screen_texture", 0);
-}
 }

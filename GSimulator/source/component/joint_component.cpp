@@ -1,4 +1,5 @@
 #include "component/joint_component.h"
+#include "component/transform_component.h"
 
 #include "model/model.h"
 #include "function/conversion.hpp"
@@ -15,13 +16,13 @@ JointComponent::JointComponent(Model* ptr_parent, Vec3 bind_axis, _OptDelFun del
 		using enum JointType;
 	case Revolute: {
 		if (ptr_parent) {
-			zero_pos_ = ptr_parent_->getRotLocal();
+			zero_pos_ = ptr_parent_->GetTransform()->GetRotLocal();
 		}
 		break;
 	}
 	case Prismatic: {
 		if (ptr_parent) {
-			zero_pos_ = ptr_parent_->getTransLocal();
+			zero_pos_ = ptr_parent_->GetTransform()->GetTransLocal();
 		}
 		break;
 	}
@@ -106,11 +107,11 @@ void JointComponent::tickImpl(float delta_time)
 	switch (type_) {
 	using enum JointType;
 	case Revolute: {
-		ptr_parent_->setRotLocal(cur_pos_);
+		ptr_parent_->GetTransform()->SetRotLocal(cur_pos_);
 		break;
 	}
 	case Prismatic: {
-		ptr_parent_->setTransLocal(cur_pos_);
+		ptr_parent_->GetTransform()->SetTransLocal(cur_pos_);
 		break;
 	}
 	}

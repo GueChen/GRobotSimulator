@@ -20,8 +20,8 @@ JTrajectory GComponent::PTPMotion::operator()(Model* robot)
     };
 
     // Get interface to posses datas
-    KinematicComponent&  kinematic_sdk  = *robot->GetComponent<KinematicComponent>(KinematicComponent::type_name.data());
-    JointGroupComponent& joints_sdk     = *robot->GetComponent<JointGroupComponent>(JointGroupComponent::type_name.data());    
+    KinematicComponent&  kinematic_sdk  = *robot->GetComponent<KinematicComponent>();
+    JointGroupComponent& joints_sdk     = *robot->GetComponent<JointGroupComponent>();    
     vector<float>        j_vals         = joints_sdk.GetPositions();
     const float          kMaxAccTime    = max_vel_ / max_acc_;
     const uint32_t       kJNum          = joints_sdk.GetJointsSize();

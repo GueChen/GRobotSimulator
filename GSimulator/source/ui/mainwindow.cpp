@@ -223,7 +223,7 @@ void MainWindow::CheckSelected()
         ui_->parent_edit->setText(QString::fromStdString(parent_ptr ? parent_ptr->getName() : "None"));
 
         // Setting Transforms
-        Vec3 trans = selected_obj_ptr->getTransGlobal();        
+       /* Vec3 trans = selected_obj_ptr->getTransGlobal();        
         ui_->trans_x_edit->setText(QString::number(trans.x(), 10, 2));
         ui_->trans_y_edit->setText(QString::number(trans.y(), 10, 2));
         ui_->trans_z_edit->setText(QString::number(trans.z(), 10, 2));
@@ -234,7 +234,7 @@ void MainWindow::CheckSelected()
         Vec3 scale = selected_obj_ptr->getScale();
         ui_->scale_x_edit->setText(QString::number(scale.x(), 10, 2));
         ui_->scale_y_edit->setText(QString::number(scale.y(), 10, 2));
-        ui_->scale_z_edit->setText(QString::number(scale.z(), 10, 2));
+        ui_->scale_z_edit->setText(QString::number(scale.z(), 10, 2));*/
 
         if (last_ptr != selected_obj_ptr) {                
             for (auto& component : selected_obj_ptr->GetComponents()) {

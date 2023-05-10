@@ -3,6 +3,7 @@
 #include "system/skinsystem.h"
 
 #include "model/model.h"
+#include "component/transform_component.h"
 #include "component/kinematic_component.h"
 #include "manager/planningmanager.h"
 
@@ -16,7 +17,7 @@ std::vector<float> GComponent::SkinSensorOptimizer::Optimize(Model& obj, const T
     std::vector<float> ret = thetas;
     std::vector<Eigen::Vector3f> hit_list = SkinSystem::getInstance().GetTriVector();
     if (!hit_list.empty()) {
-        auto& kine = *obj.GetComponent<KinematicComponent>(KinematicComponent::type_name.data());
+        auto& kine = *obj.GetComponent<KinematicComponent>();
         const int kN = kine.GetJointCount();
         std::vector<SE3f>  transforms; kine.Transforms(transforms, thetas);
         std::vector<SE3f>  difftrans;  kine.DifferentialTransforms(difftrans, thetas);
@@ -65,15 +66,16 @@ std::vector<float> GComponent::SkinSensorSimpleKeeperOptimizer::Optimize(Model&o
     std::vector<float> ret = thetas;
     std::vector<Eigen::Vector3f> hit_list = SkinSystem::getInstance().GetTriVector();
     if (!hit_list.empty()) {
-        SE3f  glb     = obj.getModelMatrixWithoutScale();
+        TransformCom& trans_com = *obj.GetTransform();
+        SE3f  glb     = trans_com.GetModelMatrixWithoutScale();
         SE3f  glb_inv = InverseSE3(glb);
-        auto& kine    = *obj.GetComponent<KinematicComponent>(KinematicComponent::type_name.data());
+        auto& kine    = *obj.GetComponent<KinematicComponent>();
         
         SE3f goal; kine.ForwardKinematic(goal, ret); goal = glb * goal;
 
         std::vector<SE3f> trans; kine.Transforms(trans, thetas);
         std::partial_sum(trans.begin(), trans.end(), trans.begin(), std::multiplies<>{});
-        SO3<float> orientation = obj.getModelMatrixWithoutScale().block(0, 0, 3, 3) * trans[5].block(0, 0, 3, 3);
+        SO3<float> orientation = trans_com.GetModelMatrixWithoutScale().block(0, 0, 3, 3) * trans[5].block(0, 0, 3, 3);
 
         for (auto& vec : hit_list) {
             Vector3f move_dir = -orientation* vec;
@@ -109,9 +111,10 @@ std::vector<float> GComponent::SkinSensorLineOptimizer::Optimize(Model& obj, con
     std::vector<Eigen::Vector3f> vec_list = SkinSystem::getInstance().GetTriVector();    
     auto status = PlanningManager::getInstance().GetCurrentTaskStatus(&obj);
     if (!vec_list.empty()) {
-        SE3f  glb     = obj.getModelMatrixWithoutScale();
+        TransformCom& trans_com = *obj.GetTransform();
+        SE3f  glb     = trans_com.GetModelMatrixWithoutScale();
         SE3f  glb_inv = InverseSE3(glb);
-        auto& kine    = *obj.GetComponent<KinematicComponent>(KinematicComponent::type_name.data());
+        auto& kine    = *obj.GetComponent<KinematicComponent>();
         SE3f  goal; kine.ForwardKinematic(goal, ret); goal = glb * goal;
 
         std::vector<SE3f> trans; kine.Transforms(trans, thetas);

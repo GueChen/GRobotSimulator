@@ -4,6 +4,7 @@
 #include "manager/modelmanager.h"
 #include "manager/rendermanager.h"
 
+#include "component/transform_component.h"
 #include "component/kinematic_component.h"
 
 #include "motion/GMotion"
@@ -19,35 +20,38 @@
 
 namespace GComponent{
 static void LogEndPos(MotionBase& motion, Model& robot, Trajectory & func) {
-	KinematicComponent& kine = *robot.GetComponent<KinematicComponent>(KinematicComponent::type_name.data());
-
+	KinematicComponent& kine = *robot.GetComponent<KinematicComponent>();
+	TransformCom& trans = *robot.GetTransform();
 	float tot = motion.GetTotalTime(), interval = std::max(1e-15f, tot / 100.0f);
 	if (isnan(tot) || isinf(tot)) return;
+
 	for (float i = 0.0f; i <= tot; i += interval) {
 		auto ret = func(i);
 		SE3f mat; kine.ForwardKinematic(mat, ret.first);
-		Vec3f pos = (robot.getModelMatrixWithoutScale() * mat).block(0, 3, 3, 1);
+		Vec3f pos = (trans.GetModelMatrixWithoutScale() * mat).block(0, 3, 3, 1);
 		std::string msg = std::format("end_pos,{:},{:},{:},{:}", i, pos.x(), pos.y(), pos.z());
 		LoggerSystem::getInstance().Log(LoggerObject::File, msg);
 	}
 }
 
 static void LogEndPosDual(Model& l_robot, Trajectory& l_func, Model& r_robot, Trajectory& r_func) {
-	KinematicComponent& l_kine = *l_robot.GetComponent<KinematicComponent>(KinematicComponent::type_name.data()),
-					  & r_kine = *r_robot.GetComponent<KinematicComponent>(KinematicComponent::type_name.data());
+	KinematicComponent& l_kine = *l_robot.GetComponent<KinematicComponent>(),
+					  & r_kine = *r_robot.GetComponent<KinematicComponent>();
+	TransformCom& l_trans = *l_robot.GetTransform(),
+		     & r_trans = *r_robot.GetTransform();
 	float tot = l_func.GetTimeTotal(), interval = std::max(1e-15f, tot / 100.0f);
 	if (isnan(tot) || isinf(tot)) return;
 	for (float i = 0.0f; i <= tot; i += interval) {
 		{	auto ret = l_func(i);
 			SE3f mat; l_kine.ForwardKinematic(mat, ret.first);
-			Vec3f pos = (l_robot.getModelMatrixWithoutScale() * mat).block(0, 3, 3, 1);
+			Vec3f pos = (l_trans.GetModelMatrixWithoutScale() * mat).block(0, 3, 3, 1);
 			std::string msg = std::format("left_end_pos,{:},{:},{:},{:}", i, pos.x(), pos.y(), pos.z());
 			LoggerSystem::getInstance().Log(LoggerObject::File, msg);
 		}
 		{
 			auto ret = r_func(i);
 			SE3f mat; r_kine.ForwardKinematic(mat, ret.first);
-			Vec3f pos = (r_robot.getModelMatrixWithoutScale() * mat).block(0, 3, 3, 1);
+			Vec3f pos = (r_trans.GetModelMatrixWithoutScale() * mat).block(0, 3, 3, 1);
 			std::string msg = std::format("right_end_pos,{:},{:},{:},{:}", i, pos.x(), pos.y(), pos.z());
 			LoggerSystem::getInstance().Log(LoggerObject::File, msg);
 		}
@@ -106,15 +110,16 @@ void PlanningSystem::ResponsePTPMotionJSpace(const QString& obj_name, float max_
 		JTrajectory func = motion(robot);
 		PlanningManager::getInstance().RegisterPlanningTask(new JTrajectory(func));
 	
-		KinematicComponent& kine	= *robot->GetComponent<KinematicComponent>(KinematicComponent::type_name.data());
-		RenderManager&		render	= RenderManager::getInstance();
+		KinematicComponent& kine	= *robot->GetComponent<KinematicComponent>();
+		TransformCom		  & trans   = *robot->GetTransform();
+		RenderManager     &	render	= RenderManager::getInstance();
 		render.ClearAuxiliaryObj();
 		std::vector<glm::vec3> samples;
 		float tot = motion.GetTotalTime(), interval = std::max(1e-15f, tot / 20.0f);
 		for (float i = 0.0f; i <= tot; i += interval) {
 			auto ret = func(i);									
 			SE3f mat; kine.ForwardKinematic(mat, ret.first);
-			Vec3f pos = (robot->getModelMatrixWithoutScale() * mat).block(0, 3, 3, 1);
+			Vec3f pos = (trans.GetModelMatrixWithoutScale() * mat).block(0, 3, 3, 1);
 			samples.push_back(Conversion::fromVec3f(pos));
 		}
 		if (samples.size() >= 2) {
@@ -134,11 +139,12 @@ void PlanningSystem::ResponsePTPMotionCSpace(const QString& obj_name, float max_
 {
 	Model* robot = ModelManager::getInstance().GetModelByName(SimpleGetObjName(obj_name));
 	if (!robot)		return; // object not exist
-	KinematicComponent* kine_sdk = robot->GetComponent<KinematicComponent>(KinematicComponent::type_name.data());		
+	KinematicComponent* kine_sdk = robot->GetComponent<KinematicComponent>();
 	if (!kine_sdk)	return; // kinematic com not exist
+	TransformCom& trans = *robot->GetTransform();
 
 	std::vector<float> target_joints;			
-	Eigen::Matrix4f goal_mat = robot->getModelMatrixWithoutScale().inverse() * STLUtils::toMat4f(target_descarte);
+	Eigen::Matrix4f goal_mat = trans.GetModelMatrixWithoutScale().inverse() * STLUtils::toMat4f(target_descarte);
 	bool result				 = kine_sdk->InverseKinematic(target_joints, goal_mat, kine_sdk->GetJointsPos());
 	
 	if (!result) {			// no solve

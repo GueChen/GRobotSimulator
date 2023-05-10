@@ -22,8 +22,6 @@ public:
 
 	void			Draw();
 	void            tickImpl(float delta_time) override;
-protected:
-	void			setShaderProperty(MyShader& shader)override;
 
 private:
 	static const std::vector<Vertex>	vertices;

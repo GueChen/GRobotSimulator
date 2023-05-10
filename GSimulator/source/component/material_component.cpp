@@ -5,6 +5,7 @@
 #include "manager/rendermanager.h"
 
 #include "model/model.h"
+#include "component/transform_component.h"
 
 namespace GComponent {
 
@@ -60,7 +61,10 @@ void GComponent::MaterialComponent::SetShaderProperties()
 	}
 	shader_ptr_->use();
 	for (auto&& var : properties_) {
-		if (var.name == "model") var.val = Conversion::fromMat4f(GetParent()->getModelMatrix());
+		if (var.name == "model") {
+			TransformCom* trans = GetParent()->GetTransform();
+			var.val = Conversion::fromMat4f(trans->GetModelGlobal());
+		}
 		setter_map[var.type](shader_ptr_, var);
 	}
 }

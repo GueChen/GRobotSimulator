@@ -33,14 +33,14 @@ void TransmitSystem::ReceiveJointsAngle(const QString& obj_name, std::vector<flo
 	if (left_transmit_mode_ != eNormal) {
 		Model* robot = ModelManager::getInstance().GetModelByName(obj_map[obj_name].toStdString());
 		if (!robot)		 return;
-		auto joints_sdk = robot->GetComponent<JointGroupComponent>(JointGroupComponent::type_name.data());
+		auto joints_sdk = robot->GetComponent<JointGroupComponent>();
 		if (!joints_sdk || !joints_sdk->SafetyCheck(joints)) return;
 		emit SendPlanningDatas(obj_name, joints);
 	}
 	if (left_transmit_mode_ != eR2V) {
 		Model* robot = ModelManager::getInstance().GetModelByName(obj_map[obj_name].toStdString());
 		if (!robot)		 return;
-		auto   joints_sdk = robot->GetComponent<JointGroupComponent>(JointGroupComponent::type_name.data());
+		auto   joints_sdk = robot->GetComponent<JointGroupComponent>();
 		if (!joints_sdk) return;
 		joints_sdk->SetPositionsWithTimeStamp(joints, time_stamp);
 		
@@ -63,7 +63,7 @@ void TransmitSystem::ProcessRobotTransmitDatas(const QString& obj_name, int type
 		case KUKA::DataType::JointCurPos: {
 			Model* robot  = ModelManager::getInstance().GetModelByName(obj_map[obj_name].toStdString());
 			if (!robot)		 return;
-			auto joints_sdk = robot->GetComponent<JointGroupComponent>(JointGroupComponent::type_name.data());
+			auto joints_sdk = robot->GetComponent<JointGroupComponent>();
 			if (!joints_sdk) return;			
 			joints_sdk->SetPositions(datas);
 		}

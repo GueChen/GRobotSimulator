@@ -107,7 +107,7 @@ protected:
 private:
 	void			InitializeIKSolvers();
 	inline JointGroupComponent* 
-					GetJointsGroup() const { return ptr_parent_->GetComponent<JointGroupComponent>("JointGroupComponent"); }
+					GetJointsGroup() const { return ptr_parent_->GetComponent<JointGroupComponent>(); }
 
 	Thetav<float>			toThetav(const Thetas<float> thetas);
 	Thetas<float>			fromThetav(const Thetav<float> thetav);

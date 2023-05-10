@@ -2,6 +2,7 @@
 
 #include "manager/rendermanager.h"
 #include "render/myshader.h"
+#include "component/transform_component.h"
 
 #ifdef _DUBUG
 #include <iostream>
@@ -14,32 +15,28 @@ using namespace GComponent;
 using Translation3f = Eigen::Translation3f;
 using AngleAxisf    = Eigen::AngleAxisf;
 
-Model::Model(_RawPtr parent, const string & meshKey):
-    mesh_(meshKey)
+Model::Model(_RawPtr parent, const string & meshKey):    
+    mesh_(meshKey), 
+    transform_(new TransformComponent(this))
 {
-    if (parent) {
-        parent->appendChild(this, model_mat_);
-    }
+    Initialize(parent);
 }
 
 Model::Model(const string & name, const string & mesh, const Mat4 & model_mat, _RawPtr parent) :
-    name_(name), mesh_(mesh)
+    name_(name), 
+    mesh_(mesh), 
+    transform_(new TransformComponent(this, model_mat))
 {
-    setModelMatrix(model_mat);  
-    if (parent) {
-        parent->appendChild(this, model_mat_);
-    }
+    Initialize(parent);
 }
 
 GComponent::Model::Model(const string & name,  const string & mesh, 
                          const Vec3   & trans, const Vec3 & rot, const Vec3 & scale, _RawPtr parent):
-    name_(name), mesh_(mesh),
-    trans_(trans), rot_(rot), scale_(scale)
-{    
-    updateModelMatrix();
-    if (parent) {
-        parent->appendChild(this, model_mat_);
-    }    
+    name_(name), 
+    mesh_(mesh), 
+    transform_(new TransformComponent(this, trans, rot, scale))    
+{  
+    Initialize(parent);
 }
 
 Model::~Model() 
@@ -63,7 +60,7 @@ void GComponent::Model::tick(float delta_time)
         child->tick(delta_time);
     }
 
-    is_dirty_ = false;
+    transform_->SetIsDirty(false);
 }
 
 void GComponent::Model::tickImpl(float delta_time)
@@ -78,79 +75,22 @@ bool GComponent::Model::eraseChild(int idx)
     return true;
 }
 
-void Model::setModelMatrix(const Mat4 &mat, bool update)
-{            
-    std::tie(trans_, rot_, scale_, shear_) = TRSSDecompositionMat4(mat);
-    if (update) {
-        updateModelMatrix();
-    }
-}
-
-Mat4 GComponent::Model::getTranslationModelMatrix() const
-{
-    Mat4 model_mat = getModelMatrix();
-    model_mat.block(0, 0, 3, 3) = Mat3::Identity();
-    return model_mat;
-}
-
-Mat4 GComponent::Model::getModelMatrixWithoutScale() const
-{
-    Eigen::Affine3f model_trans_rot;
-    model_trans_rot.setIdentity();
-    model_trans_rot.translate(trans_);
-    if (rot_.norm() > 1e-6)
-    {
-        model_trans_rot.rotate(AngleAxisf(rot_.norm(), rot_ / rot_.norm()));
-    }
-    return parent_model_mat_ * model_trans_rot.matrix();
-}
-
 void GComponent::Model::setParent(Model* parent)
 {
     // remove from old parent
-    if (_RawPtr p = this->parent_; p != nullptr) {
-        if (p == parent) return;
-        p->eraseChild(p->getChildIndex(this));
+    if (_RawPtr parent = this->parent_; 
+        parent != nullptr) {
+        if (parent == parent) return;
+        parent->eraseChild(parent->getChildIndex(this));
     }    
-    parent_           = parent;
-    parent_model_mat_ = parent_ ? parent_->getModelMatrixWithoutScale() : Mat4::Identity();
-}
+    parent_ = parent;
 
-void GComponent::Model::setTransLocal(const Vec3& translation, bool updateflag)
-{
-    trans_ = translation;
-    if (updateflag)
-    {
-        updateModelMatrix();
+    if (parent_) {
+        auto p_trans = parent_->GetComponent<TransformComponent>();
+        transform_->SetParentMatrix(p_trans->GetModelMatrixWithoutScale());
     }
-}
-
-Vec3 GComponent::Model::getTransGlobal() const
-{
-    Mat4 model_mat = getModelMatrix();
-    return Vec3(model_mat(0, 3), model_mat(1,3), model_mat(2, 3));
-}
-
-void GComponent::Model::setRotLocal(const Vec3& rotation, bool updateflag)
-{
-    rot_ = rotation;
-    if (updateflag)
-    {
-        updateModelMatrix();
-    }
-}
-
-Vec3 GComponent::Model::getRotGlobal() const
-{ 
-    return LogMapSO3Toso3(static_cast<Eigen::Matrix3f>(getModelMatrixWithoutScale().block(0, 0, 3, 3)));
-}
-
-void GComponent::Model::setScale(const Vec3 scale, bool updateflag)
-{
-    scale_ = scale;
-    if (updateflag) 
-    {
-        updateModelMatrix();
+    else {
+        transform_->SetParentMatrix(Mat4::Identity());
     }
 }
 
@@ -173,11 +113,11 @@ bool GComponent::Model::DeregisterComponent(const string& component_name)
     return size == components_ptrs_.size();
 }
 
-void Model::appendChild(const _RawPtr pchild, Mat4 transform)
+void Model::appendChild(const _RawPtr ptr_child, Mat4 transform)
 {        
-    pchild->setParent(this);
-    children_.emplace_back(pchild);
-    pchild->setModelMatrix(transform);    
+    ptr_child->setParent(this);
+    children_.emplace_back(ptr_child);
+    ptr_child->GetTransform()->SetModelLocal(transform);    
 }
 
 int GComponent::Model::getChildIndex(_RawPtr ptr)
@@ -191,63 +131,10 @@ int GComponent::Model::getChildIndex(_RawPtr ptr)
     return -1;
 }
 
-void GComponent::Model::updateModelMatrix()
-{           
-    Eigen::Affine3f af_model;
-    af_model.setIdentity();
-    af_model.translate(trans_);
-    if (rot_.norm() > 1e-6) {
-        af_model.rotate(AngleAxisf(rot_.norm(), rot_ / rot_.norm()));
-    }    
-    Mat4 scale_part = Mat4::Identity(),
-         shear_part = Mat4::Identity();
-    if ((scale_ - Vec3::Ones()).norm() > 1e-6)
-    {
-        scale_part.block(0, 0, 3, 3) = Scale(scale_);
-    }
-    if (shear_.norm() > 1e-6)
-    {
-        shear_part.block(0, 0, 3, 3) = Shear(shear_);
-    }
-    model_mat_ = af_model.matrix() * scale_part * shear_part;
-
-    is_dirty_  = true;
-
-    updateChildrenMatrix(Mat3::Identity()/*scale_part.block(0, 0, 3, 3) * shear_part.block(0, 0, 3, 3)*/);
-}
-
-void Model::updateChildrenMatrix(const Mat3& parent_adjoint_mat)
-{    
-    for(auto & child : children_)
-    {                            
-        auto [Q_ori, R_ori]          = QRDecompositionMat3((child->inv_parent_U_mat_ * Roderigues(child->rot_)).eval());
-        auto [Q_new, R_new]          = QRDecompositionMat3((parent_adjoint_mat * Q_ori).eval());
-        Mat3 upper_triangle_mat_new  = R_new * R_ori;
-        if ((child->scale_ - Vec3::Ones()).norm() > 1e-6) {
-            upper_triangle_mat_new = upper_triangle_mat_new * Scale(child->scale_);
-        }
-        if (child->shear_.norm() > 1e-6) 
-        {
-            upper_triangle_mat_new = upper_triangle_mat_new * Shear(child->shear_);
-        }
-
-        child->parent_model_mat_     = getModelMatrixWithoutScale();
-        child->trans_                = parent_adjoint_mat * child->inv_parent_U_mat_ * child->trans_;
-        child->rot_                  = LogMapSO3Toso3(Q_new);
-        if (!std::isnan(upper_triangle_mat_new(0, 0))) {
-            std::tie(child->scale_, child->shear_)
-                = SSDecompositionMat3(upper_triangle_mat_new);
-        }
-        child->inv_parent_U_mat_     = parent_adjoint_mat.inverse();
-
-        child->updateModelMatrix();        
-    }
-}
-
-void GComponent::Model::setShaderProperty(MyShader& shader)
+void GComponent::Model::Initialize(Model* parent)
 {
-    shader.setMat4("model", Conversion::fromMat4f(getModelMatrix()));
-    if (not parent_) {
-        shader.setVec3("color", glm::vec3(1.0f));
+    RegisterComponent(std::unique_ptr<TransformComponent>(transform_));
+    if (parent) {
+        parent->appendChild(this, transform_->GetModelLocal());
     }
 }

@@ -22,7 +22,9 @@
 #include "system/transmitsystem.h"
 #include "system/skinsystem.h"
 
+
 #include "component/component_factory.h"
+#include "component/transform_component.h"
 #include "component/material_component.h"
 #include "component/collider_component.h"
 
@@ -112,7 +114,7 @@ void GComponent::EngineApp::CreateRobotWithParams(const vector<vector<float>>& p
 	transform_mat.setIdentity();
 
 	auto set_pbr_prop = [](Model* model, const glm::vec3& albedo, float ao, float metallic, float roughness) {
-		auto& material = *model->GetComponent<MaterialComponent>(MaterialComponent::type_name.data());
+		auto& material = *model->GetComponent<MaterialComponent>();
 		auto& properties = material.GetProperties();
 		for (auto& prop : properties) {
 			std::cout << prop.name << std::endl;
@@ -182,7 +184,7 @@ void GComponent::EngineApp::CreateRobotWithParams(const vector<vector<float>>& p
 		
 		// Register the Joint Component
 		models[idx]->RegisterComponent(std::make_unique<JointComponent>(models[idx], (R * Eigen::Vector3f::UnitZ()).normalized()));
-		joints.push_back(models[idx]->GetComponent<JointComponent>("JointComponent"));
+		joints.push_back(models[idx]->GetComponent<JointComponent>());
 		++idx;
 	}
 	auto [twists, T] = matrices.toTwists();
@@ -214,7 +216,7 @@ void GComponent::EngineApp::CreateConvexDecomposition()
 				
 		std::string convex_name_pre = obj_name + "_ch";
 		RawMesh raw_data = mesh->GetRawData();
-		for (Vec3f scale = obj_ptr->getScale(); 
+		for (Vec3f scale = obj_ptr->GetTransform()->GetScale(); 
 			auto & vert: raw_data.vertices) {			
 			vert.position.x *= scale.x();
 			vert.position.y *= scale.y();
@@ -365,8 +367,7 @@ void GComponent::EngineApp::ConnectModules()
 		[window_ptr = window_ptr_.get(), ui_state_ptr](const QString& com_name) {
 			Model* model = ui_state_ptr->GetSelectedObject();
 			if (model) {
-				if (model->RegisterComponent(ComponentFactory::GetComponent(com_name.toStdString(), model))) {
-					Component* component = model->GetComponent<Component>(com_name.toStdString());
+				if (Component * component = model->RegisterComponent(ComponentFactory::GetComponent(com_name.toStdString(), model))) {					 
 					window_ptr->ResponseComponentCreateRequest(component, com_name);
 				}
 			}

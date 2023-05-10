@@ -42,7 +42,7 @@ public:
 	void			tick(float delta) {
 		for (auto& [key, func] : update_functions_) {
 			func(delta);
-		}		
+		}
 		tickImpl(delta);
 	}
 

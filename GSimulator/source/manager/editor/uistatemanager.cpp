@@ -8,6 +8,7 @@
 
 #include "manager/rendermanager.h"
 #include "manager/modelmanager.h"
+#include "component/transform_component.h"
 
 #include <exception>
 #ifdef _DEBUG
@@ -95,6 +96,8 @@ void GComponent::UIState::tick()
 					
 		if (Model* selected_obj = ModelManager::getInstance().GetModelByHandle(selected_id);
 			selected_obj) {	
+			TransformCom& trans = *selected_obj->GetTransform();
+			
 			Vec3 dir, scr_dir, weight_dir;
 			switch (m_axis_selected) {
 			using enum AxisSelected;
@@ -104,7 +107,7 @@ void GComponent::UIState::tick()
 			}
 			
 			// caculate screen space delta about obj pos 
-			Vec4 affine_pos; affine_pos << selected_obj->getTransGlobal(), 1.0f;
+			Vec4 affine_pos; affine_pos << trans.GetTransGlobal(), 1.0f;
 			Vec4 affine_fwd = affine_pos; affine_fwd.block(0, 0, 3, 1) += dir;
 			Vec4 clip_pos = pv * affine_pos, 
 				 clip_fwd = pv * affine_fwd;
@@ -116,29 +119,30 @@ void GComponent::UIState::tick()
 						
 			switch (m_axis_mode) { using enum AxisMode;
 			case Translation: {			
-				float depth_weight = (Conversion::toVec3f(camera->Position) - selected_obj->getTransGlobal()).norm();
-				float dir_weight   = uv_fwd.x() * screen_uv_coor.x() + uv_fwd.y() * screen_uv_coor.y();
+				float depth_weight = (Conversion::toVec3f(camera->Position) - trans.GetTransGlobal()).norm();
+				float dir_weight   = uv_fwd.x() * screen_uv_coor.x() + uv_fwd.y() * screen_uv_coor.y();				
+				dir_weight   = Clamp(dir_weight, -1.0f, 1.0f);
 				dir = depth_weight * dir_weight * dir;
-				Eigen::Matrix4f global_trans    = selected_obj->getTranslationModelMatrix();		
+				Eigen::Matrix4f global_trans    = trans.GetTranslationModelMatrix();		
 				global_trans.block(0, 3, 3, 1) += dir;
-				Eigen::Matrix4f local_trans     = InverseSE3(selected_obj->getParentModelMatrix()) * global_trans;			
-				selected_obj->setTransLocal(local_trans.block(0, 3, 3, 1));
+				Eigen::Matrix4f local_trans     = InverseSE3(trans.GetParentMatrix()) * global_trans;			
+				trans.SetTransLocal(local_trans.block(0, 3, 3, 1));
 				break;
 			}
-			case Rotation: {				
+			case Rotation: {
 				float dir_weight   = uv_fwd.x() * screen_uv_coor.x() + uv_fwd.y() * screen_uv_coor.y();
 				dir = 2.5f * dir_weight * dir;				
-				Eigen::Matrix3f global_rot_dcm = selected_obj->getModelMatrixWithoutScale().block(0, 0, 3, 3);				
-				Eigen::Matrix3f local_rot_dcm  = selected_obj->getParentModelMatrix().block(0, 0, 3, 3).inverse() * Roderigues(dir) * global_rot_dcm;			
-				selected_obj->setRotLocal(LogMapSO3Toso3(local_rot_dcm));
+				Eigen::Matrix3f global_rot_dcm = trans.GetModelMatrixWithoutScale().block(0, 0, 3, 3);				
+				Eigen::Matrix3f local_rot_dcm  = trans.GetParentMatrix().block(0, 0, 3, 3).inverse() * Roderigues(dir) * global_rot_dcm;
+				trans.SetRotLocal(LogMapSO3Toso3(local_rot_dcm));
 				break;
 			}
 			case Scale: {
-				Vec3 model_dir = Roderigues(selected_obj->getRotGlobal()) * dir;
+				Vec3 model_dir = Roderigues(trans.GetRotGlobal()) * dir;
 				dir = line_in_world.dot(model_dir) * dir;
-				auto scale = selected_obj->getScale();
+				auto scale = trans.GetScale();
 				scale += dir;
-				selected_obj->setScale(scale);
+				trans.SetScale(scale);
 			}
 			}
 		}
@@ -166,23 +170,24 @@ void GComponent::UIState::tick()
 		selected_obj)
 	{
 		RenderManager::getInstance().m_selected_id = selected_id;
-
-		Camera* camera = ModelManager::getInstance().GetCameraByHandle(1);
-		Mat4 view	   = Conversion::toMat4f(camera->GetViewMatrix());
-		Vec4 glb_pos   = Vec4::Ones();
-		glb_pos.block(0, 0, 3, 1) 
-					   = selected_obj->getModelMatrix().block(0, 3, 3, 1);
+		TransformCom& trans = *selected_obj->GetTransform();
+		Camera* camera   = ModelManager::getInstance().GetCameraByHandle(1);
+		Mat4 view		 = Conversion::toMat4f(camera->GetViewMatrix());
 		
-		float distance = (Conversion::toVec3f(camera->Position) - selected_obj->getTransGlobal()).norm();
+		float distance = (Conversion::toVec3f(camera->Position) - trans.GetTransGlobal()).norm();
 
 		Mat4 scale_mat = Mat4::Identity();
 		scale_mat.block(0, 0, 3, 3) = Scale((Vec3::Ones() * distance * 0.05f).eval());
 		
 		if (m_cur_axis) {
+			TransformCom& axis_trans = *m_cur_axis->GetTransform();
 			m_cur_axis->SetAxisSelected(m_axis_selected);
-			m_cur_axis->setModelMatrix(
-				(m_axis_mode != AxisMode::Scale ? selected_obj->getTranslationModelMatrix() : selected_obj->getModelMatrixWithoutScale())
-				* scale_mat);
+			if (m_axis_mode != AxisMode::Scale) {
+				axis_trans.SetModelLocal(trans.GetTranslationModelMatrix() * scale_mat);
+			}
+			else {
+				axis_trans.SetModelLocal(trans.GetModelMatrixWithoutScale()* scale_mat);
+			}				
 			m_cur_axis->tick(0.0f);
 		}
 	}

@@ -3,7 +3,9 @@
 #include "geometry/bounding_volume_hierarchy.h"
 #include "geometry/intersection.h"
 #include "geometry/compute_penetration.h"
+
 #include "model/model.h"
+#include "component/transform_component.h"
 
 #include <iostream>
 #include <algorithm>
@@ -71,18 +73,18 @@ void CollisionSystem::tick(float delta_time)
 				// do nothing
 			}
 			else if (is_static_a) {
-				auto trans_b = obj_b->getTransGlobal() + 1.0f * output.depth * output.normal;
-				obj_b->setTransLocal(trans_b);
+				auto trans_b = obj_b->GetTransform()->GetTransGlobal() + 1.0f * output.depth * output.normal;
+				obj_b->GetTransform()->SetTransLocal(trans_b);
 			}
 			else if (is_static_b) {
-				auto trans_a = obj_a->getTransGlobal() - 1.0f * output.depth * output.normal;
-				obj_a->setTransLocal(trans_a);
+				auto trans_a = obj_a->GetTransform()->GetTransGlobal() - 1.0f * output.depth * output.normal;
+				obj_a->GetTransform()->SetTransLocal(trans_a);
 			}
 			else {
-				auto trans_a = obj_a->getTransGlobal() - 0.5f * output.depth * output.normal;
-				obj_a->setTransLocal(trans_a);
-				auto trans_b = obj_b->getTransGlobal() + 0.5f * output.depth * output.normal;
-				obj_b->setTransLocal(trans_b);
+				auto trans_a = obj_a->GetTransform()->GetTransGlobal() - 0.5f * output.depth * output.normal;
+				obj_a->GetTransform()->SetTransLocal(trans_a);
+				auto trans_b = obj_b->GetTransform()->GetTransGlobal() + 0.5f * output.depth * output.normal;
+				obj_b->GetTransform()->SetTransLocal(trans_b);
 			}										
 		}
 	}

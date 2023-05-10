@@ -63,7 +63,7 @@ void SkyBox::CheckAndRegisteredResource()
 void SkyBox::Draw()
 {
     ResourceManager& resource_manager = ResourceManager::getInstance();
-    if (auto mat_ptr = GetComponent<MaterialComponent>(MaterialComponent::type_name.data()); mat_ptr) {
+    if (auto mat_ptr = GetComponent<MaterialComponent>(); mat_ptr) {
         mat_ptr->SetShaderProperties();
     }
     if (RenderMesh* mesh = resource_manager.GetMeshByName(mesh_); mesh) {
@@ -72,16 +72,7 @@ void SkyBox::Draw()
 }
 
 void SkyBox::tickImpl(float delta_time)
-{
-
-}
-
-void SkyBox::setShaderProperty(MyShader& shader)
-{
-    shader.setInt("cubemap_texture", 0);
-    shader.setMat4("model", glm::mat4(1.0f));
-    //shader.setVec3("color", glm::vec3(1.0f, 0.0f, 0.0f));
-}
+{}
 
 vector<Vertex> SkyBox::SetupVertexData()
 {

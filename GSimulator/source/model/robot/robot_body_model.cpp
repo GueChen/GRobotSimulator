@@ -7,7 +7,7 @@
 #include "render/rendermesh.h"
 
 #include "component/material_component.h"
-
+#include "component/transform_component.h"
 
 using namespace GComponent;
 
@@ -19,7 +19,7 @@ ROBOT_BODY_MODEL::ROBOT_BODY_MODEL(Mat4 transform)
 {    
     name_      = "dual_robot_body_" + std::to_string(count_++);
     mesh_      = "dual_arm_body";   
-    setModelMatrix(transform);    
+    GetTransform()->SetModelLocal(transform);    
     InitializeModelResource();
     ModelManager::getInstance().RegisteredModel(name_, this);
 
@@ -39,7 +39,7 @@ void GComponent::ROBOT_BODY_MODEL::tickImpl(float delta_time)
 {
     if (!pbr_init_) {
         // Setting PBR Material Properties
-        auto material = GetComponent<MaterialComponent>(MaterialComponent::type_name.data());
+        auto material = GetComponent<MaterialComponent>();
         auto& props = material->GetProperties();
         if (props.empty()) return;
         for (auto& [_, name, __, val] : props) {
@@ -60,12 +60,6 @@ void GComponent::ROBOT_BODY_MODEL::tickImpl(float delta_time)
     }
 }
 
-void GComponent::ROBOT_BODY_MODEL::setShaderProperty(MyShader& shader)
-{
-    shader.setMat4("model", Conversion::fromMat4f(getModelMatrix()));
-    shader.setVec3("color", Conversion::fromVec3f(color_));
-    shader.setBool("NormReverse", false);
-}
 
 
 

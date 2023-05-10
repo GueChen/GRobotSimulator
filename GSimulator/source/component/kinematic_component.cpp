@@ -1,4 +1,5 @@
 #include "component/kinematic_component.h"
+#include "component/transform_component.h"
 
 #include "function/conversion.hpp"
 
@@ -123,7 +124,7 @@ bool KinematicComponent::UpdateExponentialCoordinates()
 		exp_coords_.resize(joint_count_);
 		/* This Function used to get parent Transform */
 		auto GetTransformFnc = [](const auto& component)->SE3<float> {	
-			return component->GetParent()->getModelMatrixWithoutScale();
+			return component->GetParent()->GetTransform()->GetModelMatrixWithoutScale();
 		};
 
 		SE3<float> inv_base_mat = InverseSE3(GetTransformFnc(this));

@@ -7,6 +7,8 @@
 
 #include "manager/modelmanager.h"
 
+#include "component/transform_component.h"
+
 #include <iostream>
 #include <format>
 
@@ -191,15 +193,16 @@ void ModelManager::ResponseParentChangeRequest(const string& model_name, const s
 {
     Model* model  = GetModelByName(model_name), 
          * parent = GetModelByName(new_parent_name);
-    Mat4 ori_mat  = model->getModelMatrix();
+    TransformCom& model_trans  = *model->GetTransform(),
+             & parent_trans = *model->GetTransform();
+    Mat4 ori_mat  = model_trans.GetModelGlobal();
     if (parent) {
-        Mat4 p_mat = parent->getModelMatrixWithoutScale();
+        Mat4 p_mat = parent_trans.GetModelMatrixWithoutScale();
         parent->appendChild(model, InverseSE3(p_mat) * ori_mat);
     }
     else {
         model->setParent(nullptr);
-        model->setModelMatrix(ori_mat, false);
-        model->updateModelMatrix();
+        model_trans.SetModelLocal(ori_mat);        
     }
 }
 

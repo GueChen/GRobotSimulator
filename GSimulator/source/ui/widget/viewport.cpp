@@ -33,7 +33,7 @@
 
 //_____________________________________Test Usage____________________________________________
 #include "model/robot/dual_arm_platform.h"
-
+#include "component/transform_component.h"
 
 
 static void CreateSphereObstacle(float x, float y, float z, float radius) {
@@ -42,9 +42,9 @@ static void CreateSphereObstacle(float x, float y, float z, float radius) {
     static const std::string obj_name = "sphere";
     ObjectManager::getInstance().CreateInstance(obj_name);
     Model* sphere = ModelManager::getInstance().GetModelByName(obj_name + std::to_string(idx++));	
-	sphere->setTransLocal(Vec3(x, y, z));
-    sphere->setScale(Vec3::Ones()* radius);    
-    auto col_com = sphere->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());
+	sphere->GetTransform()->SetTransLocal(Vec3(x, y, z));
+    sphere->GetTransform()->SetScale(Vec3::Ones()* radius);
+    auto col_com = sphere->GetComponent<ColliderComponent>();
     col_com->RegisterShape(new SphereShape(0.5f * radius));
 
 }
@@ -56,9 +56,9 @@ static void CreateCubeObstacle(float x, float y, float z, float x_l, float y_l, 
     ObjectManager::getInstance().CreateInstance(obj_name);
     Model* box = ModelManager::getInstance().GetModelByName(obj_name + std::to_string(idx++));
 		
-    box->setTransLocal(Vec3(x, y, z));
-    box->setScale(Vec3(x_l, y_l, z_l));        
-    auto col_com = box->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());
+    box->GetTransform()->SetTransLocal(Vec3(x, y, z));
+    box->GetTransform()->SetScale(Vec3(x_l, y_l, z_l));
+    auto col_com = box->GetComponent<ColliderComponent>();
     col_com->RegisterShape(new BoxShape(x_l * 0.5f, y_l * 0.5f, z_l * 0.5f));
 }
 
@@ -69,9 +69,9 @@ static void CreateCapsuleObstacle(float x, float y, float z, float radius, float
     ObjectManager::getInstance().CreateInstance(obj_name);
     Model* capsule = ModelManager::getInstance().GetModelByName(obj_name + std::to_string(idx++));	
 
-    capsule->setTransLocal(Vec3(x, y, z));
-    capsule->setScale(Vec3(radius / 0.3, radius / 0.3, (half_z/ 0.7 + radius / 0.3) * 0.5f));    
-    auto col_com = capsule->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());
+    capsule->GetTransform()->SetTransLocal(Vec3(x, y, z));
+    capsule->GetTransform()->SetScale(Vec3(radius / 0.3, radius / 0.3, (half_z/ 0.7 + radius / 0.3) * 0.5f));
+    auto col_com = capsule->GetComponent<ColliderComponent>();
     col_com->RegisterShape(new CapsuleShape(radius, half_z));
 }
 

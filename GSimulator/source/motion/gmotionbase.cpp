@@ -1,5 +1,6 @@
 #include "motion/gmotionbase.h"
 
+#include "component/transform_component.h"
 #include "component/kinematic_component.h"
 #include "component/joint_group_component.h"
 
@@ -33,9 +34,10 @@ MotionBase& MotionBase::SetMaxAngAcc(float acc)
 /*_____________________________________________CMotionBase Class____________________________________________*/
 CTrajectory CMotionBase::operator()(Model* robot)
 {
-    KinematicComponent&  kinematic_sdk  = *robot->GetComponent<KinematicComponent>(KinematicComponent::type_name.data());        
+    KinematicComponent&  kinematic_sdk  = *robot->GetComponent<KinematicComponent>();        
     SE3f                 mat_ini;         kinematic_sdk.ForwardKinematic(mat_ini);
-    mat_ini = robot->getModelMatrixWithoutScale() * mat_ini;
+    TransformCom&           trans = *robot->GetTransform();
+    mat_ini = trans.GetModelMatrixWithoutScale() * mat_ini;
 
     PathFunc path = PathFuncImpl(mat_ini, goal_);               // get path planning data
     time_total_   = ExecutionTimeImpl(mat_ini, goal_);          // caculate the total execution time
@@ -79,11 +81,13 @@ DualMotionBase& DualMotionBase::SetMaxRightAcc(float acc)
 
 DualTrajectory DualSyncMotionBase::operator()(Model* left, Model* right)
 {
-    KinematicComponent& l_kine = *left->GetComponent<KinematicComponent>(KinematicComponent::type_name.data()),
-                      & r_kine = *right->GetComponent<KinematicComponent>(KinematicComponent::type_name.data());
+    KinematicComponent& l_kine = *left->GetComponent<KinematicComponent>(),
+                      & r_kine = *right->GetComponent<KinematicComponent>();
+    TransformCom         & l_trans = *left->GetTransform(),
+                      & r_trans = *right->GetTransform();
     SE3f l_ini, r_ini;
-    l_kine.ForwardKinematic(l_ini); l_ini = left->getModelMatrixWithoutScale()  * l_ini;
-    r_kine.ForwardKinematic(r_ini); r_ini = right->getModelMatrixWithoutScale() * r_ini;
+    l_kine.ForwardKinematic(l_ini); l_ini = l_trans.GetModelMatrixWithoutScale() * l_ini;
+    r_kine.ForwardKinematic(r_ini); r_ini = r_trans.GetModelMatrixWithoutScale() * r_ini;
     SE3f l_goal = center_goal_ * left_trans_, r_goal = center_goal_ * right_trans_;
     
     auto&& [l_path, r_path] = PathFuncImpl(l_ini, l_goal, r_ini, r_goal);

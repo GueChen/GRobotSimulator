@@ -1,6 +1,7 @@
 #include "rigidbody_component.h"
 
 #include "manager/physicsmanager.h"
+#include "component/transform_component.h"
 
 namespace GComponent{
 	RigidbodyComponent::RigidbodyComponent(Model* ptr_parent, const Mat4& local_mat, float radius, CollisionGroup group):
@@ -39,13 +40,15 @@ namespace GComponent{
 
 	void RigidbodyComponent::tickImpl(float delta_time)
 	{
-		rigidbody_actor_->SetGlobalTransform(ptr_parent_->getModelMatrixWithoutScale());
+		TransformCom& trans = *ptr_parent_->GetTransform();
+		rigidbody_actor_->SetGlobalTransform(trans.GetModelMatrixWithoutScale());
 	}
 
 	RigidBodyActor* RigidbodyComponent::CreateRigidBodyActorFromScene(AbstractShape& shape, CollisionGroup group)
 	{
 		std::shared_ptr<PhysicsScene> activate_scene = PhysicsManager::getInstance().GetActivateScene().lock();		
-		return activate_scene->CreateRigidBodyActor(ptr_parent_->getModelMatrixWithoutScale(), local_model_matrix_, shape, group);
+		TransformCom& trans = *ptr_parent_->GetTransform();
+		return activate_scene->CreateRigidBodyActor(trans.GetModelMatrixWithoutScale(), local_model_matrix_, shape, group);
 	}
 
 }// !namespace GComponent

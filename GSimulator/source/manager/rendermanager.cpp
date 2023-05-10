@@ -11,6 +11,7 @@
 
 #include "model/model.h"
 #include "component/material_component.h"
+#include "component/transform_component.h"
 
 #ifdef _COLLISION_TEST
 #include "component/collider_component.h"
@@ -138,6 +139,7 @@ void RenderManager::tick()
 	DepthMapPass();
 
 	NormalPass();
+	
 	
 	PostProcessPass();
 
@@ -501,6 +503,7 @@ void RenderManager::NormalPass()
 	grid_.SetGL(gl_);
 	grid_.Draw();
 	gl_->glDisable(GL_BLEND);
+	
 }
 
 void RenderManager::RenderingPass()
@@ -526,8 +529,9 @@ void RenderManager::PostProcessPass()
 	// 3. ambient occlusion
 	ClearGLScreenBuffer(0.0f, 0.0f, 0.05f, 1.0f);
 	{
+		gl_->glBindTextureUnit(8, render_FBO_->GetTextureID());
 		FBOTextureGuard guard(&render_FBO_.value());		
-		screen_quad_.Draw();		
+		screen_quad_.Draw();
 	}
 	
 	gl_->glEnable(GL_BLEND);
@@ -557,11 +561,12 @@ void RenderManager::PassSpecifiedListPicking(PassType draw_index_type, RenderLis
 	//  Pass Normally
 	for (auto& [obj_name, mesh_name] : list) 
 	{		
-		RenderMesh*		mesh			= scene_manager.GetMeshByName(mesh_name);
-		Model*			obj				= ObjGetter(obj_name);
-		
+		RenderMesh*	mesh  = scene_manager.GetMeshByName(mesh_name);
+		Model*		obj	  = ObjGetter(obj_name);
+		auto&		trans = *obj->GetComponent<TransformComponent>();
 		picking_shader->setUint("gModelIndex", obj->model_id_);
-		obj->setShaderProperty(*picking_shader);
+		picking_shader->setMat4("model",	   Conversion::fromMat4f(trans.GetModelGlobal()));
+		
 		if (mesh) mesh->Draw();
 	}
 }
@@ -581,8 +586,9 @@ void RenderManager::PassSpecifiedListDepth(RenderList& list, function<Model* (co
 	{		
 		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
 		Model* obj = ObjGetter(obj_name);
+		auto& trans = *obj->GetComponent<TransformComponent>();
+		depth_shader->setMat4("model", Conversion::fromMat4f(trans.GetModelGlobal()));		
 
-		obj->setShaderProperty(*depth_shader);
 		if (mesh) mesh->Draw();
 	}
 }
@@ -597,7 +603,8 @@ void RenderManager::CollisionPass(RenderList&list, function<RawptrModel(const st
 		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
 		Model*      obj  = ObjGetter(obj_name);
 		if (!obj || !mesh) continue;
-		base_shader->setMat4("model", Conversion::fromMat4f(obj->getModelMatrix()));
+		auto& trans = *obj->GetComponent<TransformComponent>();
+		base_shader->setMat4("model", Conversion::fromMat4f(trans.GetModelGlobal()));
 		if (obj->intesection_) {
 			gl_->glDisable(GL_DEPTH_TEST);
 			gl_->glCullFace(GL_FRONT);
@@ -613,7 +620,6 @@ void RenderManager::CollisionPass(RenderList&list, function<RawptrModel(const st
 	}
 }
 
-
 void RenderManager::BoundingBoxPass(RenderList& list, function<RawptrModel(const std::string&)> ObjGetter)
 {
 	GLineBox box(vec3(-1.0f), vec3(1.0f));
@@ -623,7 +629,7 @@ void RenderManager::BoundingBoxPass(RenderList& list, function<RawptrModel(const
 	for (auto& [obj_name, _] : list) {
 		Model* obj = ObjGetter(obj_name);
 		if (!obj) continue;
-		auto col = obj->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());
+		auto col = obj->GetComponent<ColliderComponent>();
 		if (!col) continue;
 		const auto& bound = col->GetBound();
 		boundings.push_back(bound);
@@ -655,7 +661,7 @@ void RenderManager::PassSpecifiedListNormal(RenderList& list, std::function<Mode
 		RenderMesh*		mesh	= scene_manager.GetMeshByName(mesh_name);
 		Model*			obj		= ObjGetter(obj_name);
 		if (!obj || !mesh) continue;		
-		auto material = obj->GetComponent<MaterialComponent>(MaterialComponent::type_name.data());		
+		auto material = obj->GetComponent<MaterialComponent>();		
 		if (!material || material->GetShader() == "null") {
 			continue;
 		}

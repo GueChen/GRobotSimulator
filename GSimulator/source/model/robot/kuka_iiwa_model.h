@@ -44,8 +44,6 @@ public:
 /// 绘图函数 Drawing Functions
     void setColor(const Vec3 & color);
 
-protected:
-    void setShaderProperty(MyShader & shader) override;
    
 private:
     void InitializeModelResource();
@@ -55,7 +53,6 @@ private:
 private:
 // 当前单一颜色着色器下的显示颜色
     Vec3            _color     = Vec3::Ones();
-    bool            pbr_init_  = false;;
     static bool is_init_;
     
     static int  count;

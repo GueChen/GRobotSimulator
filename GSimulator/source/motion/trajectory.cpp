@@ -2,6 +2,7 @@
 
 #include "model/model.h"
 
+#include "component/transform_component.h"
 #include "component/kinematic_component.h"
 
 namespace GComponent {
@@ -19,10 +20,10 @@ float				time_total	= 0.0f;
 
 TrajectoryImpl::TrajectoryImpl(Model& obj, float time_total) :
     obj(obj),
-    kine_sdk(*obj.GetComponent<KinematicComponent>(KinematicComponent::type_name.data())),
+    kine_sdk(*obj.GetComponent<KinematicComponent>()),
     time_total(time_total)
 {
-    glb_inv = obj.getModelMatrixWithoutScale().inverse();
+    glb_inv = obj.GetTransform()->GetModelMatrixWithoutScale().inverse();
 }
 
 /*_______________________________Abstract Trajectory Class_______________________________________*/
@@ -72,13 +73,13 @@ JointPairs JTrajectory::operator()(float t_reg)
 SE3f JTrajectory::GetInitialPoint() const
 {
     SE3f out_mat; impl_->kine_sdk.ForwardKinematic(out_mat, fnc_(0.0f).first);
-    return impl_->obj.getModelMatrixWithoutScale() * out_mat;
+    return impl_->obj.GetTransform()->GetModelMatrixWithoutScale() * out_mat;
 }
 
 SE3f JTrajectory::GetGoalPoint() const
 {
     SE3f out_mat; impl_->kine_sdk.ForwardKinematic(out_mat, fnc_(1.0f).first);
-    return impl_->obj.getModelMatrixWithoutScale() * out_mat;
+    return impl_->obj.GetTransform()->GetModelMatrixWithoutScale() * out_mat;
 }
 
 Trajectory::_Point3s JTrajectory::GetSampleFromPathFunc(float interval)

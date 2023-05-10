@@ -3,6 +3,7 @@
 #include "system/collisionsystem.h"
 
 #include "model/model.h"
+#include "component/transform_component.h"
 
 #include <algorithm>
 #include <ranges>
@@ -19,7 +20,8 @@ GComponent::ColliderComponent::ColliderComponent(Model* parent, _ShapeRawPtrs sh
 
 void GComponent::ColliderComponent::RegisterShape(_ShapeRawPtr ptr)
 {
-	boundings_.push_back(BoundingBox::CompouteBoundingBox(*ptr, ptr_parent_->getTransGlobal(), Roderigues(ptr_parent_->getRotGlobal())));
+	TransformCom& trans = *ptr_parent_->GetTransform();
+	boundings_.push_back(BoundingBox::CompouteBoundingBox(*ptr, trans.GetTransGlobal(), Roderigues(trans.GetRotGlobal())));
 	shapes_.push_back(_ShapePtr(ptr));
 	UpdateBoundingBox(boundings_.back());
 }
@@ -62,11 +64,11 @@ void ColliderComponent::tickImpl(float delta)
 #ifdef _COLLISION_TEST
 	ptr_parent_->intesection_ = false;
 #endif
-	
-	SE3f  cur_pose  = ptr_parent_->getModelMatrixWithoutScale();
+	TransformCom& trans = *ptr_parent_->GetTransform();
+	SE3f  cur_pose  = trans.GetModelMatrixWithoutScale();
 	Vec3f cur_trans = cur_pose.block(0, 3, 3, 1);
 	SO3f  cur_rot   = cur_pose.block(0, 0, 3, 3);
-	if (ptr_parent_->getDirty()) {
+	if (trans.GetIsDirty()) {
 		bound_ = BoundingBox();
 		for (int i = 0; i < shapes_.size(); ++i) {
 			boundings_[i] = BoundingBox::CompouteBoundingBox(*shapes_[i], cur_trans, cur_rot);

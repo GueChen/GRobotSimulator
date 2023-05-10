@@ -48,7 +48,6 @@ public:
 	[[deprecated]]
 	void Draw();
 protected:
-	void setShaderProperty(MyShader& shader) override;
 
 	void SetupXaxisCircle(int segments, float radius, float fixed_x, vector<Vertex>&);
 	void SetupYaxisVertex(const int count, vector<Vertex>&);

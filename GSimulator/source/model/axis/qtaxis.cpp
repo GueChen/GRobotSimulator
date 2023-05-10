@@ -38,7 +38,7 @@ unsigned GComponent::QtGLAbstractAxis::GetStridedSize()
 
 void GComponent::QtGLAbstractAxis::SetAxisSelected(AxisSelected which)
 {
-	auto mat_ptr = GetComponent<MaterialComponent>(MaterialComponent::type_name.data());
+	auto mat_ptr = GetComponent<MaterialComponent>();
 	if (!mat_ptr) return;
 	for (auto& prop : mat_ptr->GetProperties()) {
 		if (prop.name == "selected") {
@@ -55,12 +55,6 @@ void GComponent::QtGLAbstractAxis::tickImpl(float delta_time)
 void GComponent::QtGLAbstractAxis::Draw()
 {
 	ResourceManager::getInstance().GetMeshByName(mesh_)->Draw();
-}
-
-void GComponent::QtGLAbstractAxis::setShaderProperty(MyShader& shader)
-{
-	shader.setMat4("model",	Conversion::fromMat4f(getModelMatrix()));
-	shader.setInt( "selected", static_cast<int>(selected_which_));
 }
 
 void GComponent::QtGLAbstractAxis::SetupXaxisCircle(int segments, float radius, float fixed_x, vector<Vertex> & vertices)

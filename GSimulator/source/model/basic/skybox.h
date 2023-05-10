@@ -20,7 +20,6 @@ public:
 	void tickImpl(float delta_time) override;
 
 protected:
-	void setShaderProperty(MyShader& shader) override;
 	void CheckAndRegisteredResource();
 
 	vector<Vertex>		SetupVertexData();

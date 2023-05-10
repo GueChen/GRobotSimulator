@@ -94,7 +94,7 @@ int JointGroupComponent::SearchJointsInChildren()
 		search_stack.pop();
 		for (auto& child : cur->getChildren()) 
 		{
-			JointComponent* joint = child->GetComponent<JointComponent>("JointComponent");
+			JointComponent* joint = child->GetComponent<JointComponent>();
 			if (joint && !record_table_.count(joint))
 			{
 				joinable_joints_.push_back(joint);

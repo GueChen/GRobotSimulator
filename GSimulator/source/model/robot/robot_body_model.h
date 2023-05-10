@@ -22,9 +22,6 @@ public:
 /// Tick Functions
     void tickImpl(float delta_time) override;
 
-protected:
-    void setShaderProperty(MyShader& shader) override;
-
 private:
     void InitializeModelResource();
 
