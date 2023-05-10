@@ -62,11 +62,11 @@ void CollisionSystem::tick(float delta_time)
 		// ComputePenetration(shae_a, pose_a, shape_b, pose_b)
 		PenetrationOutput output;
 		if (CollisionPenetration::Penetration(output, shape_a, pose_a, shape_b, pose_b)) {
-			std::cout << std::format("collision pair <{:<20}, {:<20}>:\n", obj_a->getName(), obj_b->getName());
+			/*std::cout << std::format("collision pair <{:<20}, {:<20}>:\n", obj_a->getName(), obj_b->getName());
 			std::cout << "closest on A : " << output.closest_a.transpose() << std::endl;
 			std::cout << "closest on B : " << output.closest_b.transpose() << std::endl;
 			std::cout << "depth dir    : " << output.normal.transpose()    << std::endl;
-			std::cout << "depth        : " << output.depth                 << std::endl;
+			std::cout << "depth        : " << output.depth                 << std::endl;*/
 			if (is_static_a && is_static_b) {
 				// do nothing
 			}

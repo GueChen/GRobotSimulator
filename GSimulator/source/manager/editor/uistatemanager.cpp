@@ -83,41 +83,59 @@ void GComponent::UIState::tick()
 
 	if (is_draged && m_axis_selected != AxisSelected::None) {
 		Camera* camera = ModelManager::getInstance().GetCameraByHandle(1);		
-		Mat4 inv_proj = InverseSE3(Conversion::toMat4f(camera->GetProjection(m_aspect)));	
-		Mat3 inv_view = InverseSE3(Conversion::toMat4f(camera->GetViewMatrix())).block(0, 0, 3, 3);
+		Mat4 proj     = Conversion::toMat4f(camera->GetProjection(m_aspect));
+		Mat4 view     = Conversion::toMat4f(camera->GetViewMatrix());
+		Mat4 pv		  = proj * view;
+		Mat4 inv_pv   = pv.inverse();
+		Mat4 inv_proj = proj.inverse();	
+		Mat3 inv_view = InverseSE3(view).block(0, 0, 3, 3);
 		Vec4 screen_uv_coor(static_cast<float>(m_mouse_delta_x) / m_width,
 							static_cast<float>(-m_mouse_delta_y) / m_height, 
-							0.0f, 1.0f);
-
-		Vec3 line_in_eye   =  Vec3::Zero();
-		line_in_eye.block(0, 0, 2, 1) = (inv_proj * screen_uv_coor).block(0, 0, 2, 1);
-		Vec3 line_in_world = inv_view * line_in_eye;
-
-		Vec3 dir;
-		switch (m_axis_selected) {
-			using enum AxisSelected;
-			case xAxis:	dir = Vec3(1.0f, 0.0f, 0.0f); break;
-			case yAxis: dir = Vec3(0.0f, 1.0f, 0.0f); break;
-			case zAxis: dir = Vec3(0.0f, 0.0f, 1.0f); break;
-		}	
-		dir = dir.dot(line_in_world) * dir;
+							0.0f, 1.0f);		
+					
 		if (Model* selected_obj = ModelManager::getInstance().GetModelByHandle(selected_id);
-			selected_obj) {
+			selected_obj) {	
+			Vec3 dir, scr_dir, weight_dir;
+			switch (m_axis_selected) {
+			using enum AxisSelected;
+			case xAxis: dir = Vec3::UnitX(); break;
+			case yAxis: dir = Vec3::UnitY(); break;
+			case zAxis: dir = Vec3::UnitZ(); break;
+			}
+			
+			// caculate screen space delta about obj pos 
+			Vec4 affine_pos; affine_pos << selected_obj->getTransGlobal(), 1.0f;
+			Vec4 affine_fwd = affine_pos; affine_fwd.block(0, 0, 3, 1) += dir;
+			Vec4 clip_pos = pv * affine_pos, 
+				 clip_fwd = pv * affine_fwd;
+			Eigen::Vector2f uv_fwd = clip_fwd.block(0, 0, 2, 1) / clip_fwd(3) - clip_pos.block(0, 0, 2, 1) / clip_pos(3);
+
+			Vec3 line_in_eye   = Vec3::Zero();			
+			line_in_eye.block(0, 0, 2, 1) = (inv_proj * screen_uv_coor).block(0, 0, 2, 1);
+			Vec3 line_in_world = inv_view * line_in_eye;
+						
 			switch (m_axis_mode) { using enum AxisMode;
-			case Translation: {
-				Eigen::Matrix4f global_trans    = selected_obj->getTranslationModelMatrix();
+			case Translation: {			
+				float depth_weight = (Conversion::toVec3f(camera->Position) - selected_obj->getTransGlobal()).norm();
+				float dir_weight   = uv_fwd.x() * screen_uv_coor.x() + uv_fwd.y() * screen_uv_coor.y();
+				dir = depth_weight * dir_weight * dir;
+				Eigen::Matrix4f global_trans    = selected_obj->getTranslationModelMatrix();		
 				global_trans.block(0, 3, 3, 1) += dir;
 				Eigen::Matrix4f local_trans     = InverseSE3(selected_obj->getParentModelMatrix()) * global_trans;			
 				selected_obj->setTransLocal(local_trans.block(0, 3, 3, 1));
 				break;
 			}
-			case Rotation: {			
-				Eigen::Matrix3f global_rot_dcm  = selected_obj->getModelMatrixWithoutScale().block(0, 0, 3, 3);				
-				Eigen::Matrix3f local_rot_dcm   = selected_obj->getParentModelMatrix().block(0, 0, 3, 3).inverse() * Roderigues(dir) * global_rot_dcm;			
+			case Rotation: {				
+				float dir_weight   = uv_fwd.x() * screen_uv_coor.x() + uv_fwd.y() * screen_uv_coor.y();
+				dir = 2.5f * dir_weight * dir;				
+				Eigen::Matrix3f global_rot_dcm = selected_obj->getModelMatrixWithoutScale().block(0, 0, 3, 3);				
+				Eigen::Matrix3f local_rot_dcm  = selected_obj->getParentModelMatrix().block(0, 0, 3, 3).inverse() * Roderigues(dir) * global_rot_dcm;			
 				selected_obj->setRotLocal(LogMapSO3Toso3(local_rot_dcm));
 				break;
 			}
-			case Scale: {				
+			case Scale: {
+				Vec3 model_dir = Roderigues(selected_obj->getRotGlobal()) * dir;
+				dir = line_in_world.dot(model_dir) * dir;
 				auto scale = selected_obj->getScale();
 				scale += dir;
 				selected_obj->setScale(scale);
@@ -127,8 +145,6 @@ void GComponent::UIState::tick()
 
 	}
 	else if (picking_msg_ && picking_msg_->drawID == static_cast<float>(PassType::AuxiliaryPass) && m_cur_axis) {
-		std::cout << std::format("picking info: Stri -- {:<8}, Prim -- {:<8}, Draw -- {:}, Model -- {:}\n", m_cur_axis->GetStridedSize(), picking_msg_->primitiveID,
-			picking_msg_->drawID, picking_msg_->modelID);
 		if (picking_msg_->primitiveID <= m_cur_axis->GetStridedSize())
 		{
 			m_axis_selected = AxisSelected::xAxis;
@@ -157,7 +173,7 @@ void GComponent::UIState::tick()
 		glb_pos.block(0, 0, 3, 1) 
 					   = selected_obj->getModelMatrix().block(0, 3, 3, 1);
 		
-		float distance = ((InverseSE3(view) * glb_pos).block(0, 0, 3, 1)).norm();
+		float distance = (Conversion::toVec3f(camera->Position) - selected_obj->getTransGlobal()).norm();
 
 		Mat4 scale_mat = Mat4::Identity();
 		scale_mat.block(0, 0, 3, 3) = Scale((Vec3::Ones() * distance * 0.05f).eval());

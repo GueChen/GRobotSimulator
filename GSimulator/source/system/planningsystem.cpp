@@ -22,6 +22,7 @@ static void LogEndPos(MotionBase& motion, Model& robot, Trajectory & func) {
 	KinematicComponent& kine = *robot.GetComponent<KinematicComponent>(KinematicComponent::type_name.data());
 
 	float tot = motion.GetTotalTime(), interval = std::max(1e-15f, tot / 100.0f);
+	if (isnan(tot) || isinf(tot)) return;
 	for (float i = 0.0f; i <= tot; i += interval) {
 		auto ret = func(i);
 		SE3f mat; kine.ForwardKinematic(mat, ret.first);
@@ -35,6 +36,7 @@ static void LogEndPosDual(Model& l_robot, Trajectory& l_func, Model& r_robot, Tr
 	KinematicComponent& l_kine = *l_robot.GetComponent<KinematicComponent>(KinematicComponent::type_name.data()),
 					  & r_kine = *r_robot.GetComponent<KinematicComponent>(KinematicComponent::type_name.data());
 	float tot = l_func.GetTimeTotal(), interval = std::max(1e-15f, tot / 100.0f);
+	if (isnan(tot) || isinf(tot)) return;
 	for (float i = 0.0f; i <= tot; i += interval) {
 		{	auto ret = l_func(i);
 			SE3f mat; l_kine.ForwardKinematic(mat, ret.first);

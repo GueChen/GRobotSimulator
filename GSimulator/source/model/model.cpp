@@ -154,14 +154,14 @@ void GComponent::Model::setScale(const Vec3 scale, bool updateflag)
     }
 }
 
-bool GComponent::Model::RegisterComponent(_PtrComponent&& component_ptr)
+Component* GComponent::Model::RegisterComponent(_PtrComponent&& component_ptr)
 {
     std::erase_if(components_ptrs_, [component_name = component_ptr->GetTypeName()](auto& com) {
         return com->GetTypeName() == component_name;
     });
     component_ptr->SetParent(this);
     components_ptrs_.push_back(std::move(component_ptr));    
-    return true;
+    return components_ptrs_.back().get();
 }
 
 bool GComponent::Model::DeregisterComponent(const string& component_name)

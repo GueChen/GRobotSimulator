@@ -34,43 +34,16 @@
 //_____________________________________Test Usage____________________________________________
 #include "model/robot/dual_arm_platform.h"
 
-static void SetPBRRandomProperties(GComponent::Model* model) {
-	using namespace GComponent;
-	auto get_random = []()->float {
-		return rand() % 10000 / 10000.0f;
-	};
-	auto& material = *model->GetComponent<MaterialComponent>(MaterialComponent::type_name.data());
-	auto& properties = material.GetProperties();
-	for (auto& prop : properties) {
-		std::cout << prop.name << std::endl;
-		if (prop.name == "albedo color") {
-			prop.val = glm::vec3(get_random(), get_random(), get_random());
-		}
-		else if (prop.name == "ao") {
-			prop.val = get_random();
-		}
-		else if (prop.name == "metallic") {
-			prop.val = get_random();
-		}
-		else if (prop.name == "roughness") {
-			prop.val = get_random();
-		}
-	}	
 
-}
 
 static void CreateSphereObstacle(float x, float y, float z, float radius) {
     using namespace GComponent;
     static int idx = 0;
     static const std::string obj_name = "sphere";
     ObjectManager::getInstance().CreateInstance(obj_name);
-    Model* sphere = ModelManager::getInstance().GetModelByName(obj_name + std::to_string(idx++));
-	
-	SetPBRRandomProperties(sphere);
-
+    Model* sphere = ModelManager::getInstance().GetModelByName(obj_name + std::to_string(idx++));	
 	sphere->setTransLocal(Vec3(x, y, z));
-    sphere->setScale(Vec3::Ones()* radius);
-    sphere->RegisterComponent(std::make_unique<ColliderComponent>(sphere));
+    sphere->setScale(Vec3::Ones()* radius);    
     auto col_com = sphere->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());
     col_com->RegisterShape(new SphereShape(0.5f * radius));
 
@@ -82,12 +55,9 @@ static void CreateCubeObstacle(float x, float y, float z, float x_l, float y_l, 
     static const std::string obj_name = "cube";
     ObjectManager::getInstance().CreateInstance(obj_name);
     Model* box = ModelManager::getInstance().GetModelByName(obj_name + std::to_string(idx++));
-	
-	SetPBRRandomProperties(box);
-
+		
     box->setTransLocal(Vec3(x, y, z));
-    box->setScale(Vec3(x_l, y_l, z_l));    
-    box->RegisterComponent(std::make_unique<ColliderComponent>(box));
+    box->setScale(Vec3(x_l, y_l, z_l));        
     auto col_com = box->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());
     col_com->RegisterShape(new BoxShape(x_l * 0.5f, y_l * 0.5f, z_l * 0.5f));
 }
@@ -97,29 +67,27 @@ static void CreateCapsuleObstacle(float x, float y, float z, float radius, float
     static int idx = 0;
     static const std::string obj_name = "capsule";
     ObjectManager::getInstance().CreateInstance(obj_name);
-    Model* capsule = ModelManager::getInstance().GetModelByName(obj_name + std::to_string(idx++));
-	SetPBRRandomProperties(capsule);
+    Model* capsule = ModelManager::getInstance().GetModelByName(obj_name + std::to_string(idx++));	
 
     capsule->setTransLocal(Vec3(x, y, z));
-    capsule->setScale(Vec3(radius / 0.3, radius / 0.3, (half_z/ 0.7 + radius / 0.3) * 0.5f));
-    capsule->RegisterComponent(std::make_unique<ColliderComponent>(capsule));
+    capsule->setScale(Vec3(radius / 0.3, radius / 0.3, (half_z/ 0.7 + radius / 0.3) * 0.5f));    
     auto col_com = capsule->GetComponent<ColliderComponent>(ColliderComponent::type_name.data());
     col_com->RegisterShape(new CapsuleShape(radius, half_z));
 }
 
 static void SceneInitialize() {
 	GComponent::DUAL_ARM_PLATFORM platform;
-	//CreateCubeObstacle(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
-	//CreateSphereObstacle(0.0f, 0.0f, 0.0f, 1.0f);
-	//CreateCubeObstacle(0.5f, 0.8f, 1.0f, 0.2f, 0.7f, 0.3f);
-	//CreateCubeObstacle(-2.5f, -1.8f, 0.0f, 0.4f, 0.3f, 0.5f);
-	//CreateSphereObstacle(0.35f, 0.45f, 2.5f, 0.8f);
-	//
-	//CreateCubeObstacle(-0.30f, -0.4f, 1.2f, 0.5f, 0.5f, 0.5f);
-	//CreateCapsuleObstacle(0.55f, -0.5f, 0.0f, 0.1f, 0.3f);
-	//CreateCapsuleObstacle(0.0f, 0.0f, 0.0f, 0.3f, 0.7f);
-	//CreateSphereObstacle(0.0f, 0.0f, 0.0f, 1.0f);
-	//CreateCubeObstacle(0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f);
+	CreateCubeObstacle(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+	CreateSphereObstacle(0.0f, 0.0f, 0.0f, 1.0f);
+	CreateCubeObstacle(0.5f, 0.8f, 1.0f, 0.2f, 0.7f, 0.3f);
+	CreateCubeObstacle(-2.5f, -1.8f, 0.0f, 0.4f, 0.3f, 0.5f);
+	CreateSphereObstacle(0.35f, 0.45f, 2.5f, 0.8f);
+	
+	CreateCubeObstacle(-0.30f, -0.4f, 1.2f, 0.5f, 0.5f, 0.5f);
+	CreateCapsuleObstacle(0.55f, -0.5f, 0.0f, 0.1f, 0.3f);
+	CreateCapsuleObstacle(0.0f, 0.0f, 0.0f, 0.3f, 0.7f);
+	CreateSphereObstacle(0.0f, 0.0f, 0.0f, 1.0f);
+	CreateCubeObstacle(0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f);
 }
 
 static bool scene_initialize = false;
@@ -360,7 +328,7 @@ void Viewport::dropEvent(QDropEvent* event)
 		QFileInfo dir(url.path().mid(1));
 		std::cout << url.toString().toStdString() << std::endl;		
 		std::cout << dir.baseName().toStdString() << std::endl;
-
+		
 		QThreadPool::globalInstance()->start([dir = dir]() {
 			try {
 				std::string mesh_name = dir.baseName().toStdString();				

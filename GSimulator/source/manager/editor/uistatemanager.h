@@ -84,7 +84,7 @@ public slots:
 	void ResponseSelectRequest(const string& select_obj_name);
 	void ResponseAxisModeChange(AxisMode mode);
 
-protected:
+protected:	
 	int			  m_mouse_pos_x			= -1;
 	int			  m_mouse_pos_y			= -1;
 	int			  m_last_mouse_pos_x	= -1;

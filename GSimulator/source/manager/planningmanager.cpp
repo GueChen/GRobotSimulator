@@ -60,6 +60,7 @@ void PlanningManager::RegisterPlanningTask(Trajectory* traj) {
 
 void PlanningManager::RegisterDualPlanningTask(std::vector<Model*> robots, std::vector<JTrajFunc> func, float time_total, uint32_t interval_ms)
 {
+	if (time_total <= 0.0 || time_total > 1e5) return;
 	auto task = [this, funcs = func, time_total, interval = interval_ms, 
 				 m_keys = robots, 			
 				 &m_locks = lock_map_, 

@@ -114,7 +114,7 @@ public:
 
     inline bool     getDirty()       const               { return is_dirty_; }
 
-    bool            RegisterComponent(_PtrComponent && component_ptr);
+    Component*      RegisterComponent(_PtrComponent && component_ptr);
     bool            DeregisterComponent(const string& component_name);
     inline const vector<_PtrComponent>&
                     GetComponents()  const              { return components_ptrs_;}

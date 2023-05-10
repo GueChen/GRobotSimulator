@@ -45,7 +45,9 @@ void GComponent::PlanningTask::operator()()
 	
 	float time_total = func_->GetTimeTotal();		
 
-	if (isinf(time_total) || isnan(time_total)) {						// time ineffective
+	if (isinf(time_total) || isnan(time_total) || 
+		time_total >= 1e5 || time_total < 0.0) {						// time ineffective
+		finish_notifyer_();
 		return;
 	}
 

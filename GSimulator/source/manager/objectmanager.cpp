@@ -5,10 +5,34 @@
 #include "function/adapter/modelloader_qgladapter.h"
 
 #include "component/material_component.h"
-
+#include "component/collider_component.h"
 // delete all using a better method as replace
 #include "simplexmesh/gball.h"
 //
+
+static void SetPBRRandomProperties(GComponent::MaterialComponent* material) {
+	using namespace GComponent;
+	auto get_random = []()->float {
+		return rand() % 10000 / 10000.0f;
+	};	
+	auto& properties = material->GetProperties();
+	for (auto& prop : properties) {
+		std::cout << prop.name << std::endl;
+		if (prop.name == "albedo color") {
+			prop.val = glm::vec3(get_random(), get_random(), get_random());
+		}
+		else if (prop.name == "ao") {
+			prop.val = get_random();
+		}
+		else if (prop.name == "metallic") {
+			prop.val = get_random();
+		}
+		else if (prop.name == "roughness") {
+			prop.val = get_random();
+		}
+	}
+
+}
 
 GComponent::ObjectManager& GComponent::ObjectManager::getInstance() {
 	static ObjectManager instance;
@@ -59,7 +83,11 @@ bool GComponent::ObjectManager::CreateInstanceWithModelMat(const string& obj_nam
 	string name = obj_name + std::to_string(obj_lists_count_table_[obj_name]);
 	auto&  mesh = obj_properties_table_[obj_name];
 	Model* model= new Model(name, mesh, model_mat);
-	model->RegisterComponent(std::make_unique<MaterialComponent>(model, "pbr", true));
+	auto material = model->RegisterComponent(std::make_unique<MaterialComponent>(model, "pbr", true));
+	SetPBRRandomProperties(dynamic_cast<MaterialComponent*>(material));
+
+	model->RegisterComponent(std::make_unique<ColliderComponent>(model));	
+
 	ModelManager::getInstance().RegisteredModel(name, std::move(model));	
 	++obj_lists_count_table_[obj_name];
 	return true;
