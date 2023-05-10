@@ -762,8 +762,11 @@ QWidget* ComponentUIFactory::Create(Component& component)
 		com.RegisterDelFunction(ComponentUIFactory::kTag, [widget]() { widget->disconnect(); });
 		QObject::connect(widget, &QWidget::destroyed, [&com]() { com.DeregisterDelFunction(ComponentUIFactory::kTag); });
 	};
-
-	if (s == "JointComponent") {
+	if (s == "TransformComponent") {
+		QWidget* widget = new QWidget;
+		return   widget;
+	}
+	else if (s == "JointComponent") {
 		JointComponent& joint_component = dynamic_cast<JointComponent&>(component);
 
 		/* builder UI Part */

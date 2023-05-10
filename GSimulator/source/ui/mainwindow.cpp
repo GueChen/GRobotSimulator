@@ -222,20 +222,6 @@ void MainWindow::CheckSelected()
         ui_->mesh_edit->setText(QString::fromStdString(selected_obj_ptr->getMesh()));       
         ui_->parent_edit->setText(QString::fromStdString(parent_ptr ? parent_ptr->getName() : "None"));
 
-        // Setting Transforms
-       /* Vec3 trans = selected_obj_ptr->getTransGlobal();        
-        ui_->trans_x_edit->setText(QString::number(trans.x(), 10, 2));
-        ui_->trans_y_edit->setText(QString::number(trans.y(), 10, 2));
-        ui_->trans_z_edit->setText(QString::number(trans.z(), 10, 2));
-        Vec3 rot = selected_obj_ptr->getRotGlobal();
-        ui_->rot_x_edit->setText(QString::number(rot.x(), 10, 2));
-        ui_->rot_y_edit->setText(QString::number(rot.y(), 10, 2));
-        ui_->rot_z_edit->setText(QString::number(rot.z(), 10, 2));
-        Vec3 scale = selected_obj_ptr->getScale();
-        ui_->scale_x_edit->setText(QString::number(scale.x(), 10, 2));
-        ui_->scale_y_edit->setText(QString::number(scale.y(), 10, 2));
-        ui_->scale_z_edit->setText(QString::number(scale.z(), 10, 2));*/
-
         if (last_ptr != selected_obj_ptr) {                
             for (auto& component : selected_obj_ptr->GetComponents()) {
                 QString type_name(component->GetTypeName().data());

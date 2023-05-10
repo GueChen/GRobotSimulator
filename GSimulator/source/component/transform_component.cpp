@@ -126,7 +126,7 @@ void TransformComponent::UpdateChildrenMatrix(const Matrix3x3& parent_scale_mat)
                & child_rot    = child_trans.rotation_,
                & child_scl    = child_trans.scale_,
                & child_shr    = child_trans.shear_;
-        Matrix3x3& inv_U      = child_trans.inv_parent_U_mat;
+        Matrix3x3& inv_U      = child_trans.inv_parent_U_;
         Matrix4x4& parent_mat = child_trans.parent_mat_;
 
         auto [Q_ori, R_ori] = QRDecompositionMat3((inv_U * Roderigues(child_rot)).eval());

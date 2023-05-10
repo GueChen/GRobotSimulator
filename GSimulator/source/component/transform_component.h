@@ -66,9 +66,9 @@ protected:
 	Vector3   scale_     = Vector3::Ones();
 	Vector3   shear_	 = Vector3::Zero();	
                          
-    Matrix4x4 parent_mat_      = Matrix4x4::Identity();
-    Matrix4x4 model_mat_       = Matrix4x4::Identity();
-    Matrix3x3 inv_parent_U_mat = Matrix3x3::Identity();
+    Matrix4x4 parent_mat_   = Matrix4x4::Identity();
+    Matrix4x4 model_mat_    = Matrix4x4::Identity();
+    Matrix3x3 inv_parent_U_ = Matrix3x3::Identity();
 
     bool      is_dirty_ = false;
 
