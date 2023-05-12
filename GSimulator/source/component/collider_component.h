@@ -45,6 +45,8 @@ protected:
 	void		  tickImpl(float delta) override;
 	void		  UpdateBoundingBox(const BoundingBox& box);
 
+	QJsonObject	  Save() override;
+
 protected:	
 	_ShapePtrs  shapes_	   = {};
 	// TODO: create a new class combine shape and bounding box

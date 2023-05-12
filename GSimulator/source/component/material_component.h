@@ -52,6 +52,7 @@ public:
 
 protected:
 	void tickImpl(float delta) override;
+	QJsonObject Save()				   override;
 
 private:
 	template<class T>

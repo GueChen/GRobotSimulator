@@ -7,6 +7,8 @@
 #include <execution>
 #include <ranges>
 
+#include <QtCore/QJsonArray>
+
 namespace GComponent {
 
 using std::stack;
@@ -141,4 +143,18 @@ bool JointGroupComponent::RegisterJoint(JointComponent* joint)
 	return true;
 }
 
+/*___________________________________________Save Method_____________________________________*/
+QJsonObject JointGroupComponent::Save()
+{
+	QJsonObject com_obj;
+	
+	com_obj["type"] = type_name.data();
+
+	QJsonArray  joints_obj;
+	for (auto& joint : joints_) {
+		joints_obj.append(joint->ptr_parent_->getName().data());
+	}
+
+	return com_obj;
+}
 }

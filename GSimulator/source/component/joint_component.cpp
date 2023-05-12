@@ -4,6 +4,8 @@
 #include "model/model.h"
 #include "function/conversion.hpp"
 
+#include "base/json_serializer.hpp"
+
 #include <iostream>
 #include <format>
 
@@ -117,19 +119,26 @@ void JointComponent::tickImpl(float delta_time)
 	}
 }
 
-std::ostream& operator<<(std::ostream& o, const JointComponent& joint_component)
+/*_________________________________________Save Method_____________________________________________________*/
+QJsonObject JointComponent::Save()
 {
-	using std::format; using std::endl;
-	o << format("Type  : JointComponent\n"
-				"Parent: {: <40}\n"
-				"Axis  : [{: <5}, {: < 5}, {: <5}]\n"
-				"Zero  : [{: <5}, {: < 5}, {: <5}]\n"
-				"Pos   : {: <6}\n",
-				joint_component.ptr_parent_->getName(),
-				joint_component.axis_.x(), joint_component.axis_.y(), joint_component.axis_.z(), 
-				joint_component.zero_pos_.x(), joint_component.zero_pos_.y(), joint_component.zero_pos_.z(),
-				joint_component.pos_);
-	return o;
+	QJsonObject com_obj;
+	com_obj["type"] = type_name.data();
+	// not consider the two enum
+	// mode and type
+	com_obj["axis"]		= JSonSerializer::Serialize(axis_);
+	com_obj["zero_pos"] = JSonSerializer::Serialize(zero_pos_);
+
+	com_obj["pos"] = pos_;
+	com_obj["vel"] = vel_;
+	com_obj["acc"] = acc_;
+
+	QJsonObject limit;
+	limit["min"] = pos_limits_.min;
+	limit["max"] = pos_limits_.max;
+	com_obj["limit"] = limit;
+
+	return com_obj;
 }
 
 }

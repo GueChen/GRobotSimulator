@@ -94,7 +94,7 @@ public:
 	
 protected:
 	virtual void		tickImpl(float delta) {}
-	virtual QJsonObject	Save() { return QJsonObject(); }
+	virtual QJsonObject	Save() = 0;
 
 /// Fields 数据域
 protected:

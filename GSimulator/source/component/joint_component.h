@@ -91,12 +91,9 @@ public:
 					GetPosLimit()	  const		{ return pos_limits_; }
 	bool			CheckEffective(float new_pos)	const;
 	
-/// Display friend method
-	friend 
-	std::ostream&	operator<<(std::ostream & o, const JointComponent& joint_component);
-
 protected:
 	void			tickImpl(float delta_time) override;
+	QJsonObject		Save()					   override;
 
 private:
 	inline void		SetDelFunction(const _DelFun& del_fun) { opt_del_func_ = del_fun; }
@@ -113,17 +110,20 @@ protected:
 	float			vel_			= 0.0f;
 	float			acc_			= 0.0f;
 	
+	/* Safety item */
+	Limitation		pos_limits_;
+
 	std::list<float> pos_buffers_	= {};
 	std::list<float> vel_buffers_	= {};
 	std::list<float> acc_buffers_	= {};
+
 	std::mutex		 pos_lock_;
 	std::mutex       vel_lock_;
 	std::mutex		 acc_lock_;
 
 	_OptDelFun		 opt_del_func_  = std::nullopt;			// [Temp, Maybe D/M Later] Used for Group Component
 
-	/* Safety item */
-	Limitation		 pos_limits_;
+
 
 public:
 	constexpr static const std::string_view type_name = "JointComponent";

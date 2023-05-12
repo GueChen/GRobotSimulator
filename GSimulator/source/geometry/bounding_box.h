@@ -56,6 +56,7 @@ struct BoundingBox {
 	static BoundingBox MergeTwoBoundingBox(const BoundingBox& box_a, const BoundingBox& box_b);
 	static BoundingBox MergeWithPoint	  (const BoundingBox& box,	 const Vec3f& p);
 	static BoundingBox CompouteBoundingBox(const AbstractShape& shape, const Vec3f& trans, const SO3f& rot);
+
 /// Fields
 	Vec3f m_min = Vec3f::Ones() * std::numeric_limits<float>::max();
 	Vec3f m_max = Vec3f::Ones() * std::numeric_limits<float>::lowest();

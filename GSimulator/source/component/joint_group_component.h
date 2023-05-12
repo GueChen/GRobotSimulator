@@ -57,6 +57,7 @@ public:
 	
 protected:
 	void tickImpl(float delta_time)		override;
+	QJsonObject Save()					override;
 
 private:
 	vector<JointComponent*>			joints_				   = {};

@@ -82,4 +82,12 @@ void MaterialComponent::tickImpl(float delta)
 		renderer.EmplaceRenderCommand(ptr_parent_->getName(), ptr_parent_->getMesh(), RenderManager::Depth);
 	}
 }
+
+QJsonObject MaterialComponent::Save()
+{
+	QJsonObject com_obj;
+	
+
+	return com_obj;
+}
 }

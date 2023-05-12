@@ -3,6 +3,8 @@
 
 #include "function/conversion.hpp"
 
+#include "base/json_serializer.hpp"
+
 #include <algorithm>
 #include <execution>
 
@@ -195,5 +197,24 @@ Thetas<float> KinematicComponent::fromThetav(const Thetav<float> thetav)
 	return vector<float>(thetav.begin(), thetav.end());
 }
 
-
+QJsonObject KinematicComponent::Save()
+{
+	QJsonObject com_obj;
+	com_obj["type"] = type_name.data();
+	com_obj["joint_count"] = (int)joint_count_;
+	
+	QJsonArray coords;
+	for (auto& coord : exp_coords_) {
+		coords.append(JSonSerializer::Serialize(coord));
+	}
+	com_obj["exp_coords"] = coords;
+	com_obj["end_transform_mat"] = JSonSerializer::Serialize(end_transform_mat_);
+	com_obj["ik_solver_enum"] = static_cast<int>(ik_solver_enum_);
+	// can use enum to find solver form ik_sovlers
+	com_obj["precision"]     = precision_;
+	com_obj["max_iteration"] = max_iteration_;
+	com_obj["decay_scaler"]  = decay_scaler_;
+	
+	return QJsonObject();
+}
 }

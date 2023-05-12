@@ -103,6 +103,8 @@ public:
 	inline void		SetExpCoords(const vector<Twist<float>>& exp_coords) { exp_coords_ = exp_coords; }
 protected:
 	void			tickImpl(float delta_time)	override;
+	QJsonObject		Save()						override;
+
 
 private:
 	void			InitializeIKSolvers();
