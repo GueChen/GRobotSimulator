@@ -31,23 +31,26 @@ public:
     void             SetModelLocal(const Matrix4x4& mat, bool update = true);
     inline Matrix4x4 GetModelLocal()  const               { return model_mat_; }
 
-
     Matrix4x4        GetTranslationModelMatrix() const;
     Matrix4x4        GetModelMatrixWithoutScale()const;
 
     inline Matrix4x4 GetParentMatrix()           const    { return parent_mat_; }
     void             SetParentMatrix(const Matrix4x4& mat){ parent_mat_ = mat; }
 
-	void             SetTransLocal(const Vector3& translation, bool updateflag = true);
     inline Vector3   GetTransLocal()  const               { return position_;}
+	void             SetTransLocal(const Vector3& translation, bool updateflag = true);    
+
     Vector3          GetTransGlobal() const;
+    void             SetTransGlobal(const Vector3& translation, bool update = true);
 
-    void             SetRotLocal(const Vector3& rotation, bool updateflag = true);
     inline Vector3   GetRotLocal()    const               { return rotation_;}
-    Vector3          GetRotGlobal()   const;
+    void             SetRotLocal(const Vector3& rotation, bool updateflag = true);
 
-    void             SetScale(const Vector3 scale, bool updateflag = true);
+    Vector3          GetRotGlobal()   const;
+    void             SetRotGlobal(const Vector3& rotation, bool update);
+
     inline Vector3   GetScale()       const               { return scale_;}
+    void             SetScale(const Vector3 scale, bool updateflag = true);
         
     inline  bool     GetIsDirty()     const               { return is_dirty_; }
     inline  void     SetIsDirty(bool dirty)               { is_dirty_ = dirty; }

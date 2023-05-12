@@ -5,3 +5,4 @@
 #include "component/rigidbody_component.h"
 #include "component/material_component.h"
 #include "component/collider_component.h"
+#include "component/transform_component.h"

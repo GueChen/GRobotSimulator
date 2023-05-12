@@ -1,7 +1,7 @@
 #ifndef CONVERSION_H
 #define CONVERSION_H
 
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/glm.hpp>
@@ -157,6 +157,7 @@ private:
     STLUtils()  = delete;
     ~STLUtils() = delete;
 };
+
 
 
 #endif // CONVERSION_H

@@ -58,6 +58,12 @@ Vector3 TransformComponent::GetTransGlobal() const
     return AffineProduct(parent_mat_, position_);
 }
 
+void TransformComponent::SetTransGlobal(const Vector3& translation, bool update)
+{
+    Vector3 new_local = AffineProduct(InverseSE3(parent_mat_), translation);
+    SetTransLocal(new_local, update);
+}
+
 void TransformComponent::SetRotLocal(const Vector3& rotation, bool updateflag)
 {
     rotation_ = rotation;
@@ -71,6 +77,13 @@ Vector3 TransformComponent::GetRotGlobal() const
 {
     Matrix3x3 rot_mat = GetModelMatrixWithoutScale().block(0, 0, 3, 3);
     return LogMapSO3Toso3(rot_mat);
+}
+
+void TransformComponent::SetRotGlobal(const Vector3& rotation, bool update)
+{
+    Matrix3x3 rot_mat = parent_mat_.block(0, 0, 3, 3).transpose()* Roderigues(rotation);
+    Vector3   new_rot = LogMapSO3Toso3(rot_mat);
+    SetRotLocal(new_rot);
 }
 
 void TransformComponent::SetScale(const Vector3 scale, bool updateflag)

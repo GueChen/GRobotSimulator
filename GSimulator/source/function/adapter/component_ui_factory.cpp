@@ -1,4 +1,5 @@
 #include "function/adapter/component_ui_factory.h"
+#include "function/qconversion.hpp"
 
 #include "base/global/global_qss.h"
 
@@ -11,6 +12,9 @@
 
 #include "ColorEdit/color_edit.h"
 #include "Selector/selector.h"
+#include "Vector3Edit/vector3_edit.h"
+
+#include <Eigen/Geometry>
 
 #include <QtCore/QObject>
 #include <QtCore/QTimer>
@@ -105,6 +109,25 @@ static QLineEdit* CreateStandardLineEdit(const std::string& name, bool read_only
 
 	return line_edit;
 }
+
+static QVBoxLayout* CreateVector3Editor(const std::string& name,
+										std::function<Eigen::Vector3f(void)>		getter,
+										std::function<void(const Eigen::Vector3f&)> setter,
+										float lower, float upper, float step) {
+	QVBoxLayout* layout = new QVBoxLayout;
+	layout->addWidget(CreateStandardTextLabel(name));	
+	
+	Vector3Edit* editor = new Vector3Edit(nullptr, QConversion::fromVec3f(getter()));
+	editor->SetRange(lower, upper);	
+	editor->SetStep (step);
+	QObject::connect(editor, &Vector3Edit::VectorChanged, [setter = setter](const QVector3D& value) {		
+		setter(QConversion::toVec3f(value));
+	});
+	layout->addWidget(editor);
+
+	return layout;	
+}
+
 /*___________________________________Normal Variables Builder Map___________________________________*/
 // TODO: complete this and remove redundancy map
 static unordered_map<std::string, std::function<QLayout* (const std::string&, std::any)>> normal_builder_map = {
@@ -760,10 +783,58 @@ QWidget* ComponentUIFactory::Create(Component& component)
 	// set delete functions for component and widget both
 	auto set_del_function = [&com = component](QWidget* widget) {
 		com.RegisterDelFunction(ComponentUIFactory::kTag, [widget]() { widget->disconnect(); });
-		QObject::connect(widget, &QWidget::destroyed, [&com]() { com.DeregisterDelFunction(ComponentUIFactory::kTag); });
+		QObject::connect(widget, &QWidget::destroyed, [&com]() { 
+			com.DeregisterDelFunction(ComponentUIFactory::kTag);
+			com.DeregisterUpdateFunction(ComponentUIFactory::kTag);
+		});		
 	};
 	if (s == "TransformComponent") {
-		QWidget* widget = new QWidget;
+		TransformCom& com = dynamic_cast<TransformCom&>(component);
+		QWidget*     widget = new QWidget;
+		QVBoxLayout* layout = new QVBoxLayout;
+		
+		constexpr const float kMinTrans = std::numeric_limits<float>::lowest(),
+							  kMaxTrans = std::numeric_limits<float>::max();
+		QLayout* trans_layout = CreateVector3Editor("trans(m.)", 
+							std::bind(&TransformCom::GetTransGlobal, &com),
+							std::bind(&TransformCom::SetTransGlobal, &com, std::placeholders::_1, true),
+							kMinTrans, kMaxTrans, 0.01f);
+		Vector3Edit* trans_edit = reinterpret_cast<Vector3Edit*>(trans_layout->itemAt(1)->widget());
+		com.RegisterUpdateFunction(ComponentUIFactory::kTag, [edit = trans_edit, &com]
+		(float delta) {
+			edit->SetValue(QConversion::fromVec3f(com.GetTransGlobal()));
+		});
+		layout->addLayout(trans_layout);
+
+		constexpr const float kPi = 3.141592653522535f;
+		QLayout* rot_layout = CreateVector3Editor("rotation(rad.)", 
+							[&com]()->Eigen::Vector3f{ return ToXYZEuler(com.GetRotGlobal());},
+							[&com](const Eigen::Vector3f& vec)->void { com.SetRotGlobal(FromXYZEuler(vec), true);},
+							-99.9, 99.9, 0.01f);
+		Vector3Edit* rot_edit = reinterpret_cast<Vector3Edit*>(rot_layout->itemAt(1)->widget());
+		com.RegisterUpdateFunction(ComponentUIFactory::kTag, [edit = rot_edit, &com]
+		(float delta) {
+			if (com.GetIsDirty()) {
+				edit->SetValue(QConversion::fromVec3f(ToXYZEuler(com.GetRotGlobal())));
+			}
+		});
+		layout->addLayout(rot_layout);
+		
+		QLayout* scl_layout = CreateVector3Editor("scale", 
+							std::bind(&TransformCom::GetScale, &com),
+							std::bind(&TransformCom::SetScale, &com, std::placeholders::_1, true),
+							0.0f, std::numeric_limits<float>::max(), 0.01f);
+		Vector3Edit* scl_edit = reinterpret_cast<Vector3Edit*>(scl_layout->itemAt(1)->widget());
+		com.RegisterUpdateFunction(ComponentUIFactory::kTag, [edit = scl_edit, &com]
+		(float delta) { 
+			edit->SetValue(QConversion::fromVec3f(com.GetScale()));
+		});
+		layout->addLayout(scl_layout);
+
+		layout->addSpacerItem(new QSpacerItem(40, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
+		widget->setLayout(layout);
+		
+		set_del_function(widget);
 		return   widget;
 	}
 	else if (s == "JointComponent") {

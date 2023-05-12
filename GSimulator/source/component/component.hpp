@@ -10,6 +10,7 @@
 #include <string>
 #include <map>
 #include <functional>
+#include <mutex>
 
 namespace GComponent {
 
@@ -32,33 +33,51 @@ public:
 		// derived class 
 		Derigistered();
 		// external class
-		for (auto& [key, func] : delete_functions_) {
-			func();
+		{
+			std::lock_guard<std::mutex> lock(del_mutex_);
+			for (auto& [key, func] : delete_functions_) {
+				func();
+			}
 		}
 		ptr_parent_ = nullptr;
 	}
 
 // The Public Interface to Invoke the Component
 	void			tick(float delta) {
-		for (auto& [key, func] : update_functions_) {
-			func(delta);
+		{
+			std::lock_guard<std::mutex> lock(update_mutex_);
+			for (auto& [key, func] : update_functions_) {
+				func(delta);
+			}
 		}
 		tickImpl(delta);
 	}
 
-	void			RegisterDelFunction(const std::string& key, const _DelFun& fun) 
-					{ delete_functions_.emplace(key, fun); }
-	void			ClearDelFunction()												
-					{ delete_functions_.clear(); }
-	void			DeregisterDelFunction(const std::string& key)					
-					{ delete_functions_.erase(key); }
+	void			RegisterDelFunction(const std::string& key, const _DelFun& fun) { 
+		std::lock_guard<std::mutex> lock(del_mutex_);
+		delete_functions_.emplace(key, fun); 
+	}
+	void			ClearDelFunction(){ 
+		std::lock_guard<std::mutex> lock(del_mutex_);
+		delete_functions_.clear(); 
+	}
+	void			DeregisterDelFunction(const std::string& key){ 
+		std::lock_guard<std::mutex> lock(del_mutex_);
+		delete_functions_.erase(key); 
+	}
 	
-	void			RegisterUpdateFunction(const std::string& key, const _UpdateFun& fun) 
-					{ update_functions_.emplace(key, fun); }
-	void			ClearUpdateFunction()
-					{ update_functions_.clear(); }
-	void			DeregisterUpdateFunction(const std::string& key)					  
-					{ update_functions_.erase(key); }
+	void			RegisterUpdateFunction(const std::string& key, const _UpdateFun& fun) { 
+		std::lock_guard<std::mutex> lock(update_mutex_);
+		update_functions_.emplace(key, fun); 
+	}
+	void			ClearUpdateFunction(){ 
+		std::lock_guard<std::mutex> lock(update_mutex_);
+		update_functions_.clear(); 
+	}
+	void			DeregisterUpdateFunction(const std::string& key){ 
+		std::lock_guard<std::mutex> lock(update_mutex_);
+		update_functions_.erase(key);
+	}
 
 // Getter & Setter		
 	inline void		SetParent(Model* ptr_parent)				  { ptr_parent_ = ptr_parent; }
@@ -75,10 +94,12 @@ protected:
 /// Fields 数据域
 protected:
 	Model* ptr_parent_ = nullptr;
+	mutable std::mutex update_mutex_;
+	mutable std::mutex del_mutex_;
 
 private:
-	std::map<std::string, _UpdateFun> update_functions_;
-	std::map<std::string, _DelFun>    delete_functions_;
+	std::multimap<std::string, _UpdateFun> update_functions_;
+	std::multimap<std::string, _DelFun>    delete_functions_;
 
 };
 
