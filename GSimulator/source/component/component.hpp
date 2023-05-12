@@ -34,7 +34,7 @@ public:
 		Derigistered();
 		// external class
 		{
-			std::lock_guard<std::mutex> lock(del_mutex_);
+			//std::lock_guard<std::mutex> lock(del_mutex_);
 			for (auto& [key, func] : delete_functions_) {
 				func();
 			}
@@ -45,7 +45,7 @@ public:
 // The Public Interface to Invoke the Component
 	void			tick(float delta) {
 		{
-			std::lock_guard<std::mutex> lock(update_mutex_);
+			//std::lock_guard<std::mutex> lock(update_mutex_);
 			for (auto& [key, func] : update_functions_) {
 				func(delta);
 			}
@@ -54,28 +54,28 @@ public:
 	}
 
 	void			RegisterDelFunction(const std::string& key, const _DelFun& fun) { 
-		std::lock_guard<std::mutex> lock(del_mutex_);
+		//std::lock_guard<std::mutex> lock(del_mutex_);
 		delete_functions_.emplace(key, fun); 
 	}
 	void			ClearDelFunction(){ 
-		std::lock_guard<std::mutex> lock(del_mutex_);
+		//std::lock_guard<std::mutex> lock(del_mutex_);
 		delete_functions_.clear(); 
 	}
 	void			DeregisterDelFunction(const std::string& key){ 
-		std::lock_guard<std::mutex> lock(del_mutex_);
+		//std::lock_guard<std::mutex> lock(del_mutex_);
 		delete_functions_.erase(key); 
 	}
 	
 	void			RegisterUpdateFunction(const std::string& key, const _UpdateFun& fun) { 
-		std::lock_guard<std::mutex> lock(update_mutex_);
+		//std::lock_guard<std::mutex> lock(update_mutex_);
 		update_functions_.emplace(key, fun); 
 	}
 	void			ClearUpdateFunction(){ 
-		std::lock_guard<std::mutex> lock(update_mutex_);
+		//std::lock_guard<std::mutex> lock(update_mutex_);
 		update_functions_.clear(); 
 	}
 	void			DeregisterUpdateFunction(const std::string& key){ 
-		std::lock_guard<std::mutex> lock(update_mutex_);
+		//std::lock_guard<std::mutex> lock(update_mutex_);
 		update_functions_.erase(key);
 	}
 

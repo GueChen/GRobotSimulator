@@ -78,10 +78,10 @@ bool GComponent::Model::eraseChild(int idx)
 void GComponent::Model::setParent(Model* parent)
 {
     // remove from old parent
-    if (_RawPtr parent = this->parent_; 
-        parent != nullptr) {
-        if (parent == parent) return;
-        parent->eraseChild(parent->getChildIndex(this));
+    if (_RawPtr old_parent = this->parent_; 
+        old_parent != nullptr) {
+        if (old_parent == parent) return;
+        old_parent->eraseChild(old_parent->getChildIndex(this));
     }    
     parent_ = parent;
 

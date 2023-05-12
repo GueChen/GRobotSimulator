@@ -199,19 +199,19 @@ void MainWindow::CheckSelected()
     Model* selected_obj_ptr = ui_->m_viewport->ui_state_.GetSelectedObject();
     
     if (last_ptr != selected_obj_ptr) {
-        while (ui_->componentstoolbox->count() > 2) {
-            QWidget* w = ui_->componentstoolbox->widget(2);
-            ui_->componentstoolbox->removeItem(2);
+        uint32_t count = ui_->componentstoolbox->count();
+        while (count > 1) {            
+            QWidget* w = ui_->componentstoolbox->widget(count - 1);
+            ui_->componentstoolbox->removeItem(count - 1);
             w->deleteLater();
+            --count;
         }
     }
 
     if (!selected_obj_ptr) {
-        if (last_ptr != selected_obj_ptr) {
-            for (int i = 0; i < 2; ++i) {
-                for (QString text = "NULL"; auto & edit : ui_->componentstoolbox->widget(i)->findChildren<QLineEdit*>()) {
-                    edit->setText(text);
-                }
+        if (last_ptr != selected_obj_ptr) {            
+            for (QString text = "NULL"; auto & edit : ui_->componentstoolbox->widget(0)->findChildren<QLineEdit*>()) {
+                edit->setText(text);
             }            
         }
     }
