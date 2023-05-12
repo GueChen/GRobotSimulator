@@ -17,6 +17,7 @@
 namespace GComponent {
 using std::move;
 
+
 ModelManager::ModelManager() = default;
 
 
@@ -181,6 +182,29 @@ Camera* ModelManager::GetCameraByHandle(size_t handle) const
 {
     if (handle <= cameras_.size()) return cameras_[handle - 1].get();
     return nullptr;
+}
+
+/*____________________________________Wrold Manager___________________________________________*/
+void ModelManager::Save() {
+    QJsonObject world;
+    QJsonArray  objs;
+    for (auto& [id, model] : models_) if (!model->parent_) {
+        objs.append(model->Save());
+    }
+    
+    world["objs"] = objs;
+    
+    QJsonDocument json_doc(world);
+    QByteArray data = json_doc.toJson();
+    QFile      file("world.json");
+    if (file.open(QIODevice::WriteOnly)) {
+        file.write(data);
+        file.close();
+    }
+}
+
+void ModelManager::Load() {
+    
 }
 
 /*____________________________________Slots Functions_________________________________________*/

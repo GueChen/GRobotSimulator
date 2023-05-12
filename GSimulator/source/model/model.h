@@ -19,6 +19,8 @@
 #include <memory>
 #include <unordered_map>
 
+#include <QtCore/QJsonObject>
+
 namespace GComponent {
 
 class MyGL;
@@ -113,29 +115,29 @@ public:
     inline TransformComponent* 
                     GetTransform() { return transform_; }
 protected:
-    int             getChildIndex(_RawPtr ptr);   
+    int             getChildIndex(_RawPtr ptr);       
+    QJsonObject     Save();
 
 private:
     void            Initialize(Model* parent);
 
 /// Fields 数据域
-protected:
-    // Components 组件体系
-    vector<_PtrComponent>   components_ptrs_    = {};
-
-    /// Transform 变换相关
-    TransformComponent*     transform_          = nullptr;
-
-    // Relationships 父子关系
-    _RawPtr                 parent_             = nullptr;
-    vector<_RawPtr>         children_           = {};
-
-
+protected:    
     /// Structure 结构相关
     int                     model_id_           = -1;
     string                  name_               = "";
     string                  mesh_               = "";
+   
+    // Components 组件体系
+    vector<_PtrComponent>   components_ptrs_    = {};
 
+    // Relationships 父子关系
+    _RawPtr                 parent_             = nullptr;
+    vector<_RawPtr>         children_           = {};
+    
+    /// Transform 变换相关
+    TransformComponent*     transform_          = nullptr;
+        
 #ifdef _COLLISION_TEST
 public:
     bool                    intesection_        = false;

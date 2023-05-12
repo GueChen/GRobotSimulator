@@ -9,6 +9,9 @@
 
 #include <QtWidgets/QCombobox>
 
+#ifdef _DEBUG
+#include <iostream>
+#endif
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -251,6 +254,16 @@ void MainWindow::on_rot_button_clicked()
 void MainWindow::on_scale_button_clicked()
 {
     ui_->m_viewport->ui_state_.ResponseAxisModeChange(AxisMode::Scale);
+}
+
+void MainWindow::on_save_action_triggered()
+{
+    GComponent::ModelManager::getInstance().Save();
+}
+
+void MainWindow::on_load_action_triggered()
+{
+    GComponent::ModelManager::getInstance().Load();
 }
 
 void MainWindow::on_componentstoolbox_customContextMenuRequested(const QPoint& pos)

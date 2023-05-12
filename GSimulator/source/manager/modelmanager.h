@@ -15,6 +15,10 @@
 #include <Eigen/Dense>
 
 #include <QtCore/QObject>
+#include <QtCore/QJsonObject>
+#include <QtCore/QJsonArray>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QFile>
 
 #include <string>
 #include <vector>
@@ -73,6 +77,9 @@ public:
     Camera*     GetCameraByHandle(size_t handle) const;
    
     void tickAll(float delta_time);
+
+    void Save();
+    void Load();
 
     inline const unordered_map<size_t, string>& GetModelsIDWithName() const { return model_handle_to_name_table_; }
     inline const unordered_map<string, size_t>& GetModelsNameWithID() const { return model_name_to_handle_table_; }

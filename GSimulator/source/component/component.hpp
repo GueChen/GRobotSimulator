@@ -12,6 +12,8 @@
 #include <functional>
 #include <mutex>
 
+#include <QtCore/QJsonObject>
+
 namespace GComponent {
 
 using std::vector;
@@ -21,6 +23,8 @@ using std::string_view;
 class Model;
 
 class Component {
+friend class Model;
+
 public:
 using _UpdateFun = function<void(float)>;
 using _DelFun	 = function<void(void)>;
@@ -87,9 +91,10 @@ public:
 	virtual const string_view&
 					GetTypeName() const = 0;	
 	virtual void	Derigistered()		  {}
-
+	
 protected:
-	virtual void	tickImpl(float delta) {}
+	virtual void		tickImpl(float delta) {}
+	virtual QJsonObject	Save() { return QJsonObject(); }
 
 /// Fields 数据域
 protected:

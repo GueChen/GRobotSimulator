@@ -4,6 +4,10 @@
 #include "render/myshader.h"
 #include "component/transform_component.h"
 
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
+#include <QtCore/QjsonArray>
+
 #ifdef _DUBUG
 #include <iostream>
 #include <format>
@@ -129,6 +133,23 @@ int GComponent::Model::getChildIndex(_RawPtr ptr)
         ++idx;
     }
     return -1;
+}
+
+QJsonObject GComponent::Model::Save()
+{
+    QJsonObject model_obj;
+    model_obj["name"] = QString::fromStdString(name_);
+    model_obj["mesh"] = QString::fromStdString(mesh_);
+   
+    QJsonArray com_objs;
+    for (auto& com : components_ptrs_) com_objs.append(com->Save());    
+    model_obj["components"] = com_objs;
+    
+    QJsonArray children_objs;
+    for (auto& child : children_) children_objs.append(child->Save());
+    model_obj["children"] = children_objs;
+
+    return model_obj;
 }
 
 void GComponent::Model::Initialize(Model* parent)

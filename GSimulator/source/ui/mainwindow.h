@@ -59,15 +59,20 @@ private slots:
     void on_rot_button_clicked();
     void on_scale_button_clicked();
 
+/*_________________________Action Triggered___________________________________________________*/
+    void on_save_action_triggered();
+    void on_load_action_triggered();
+        
 /*_________________________Menu Popup_________________________________________________________*/
     void on_componentstoolbox_customContextMenuRequested(const QPoint& pos);
 
 signals:
     void RequestDeleteComponent(const QString& component_name);
     void RequestAddComponent   (const QString& component_name);
-    void RequestShowDialog     (const QString& dialog_name);
+    void RequestShowDialog     (const QString& dialog_name);    
     void CreateRequest         (const std::string& name);
     void CreateRobotRequest    ();
+    void RequestSave           ();
 
 private:
     Ui::MainWindow*             ui_;
