@@ -154,7 +154,7 @@ QJsonObject JointGroupComponent::Save()
 	for (auto& joint : joints_) {
 		joints_obj.append(joint->ptr_parent_->getName().data());
 	}
-
+	com_obj["joints"] = joints_obj;
 	return com_obj;
 }
 }

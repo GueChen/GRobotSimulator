@@ -215,6 +215,6 @@ QJsonObject KinematicComponent::Save()
 	com_obj["max_iteration"] = max_iteration_;
 	com_obj["decay_scaler"]  = decay_scaler_;
 	
-	return QJsonObject();
+	return com_obj;
 }
 }

@@ -35,7 +35,7 @@ public:
 			 GetTypeName() const override final { return type_name; }	
 	
 	// Getters & Setters
-	inline ShaderProperties& GetProperties()			{ return properties_; }
+	inline ShaderProperties& GetProperties()	{ return properties_; }
 
 	void			   SetShader(const std::string& shader_name);
 
@@ -52,12 +52,12 @@ public:
 
 protected:
 	void tickImpl(float delta) override;
-	QJsonObject Save()				   override;
+	QJsonObject Save()		   override;
 
 private:
 	template<class T>
 	static void SetFunction(MyShader* shader, ShaderProperty& var);
-
+	
 /// Fields
 protected:
 	//FIXME: not consider multiple pass situation, later consider how to solve it

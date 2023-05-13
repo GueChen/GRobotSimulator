@@ -61,6 +61,8 @@ protected:
 	void			ClearTracers();
 
 	virtual void	tickImpl(float delta_time) override;
+	QJsonObject		Save()					   override;
+	
 	inline string	GetName()	const					{ return ptr_parent_ ? GetParent()->getName() : ""; }
 
 private:

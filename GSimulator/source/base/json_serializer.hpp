@@ -39,6 +39,17 @@ public:
 		return obj;
 	}
 
+	static QJsonArray Serialize(const Eigen::Matrix3<float>& mat) {
+		QJsonArray obj;
+		for (auto& row : mat.rowwise()) {
+			QJsonArray row_obj;
+			for (auto& val : row) {
+				row_obj.append(val);
+			}
+			obj.append(row_obj);
+		}
+		return obj;
+	}
 };
 }
 

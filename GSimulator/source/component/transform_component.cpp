@@ -1,6 +1,8 @@
 #include "component/transform_component.h"
 #include "model/model.h"
 
+#include "base/json_serializer.hpp"
+
 namespace GComponent{
 TransformComponent::TransformComponent(Model* ptr_parent, const Matrix4x4& mat):
     Component(ptr_parent)
@@ -172,7 +174,24 @@ const string_view& TransformComponent::GetTypeName() const
     return type_name;    
 }
 
+QJsonObject TransformComponent::Save()
+{
+    QJsonObject com_obj;
+    com_obj["type"] = type_name.data();
 
+    com_obj["position"] = JSonSerializer::Serialize(position_);
+    com_obj["rotation"] = JSonSerializer::Serialize(rotation_);
+    com_obj["scale"]    = JSonSerializer::Serialize(scale_);
+    com_obj["shear"]    = JSonSerializer::Serialize(shear_);
+
+    com_obj["parent_mat"]   = JSonSerializer::Serialize(parent_mat_);
+    com_obj["model_mat"]    = JSonSerializer::Serialize(model_mat_);
+    com_obj["inv_parent_U"] = JSonSerializer::Serialize(inv_parent_U_);    
+
+    com_obj["is_dirty"]  = is_dirty_;
+
+    return com_obj;
+}
 
 
 

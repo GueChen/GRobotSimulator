@@ -62,6 +62,7 @@ protected:
     void             UpdateChildrenMatrix(const Matrix3x3& parent_scale_mat);
 
     void             tickImpl(float delta) override;
+    QJsonObject      Save()                override;
 
 protected:
 	Vector3   position_  = Vector3::Zero();

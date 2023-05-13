@@ -106,4 +106,18 @@ void GComponent::TrackerComponent::tickImpl(float delta_time)
 	}
 }
 
+QJsonObject TrackerComponent::Save()
+{
+	QJsonObject com_obj;
+	com_obj["type"]			= type_name.data();
+	com_obj["state"]        = static_cast<int>(state_);
+	com_obj["tracked_goal"] = QString::fromStdString(tracked_goal_ ? tracked_goal_->getName() : "null");
+	QJsonArray traces_obj;
+	for (auto& tracer : tracer_list_) {
+		traces_obj.append(QString::fromStdString(tracer.data()));
+	}
+
+	return com_obj;
+}
+
 }
