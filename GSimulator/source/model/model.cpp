@@ -2,11 +2,15 @@
 
 #include "manager/rendermanager.h"
 #include "render/myshader.h"
+
 #include "component/transform_component.h"
+#include "component/component_factory.h"
 
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 #include <QtCore/QjsonArray>
+
+#include <ranges>
 
 #ifdef _DUBUG
 #include <iostream>
@@ -135,16 +139,24 @@ int GComponent::Model::getChildIndex(_RawPtr ptr)
     return -1;
 }
 
+void GComponent::Model::Initialize(Model* parent)
+{
+    RegisterComponent(std::unique_ptr<TransformComponent>(transform_));
+    if (parent) {
+        parent->appendChild(this, transform_->GetModelLocal());
+    }
+}
+
 QJsonObject GComponent::Model::Save()
 {
     QJsonObject model_obj;
     model_obj["name"] = QString::fromStdString(name_);
     model_obj["mesh"] = QString::fromStdString(mesh_);
-   
+
     QJsonArray com_objs;
-    for (auto& com : components_ptrs_) com_objs.append(com->Save());    
+    for (auto& com : components_ptrs_) com_objs.append(com->Save());
     model_obj["components"] = com_objs;
-    
+
     QJsonArray children_objs;
     for (auto& child : children_) children_objs.append(child->Save());
     model_obj["children"] = children_objs;
@@ -152,10 +164,31 @@ QJsonObject GComponent::Model::Save()
     return model_obj;
 }
 
-void GComponent::Model::Initialize(Model* parent)
+Model* GComponent::Model::Load(const QJsonObject& obj)
 {
-    RegisterComponent(std::unique_ptr<TransformComponent>(transform_));
-    if (parent) {
-        parent->appendChild(this, transform_->GetModelLocal());
+    Model* model = new Model;
+    
+    model->name_ = obj["name"].toString().toStdString();
+    model->mesh_ = obj["mesh"].toString().toStdString();
+
+    for (const QJsonValue& json_val : obj["components"].toArray()) {
+        //
+        QJsonObject com_obj = json_val.toObject();
+        std::string type    = com_obj["type"].toString().toStdString();
+        if (type != TransformComponent::type_name) {
+            std::unique_ptr<Component> com = ComponentFactory::builder[type](model);
+            com->Load(com_obj);
+            model->RegisterComponent(std::move(com));
+        }
+        else {
+            static_cast<Component*>(model->transform_)->Load(com_obj);
+        }
     }
+
+    for (const QJsonValue& child_obj : obj["children"].toArray()) {
+        Model* child = Load(child_obj.toObject());
+        child->parent_ = model;
+    }
+        
+    return model;
 }

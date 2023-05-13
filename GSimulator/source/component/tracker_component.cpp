@@ -120,4 +120,13 @@ QJsonObject TrackerComponent::Save()
 	return com_obj;
 }
 
+static std::map<std::string, QJsonObject> tracker_lazy_loads_map;
+
+bool TrackerComponent::Load(const QJsonObject& com_obj)
+{
+	state_ = static_cast<State>(com_obj["state"].toInt());
+	tracker_lazy_loads_map[ptr_parent_->getName()] = com_obj;
+	return false;
+}
+
 }

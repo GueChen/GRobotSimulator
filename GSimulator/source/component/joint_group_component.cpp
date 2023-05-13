@@ -157,4 +157,12 @@ QJsonObject JointGroupComponent::Save()
 	com_obj["joints"] = joints_obj;
 	return com_obj;
 }
+
+static std::unordered_map<std::string, QJsonObject> jgroup_lazy_loads_map;
+
+bool JointGroupComponent::Load(const QJsonObject& com_obj)
+{
+	jgroup_lazy_loads_map[ptr_parent_->getName()] = com_obj;
+	return false;
+}
 }

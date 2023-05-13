@@ -4,9 +4,13 @@
 #include "component/transform_component.h"
 
 namespace GComponent{
+RigidbodyComponent::RigidbodyComponent(Model* ptr_parent):
+Component(ptr_parent)
+{}
+
 RigidbodyComponent::RigidbodyComponent(Model* ptr_parent, const Mat4& local_mat, float radius, CollisionGroup group):
-	Component(ptr_parent),
-	local_model_matrix_(local_mat)
+Component(ptr_parent),
+local_model_matrix_(local_mat)
 {
 	SphereShape sphere_shape(radius);
 	rigidbody_actor_ = CreateRigidBodyActorFromScene(sphere_shape, group);
@@ -61,6 +65,12 @@ QJsonObject RigidbodyComponent::Save()
 	// no more need save temporal
 
 	return com_obj;
+}
+
+bool RigidbodyComponent::Load(const QJsonObject& com_obj)
+{
+	// no more need load for no implementation
+	return false;
 }
 
 }// !namespace GComponent

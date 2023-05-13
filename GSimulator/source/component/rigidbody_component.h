@@ -24,6 +24,8 @@ class RigidbodyComponent : public Component {
 // 3. Physics Material properties Setter and Getter
 public:
 	/// TODO: consider whether exsiting a better solution for the constructor ?
+	explicit        RigidbodyComponent(Model* ptr_parent);
+
 	// Sphere  Version
 	explicit		RigidbodyComponent(Model* ptr_parent, const Mat4& local_mat, float radius, CollisionGroup group = {});
 	// Capsule Version
@@ -40,9 +42,9 @@ public:
 	inline Mat4		GetLocalModelMat() const	{ return local_model_matrix_; }
 
 protected:
-	void			tickImpl(float delta_time) override;
-	QJsonObject		Save() override;
-
+	void			tickImpl(float delta_time)		 override;
+	QJsonObject		Save()							 override;
+	bool			Load(const QJsonObject& com_obj) override;
 private:
 	RigidBodyActor* CreateRigidBodyActorFromScene(AbstractShape& shape, CollisionGroup group);
 

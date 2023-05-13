@@ -1,3 +1,9 @@
+/**
+ *  @file  	json_serializer.hpp
+ *  @brief 	This class used for some common datastructure serializer and deserializer
+ *  @author Gue Chen<guechen@buaa.edu.cn>
+ *  @date 	May 13th, 2023
+ **/
 #ifndef __JSON_SERIALIZER_HPP
 #define __JSON_SERIALIZER_HPP
 
@@ -51,6 +57,49 @@ public:
 		return obj;
 	}
 };
+
+class JsonDeserializer {
+public:
+	JsonDeserializer()  = delete;
+	~JsonDeserializer() = delete;
+
+	static Eigen::Vector3f ToVec3f(const QJsonArray& obj) {
+		return Eigen::Vector3f(obj[0].toDouble(), 
+							   obj[1].toDouble(),
+							   obj[2].toDouble());
+	}
+
+	static Eigen::Vector<float, 6> ToVec6f(const QJsonArray& obj) {
+		Eigen::Vector<float, 6> vec;
+		for (int i = 0; i < 6; ++i) {
+			vec(i) = obj[i].toDouble();
+		}
+		return vec;
+	}
+
+	static Eigen::Matrix4f ToMat4f(const QJsonArray& obj) {
+		Eigen::Matrix4f mat;
+		for (int i = 0; i < 4; ++i) {
+			QJsonArray row_obj = obj[i].toArray();
+			for (int j = 0; j < 4; ++j) {
+				mat(i, j) = row_obj[j].toDouble();
+			}
+		}
+		return mat;
+	}
+
+	static Eigen::Matrix3f ToMat3f(const QJsonArray& obj) {
+		Eigen::Matrix3f mat;
+		for (int i = 0; i < 3; ++i) {
+			QJsonArray row_obj = obj[i].toArray();
+			for (int j = 0; j < 3; ++j) {
+				mat(i, j) = row_obj[j].toDouble();
+			}
+		}
+		return mat;
+	}
+};
+
 }
 
 #endif // !__GSERIALIZE_HPP

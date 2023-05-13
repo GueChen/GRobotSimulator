@@ -95,6 +95,7 @@ public:
 protected:
 	virtual void		tickImpl(float delta) {}
 	virtual QJsonObject	Save() = 0;
+	virtual bool		Load(const QJsonObject& com_obj) = 0;
 
 /// Fields 数据域
 protected:

@@ -92,8 +92,9 @@ public:
 	bool			CheckEffective(float new_pos)	const;
 	
 protected:
-	void			tickImpl(float delta_time) override;
-	QJsonObject		Save()					   override;
+	void			tickImpl(float delta_time)		 override;
+	QJsonObject		Save()							 override;
+	bool			Load(const QJsonObject& com_obj) override;
 
 private:
 	inline void		SetDelFunction(const _DelFun& del_fun) { opt_del_func_ = del_fun; }

@@ -84,7 +84,8 @@ public:
 					GetIKEnum()		const			{ return ik_solver_enum_; }
 	inline unsigned GetJointCount() const			{ return joint_count_; }
 	
-	inline vector<float>   GetJointsPos() const		{ return GetJointsGroup()->GetPositions(); }
+	inline vector<float>   
+					GetJointsPos() const			{ return GetJointsGroup()->GetPositions(); }
 
 	inline void		SetPrecision(double prececion)	{ precision_ = prececion; }
 	inline double	GetPrecision()	const			{ return precision_; }
@@ -101,18 +102,19 @@ public:
 					GetEndTransformInit() const		{ return end_transform_mat_; }
 
 	inline void		SetExpCoords(const vector<Twist<float>>& exp_coords) { exp_coords_ = exp_coords; }
-protected:
-	void			tickImpl(float delta_time)	override;
-	QJsonObject		Save()						override;
 
+protected:
+	void			tickImpl(float delta_time)		 override;
+	QJsonObject		Save()							 override;
+	bool		    Load(const QJsonObject& com_obj) override;
 
 private:
 	void			InitializeIKSolvers();
 	inline JointGroupComponent* 
 					GetJointsGroup() const { return ptr_parent_->GetComponent<JointGroupComponent>(); }
 
-	Thetav<float>			toThetav(const Thetas<float> thetas);
-	Thetas<float>			fromThetav(const Thetav<float> thetav);
+	Thetav<float>	toThetav(const Thetas<float> thetas);
+	Thetas<float>	fromThetav(const Thetav<float> thetav);
 
 private:
 	unsigned				joint_count_		  = 0;

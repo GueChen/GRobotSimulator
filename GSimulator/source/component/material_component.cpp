@@ -90,7 +90,7 @@ void MaterialComponent::tickImpl(float delta)
 /*___________________________________________________Save Methods___________________________________________________*/
 //FIXME: bad practice with too much manual work
 //TODO: add reflect system making better suitable
-static QJsonValue GetFunction(ShaderProperty& var) {
+static QJsonValue FromVar(ShaderProperty& var) {
 	if (var.type == "int") {
 		return std::get<int>(var.val);
 	}
@@ -153,6 +153,71 @@ static QJsonValue GetFunction(ShaderProperty& var) {
 	}	
 }
 
+static ShaderProperty::Var ToPropertyVar(const QJsonObject& obj) {
+	ShaderProperty::Var var;
+	std::string type = obj["type"].toString().toStdString();
+	QJsonValue  val = obj["val"];
+	if (type == "int") {
+		var = val.toInt();
+	}
+	else if (type == "unsigned int") {
+		var = val.toInt();
+	}
+	else if (type == "bool") {
+		var = val.toBool();
+	}
+	else if (type == "float") {
+		var = static_cast<float>(val.toDouble());
+	}
+	else if (type == "vec2") {
+		QJsonArray vec_obj = val.toArray();
+		var = glm::vec2(vec_obj[0].toDouble(), 
+						vec_obj[1].toDouble());
+	}
+	else if (type == "vec3") {
+		QJsonArray vec_obj = val.toArray();
+		var = glm::vec3(vec_obj[0].toDouble(),
+						vec_obj[1].toDouble(),
+						vec_obj[2].toDouble());
+	}
+	else if (type == "vec4") {
+		QJsonArray vec_obj = val.toArray();
+		var = glm::vec4(vec_obj[0].toDouble(),
+						vec_obj[1].toDouble(),
+						vec_obj[2].toDouble(),
+						vec_obj[3].toDouble());
+	}
+	else if (type == "mat4") {		
+		Eigen::Matrix4f mat = JsonDeserializer::ToMat4f(val.toArray());
+		var = Conversion::fromMat4f(mat);
+	}
+	else if (type == "sampler2D") {
+		Texture texture;
+		texture.id = val.toInt();
+		var = texture;
+	}
+	else if (type == "sampler2DArray") {
+		Texture texture;
+		texture.id = val.toInt();
+		var = texture;
+	}
+	else if (type == "samplerCUBE") {
+		Texture texture;
+		texture.id = val.toInt();
+		var = texture;
+	}
+	else if (type == "color") {
+		QJsonArray vec_obj = val.toArray();
+		var = glm::vec3(vec_obj[0].toDouble(),
+						vec_obj[1].toDouble(),
+						vec_obj[2].toDouble());	
+	}
+	else {
+		assert(false && "unexpected type occur");
+	}
+	return var;
+}
+
 QJsonObject MaterialComponent::Save()
 {
 	QJsonObject com_obj;
@@ -165,12 +230,35 @@ QJsonObject MaterialComponent::Save()
 		QJsonObject prop_obj;
 		prop_obj["type"] = prop.type.data();
 		prop_obj["name"] = prop.name.data();
-		prop_obj["val"]  = GetFunction(prop);
+		prop_obj["val"]  = FromVar(prop);
 		properties.append(prop_obj);
 	}
 	com_obj["properties"]  = properties;
 	com_obj["cast_shadow"] = cast_shadow_;
 
 	return com_obj;
+}
+bool MaterialComponent::Load(const QJsonObject& com_obj)
+{
+	shader_ = com_obj["shader"].toString().toStdString();
+	// Get property lists
+	SetShader(shader_);
+
+	std::unordered_map<std::string, ShaderProperty::Var> var_map;
+	// transfer json to var
+	QJsonArray properties_obj = com_obj["properties"].toArray();
+	for (const QJsonValue& json_val : properties_obj) {
+		QJsonObject prop_obj = json_val.toObject();		
+		std::string name = prop_obj["name"].toString().toStdString();
+		var_map[name] = ToPropertyVar(prop_obj);
+	}
+
+	for (auto& prop : properties_) {
+		prop.val = var_map[prop.name];
+	}
+
+	cast_shadow_ = com_obj["cast_shadow"].toBool();
+
+	return true;
 }
 }

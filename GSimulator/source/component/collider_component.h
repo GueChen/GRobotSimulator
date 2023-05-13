@@ -45,7 +45,8 @@ protected:
 	void		  tickImpl(float delta) override;
 	void		  UpdateBoundingBox(const BoundingBox& box);
 
-	QJsonObject	  Save() override;
+	QJsonObject	  Save()						   override;
+	bool		  Load(const QJsonObject& com_obj) override;
 
 protected:	
 	_ShapePtrs  shapes_	   = {};

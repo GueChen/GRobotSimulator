@@ -56,8 +56,9 @@ public:
 	int				SearchJointsInChildren();
 	
 protected:
-	void tickImpl(float delta_time)		override;
-	QJsonObject Save()					override;
+	void tickImpl(float delta_time)				 override;
+	QJsonObject Save()							 override;
+	bool	    Load(const QJsonObject& com_obj) override;
 
 private:
 	vector<JointComponent*>			joints_				   = {};
@@ -67,6 +68,7 @@ private:
 	
 	float							execution_time_		   = -1.0f;
 	std::list<float>				execution_time_buffer_ = {};
+
 public:
 	constexpr static const string_view type_name = "JointGroupComponent";
 	

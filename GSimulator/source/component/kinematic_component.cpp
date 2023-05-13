@@ -217,4 +217,26 @@ QJsonObject KinematicComponent::Save()
 	
 	return com_obj;
 }
+bool KinematicComponent::Load(const QJsonObject& com_obj)
+{
+	joint_count_ = com_obj["joint_count"].toInt();
+
+	QJsonArray coords_obj = com_obj["exp_coords"].toArray();
+	exp_coords_.reserve(coords_obj.size());
+	for (const QJsonValue& json_val : coords_obj) {
+		exp_coords_.push_back(JsonDeserializer::ToVec6f(json_val.toArray()));
+	}
+
+	QJsonArray end_mat_obj = com_obj["end_transform_mat"].toArray();
+	end_transform_mat_ = JsonDeserializer::ToMat4f(end_mat_obj);
+
+	ik_solver_enum_ = static_cast<IKSolverEnum>(com_obj["ik_solver_enum"].toInt());
+	solver_ = ik_solvers_[ik_solver_enum_].get();
+
+	precision_ = com_obj["precision"].toDouble();
+	max_iteration_ = com_obj["max_iteration"].toInt();
+	decay_scaler_ = com_obj["decay_scaler"].toDouble();
+
+	return true;
+}
 }

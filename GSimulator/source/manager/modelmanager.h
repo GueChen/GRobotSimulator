@@ -79,7 +79,7 @@ public:
     void tickAll(float delta_time);
 
     void Save();
-    void Load();
+    void Load(QJsonDocument& json_doc);
 
     inline const unordered_map<size_t, string>& GetModelsIDWithName() const { return model_handle_to_name_table_; }
     inline const unordered_map<string, size_t>& GetModelsNameWithID() const { return model_name_to_handle_table_; }

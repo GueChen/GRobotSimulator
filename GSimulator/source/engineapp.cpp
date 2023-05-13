@@ -367,7 +367,8 @@ void GComponent::EngineApp::ConnectModules()
 		[window_ptr = window_ptr_.get(), ui_state_ptr](const QString& com_name) {
 			Model* model = ui_state_ptr->GetSelectedObject();
 			if (model) {
-				if (Component * component = model->RegisterComponent(ComponentFactory::GetComponent(com_name.toStdString(), model))) {					 
+				if (Component * component = model->RegisterComponent(
+					ComponentFactory::builder[com_name.toStdString()](model))){
 					window_ptr->ResponseComponentCreateRequest(component, com_name);
 				}
 			}

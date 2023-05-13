@@ -51,8 +51,9 @@ public:
 
 
 protected:
-	void tickImpl(float delta) override;
-	QJsonObject Save()		   override;
+	void		tickImpl(float delta)			override;
+	QJsonObject Save()							 override;
+	bool		Load(const QJsonObject& com_obj) override;
 
 private:
 	template<class T>

@@ -193,6 +193,22 @@ QJsonObject TransformComponent::Save()
     return com_obj;
 }
 
+bool TransformComponent::Load(const QJsonObject& com_obj)
+{
+    position_ = JsonDeserializer::ToVec3f(com_obj["position"].toArray());
+    rotation_ = JsonDeserializer::ToVec3f(com_obj["rotation"].toArray());
+    scale_    = JsonDeserializer::ToVec3f(com_obj["scale"].toArray());
+    shear_    = JsonDeserializer::ToVec3f(com_obj["shear"].toArray());
+
+    parent_mat_   = JsonDeserializer::ToMat4f(com_obj["parent_mat"].toArray());
+    model_mat_    = JsonDeserializer::ToMat4f(com_obj["model_mat"].toArray());
+    inv_parent_U_ = JsonDeserializer::ToMat3f(com_obj["inv_parent_U"].toArray());
+
+    is_dirty_ = com_obj["is_dirty"].toBool();
+
+    return true;
+}
+
 
 
 }

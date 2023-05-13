@@ -117,6 +117,7 @@ public:
 protected:
     int             getChildIndex(_RawPtr ptr);       
     QJsonObject     Save();
+    static Model*   Load(const QJsonObject& obj);
 
 private:
     void            Initialize(Model* parent);

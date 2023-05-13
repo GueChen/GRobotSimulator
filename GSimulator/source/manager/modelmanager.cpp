@@ -9,6 +9,9 @@
 
 #include "component/transform_component.h"
 
+#include "system/loggersystem.h"
+
+#include <stack>
 #include <iostream>
 #include <format>
 
@@ -200,11 +203,40 @@ void ModelManager::Save() {
     if (file.open(QIODevice::WriteOnly)) {
         file.write(data);
         file.close();
+        LoggerSystem::getInstance().Log(LoggerObject::Cmd, "save success!");
+    }
+    else {
+        LoggerSystem::getInstance().Log(LoggerObject::Cmd, "save failed, some error occur!");
     }
 }
 
-void ModelManager::Load() {
-    
+void ModelManager::Load(QJsonDocument& json_doc) {
+    if (json_doc.isObject()) {
+        // 
+        QJsonObject world = json_doc.object();
+        QJsonArray objs   = world["objs"].toArray();
+        if (objs.isEmpty()) return;
+
+        // traversal construct 
+        std::stack<Model*> st;
+        for (const QJsonValue& obj : objs) {
+            Model* model = Model::Load(obj.toObject());                 
+            st.push(model);            
+        }
+        
+        // DFS register model
+        while (!st.empty()) {
+            Model* cur = st.top(); 
+            st.pop();
+            RegisteredModel(cur->name_, cur);
+            for (auto& child : cur->children_) {
+                st.push(child);
+            }
+        }
+    }
+    else {
+        LoggerSystem::getInstance().Log(LoggerObject::Cmd, "syntax error");
+    }
 }
 
 /*____________________________________Slots Functions_________________________________________*/

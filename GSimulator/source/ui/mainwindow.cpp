@@ -8,6 +8,7 @@
 #include "function/adapter/component_ui_factory.h"
 
 #include <QtWidgets/QCombobox>
+#include <QtWidgets/QfileDialog>
 
 #ifdef _DEBUG
 #include <iostream>
@@ -263,7 +264,17 @@ void MainWindow::on_save_action_triggered()
 
 void MainWindow::on_load_action_triggered()
 {
-    GComponent::ModelManager::getInstance().Load();
+    QString file_path = QFileDialog::getOpenFileName(this, "Select which Load", "./", "Json files(*.json)");
+    QFile file(file_path);
+    if (file_path.isEmpty() || !file.open(QIODevice::ReadOnly)) return;
+    
+    QByteArray json_data = file.readAll();
+    file.close();
+    QJsonDocument json_doc = QJsonDocument::fromJson(json_data);
+
+    if (json_doc.isNull()) return;
+
+    GComponent::ModelManager::getInstance().Load(json_doc);
 }
 
 void MainWindow::on_componentstoolbox_customContextMenuRequested(const QPoint& pos)

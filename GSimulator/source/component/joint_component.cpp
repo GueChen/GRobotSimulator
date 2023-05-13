@@ -141,4 +141,20 @@ QJsonObject JointComponent::Save()
 	return com_obj;
 }
 
+bool JointComponent::Load(const QJsonObject& com_obj)
+{
+	axis_ = JsonDeserializer::ToVec3f(com_obj["axis"].toArray());
+	zero_pos_ = JsonDeserializer::ToVec3f(com_obj["zero_pos"].toArray());
+
+	pos_ = com_obj["pos"].toDouble();
+	vel_ = com_obj["vel"].toDouble();
+	acc_ = com_obj["acc"].toDouble();
+
+	QJsonObject lim_obj = com_obj["limit"].toObject();
+	pos_limits_.min = lim_obj["min"].toDouble();
+	pos_limits_.max = lim_obj["max"].toDouble();
+
+	return true;
+}
+
 }
