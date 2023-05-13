@@ -17,7 +17,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_PREFIX_PATH "${QT_DIR}" "${CMKAE_PREFIX_PATH}")
+
+# some situation need using next line
+set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH}" "${QT_DIR}")
+message(STATUS "after ${CMAKE_PREFIX_PATH}")
 
 file(GLOB_RECURSE HEADER_FILES "source/*.h" "source/*.hpp")
 file(GLOB_RECURSE SOURCE_FILES "source/*.cpp" "source/*.c")

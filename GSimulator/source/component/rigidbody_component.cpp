@@ -39,13 +39,17 @@ RigidbodyComponent::~RigidbodyComponent()
 {
 	std::shared_ptr<PhysicsScene> activate_scene = PhysicsManager::getInstance().GetActivateScene().lock();
 	activate_scene->RemoveRigidBodyActor(rigidbody_actor_);
-	delete rigidbody_actor_;
+	if (rigidbody_actor_) {
+		delete rigidbody_actor_;
+	}
 }
 
 void RigidbodyComponent::tickImpl(float delta_time)
 {
 	TransformCom& trans = *ptr_parent_->GetTransform();
-	rigidbody_actor_->SetGlobalTransform(trans.GetModelMatrixWithoutScale());
+	if (rigidbody_actor_) {
+		rigidbody_actor_->SetGlobalTransform(trans.GetModelMatrixWithoutScale());
+	}
 }
 
 

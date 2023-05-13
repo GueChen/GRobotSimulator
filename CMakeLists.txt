@@ -7,6 +7,9 @@ if(DEFINED ENV{VCPKG})
 	set(CMAKE_TOOLCHAIN_FILE ${VCPKG_ROOT})
 	set(VCPKG_DYNAMIC_LIB $ENV{VCPKG}/installed/${VCPKG_TARGET_TRIPLET}/bin)
 	set(VCPKG_STATIC_LIB  $ENV{VCPKG}/installed/${VCPKG_TARGET_TRIPLET}/lib)
+	set(CMAKE_PREFIX_PATH "$ENV{VCPKG}\\installed")
+	message(STATUS "prefix path ${CMAKE_PREFIX_PATH}")
+	message(STATUS "${CMAKE_TOOLCHAIN_FILE}")
 else()
 	message(FATAL_ERROR 
 			"vcpkg not exist, please set it to environment variables\n"

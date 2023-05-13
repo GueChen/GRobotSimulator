@@ -76,7 +76,7 @@ static void CreateCapsuleObstacle(float x, float y, float z, float radius, float
 }
 
 static void SceneInitialize() {
-	/*GComponent::DUAL_ARM_PLATFORM platform;
+	GComponent::DUAL_ARM_PLATFORM platform;
 	CreateCubeObstacle(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
 	CreateSphereObstacle(0.0f, 0.0f, 0.0f, 1.0f);
 	CreateCubeObstacle(0.5f, 0.8f, 1.0f, 0.2f, 0.7f, 0.3f);
@@ -87,7 +87,7 @@ static void SceneInitialize() {
 	CreateCapsuleObstacle(0.55f, -0.5f, 0.0f, 0.1f, 0.3f);
 	CreateCapsuleObstacle(0.0f, 0.0f, 0.0f, 0.3f, 0.7f);
 	CreateSphereObstacle(0.0f, 0.0f, 0.0f, 1.0f);
-	CreateCubeObstacle(0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f);*/
+	CreateCubeObstacle(0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f);
 }
 
 static bool scene_initialize = false;

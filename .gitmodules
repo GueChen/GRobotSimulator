@@ -10,4 +10,4 @@
 
 [submodule "v-hacd"]
 	path = 3rdparty/v-hacd
-	url = https://github.com/kmammou/v-hacd.git
+	url  = git@github.com:kmammou/v-hacd.git
