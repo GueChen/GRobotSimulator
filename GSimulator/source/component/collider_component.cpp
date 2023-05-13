@@ -130,11 +130,11 @@ shape_serializer = {
 
 	QJsonArray faces_obj;
 	for (auto& face : shape->m_faces) {
-		QJsonArray face;
-		face.append(face[0]);
-		face.append(face[1]);
-		face.append(face[2]);
-		faces_obj.append(face);
+		QJsonArray face_obj;
+		face_obj.append(face[0]);
+		face_obj.append(face[1]);
+		face_obj.append(face[2]);
+		faces_obj.append(face_obj);
 	}
 	json_obj["faces"] = faces_obj;
 
