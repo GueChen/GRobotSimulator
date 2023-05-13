@@ -1,6 +1,5 @@
 #include "component/tracker_component.h"
 
-// TODO: Replace it with Kinematic Component
 #include "manager/modelmanager.h"
 #include "component/kinematic_component.h"
 #include "component/joint_group_component.h"
@@ -116,6 +115,7 @@ QJsonObject TrackerComponent::Save()
 	for (auto& tracer : tracer_list_) {
 		traces_obj.append(QString::fromStdString(tracer.data()));
 	}
+	com_obj["tracers"] = traces_obj;
 
 	return com_obj;
 }
@@ -127,6 +127,21 @@ bool TrackerComponent::Load(const QJsonObject& com_obj)
 	state_ = static_cast<State>(com_obj["state"].toInt());
 	tracker_lazy_loads_map[ptr_parent_->getName()] = com_obj;
 	return false;
+}
+
+bool TrackerComponent::LazyLoad()
+{
+	QJsonObject com_obj = tracker_lazy_loads_map[ptr_parent_->getName()];
+	ModelManager& manager = ModelManager::getInstance();
+
+	tracked_goal_ = manager.GetModelByName(com_obj["tracked_goal"].toString().toStdString());
+	
+	QJsonArray tracer_objs = com_obj["tracers"].toArray();
+	for (const QJsonValue& tracer : tracer_objs) {
+		RegisterTracer(tracer.toString().toStdString());
+	}
+
+	return true;
 }
 
 }

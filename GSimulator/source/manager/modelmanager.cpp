@@ -223,16 +223,24 @@ void ModelManager::Load(QJsonDocument& json_doc) {
             Model* model = Model::Load(obj.toObject());                 
             st.push(model);            
         }
-        
+                
         // DFS register model
+        std::vector<Model*> models;
         while (!st.empty()) {
             Model* cur = st.top(); 
             st.pop();
+            models.push_back(cur);
             RegisteredModel(cur->name_, cur);
             for (auto& child : cur->children_) {
                 st.push(child);
             }
         }
+
+        // lazy load
+        for (auto& model : models) {
+            model->LazyLoad();
+        }
+
     }
     else {
         LoggerSystem::getInstance().Log(LoggerObject::Cmd, "syntax error");

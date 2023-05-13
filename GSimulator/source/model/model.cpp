@@ -188,7 +188,17 @@ Model* GComponent::Model::Load(const QJsonObject& obj)
     for (const QJsonValue& child_obj : obj["children"].toArray()) {
         Model* child = Load(child_obj.toObject());
         child->parent_ = model;
+        model->children_.push_back(child);
     }
         
     return model;
+}
+
+bool GComponent::Model::LazyLoad()
+{
+    bool load_flag = false;
+    for (auto& com : components_ptrs_) {
+        load_flag |= com->LazyLoad();
+    }
+    return load_flag;
 }

@@ -118,6 +118,7 @@ protected:
     int             getChildIndex(_RawPtr ptr);       
     QJsonObject     Save();
     static Model*   Load(const QJsonObject& obj);
+    bool            LazyLoad();
 
 private:
     void            Initialize(Model* parent);

@@ -65,6 +65,7 @@ protected:
 	virtual void	tickImpl(float delta_time)		 override;
 	QJsonObject		Save()							 override;
 	bool			Load(const QJsonObject& com_obj) override;
+	bool			LazyLoad()						 override;
 
 private:
 	State			state_						= State::Sleeping;

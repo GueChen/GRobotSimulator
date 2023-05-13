@@ -1,5 +1,7 @@
 #include "joint_group_component.h"
 
+#include "manager/modelmanager.h"
+
 #include "model/model.h"
 
 #include <stack>
@@ -164,5 +166,20 @@ bool JointGroupComponent::Load(const QJsonObject& com_obj)
 {
 	jgroup_lazy_loads_map[ptr_parent_->getName()] = com_obj;
 	return false;
+}
+bool JointGroupComponent::LazyLoad()
+{
+	QJsonObject com_obj   = jgroup_lazy_loads_map[ptr_parent_->getName()];
+	QJsonArray joints_obj = com_obj["joints"].toArray();
+		
+	for (ModelManager& manager = ModelManager::getInstance(); 
+		const QJsonValue& json_data : joints_obj) {
+		std::string obj_name =  json_data.toString().toStdString();
+		Model* j_parent = manager.GetModelByName(obj_name);
+		RegisterJoint(j_parent->GetComponent<JointComponent>());
+	}
+
+	jgroup_lazy_loads_map.erase(ptr_parent_->getName());
+	return true;
 }
 }
