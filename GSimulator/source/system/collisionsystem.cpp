@@ -157,7 +157,7 @@ void CollisionSystem::BroadPhaseQuery()
 			}
 			auto cur = std::next(it);
 			while (cur->key != it->key) {
-				if (!visited.count(cur->key) && check_overlap(cur->key, it->key) && cur->group != it->group) {
+				if (!visited.count(cur->key) && check_overlap(cur->key, it->key) && cur->group == it->group) {
 					narrow_need_process_.emplace_back((Model*)it->key, (Model*)cur->key);					
 				}
 				cur = std::next(cur);
