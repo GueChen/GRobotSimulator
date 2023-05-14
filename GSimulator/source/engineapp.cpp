@@ -203,69 +203,99 @@ void GComponent::EngineApp::CreateShader(const QString& name, const QString& ver
 	ResourceManager::getInstance().RegisteredShader(name.toStdString(), new MyShader(nullptr, vert.toStdString(), frag.toStdString(), geom.toStdString()));
 }
 
-void GComponent::EngineApp::CreateConvexDecomposition()
+void GComponent::EngineApp::CreateConvexDecomposition(uint32_t conv_count, 
+								   uint32_t max_vert_count, 
+								   float	scale[3], 
+								   bool	    show_mesh,
+								   bool     need_log)
 {
 	UIState* ui_state_ptr   = window_ptr_->getUIState();
-	Model* selected_obj_ptr = ui_state_ptr->GetSelectedObject();
-	QThreadPool::globalInstance()->start([obj_ptr = selected_obj_ptr]() {
+	Model* selected_obj_ptr = ui_state_ptr->GetSelectedObject();	
+	QThreadPool::globalInstance()->start(
+		[obj_ptr = selected_obj_ptr,
+		 conv_count = conv_count,
+		 max_vert_count = max_vert_count,
+		 scale = Vec3f(scale[0], scale[1], scale[2]),
+		 show_mesh = show_mesh,
+		 need_log  = need_log]
+	() {
 		if (!obj_ptr) return;
-		std::string obj_name = obj_ptr->getName();
+		std::string obj_name  = obj_ptr->getName();
 		std::string mesh_name = obj_ptr->getMesh();
 		auto mesh = ResourceManager::getInstance().GetMeshByName(mesh_name);
 		if (!mesh)	  return;
 				
 		std::string convex_name_pre = obj_name + "_ch";
 		RawMesh raw_data = mesh->GetRawData();
-		for (Vec3f scale = obj_ptr->GetTransform()->GetScale(); 
+		glm::vec3 centric_point = glm::zero<glm::vec3>();
+		for (Vec3f self_scale = obj_ptr->GetTransform()->GetScale(); 
 			auto & vert: raw_data.vertices) {			
-			vert.position.x *= scale.x();
-			vert.position.y *= scale.y();
-			vert.position.z *= scale.z();
+			vert.position.x *= self_scale.x();
+			vert.position.y *= self_scale.y();
+			vert.position.z *= self_scale.z();
+			centric_point += vert.position;
 		}
-		auto convex_hulls = GenerateConvexHull(raw_data.vertices, raw_data.indices, 10, 24, true);
+		centric_point /= (float)(raw_data.vertices.size());
+		if (scale != Vec3f::Ones()) {
+			for (auto& vert : raw_data.vertices) {
+				glm::vec3 temp = vert.position - centric_point;
+				temp.x *= scale.x();
+				temp.y *= scale.y();
+				temp.z *= scale.z();
+				vert.position = centric_point + temp;
+			}
+		}
+
+		auto convex_hulls = GenerateConvexHull(raw_data.vertices, raw_data.indices, conv_count, max_vert_count, need_log);
 		
 		std::vector<AbstractShape*> shapes; shapes.reserve(convex_hulls.size());
+		
 		// traversal all convex hull and transfer to mesh model data
-		for (int  mesh_count = 1; auto& convex_hull : convex_hulls) {			
-			// find a proper name with regex for model then create
-			// 使用正则表达式替换并设置合适的模型名并用此模型名创建
-			std::string ch_name = convex_name_pre;
-			std::string mesh_ch_name = mesh_name + "convex_" + std::to_string(mesh_count);
-			int number = 0;
-			do {
-				std::regex  regex("\\d+$");
-				std::string new_name = std::regex_replace(ch_name, regex, std::to_string(number));
-				if (new_name == ch_name) {
-					new_name.append("_" + std::to_string(number));
-				}
-				ch_name = new_name;
-				++number;
-			} while (ModelManager::getInstance().GetModelByName(ch_name));
-			Model* convex_model = new Model(ch_name, mesh_ch_name, Mat4::Identity(), obj_ptr);
+		for (int  mesh_count = 1; auto& convex_hull : convex_hulls) {
+			if (show_mesh) {
+				// find a proper name with regex for model then create
+				// 使用正则表达式替换并设置合适的模型名并用此模型名创建
+				std::string ch_name = convex_name_pre;
+				std::string mesh_ch_name = mesh_name + "convex_" + std::to_string(mesh_count);
+				int number = 0;
+				do {
+					std::regex  regex("\\d+$");
+					std::string new_name = std::regex_replace(ch_name, regex, std::to_string(number));
+					if (new_name == ch_name) {
+						new_name.append("_" + std::to_string(number));
+					}
+					ch_name = new_name;
+					++number;
+				} while (ModelManager::getInstance().GetModelByName(ch_name));
 
-			// register mesh component
-			// 注册模型的网格资源与材质组件
-			ResourceManager::getInstance().RegisteredMesh(mesh_ch_name, new RenderMesh(convex_hull.m_vertices, convex_hull.m_triangles, {}));			
-			MaterialComponent* material = new MaterialComponent(nullptr, "pbr", true);
-			for (auto& pro : material->GetProperties()) {
-				if (pro.name.find("color") != std::string::npos) {
-					pro.val = glm::vec3(mesh_count % 3 * 0.5f, mesh_count % 5 * 0.25f, mesh_count % 11 * 0.10f);
-					break;
+				Model* convex_model = new Model(ch_name, mesh_ch_name, Mat4::Identity(), obj_ptr);
+
+				// register mesh component
+				// 注册模型的网格资源与材质组件
+				ResourceManager::getInstance().RegisteredMesh(mesh_ch_name, new RenderMesh(convex_hull.m_vertices, convex_hull.m_triangles, {}));
+				MaterialComponent* material = new MaterialComponent(nullptr, "pbr", true);
+				for (auto& pro : material->GetProperties()) {
+					if (pro.name.find("color") != std::string::npos) {
+						pro.val = glm::vec3(mesh_count % 3 * 0.5f, mesh_count % 5 * 0.25f, mesh_count % 11 * 0.10f);
+						break;
+					}
 				}
+				convex_model->RegisterComponent(std::unique_ptr<MaterialComponent>(material));
+
+				// register model in model manager
+				// 在模型管理者中注册模型
+				ModelManager::getInstance().RegisteredModel(ch_name, convex_model);
 			}
-			convex_model->RegisterComponent(std::unique_ptr<MaterialComponent>(material));			
-
-			// register model in model manager
-			// 在模型管理者中注册模型
-			ModelManager::getInstance().RegisteredModel(ch_name, convex_model);
-
 			// 
 			std::vector<Eigen::Vector3f> poses;
 			std::ranges::transform(convex_hull.m_vertices, std::back_inserter(poses), [](auto&& vert)->Eigen::Vector3f { return Conversion::toVec3f(vert.position); });
 			shapes.push_back(new ConvexShape(poses, convex_hull.m_triangles));
 			++mesh_count;
 		}
-		obj_ptr->RegisterComponent(std::make_unique<ColliderComponent>(obj_ptr, shapes));
+
+		ColliderComponent* collider = new ColliderComponent(obj_ptr, shapes);
+		collider->SetStatic(true);
+		obj_ptr->RegisterComponent(std::unique_ptr<ColliderComponent>(collider));
 
 	});
 
@@ -340,6 +370,8 @@ void GComponent::EngineApp::ConnectModules()
 			this,							&EngineApp::CreateRobotWithParams);
 	
 	connect(treeview,					    &GLModelTreeView::MorphIntoConvexRequest,
+			convex_decom_dialog_ptr_.get(), &ConvexDecompositionDialog::show);
+	connect(convex_decom_dialog_ptr_.get(), &ConvexDecompositionDialog::RequestDecomposition,
 			this,							&EngineApp::CreateConvexDecomposition);
 
 	/* close all window */
@@ -349,7 +381,7 @@ void GComponent::EngineApp::ConnectModules()
 	/* main_window >> planning_dialog */
 	connect(window_ptr_.get(),				&MainWindow::RequestShowDialog,
 			[this](const QString& dialog_name) 
-		{
+		{			
 			dialog_table[dialog_name]->show();
 		}
 	);
@@ -512,13 +544,22 @@ do{	\
 	PTR_CREATE(network_dialog_ptr_,			NetworkDialog);	
 	PTR_CREATE(skin_dialog_ptr_,			SkinDialog);	
 	PTR_CREATE(shader_creator_dialog_ptr_,	ShaderCreatorDialog);
-	
+	PTR_CREATE(convex_decom_dialog_ptr_,    ConvexDecompositionDialog);
 #undef PTR_CREATE
 	
 	robot_create_dialog_ptr_->setWindowTitle("Robot Creator");
 	planning_dialog_ptr_	->setWindowTitle("Planning");
 	network_dialog_ptr_		->setWindowTitle("Link the World");
 	skin_dialog_ptr_		->setWindowTitle("Skin Reader");
+	convex_decom_dialog_ptr_->setWindowTitle("decomposition to convex");
+
+	// kinematic observer set
+	SetKinematicRegisterNotifier  (std::bind(&PlanningDialog::AppendPlannableObject, 
+											 planning_dialog_ptr_.get(), 
+											 std::placeholders::_1));
+	SetKinematicDeregisterNotifier(std::bind(&PlanningDialog::RemovePlannableObject, 
+											 planning_dialog_ptr_.get(), 
+											 std::placeholders::_1));
 
 	// model initialize	
 	model_tree_ = _PtrWithDel<EditorTreeModel>(new EditorTreeModel(""), deleter);

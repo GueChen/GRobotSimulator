@@ -28,7 +28,7 @@ JTrajectory GComponent::PTPMotion::operator()(Model* robot)
 
     // Caculate max delta joint val
     vector<float> j_delta(kJNum);
-    std::transform(jgoals_.begin(), jgoals_.end(), j_vals.begin(),
+    std::transform(jgoals_.begin(), jgoals_.begin() + kJNum, j_vals.begin(),
                    j_delta.begin(),
                    std::minus<>{}
     );

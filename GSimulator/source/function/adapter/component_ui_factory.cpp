@@ -948,6 +948,16 @@ QWidget* ComponentUIFactory::Create(Component& component)
 		layout->addWidget(CreateStandardTextLabel("static"));
 		layout->addLayout(CreateStanardCheckBox(std::bind(&ColliderComponent::IsStatic,  &collider_component),
 												std::bind(&ColliderComponent::SetStatic, &collider_component, std::placeholders::_1)));
+		layout->addWidget(CreateStandardTextLabel("group"));
+		QSpinBox* spinbox = new QSpinBox;
+		spinbox->setValue(collider_component.GetGroup());
+		QObject::connect(spinbox, &QSpinBox::valueChanged, 
+			[&com = collider_component](int value) { 
+				com.SetGroup(value); 
+			});
+		spinbox->setMinimum(0);
+		spinbox->setSingleStep(1);
+		layout ->addWidget(spinbox);
 
 		QComboBox*   selector    = new QComboBox(widget);
 		selector->setStyleSheet(combo_editor_qss.data());

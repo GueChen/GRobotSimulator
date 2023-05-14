@@ -80,7 +80,7 @@ void ColliderComponent::tickImpl(float delta)
 			UpdateBoundingBox(boundings_[i]);
 		}
 	}
-	CollisionSystem::getInstance().AddBroadPhaseQuery(ptr_parent_, bound_);
+	CollisionSystem::getInstance().AddBroadPhaseQuery(ptr_parent_, bound_, group_);
 	CollisionSystem::getInstance().AddProcessShapes(ptr_parent_, GetShapes(), cur_pose, is_static_);
 }
 
@@ -206,6 +206,8 @@ QJsonObject ColliderComponent::Save()
 
 	com_obj["bound"] = SerializeBoundingBox(bound_);
 	
+	com_obj["group"] = group_;
+
 	com_obj["is_static"] = is_static_;
 
 	return com_obj;
@@ -236,6 +238,8 @@ bool ColliderComponent::Load(const QJsonObject& com_obj)
 	}
 
 	bound_ = DeserializeBoundingBox(com_obj["bound"].toObject());
+
+	group_ = com_obj["group"].toInt();
 
 	is_static_ = com_obj["is_static"].toBool();
 

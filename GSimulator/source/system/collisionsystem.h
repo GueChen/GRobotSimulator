@@ -14,6 +14,7 @@
 #include <QtCore/QObject>
 
 #include <functional>
+#include <unordered_set>
 #include <tuple>
 #include <list>
 #include <map>
@@ -36,8 +37,13 @@ public:
 	void  Initialize();
 
 	void  AddProcessShapes  (Model* key, CRefShapePtrs shapes, CRefTransform pose, bool is_static);
-	void  AddBroadPhaseQuery(Model* key, const BoundingBox& box);
+	void  AddBroadPhaseQuery(Model* key, const BoundingBox& box, int group);
 	void  tick(float delta_time);
+
+	void  OverlapCheck(std::vector<Vec3f>& penetration_vec, 
+					   CRefShapePtrs       shape, 
+					   CRefTransform       pose, 
+					   int				   group);
 
 protected:
 	CollisionSystem() = default;
@@ -45,13 +51,18 @@ protected:
 private:
 	bool OverlapCheck(CRefShapePtrs shapes_a, Transform pose_a, 
 					  CRefShapePtrs shapes_b, Transform pose_b);
+	
 	void BroadPhaseQuery();
+	void BroadPhaseQuery(std::unordered_set<Model*>& output, 
+						 CRefShapePtrs  shape,
+						 CRefTransform  pose,
+						 int		    group);
+
 
 private:
 	std::unordered_map<Model*, std::tuple<ShapePtrs, Transform, bool>> shape_table_;
 	std::vector<std::pair<Model*, Model*>>						narrow_need_process_;
-	std::vector<std::pair<Model*, BoundingBox>>					broad_need_process_;
-
+	std::vector<std::tuple<Model*, BoundingBox, int>>			broad_need_process_;	
 };
 
 }	// ! namespace GComponent

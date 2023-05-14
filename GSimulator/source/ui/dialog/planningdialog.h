@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <vector>
+#include <set>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -27,6 +28,9 @@ class PlanningDialog:public QDialog {
 public:
 	explicit PlanningDialog(QWidget* parent = nullptr);
 	~PlanningDialog();
+	
+	void AppendPlannableObject(const std::string& obj);
+	void RemovePlannableObject(const std::string& obj);
 
 signals:
 	void RequestPTPMotionJSpace(const QString& obj_name, 
@@ -69,7 +73,6 @@ signals:
 	void GetTargetOptimizer(int idx);
 	void GetSelfMotionOptimizer(int idx);
 
-
 private:
 // Process Related Methods
 	void PTPMotionExecution();
@@ -108,7 +111,7 @@ private slots:
 	void on_selfmotion_combo_currentIndexChanged(int idx);
 
 private:
-	Ui::PlanningDialog*		    ui_ptr_				 = nullptr;
+	Ui::PlanningDialog*		    ui_ptr_				 = nullptr;	
 };
 
 } // !namespace GComponent

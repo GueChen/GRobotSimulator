@@ -13,18 +13,41 @@ using std::vector;
 
 namespace GComponent {
 /*________________________________________CONSTRUCTOR_DESTRUCTOR_________________________________________*/
-	PlanningDialog::PlanningDialog(QWidget* parent):
-		QDialog(parent),
-		ui_ptr_(new Ui::PlanningDialog)
-	{
-		ui_ptr_->setupUi(this);
-		
-	}
+PlanningDialog::PlanningDialog(QWidget* parent):
+	QDialog(parent),
+	ui_ptr_(new Ui::PlanningDialog)
+{
+	ui_ptr_->setupUi(this);
+	
+}
 
-	PlanningDialog::~PlanningDialog()
-	{
-		delete ui_ptr_;
-	}
+PlanningDialog::~PlanningDialog()
+{
+	delete ui_ptr_;
+}
+
+void PlanningDialog::AppendPlannableObject(const std::string& obj)
+{
+	ui_ptr_->ptp_obj_combo   ->addItem(obj.data());
+	ui_ptr_->line_obj_combo  ->addItem(obj.data());
+	ui_ptr_->spline_obj_combo->addItem(obj.data());
+	ui_ptr_->circle_obj_combo->addItem(obj.data());
+	ui_ptr_->left_obj_combo  ->addItem(obj.data());
+	ui_ptr_->right_obj_combo ->addItem(obj.data());
+}
+
+void PlanningDialog::RemovePlannableObject(const std::string& obj)
+{	
+	ui_ptr_->ptp_obj_combo   ->removeItem(ui_ptr_->ptp_obj_combo   ->findText(obj.data()));
+	ui_ptr_->line_obj_combo  ->removeItem(ui_ptr_->line_obj_combo  ->findText(obj.data()));
+	ui_ptr_->circle_obj_combo->removeItem(ui_ptr_->circle_obj_combo->findText(obj.data()));
+	ui_ptr_->spline_obj_combo->removeItem(ui_ptr_->spline_obj_combo->findText(obj.data()));
+	ui_ptr_->left_obj_combo  ->removeItem(ui_ptr_->left_obj_combo  ->findText(obj.data()));
+	ui_ptr_->right_obj_combo ->removeItem(ui_ptr_->right_obj_combo ->findText(obj.data()));
+}
+
+/*_________________________________________PROTECTED METHODS_______________________________________________*/
+	
 
 /*_________________________________________PRIVATE METHODS_______________________________________________*/
 	void PlanningDialog::PTPMotionExecution()

@@ -33,6 +33,7 @@
 
 //_____________________________________Test Usage____________________________________________
 #include "model/robot/dual_arm_platform.h"
+#include "model/robot/aubo_i3_model.h"
 #include "component/transform_component.h"
 
 
@@ -77,6 +78,7 @@ static void CreateCapsuleObstacle(float x, float y, float z, float radius, float
 
 static void SceneInitialize() {
 	GComponent::DUAL_ARM_PLATFORM platform;
+//	new GComponent::AUBO_I3_MODEL(nullptr);
 	CreateCubeObstacle(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
 	CreateSphereObstacle(0.0f, 0.0f, 0.0f, 1.0f);
 	CreateCubeObstacle(0.5f, 0.8f, 1.0f, 0.2f, 0.7f, 0.3f);

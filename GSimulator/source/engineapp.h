@@ -42,6 +42,7 @@ class RobotCreatorDialog;
 class NetworkDialog;
 class SkinDialog;
 class ShaderCreatorDialog;
+class ConvexDecompositionDialog;
 }
 
 namespace GComponent {
@@ -75,7 +76,11 @@ protected:
 // FIXME: puts it into a proper position
 	void CreateShader(const QString& name, const QString& vert, const QString& frag, const QString& geom);
 // FIXME: puts it into a proper position
-	void CreateConvexDecomposition();
+	void CreateConvexDecomposition(uint32_t conv_count, 
+								   uint32_t max_vert_count, 
+								   float	scale[3], 
+								   bool	    show_mesh,
+								   bool     need_log);
 
 private:
 	void ConnectModules();
@@ -94,6 +99,8 @@ private:
 	_PtrWithDel<NetworkDialog>		 network_dialog_ptr_			= nullptr;
 	_PtrWithDel<SkinDialog>          skin_dialog_ptr_				= nullptr;
 	_PtrWithDel<ShaderCreatorDialog> shader_creator_dialog_ptr_		= nullptr;
+	_PtrWithDel<ConvexDecompositionDialog>
+									 convex_decom_dialog_ptr_       = nullptr;
 	//unique_ptr<>
 	steady_clock::time_point		 last_time_point_				= steady_clock::now();
 	std::unordered_map<QString, QThread*> 

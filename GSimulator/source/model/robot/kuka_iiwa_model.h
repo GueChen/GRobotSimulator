@@ -7,10 +7,6 @@
 
 #include <eigen3/Eigen/Dense>
 
-#include <memory>
-#include <array>
-#include <map>
-
 namespace GComponent{
 
 /// Forward Declaration
@@ -24,11 +20,6 @@ using std::array;
 using std::vector;
 using std::unique_ptr;
 using std::shared_ptr;
-
-using Eigen::Matrix4d;
-
-/// Type Alias
-using WeightedCheckPoint    = pair<Vec3, double>;
 
 class KUKA_IIWA_MODEL:public Model
 {

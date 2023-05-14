@@ -36,8 +36,11 @@ public:
 	inline bool	  IsStatic() const					{ return is_static_; }
 	inline void	  SetStatic(bool flag)				{ is_static_ = flag; }
 
+	inline int	  GetGroup() const					{ return group_; }
+	inline void	  SetGroup(int group)				{ group_ = group; }
+
 	inline const BoundingBox& GetBound() const		{ return bound_; }
-	inline const _Boundings& GetShapesBounds()const { return boundings_; }
+	inline const _Boundings&  GetShapesBounds()const { return boundings_; }
 
 	virtual const string_view& GetTypeName() const override;
 
@@ -53,7 +56,8 @@ protected:
 	// TODO: create a new class combine shape and bounding box
 	_Boundings  boundings_ = {};
 	BoundingBox bound_;
-	bool		is_static_  = false;
+	int			group_     = 0;
+	bool		is_static_ = false;
 
 public:
 	constexpr static const std::string_view type_name = "ColliderComponent";

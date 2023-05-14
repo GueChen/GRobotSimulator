@@ -50,6 +50,9 @@ std::vector<RawConvex> GComponent::GenerateConvexHull(const std::vector<Vertex>&
 		cbk = std::unique_ptr<VHACD::IVHACD::IUserCallback>(new ProgressLogger);
 		params.m_callback = cbk.get();
 	}
+	else {
+		params.m_callback = nullptr;
+	}
 
 	std::vector<glm::vec3>  positions; positions.reserve(vertices.size());
 	for (auto& vert : vertices) positions.push_back(vert.position);

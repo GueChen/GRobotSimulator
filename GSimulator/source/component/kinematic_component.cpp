@@ -17,12 +17,28 @@ namespace GComponent
 {
 using std::make_unique;
 
+/*_____________________________________________Registered Related__________________________________________________________________________*/
+static std::function<void(const std::string&)> kine_registered_notifier;
+static std::function<void(const std::string&)> kine_deregistered_notifier;
+
+void SetKinematicRegisterNotifier(std::function<void(const std::string&)> notifier)
+{
+	kine_registered_notifier   = notifier;
+}
+void SetKinematicDeregisterNotifier(std::function<void(const std::string&)> notifier)
+{
+	kine_deregistered_notifier = notifier;
+}
+
+/*_____________________________________________Kinematic Related___________________________________________________________________________*/
 KinematicComponent::KinematicComponent(Model* ptr_parent): Component(ptr_parent)
 {		
 	if (GetParent()) {
 		UpdateExponentialCoordinates();
 	}
 	InitializeIKSolvers();
+
+	kine_registered_notifier(ptr_parent_->getName());
 }
 
 KinematicComponent::KinematicComponent(const SE3<float>& initial_end_transform, Model* ptr_parent):
@@ -32,6 +48,13 @@ KinematicComponent::KinematicComponent(const SE3<float>& initial_end_transform, 
 		UpdateExponentialCoordinates();
 	}
 	InitializeIKSolvers();
+
+	kine_registered_notifier(ptr_parent_->getName());
+}
+
+KinematicComponent::~KinematicComponent()
+{
+	kine_deregistered_notifier(ptr_parent_->getName());
 }
 
 bool KinematicComponent::ForwardKinematic(SE3<float>& out_mat)
@@ -239,4 +262,5 @@ bool KinematicComponent::Load(const QJsonObject& com_obj)
 
 	return true;
 }
+
 }

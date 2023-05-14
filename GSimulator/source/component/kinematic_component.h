@@ -15,7 +15,9 @@
 #include <GComponent/grobotkinematic.h>
 
 #include <optional>
+#include <functional>
 #include <vector>
+#include <set>
 
 namespace GComponent {
 
@@ -40,6 +42,9 @@ enum class IKSolverEnum {
 	SelectivelyDampedLeastSquare	= 4
 };
 
+void SetKinematicRegisterNotifier  (std::function<void(const std::string&)> notifier);
+void SetKinematicDeregisterNotifier(std::function<void(const std::string&)> notifier);
+
 class KinematicComponent :public Component{
 public:	
 	using IKSolverTable = unordered_map <IKSolverEnum, unique_ptr<RobotKinematic::IKSolver<float>>>;
@@ -47,7 +52,8 @@ public:
 public:
 	explicit KinematicComponent(Model* ptr_parent = nullptr);
 	explicit KinematicComponent(const SE3<float>& initial_end_transform, Model* ptr_parent = nullptr);
-	~KinematicComponent() = default;
+	~KinematicComponent();
+
 /// Kinematic related interface
 	bool	  ForwardKinematic(SE3<float>&  out_mat);
 	bool	  ForwardKinematic(SE3<float>&  out_mat, const Thetas<float>&  thetas);

@@ -75,8 +75,16 @@ void PlanningSystem::BroadcastJointsAngle(const std::string& name, std::vector<f
 	static std::map<std::string, QString> obj_table = {
 		{"kuka_iiwa_robot_0", "left"},
 		{"kuka_iiwa_robot_1", "right"}
-	};	
-	emit NotifyNewJointsAngle(obj_table[name], joints, time_stamp);
+	};
+	QString planning_obj;
+	auto iter = obj_table.find(name);
+	if (iter == obj_table.end()) {
+		planning_obj = QString::fromStdString(name);
+	}
+	else {
+		planning_obj = iter->second;
+	}
+	emit NotifyNewJointsAngle(planning_obj, joints, time_stamp);
 }
 
 void PlanningSystem::BroadcastTaskPause(const std::string& name)
@@ -84,20 +92,20 @@ void PlanningSystem::BroadcastTaskPause(const std::string& name)
 	static std::map<std::string, QString> obj_table = {
 		{"kuka_iiwa_robot_0", "left"},
 		{"kuka_iiwa_robot_1", "right"}
-	};
+	};	
 	emit NotifyPauseTask(obj_table[name]);
 }
 
 /*___________________________________PROTECTED METHODS___________________________________________________*/
 std::string PlanningSystem::SimpleGetObjName(const QString& obj_name)
-{
+{	
 	if (obj_name == "Left") {
 		return "kuka_iiwa_robot_0";
 	}
 	else if(obj_name == "Right") {
 		return "kuka_iiwa_robot_1";
 	}
-	return "";
+	return obj_name.toStdString();
 }
 
 /*____________________________________PUBLIC SLOTS_______________________________________________________*/

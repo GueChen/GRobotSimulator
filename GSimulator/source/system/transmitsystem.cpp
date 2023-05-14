@@ -18,6 +18,16 @@ static std::map<QString, QString> obj_map = {
 	{"right", "kuka_iiwa_robot_1"}
 };
 
+static std::string GetObjName(const QString& obj_name) {
+	auto iter = obj_map.find(obj_name);
+	if (iter == obj_map.end()) {
+		return obj_name.toStdString();
+	}
+	else {
+		return iter->second.toStdString();
+	}
+}
+
 TransmitSystem& TransmitSystem::getInstance() {
 	static TransmitSystem instance;
 	return instance;
@@ -31,20 +41,21 @@ void TransmitSystem::ResponseModeChange(const QString& obj_name, int mode) {
 
 void TransmitSystem::ReceiveJointsAngle(const QString& obj_name, std::vector<float> joints, float time_stamp) {		
 	if (left_transmit_mode_ != eNormal) {
-		Model* robot = ModelManager::getInstance().GetModelByName(obj_map[obj_name].toStdString());
+		std::string name  = GetObjName(obj_name);
+		Model*		robot = ModelManager::getInstance().GetModelByName(name);
 		if (!robot)		 return;
 		auto joints_sdk = robot->GetComponent<JointGroupComponent>();
 		if (!joints_sdk || !joints_sdk->SafetyCheck(joints)) return;
 		emit SendPlanningDatas(obj_name, joints);
 	}
-	if (left_transmit_mode_ != eR2V) {
-		Model* robot = ModelManager::getInstance().GetModelByName(obj_map[obj_name].toStdString());
+	if (left_transmit_mode_ != eR2V) {	
+		std::string name  = GetObjName(obj_name);
+		Model*		robot = ModelManager::getInstance().GetModelByName(name);		
 		if (!robot)		 return;
 		auto   joints_sdk = robot->GetComponent<JointGroupComponent>();
 		if (!joints_sdk) return;
 		joints_sdk->SetPositionsWithTimeStamp(joints, time_stamp);
 		
-
 #ifdef _LOG_RECORD
 		std::string datas;
 		for (auto& j : joints) {
