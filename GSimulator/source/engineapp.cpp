@@ -554,10 +554,10 @@ do{	\
 	convex_decom_dialog_ptr_->setWindowTitle("decomposition to convex");
 
 	// kinematic observer set
-	SetKinematicRegisterNotifier  (std::bind(&PlanningDialog::AppendPlannableObject, 
+	AddKinematicRegisterNotifier  (std::bind(&PlanningDialog::AppendPlannableObject, 
 											 planning_dialog_ptr_.get(), 
 											 std::placeholders::_1));
-	SetKinematicDeregisterNotifier(std::bind(&PlanningDialog::RemovePlannableObject, 
+	AddKinematicDeregisterNotifier(std::bind(&PlanningDialog::RemovePlannableObject, 
 											 planning_dialog_ptr_.get(), 
 											 std::placeholders::_1));
 

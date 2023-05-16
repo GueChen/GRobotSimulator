@@ -21,11 +21,11 @@ using std::make_unique;
 static std::function<void(const std::string&)> kine_registered_notifier;
 static std::function<void(const std::string&)> kine_deregistered_notifier;
 
-void SetKinematicRegisterNotifier(std::function<void(const std::string&)> notifier)
+void AddKinematicRegisterNotifier(std::function<void(const std::string&)> notifier)
 {
 	kine_registered_notifier   = notifier;
 }
-void SetKinematicDeregisterNotifier(std::function<void(const std::string&)> notifier)
+void AddKinematicDeregisterNotifier(std::function<void(const std::string&)> notifier)
 {
 	kine_deregistered_notifier = notifier;
 }

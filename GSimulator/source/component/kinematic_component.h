@@ -42,8 +42,8 @@ enum class IKSolverEnum {
 	SelectivelyDampedLeastSquare	= 4
 };
 
-void SetKinematicRegisterNotifier  (std::function<void(const std::string&)> notifier);
-void SetKinematicDeregisterNotifier(std::function<void(const std::string&)> notifier);
+void AddKinematicRegisterNotifier  (std::function<void(const std::string&)> notifier);
+void AddKinematicDeregisterNotifier(std::function<void(const std::string&)> notifier);
 
 class KinematicComponent :public Component{
 public:	
