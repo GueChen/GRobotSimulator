@@ -5,6 +5,8 @@
 #include "component/transform_component.h"
 #include "component/kinematic_component.h"
 
+#include <iostream>
+
 namespace GComponent {
 
 /*_______________________________Trajectory Implementation Class_________________________________*/
@@ -115,8 +117,15 @@ JointPairs CTrajectory::operator()(float t_reg)
     SE3f&               glb_inv    = impl_->glb_inv;
     KinematicComponent& kine_sdk   = impl_->kine_sdk;
     const int           kJNum      = kine_sdk.GetJointCount();
-
-    float         t      = Clamp(t_reg / time_total, 0.0f, 1.0f);
+    
+    constexpr static const float delta_smooth = 3.1415926535 / 6.0f;
+    float t2 = time_total * time_total;
+    float t3 = t2 * time_total;
+    float a2 = 3 / t2;
+    float a3 = -2.0 / t3;
+    float t = a2 * t_reg * t_reg + a3 * std::pow(t_reg, 3);
+    t = Clamp(t, 0.0f, 1.0f);
+    //float         t      = Clamp(t_reg / time_total, 0.0f, 1.0f);
     vector<float> cur_xs = kine_sdk.GetJointsPos();
     Twistf        glb_t  = func_(t);
     SE3f          g_ori  = glb_inv * ExpMapping(glb_t),
@@ -125,8 +134,12 @@ JointPairs CTrajectory::operator()(float t_reg)
     vector<float> out_xs;  kine_sdk.InverseKinematic(out_xs, goal, cur_xs);
     std::transform(out_xs.begin(), out_xs.end(), out_xs.begin(), ToStandarAngle);
                                                       // self decaying
-    if (out_xs.empty()) return JointPairs{};                                // solve failed
-
+    if (out_xs.empty()) {
+        std::cout << std::endl;
+        return JointPairs{};
+    }// solve failed
+    
+    std::cout << "t : " << t << " time point" << std::endl;
     modify_vec_ *= 0.995f;
     if (target_opt_ && target_opt_->ConditionCheck(impl_->obj)) {           // modify target       
         out_xs = target_opt_->Optimize(impl_->obj, glb_t, out_xs);

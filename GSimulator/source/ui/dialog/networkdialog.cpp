@@ -30,6 +30,16 @@ NetworkDialog::~NetworkDialog()
 	delete ui_ptr_;
 }
 
+void NetworkDialog::AppendBinableObject(const std::string& obj)
+{
+	ui_ptr_->left_bind_objs->addItem(obj.data());
+}
+
+void NetworkDialog::RemoveBinnableObject(const std::string& obj)
+{
+	ui_ptr_->left_bind_objs->removeItem(ui_ptr_->left_bind_objs->findText(obj.data()));
+}
+
 /*______________________________SLOTS METHODS__________________________________*/
 /*______________________________PUBLIC METHODS_________________________________*/
 void GComponent::NetworkDialog::LinkStateChange(QString obj_name, bool flag)

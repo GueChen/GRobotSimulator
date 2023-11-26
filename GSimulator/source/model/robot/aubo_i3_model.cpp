@@ -22,13 +22,14 @@
 namespace GComponent {
 
 static bool aubo_resouce_init = false;
-
+static int  count = 0;
 AUBO_I3_MODEL::AUBO_I3_MODEL(Model* parent_ptr, Mat4 transform):
 	Model(parent_ptr)
 {
 	GetTransform()->SetModelLocal(transform);
 	InitializeMeshResource();
 	InitializeModelResource();
+	++count;
 }
 
 void AUBO_I3_MODEL::tickImpl(float delta_time)
@@ -43,20 +44,29 @@ void AUBO_I3_MODEL::InitializeModelResource()
 	std::array<Model*, 7> models_tmp = { nullptr };
 	std::array<Vec3, 7> local_trans = {
 		//local transx        y         z           (.m)
-		Vec3(0.0f,     0.0f,     0.0f),
+		/*Vec3(0.0f,     0.0f,     0.0f),
 		Vec3(0.0f,     0.0f,     0.098f),
 		Vec3(0.0f,     0.0538f,  0.07308f),
 		Vec3(0.0f,     0.0087f,  0.26584f),
 		Vec3(0.0f,     0.0083f,  0.25658f),
 		Vec3(0.05417f, 0.048f,   0.0f),
-		Vec3(0.048f,   0.0f,	 0.06037f)
+		Vec3(0.048f,   0.0f,	 0.06037f)*/
+		Vec3(0.0f, 0.0f, 0.0f),
+		Vec3(0.0f, 0.0f, 0.084f),
+		Vec3(0.0f, 0.054f, 0.0756f),
+		Vec3(0.0f, 0.009f, 0.265f),
+		Vec3(0.0f, 0.008f, 0.256f),
+		Vec3(0.0f, 0.048f, 0.054f),
+		Vec3(0.0f, 0.054f, 0.048f)
 	};
 
-	manager.RegisteredModel("aubo_i3_robot", this);
+	manager.RegisteredModel("aubo_i3_robot_" + std::to_string(count), this);
 	for (int i = 0; i < 7; ++i) {
-		string name = "aubo_i3_link_" + std::to_string(i);
-		models_tmp[i] = new Model(name,
+		string mesh_name = "aubo_i3_link_" + std::to_string(i);
+		string name = mesh_name + "_" +std::to_string(count);
+		models_tmp[i] = new Model(
 			name,
+			mesh_name,
 			local_trans[i],
 			Vec3::Zero(),
 			Vec3::Ones(),
@@ -68,10 +78,10 @@ void AUBO_I3_MODEL::InitializeModelResource()
 	std::array<Vec3, 7> axis_binds = {
 		Vec3::UnitZ(),
 		Vec3::UnitY(),
+		-Vec3::UnitY(),
 		Vec3::UnitY(),
-		Vec3::UnitY(),
-		Vec3::UnitX(),
-		Vec3::UnitZ()
+		Vec3::UnitZ(),
+		Vec3::UnitY()
 	};
 
 	std::vector<JointComponent*> joints;
@@ -81,7 +91,7 @@ void AUBO_I3_MODEL::InitializeModelResource()
 	}
 
 	SE3f end_trans_mat = SE3f::Identity();
-	end_trans_mat.block(0, 3, 3, 1) = Vec3(0.10, 0.12, 0.80);
+	end_trans_mat.block(0, 3, 3, 1) = Vec3(0.00, 0.21297, 0.78399);
 
 	RegisterComponent(std::make_unique<JointGroupComponent>(this, joints));
 	RegisterComponent(std::make_unique<KinematicComponent>(end_trans_mat, this));

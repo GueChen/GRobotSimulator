@@ -34,6 +34,9 @@
 //_____________________________________Test Usage____________________________________________
 #include "model/robot/dual_arm_platform.h"
 #include "model/robot/aubo_i3_model.h"
+#include "model/robot/aubo_i5_model.h"
+#include "model/robot/YDL_platform.h"
+#include "model/robot/pgs_bot_platform.h"
 #include "component/transform_component.h"
 
 
@@ -77,19 +80,24 @@ static void CreateCapsuleObstacle(float x, float y, float z, float radius, float
 }
 
 static void SceneInitialize() {
-	GComponent::DUAL_ARM_PLATFORM platform;
-	new GComponent::AUBO_I3_MODEL(nullptr);
-	//CreateCubeObstacle(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
-	//CreateSphereObstacle(0.0f, 0.0f, 0.0f, 1.0f);
-	//CreateCubeObstacle(0.5f, 0.8f, 1.0f, 0.2f, 0.7f, 0.3f);
-	//CreateCubeObstacle(-2.5f, -1.8f, 0.0f, 0.4f, 0.3f, 0.5f);
-	//CreateSphereObstacle(0.35f, 0.45f, 2.5f, 0.8f);
-	//
-	//CreateCubeObstacle(-0.30f, -0.4f, 1.2f, 0.5f, 0.5f, 0.5f);
-	//CreateCapsuleObstacle(0.55f, -0.5f, 0.0f, 0.1f, 0.3f);
-	//CreateCapsuleObstacle(0.0f, 0.0f, 0.0f, 0.3f, 0.7f);
-	//CreateSphereObstacle(0.0f, 0.0f, 0.0f, 1.0f);
-	//CreateCubeObstacle(0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f);
+	//GComponent::DUAL_ARM_PLATFORM platform;
+	//new GComponent::AUBO_I3_MODEL(nullptr);
+	//new GComponent::AUBO_I5_MODEL(nullptr);
+	//new GComponent::YDLPlatform;
+	Eigen::Matrix4f model = Eigen::Matrix4f::Identity();
+	model.block(0, 3, 3, 1) = Vec3f(0, 0, 1.5f);
+	new GComponent::PGS_BOT_PLATFORM(model);
+	/*CreateCubeObstacle(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+	CreateSphereObstacle(0.0f, 0.0f, 0.0f, 1.0f);
+	CreateCubeObstacle(0.5f, 0.8f, 1.0f, 0.2f, 0.7f, 0.3f);
+	CreateCubeObstacle(-2.5f, -1.8f, 0.0f, 0.4f, 0.3f, 0.5f);
+	CreateSphereObstacle(0.35f, 0.45f, 2.5f, 0.8f);
+	
+	CreateCubeObstacle(-0.30f, -0.4f, 1.2f, 0.5f, 0.5f, 0.5f);
+	CreateCapsuleObstacle(0.55f, -0.5f, 0.0f, 0.1f, 0.3f);
+	CreateCapsuleObstacle(0.0f, 0.0f, 0.0f, 0.3f, 0.7f);
+	CreateSphereObstacle(0.0f, 0.0f, 0.0f, 1.0f);
+	CreateCubeObstacle(0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f);*/
 }
 
 static bool scene_initialize = false;

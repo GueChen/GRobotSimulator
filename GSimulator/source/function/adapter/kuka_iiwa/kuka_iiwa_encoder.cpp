@@ -57,13 +57,19 @@ Encoder& Encoder::EncodeGoalNumByte(unsigned num) {
 }
 
 Encoder& Encoder::EncodeJointsGoal(const std::vector<float>& jdatas) {
-	assert(jdatas.size() == 7 && "KUKA IIWA has and only has 7 joints, encode failed on joints num.");
+	//assert(jdatas.size() == 7 && "KUKA IIWA has and only has 7 joints, encode failed on joints num.");
 	msg_.push_back(static_cast<char>(GoalType::Joints));
 	for (auto& jdata : jdatas) {
 		short tmp = static_cast<short>(jdata* 10000.0f);		
 		msg_.push_back(static_cast<char>((tmp >> 8) & 0xff));
 		msg_.push_back(static_cast<char>( tmp       & 0xff));
 	}
+	int bias = 7 - jdatas.size();
+	for (int i = 0; i < bias; ++i) {
+		msg_.push_back(char(0));
+		msg_.push_back(char(0));
+	}
+
 	return *this;
 }
 

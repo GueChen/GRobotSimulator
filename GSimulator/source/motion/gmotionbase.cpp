@@ -4,6 +4,8 @@
 #include "component/kinematic_component.h"
 #include "component/joint_group_component.h"
 
+#include <iostream>
+
 namespace GComponent
 {
 /*_____________________________________________MotionBase Class____________________________________________*/
@@ -41,7 +43,10 @@ CTrajectory CMotionBase::operator()(Model* robot)
 
     PathFunc path = PathFuncImpl(mat_ini, goal_);               // get path planning data
     time_total_   = ExecutionTimeImpl(mat_ini, goal_);          // caculate the total execution time
-
+    
+    time_total_ = time_total_  + 2;
+    //std::cout << "time total : " << time_total_ << std::endl;
+    
     return CTrajectory(*robot, time_total_, path);
 }
 
@@ -50,6 +55,8 @@ CTrajectory CMotionBase::operator()(Model* robot, SE3f start)
     PathFunc path = PathFuncImpl(start, goal_);               // get path planning data
     time_total_   = ExecutionTimeImpl(start, goal_);          // caculate the total execution time
 
+    time_total_ = time_total_  + 2;
+    //std::cout << "time total : " << time_total_ << std::endl;
     return CTrajectory(*robot, time_total_, path);
 }
 
@@ -92,7 +99,7 @@ DualTrajectory DualSyncMotionBase::operator()(Model* left, Model* right)
     
     auto&& [l_path, r_path] = PathFuncImpl(l_ini, l_goal, r_ini, r_goal);
     time_total_             = ExecutionTimeImpl(l_ini, l_goal, r_ini, r_goal);
-
+    time_total_ += 2;
     return {CTrajectory(*left, time_total_, l_path), CTrajectory(*right, time_total_, r_path)};
 }
 

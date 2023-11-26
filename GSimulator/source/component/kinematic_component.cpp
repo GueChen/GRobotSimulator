@@ -18,27 +18,29 @@ namespace GComponent
 using std::make_unique;
 
 /*_____________________________________________Registered Related__________________________________________________________________________*/
-static std::function<void(const std::string&)> kine_registered_notifier;
-static std::function<void(const std::string&)> kine_deregistered_notifier;
+static std::vector<std::function<void(const std::string&)>> kine_registered_notifiers;
+static std::vector<std::function<void(const std::string&)>> kine_deregistered_notifiers;
 
 void AddKinematicRegisterNotifier(std::function<void(const std::string&)> notifier)
 {
-	kine_registered_notifier   = notifier;
+	kine_registered_notifiers.push_back(notifier);
 }
 void AddKinematicDeregisterNotifier(std::function<void(const std::string&)> notifier)
 {
-	kine_deregistered_notifier = notifier;
+	kine_deregistered_notifiers.push_back(notifier);
 }
 
 /*_____________________________________________Kinematic Related___________________________________________________________________________*/
-KinematicComponent::KinematicComponent(Model* ptr_parent): Component(ptr_parent)
-{		
+KinematicComponent::KinematicComponent(Model* ptr_parent) : Component(ptr_parent)
+{
 	if (GetParent()) {
 		UpdateExponentialCoordinates();
 	}
 	InitializeIKSolvers();
 
-	kine_registered_notifier(ptr_parent_->getName());
+	for (auto& notifier : kine_registered_notifiers) {
+		notifier(ptr_parent_->getName());
+	}
 }
 
 KinematicComponent::KinematicComponent(const SE3<float>& initial_end_transform, Model* ptr_parent):
@@ -49,12 +51,16 @@ KinematicComponent::KinematicComponent(const SE3<float>& initial_end_transform, 
 	}
 	InitializeIKSolvers();
 
-	kine_registered_notifier(ptr_parent_->getName());
+	for (auto& notifier : kine_registered_notifiers) {
+		notifier(ptr_parent_->getName());
+	}
 }
 
 KinematicComponent::~KinematicComponent()
 {
-	kine_deregistered_notifier(ptr_parent_->getName());
+	for (auto& notifier : kine_deregistered_notifiers) {
+		notifier(ptr_parent_->getName());
+	}
 }
 
 bool KinematicComponent::ForwardKinematic(SE3<float>& out_mat)

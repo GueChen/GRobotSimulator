@@ -25,6 +25,9 @@ public:
 	explicit NetworkDialog(QWidget* parent = nullptr);
 	~NetworkDialog();
 
+	void AppendBinableObject (const std::string& obj);
+	void RemoveBinnableObject(const std::string& obj);
+
 signals:
 	void RequestLinkClientToServer(const QString& obj_name, 
 								   QString		  ip_address, 

@@ -14,8 +14,8 @@
 namespace GComponent {
 
 static std::map<QString, QString> obj_map = {
-	{"left",  "kuka_iiwa_robot_0"},
-	{"right", "kuka_iiwa_robot_1"}
+	{"left",  "aubo_i3_robot_0"},
+	{"right", "aubo_i3_robot_1"}
 };
 
 static std::string GetObjName(const QString& obj_name) {

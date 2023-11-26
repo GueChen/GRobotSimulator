@@ -53,7 +53,7 @@ border-top-left-radius: 			3px;
       <enum>QTabWidget::East</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="left_tab">
       <attribute name="title">
@@ -83,7 +83,7 @@ border-top-left-radius: 			3px;
               </widget>
              </item>
              <item>
-              <widget class="QComboBox" name="left_bind_obj">
+              <widget class="QComboBox" name="left_bind_objs">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -605,7 +605,7 @@ border-radius: 3px;
 }</string>
                </property>
                <property name="text">
-                <string>192.168.1.102</string>
+                <string>127.0.0.1</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
@@ -649,7 +649,7 @@ border-radius: 3px;
 }</string>
                </property>
                <property name="text">
-                <string>30002</string>
+                <string>8003</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>

@@ -73,8 +73,8 @@ PlanningSystem::~PlanningSystem() = default;
 
 void PlanningSystem::BroadcastJointsAngle(const std::string& name, std::vector<float> joints, float time_stamp) {	
 	static std::map<std::string, QString> obj_table = {
-		{"kuka_iiwa_robot_0", "left"},
-		{"kuka_iiwa_robot_1", "right"}
+		{"aubo_i3_robot_0", "left"},
+		{"aubo_i3_robot_1", "right"}
 	};
 	QString planning_obj;
 	auto iter = obj_table.find(name);
@@ -90,8 +90,8 @@ void PlanningSystem::BroadcastJointsAngle(const std::string& name, std::vector<f
 void PlanningSystem::BroadcastTaskPause(const std::string& name)
 {
 	static std::map<std::string, QString> obj_table = {
-		{"kuka_iiwa_robot_0", "left"},
-		{"kuka_iiwa_robot_1", "right"}
+		{"aubo_i3_robot_0", "left"},
+		{"aubo_i3_robot_1", "right"}
 	};	
 	emit NotifyPauseTask(obj_table[name]);
 }
@@ -100,10 +100,10 @@ void PlanningSystem::BroadcastTaskPause(const std::string& name)
 std::string PlanningSystem::SimpleGetObjName(const QString& obj_name)
 {	
 	if (obj_name == "Left") {
-		return "kuka_iiwa_robot_0";
+		return "aubo_i3_robot_0";
 	}
 	else if(obj_name == "Right") {
-		return "kuka_iiwa_robot_1";
+		return "aubo_i3_robot_1";
 	}
 	return obj_name.toStdString();
 }

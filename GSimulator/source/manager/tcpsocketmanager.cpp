@@ -119,7 +119,7 @@ void TcpSocketManager::ResponseProcessMsg(QString obj_name) {
 #ifdef _DEBUG
 	int data_count = 0, msg_count = 0, async_count = 0;
 #endif // _DEBUG
-
+	//std::cout << "recive " << msgs.size() << " count\n";
 	for (auto& msg : msgs) {
 		KUKA::Decoder  decoder(msg.data(), msg.size());
 		if (decoder.IsMessageType()) {
@@ -137,7 +137,9 @@ void TcpSocketManager::ResponseProcessMsg(QString obj_name) {
 		}else{
 			KUKA::DataType type = decoder.GetType();
 			if (type == KUKA::DataType::None) continue;
-			emit TransmitRobotDatas(obj_name, type, decoder.GetDatas());
+			auto data = decoder.GetDatas();
+			//std::cout << type << " " << static_cast<int>(type) << ", data count: " << data.size() << std::endl;
+			emit TransmitRobotDatas(obj_name, type, data);
 #ifdef _DEBUG
 			++data_count;
 			//std::cout << "data type: " << msg.toHex(' ') << std::endl;
