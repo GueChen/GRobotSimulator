@@ -64,7 +64,6 @@ private slots:
     void on_load_action_triggered();
         
 /*_________________________Menu Popup_________________________________________________________*/
-    void on_componentstoolbox_customContextMenuRequested(const QPoint& pos);
 
 signals:
     void RequestDeleteComponent(const QString& component_name);

@@ -1,18 +1,31 @@
 #include "mainwindow.h"
 
 #include "ui_mainwindow.h"
+
 #include "base/global/global_qss.h"
 #include "ui/menu/componentmenu.h"
 #include "manager/modelmanager.h"
 #include "manager/editor/uistatemanager.h"
 #include "function/adapter/component_ui_factory.h"
 
+#include "CollapsibleHeader/collapsible_header.h"
+
 #include <QtWidgets/QCombobox>
 #include <QtWidgets/QfileDialog>
+#include <QtWidgets/QScrollArea>
 
 #ifdef _DEBUG
 #include <iostream>
 #endif
+
+static QVBoxLayout* component_layout = nullptr;
+
+static void InsertComponetObserver(const QString& type_name, QWidget* observer_ctx) {
+    CollapsibleHeader* observer_widget = new CollapsibleHeader(type_name, observer_ctx);
+
+    int32_t  insert_pos = component_layout->count() - 1; // require igonre the spacer
+    component_layout->insertWidget(insert_pos, observer_widget);
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -22,11 +35,24 @@ MainWindow::MainWindow(QWidget *parent)
     ui_->setupUi(this);    
     updated_timer_ptr_ = new QTimer;
     this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::West);
-    ui_->logger->setContextMenuPolicy(Qt::CustomContextMenu);    
-    ui_->componentstoolbox->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui_->logger->setContextMenuPolicy(Qt::CustomContextMenu);        
     component_menu_->setStyleSheet(menu_qss.data());
-    ConnectionInit();   
     
+    // Replace component toolbox
+    //ui_->component_view->setContextMenuPolicy(Qt::CustomContextMenu);
+    //ui_->component_view->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);    
+    //ui_->component_view->
+    component_layout = ui_->component_view_layout;    
+
+    //component_layout = new QVBoxLayout;
+    //QScrollArea* sc_area = new QScrollArea;
+    //sc_area->setLayout(component_layout);
+    //sc_area->setWidgetResizable(true);
+
+    //ui_->component_view_layout->insertWidget(0, sc_area);
+        
+    ConnectionInit();   
+        
 }
 
 MainWindow::~MainWindow()
@@ -100,14 +126,14 @@ void MainWindow::ConnectionInit()
     updated_timer_ptr_->start(100);    
 
     /* component tool box */
-    connect(component_menu_->m_remove_component_action, &QAction::triggered, [this]() {        
+    /*connect(component_menu_->m_remove_component_action, &QAction::triggered, [this]() {        
         if (int idx = ui_->componentstoolbox->currentIndex(); idx > 1)
         {
             emit RequestDeleteComponent(ui_->componentstoolbox->itemText(idx));
             ui_->componentstoolbox->setCurrentIndex(idx - 1);
             ui_->componentstoolbox->removeItem(idx);                        
         }}
-    );
+    );*/
 
     // TODO: FIX hard-code by reflect? methods 
     connect(component_menu_->m_add_joint_component,       &QAction::triggered, [this](){
@@ -175,9 +201,10 @@ void MainWindow::ConnectionInit()
 /*___________________PUBLIC SLOTS METHODS______________________________________________________*/
 void MainWindow::ResponseComponentCreateRequest(GComponent::Component* component_ptr, const QString& type_name)
 {
-    if (component_ptr) {
-        ui_->componentstoolbox->addItem(GComponent::ComponentUIFactory::Create(*component_ptr), type_name);
-    }
+    if (!component_ptr) return;    
+    
+    QWidget* observer_ctx = GComponent::ComponentUIFactory::Create(*component_ptr);    
+    InsertComponetObserver(type_name, observer_ctx);    
 }
 
 /*___________________PRAVITE SLOTS METHODS_____________________________________________________*/
@@ -202,38 +229,36 @@ void MainWindow::CheckSelected()
     static Model* last_ptr = nullptr;
     Model* selected_obj_ptr = ui_->m_viewport->ui_state_.GetSelectedObject();
     
-    if (last_ptr != selected_obj_ptr) {
-        uint32_t count = ui_->componentstoolbox->count();
-        while (count > 1) {            
-            QWidget* w = ui_->componentstoolbox->widget(count - 1);
-            ui_->componentstoolbox->removeItem(count - 1);
+    
+    if (last_ptr == selected_obj_ptr) return;
+    
+    // change tool box ctx
+    // remove all observing component widgets
+    uint32_t component_count = component_layout->count();
+    while(component_count) {            
+        QLayoutItem* item = component_layout->itemAt(component_count - 1);
+        component_layout->removeItem(item);
+
+        if (QWidget* w = item->widget()) {
             w->deleteLater();
-            --count;
         }
+
+        --component_count;
     }
 
-    if (!selected_obj_ptr) {
-        if (last_ptr != selected_obj_ptr) {            
-            for (QString text = "NULL"; auto & edit : ui_->componentstoolbox->widget(0)->findChildren<QLineEdit*>()) {
-                edit->setText(text);
-            }            
+    // refill component widgets
+    if (selected_obj_ptr) {
+        for (auto& component : selected_obj_ptr->GetComponents()) {
+            QString type_name = QString(component->GetTypeName().data());
+            type_name = type_name.mid(0, type_name.indexOf("Component"));
+            
+            QWidget* observer_ctx = GComponent::ComponentUIFactory::Create(*component);
+            InsertComponetObserver(type_name, observer_ctx);
         }
+        component_layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding));
     }
-    else {
-        // Setting Properties
-        Model* parent_ptr = selected_obj_ptr->getParent();
-        ui_->name_edit->setText(QString::fromStdString(selected_obj_ptr->getName()));
-        ui_->mesh_edit->setText(QString::fromStdString(selected_obj_ptr->getMesh()));       
-        ui_->parent_edit->setText(QString::fromStdString(parent_ptr ? parent_ptr->getName() : "None"));
-
-        if (last_ptr != selected_obj_ptr) {                
-            for (auto& component : selected_obj_ptr->GetComponents()) {
-                QString type_name(component->GetTypeName().data());
-                type_name =type_name.mid(0, type_name.indexOf("Component"));
-                ui_->componentstoolbox->addItem(ComponentUIFactory::Create(*component), type_name);
-            }
-        }
-    }
+    
+    // change observer item   
     last_ptr = selected_obj_ptr;
 }
 
@@ -277,8 +302,4 @@ void MainWindow::on_load_action_triggered()
     GComponent::ModelManager::getInstance().Load(json_doc);
 }
 
-void MainWindow::on_componentstoolbox_customContextMenuRequested(const QPoint& pos)
-{
-    component_menu_->popup(ui_->componentstoolbox->mapToGlobal(pos));
-}
 
