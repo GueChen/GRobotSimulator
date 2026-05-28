@@ -45,9 +45,6 @@ void PhysicsManager::Initialize()
 	transport_		= std::unique_ptr<physx::PxPvdTransport, std::function<void(physx::PxPvdTransport*)>>(
 						physx::PxDefaultPvdSocketTransportCreate(PvdHost, 5425, 10),
 						physx_deleter);
-	cookings_		= std::unique_ptr<physx::PxCooking, std::function<void(physx::PxCooking*)>>(
-						PxCreateCooking(PX_PHYSICS_VERSION, *foundations_, physx::PxCookingParams(default_scale)),
-						physx_deleter);
 	physics_		= std::unique_ptr<physx::PxPhysics, std::function<void(physx::PxPhysics*)>>(
 						PxCreatePhysics(PX_PHYSICS_VERSION, *foundations_, default_scale, true, pvd_.get()),
 						physx_deleter);

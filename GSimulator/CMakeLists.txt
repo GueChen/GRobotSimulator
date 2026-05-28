@@ -2,9 +2,18 @@ cmake_minimum_required (VERSION 3.8)
 
 project(GSimulatorEditor VERSION 0.0.3 LANGUAGES CXX)
 
+option(GSIM_RENDER_BACKEND_OPENGL "Build the OpenGL RHI backend" ON)
+option(GSIM_RENDER_BACKEND_DX12 "Build the DirectX 12 RHI backend" OFF)
+
 add_definitions(-D_COLLISION_TEST)
 add_definitions(-D_USE_CSM)
 add_definitions(-D_LOG_RECORD)
+if(GSIM_RENDER_BACKEND_OPENGL)
+	add_compile_definitions(GSIM_RENDER_BACKEND_OPENGL)
+endif()
+if(GSIM_RENDER_BACKEND_DX12)
+	add_compile_definitions(GSIM_RENDER_BACKEND_DX12)
+endif()
 if(WIN32)
 	add_compile_options(/W4)
 	add_compile_options(/wd4828)
@@ -86,7 +95,7 @@ add_executable (${TARGET_NAME}
 	${QRC_FILES}
 )
 
-if(WIN32)
+if(WIN32 AND DEPLOYQT_EXECUTABLE)
 	add_custom_command(TARGET ${TARGET_NAME} 
         POST_BUILD
         COMMAND ${DEPLOYQT_EXECUTABLE} "$<TARGET_FILE:${TARGET_NAME}>"
@@ -97,6 +106,10 @@ endif()
 add_custom_command(TARGET ${TARGET_NAME} POST_BUILD 
 		COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/asset" "$<TARGET_FILE_DIR:${TARGET_NAME}>/asset"
 		COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Shader" "$<TARGET_FILE_DIR:${TARGET_NAME}>/Shader"
+		COMMAND ${CMAKE_COMMAND} -E copy_directory "${QT_DIR}/Qt6/plugins/platforms" "$<TARGET_FILE_DIR:${TARGET_NAME}>/platforms"
+		COMMAND ${CMAKE_COMMAND} -E copy_directory "${QT_DIR}/Qt6/plugins/imageformats" "$<TARGET_FILE_DIR:${TARGET_NAME}>/imageformats"
+		COMMAND ${CMAKE_COMMAND} -E copy_directory "${QT_DIR}/Qt6/plugins/styles" "$<TARGET_FILE_DIR:${TARGET_NAME}>/styles"
+		COMMAND ${CMAKE_COMMAND} -E copy_directory "${QT_DIR}/Qt6/plugins/tls" "$<TARGET_FILE_DIR:${TARGET_NAME}>/tls"
 )
 
 set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 20)
@@ -107,6 +120,7 @@ target_include_directories(
 	${TARGET_NAME} PUBLIC		
 	./source
 	${common_lib_INCLUDER_DIR}
+	"$ENV{VCPKG}/installed/${VCPKG_TARGET_TRIPLET}/include/physx"
 )
 
 #___________________ Linking Libraries ______________________
@@ -132,4 +146,3 @@ target_link_libraries(${TARGET_NAME} PUBLIC
 	${PHYSX_STATIC_EXT}
 	${PHYSX_STATIC_PVD}
 )
-

@@ -1,8 +1,10 @@
 #include "render/rendermesh.h"
 
+#include "render/rhi/opengl/opengl_rhi_device.h"
 #include "render/mygl.hpp"
 
 #include <QtGUI/QOpenGLExtraFunctions>
+#include <stdexcept>
 
 using namespace GComponent;
 
@@ -58,6 +60,16 @@ void RenderMesh::SetGL(const std::shared_ptr<MyGL> & other)
     SetupMesh();
 }
 
+void RenderMesh::SetRhiDevice(const std::shared_ptr<IRhiDevice>& rhi_device)
+{
+    rhi_device_ = rhi_device;
+    auto opengl_device = AsOpenGLRhiDevice(rhi_device_);
+    if (!opengl_device) {
+        throw std::runtime_error("RenderMesh currently requires an OpenGL RHI device");
+    }
+    SetGL(opengl_device->GetGL());
+}
+
 void RenderMesh::CheckClearGL()
 {
     if(is_setup_)  {
@@ -95,4 +107,3 @@ void GComponent::RenderMesh::SetupRawMesh(RawMesh&& raw_mesh_datas)
         SetupMesh();
     }
 }
-

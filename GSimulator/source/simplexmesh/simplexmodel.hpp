@@ -4,9 +4,12 @@
 #include "model/model.h"
 #include "render/rendering_datastructure.hpp"
 #include "render/mygl.hpp"
+#include "render/rhi/rhi_device.h"
+#include "render/rhi/opengl/opengl_rhi_device.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
+#include <stdexcept>
 
 namespace GComponent{
 
@@ -97,6 +100,16 @@ public:
         ClearGLScreenBuffer();
         GLBufferInitialize();
         isInit = true;
+    }
+
+    void
+    SetRhiDevice(const shared_ptr<IRhiDevice>& rhi_device)
+    {
+        auto opengl_device = AsOpenGLRhiDevice(rhi_device);
+        if (!opengl_device) {
+            throw std::runtime_error("SimplexModel currently requires an OpenGL RHI device");
+        }
+        SetGL(opengl_device->GetGL());
     }
 
     void

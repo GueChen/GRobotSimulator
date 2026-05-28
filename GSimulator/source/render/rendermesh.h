@@ -2,6 +2,7 @@
 #define MESH_H
 
 #include "render/raw_mesh.hpp"
+#include "render/rhi/rhi_device.h"
 
 #include <vector>
 #include <memory>
@@ -35,6 +36,7 @@ class RenderMesh
         bool     is_setup_          = false;
 
         DrawMode draw_mode_         = DrawMode::Triangles;
+        std::shared_ptr<IRhiDevice> rhi_device_ = nullptr;
         std::shared_ptr<MyGL> gl_   = nullptr;
 
     /// 成员函数 Methods
@@ -53,6 +55,7 @@ class RenderMesh
         void SetupRawMesh(RawMesh&& raw_mesh_datas);
 
         void SetGL(const std::shared_ptr<MyGL> & other);
+        void SetRhiDevice(const std::shared_ptr<IRhiDevice>& rhi_device);
         
         inline RawMesh GetRawData()    const { return mesh_datas_; }
 

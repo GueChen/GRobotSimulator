@@ -9,7 +9,7 @@
 
 #include "manager/editor/uistatemanager.h"
 
-#include "render/mygl.hpp"
+#include "render/rhi/rhi_device.h"
 #include "render/myshader.h"
 #include "render/camera.hpp"
 
@@ -35,7 +35,7 @@ namespace GComponent {
 	private:
 		void RegisteredShader();
 
-		/// Event Definitions ÊÂ¼þ¶¨Òå
+		/// Event Definitions ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½
 	protected:
 		void keyPressEvent(QKeyEvent* event)		override;
 		void keyReleaseEvent(QKeyEvent* event)		override;
@@ -56,7 +56,7 @@ namespace GComponent {
 		UIState											ui_state_;
 
 	private:		
-		std::shared_ptr<MyGL>							gl_;
+		std::shared_ptr<IRhiDevice>						rhi_device_;
 
 		QPoint											mouse_pressed_last_pos_;
 		size_t										    camera_handle = 0;

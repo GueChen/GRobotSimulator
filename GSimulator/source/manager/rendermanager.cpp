@@ -9,6 +9,9 @@
 #include "manager/resourcemanager.h"
 #include "manager/modelmanager.h"
 
+#include "render/rhi/opengl/opengl_ibl_precompute.h"
+#include "render/rhi/opengl/opengl_rhi_device.h"
+
 #include "model/model.h"
 #include "component/material_component.h"
 #include "component/transform_component.h"
@@ -21,6 +24,7 @@
 #include <QtGUI/QOpenGLContext>
 
 #include <iostream>
+#include <stdexcept>
 
 namespace GComponent {
 	
@@ -31,7 +35,7 @@ void RenderManager::InitFrameBuffer()
 {	
 	render_FBO_ = FrameBufferObject(m_render_sharing_msg.viewport.window_size.x,// window width
 							 m_render_sharing_msg.viewport.window_size.y,		// window height
-							 FrameBufferObject::Color, gl_);	
+							 FrameBufferObject::Color, rhi_device_);	
 }
 
 void RenderManager::EmplaceRenderCommand(std::string obj_name, std::string mesh_name, QueueType type)
@@ -85,7 +89,17 @@ void RenderManager::SetPickingController(PickingController& controller)
 
 void RenderManager::SetGL(const shared_ptr<MyGL>& gl)
 {
-	gl_ = gl;
+	SetRhiDevice(std::make_shared<OpenGLRhiDevice>(gl));
+}
+
+void RenderManager::SetRhiDevice(const shared_ptr<IRhiDevice>& rhi_device)
+{
+	rhi_device_ = rhi_device;
+	auto opengl_device = AsOpenGLRhiDevice(rhi_device_);
+	if (!opengl_device) {
+		throw std::runtime_error("RenderManager currently requires an OpenGL RHI device");
+	}
+	gl_ = opengl_device->GetGL();
 
 	InitFrameBuffer();
 #ifdef _USE_CSM
@@ -93,25 +107,25 @@ void RenderManager::SetGL(const shared_ptr<MyGL>& gl)
 								   depth_buffer_resolustion_,
 								   m_csm_levels,
 								   FrameBufferObject::Depth,
-								   gl_);
+								   rhi_device_);
 #else	
 	depth_FBO_ = FrameBufferObject(depth_buffer_resolustion_, 
 								   depth_buffer_resolustion_, 
 								   FrameBufferObject::Depth,
-								   gl_);
+								   rhi_device_);
 #endif
 
-	matrices_UBO_		  = UniformBufferObject(0, sizeof glm::mat4x4 * 2,  gl_);
+	matrices_UBO_		  = UniformBufferObject(0, sizeof glm::mat4x4 * 2,  rhi_device_);
 	ambient_observer_UBO_ = UniformBufferObject(1, 
 												sizeof glm::vec4 * 3 + sizeof(float),  
-												gl_);
+												rhi_device_);
 	light_matrices_UBO_	  = UniformBufferObject(2, 
 												sizeof glm::mat4x4 * 16 + sizeof glm::vec4 * 16 + sizeof(unsigned int),
-												gl_);
+												rhi_device_);
 	InitializeIBLResource();
 }
 
-// äÖÈ¾´Ó¸Ã´¦¿ªÊ¼£¬ËùÓÐµÄ Draw call ÓÉ¸Ã²¿·ÖÍê³É
+// ï¿½ï¿½È¾ï¿½Ó¸Ã´ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ Draw call ï¿½É¸Ã²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 /*__________________________tick Methods____________________________________________________*/
 void RenderManager::tick()
 {		
@@ -132,7 +146,7 @@ void RenderManager::tick()
 		}		
 		light_matrices_UBO_->SetSubData(&m_csm_levels, sizeof glm::mat4 * 16 + sizeof glm::vec4 * 16, sizeof(unsigned int));		
 	}			
-	gl_->glBindTextureUnit(3, depth_FBO_->GetTextureID());
+	rhi_device_->BindTextureUnit(3, RhiTextureHandle{ depth_FBO_->GetTextureID() });
 
 	PickingPass();
 	
@@ -174,162 +188,27 @@ void RenderManager::SetDirLightViewPosition()
 }
 
 void RenderManager::InitializeIBLResource()
-{	
-	static glm::mat4 capture_proj = glm::perspective(glm::radians(90.0f), 1.0f, 0.0f, 10.0f);
-	static glm::mat4 capture_views[] = {
-		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f),  glm::vec3(0.0f, -1.0f, 0.0f)),
-		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f,  0.0f),  glm::vec3(0.0f, -1.0f, 0.0f)),
-		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f),  glm::vec3(0.0f,  0.0f, 1.0f)),
-		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  -1.0f, 0.0f),  glm::vec3(0.0f,  0.0f, -1.0f)),
-		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f),  glm::vec3(0.0f, -1.0f, 0.0f)),
-		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
-	};
-	
-	unsigned int hdr_env     = gl_->LoadTexture("./asset/textures/loft_newport/Newport_Loft_Ref.hdr", 
-												//"./asset/textures/hdr/Workshop-Novoselci.hdr",
-												//"./asset/textures/hdr/Abandoned-Hall-Silverblue-Nurnberg.hdr",
-												false);
-	unsigned int environment_cubemap = 0,
-				 irradiance_cubemap  = 0,
-				 prefilter_cubemap   = 0,
-				 brdf_lut			 = 0;
-				 
+{
 	auto& resources = ResourceManager::getInstance();
 	RenderMesh* sky_box_mesh = resources.GetMeshByName(skybox_.getMesh()),
 			  * quad_mesh	 = resources.GetMeshByName(screen_quad_.getMesh());
-	
-	
-	
-	unsigned fbo, rbo;
-	gl_->glGenFramebuffers(1, &fbo);
-	gl_->glGenRenderbuffers(1, &rbo);
-
-	gl_->glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	gl_->glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-	gl_->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
-	gl_->glEnable(GL_DEPTH_TEST);
-	gl_->glDepthFunc(GL_LEQUAL);
-	gl_->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-	{				
-		//FBOGuard gaurd(&fbo);
-		UBOGaurd ubo_gaurd(&matrices_UBO_.value());
-		matrices_UBO_->SetSubData(&capture_proj, 0, sizeof glm::mat4);
-		int maxTextureSize;
-		gl_->glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
-		std::cout << maxTextureSize << std::endl;
-		uint32_t ibl_width = 1024, ibl_height = 1024;
-		gl_->glGenTextures(1, &environment_cubemap);
-		gl_->glBindTexture(GL_TEXTURE_CUBE_MAP, environment_cubemap);
-		for (uint32_t i = 0; i < 6; ++i) {
-			gl_->glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, ibl_width, ibl_height, 0, GL_RGB, GL_FLOAT, nullptr);
-		}
-
-		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		gl_->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, ibl_width, ibl_height);
-
-		MyShader* e2c_shader = resources.GetShaderByName("equirectangular2cube");
-		gl_->glBindTextureUnit(3, hdr_env);
-		gl_->glViewport(0, 0, ibl_width, ibl_height);
-		e2c_shader->use();
-		for (uint32_t i = 0; i < 6; ++i) {
-			matrices_UBO_->SetSubData(&capture_views[i], sizeof glm::mat4, sizeof glm::mat4);
-			gl_->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, environment_cubemap, 0);
-			gl_->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			sky_box_mesh->Draw();
-		}
-		
-		uint32_t irr_width = 128, irr_height = 128;
-		gl_->glGenTextures(1, &irradiance_cubemap);
-		gl_->glBindTexture(GL_TEXTURE_CUBE_MAP, irradiance_cubemap);
-		for (uint32_t i = 0; i < 6; ++i) {
-			gl_->glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, irr_width, irr_height, 0, GL_RGB, GL_FLOAT, nullptr);
-		}
-
-		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		gl_->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, irr_width, irr_height);
-
-		MyShader* irr_shader = resources.GetShaderByName("irr_conv");
-		gl_->glBindTextureUnit(3, environment_cubemap);
-		gl_->glViewport(0, 0, irr_width, irr_height);
-		irr_shader->use();
-		for (uint32_t i = 0; i < 6; ++i) {
-			matrices_UBO_->SetSubData(&capture_views[i], sizeof glm::mat4, sizeof glm::mat4);
-			gl_->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradiance_cubemap, 0);
-			gl_->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			sky_box_mesh->Draw();
-		}
-
-		uint32_t pft_width = 128, pft_height = 128;
-		gl_->glGenTextures(1, &prefilter_cubemap);
-		gl_->glBindTexture(GL_TEXTURE_CUBE_MAP, prefilter_cubemap);
-		for (uint32_t i = 0; i < 6; ++i) {
-			gl_->glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, pft_width, pft_height, 0, GL_RGB, GL_FLOAT, nullptr);
-		}
-		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		gl_->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		gl_->glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-
-
-		MyShader* pft_shader = resources.GetShaderByName("pft_conv");
-		pft_shader->use();
-		uint32_t max_mipmap_levels = 5;
-		for (uint32_t level = 0; level < max_mipmap_levels; ++level) {
-			uint32_t mip_width = pft_width * pow(0.5, level);
-			uint32_t mip_height = pft_height * pow(0.5, level);
-			gl_->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mip_width, mip_height);
-			gl_->glViewport(0, 0, mip_width, mip_height);
-
-			float roughness = (float)level / (float)(max_mipmap_levels - 1);
-			pft_shader->setFloat("roughness", roughness);
-			for (uint32_t i = 0; i < 6; ++i) {
-				matrices_UBO_->SetSubData(&capture_views[i], sizeof glm::mat4, sizeof glm::mat4);
-				gl_->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilter_cubemap, level);
-				gl_->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				sky_box_mesh->Draw();
-			}
-		}
-
-		uint32_t brdf_width = 512, brdf_height = 512;
-		gl_->glGenTextures(1, &brdf_lut);
-		gl_->glBindTexture(GL_TEXTURE_2D, brdf_lut);
-		gl_->glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, brdf_width, brdf_height, 0, GL_RG, GL_FLOAT, 0);
-
-		gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		gl_->glViewport(0, 0, brdf_width, brdf_height);
-		gl_->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, brdf_width, brdf_height);
-		gl_->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdf_lut, 0);
-
-		MyShader* brdf_shader = resources.GetShaderByName("brdf_lut");
-		brdf_shader->use();
-		gl_->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		quad_mesh->Draw();
-
+	MyShader* e2c_shader = resources.GetShaderByName("equirectangular2cube");
+	MyShader* irr_shader = resources.GetShaderByName("irr_conv");
+	MyShader* pft_shader = resources.GetShaderByName("pft_conv");
+	MyShader* brdf_shader = resources.GetShaderByName("brdf_lut");
+	if (!sky_box_mesh || !quad_mesh || !e2c_shader || !irr_shader || !pft_shader || !brdf_shader) {
+		throw std::runtime_error("IBL precompute resources are not initialized");
 	}
-
-	gl_->glBindTextureUnit(4, irradiance_cubemap);
-	gl_->glBindTextureUnit(5, prefilter_cubemap);
-	gl_->glBindTextureUnit(6, brdf_lut);
-	gl_->glBindTextureUnit(7, environment_cubemap);
-	gl_->glDeleteFramebuffers(1,  &fbo);
-	gl_->glDeleteRenderbuffers(1, &rbo);
-	gl_->glDepthFunc(GL_LESS);
+	RunOpenGLIblPrecompute(
+		rhi_device_,
+		matrices_UBO_.value(),
+		*sky_box_mesh,
+		*quad_mesh,
+		*e2c_shader,
+		*irr_shader,
+		*pft_shader,
+		*brdf_shader,
+		"./asset/textures/loft_newport/Newport_Loft_Ref.hdr");
 }
 
 std::vector<glm::vec4> RenderManager::GetFrustumCornersWorldSpace(const glm::mat4& projection, const glm::mat4& view)
@@ -411,9 +290,9 @@ void RenderManager::Clear()
 
 void RenderManager::ClearGLScreenBuffer(float r, float g, float b, float a)
 {
-	gl_->glEnable(GL_DEPTH_TEST);
-	gl_->glClearColor(r, g, b, a);
-	gl_->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	rhi_device_->Enable(RhiCapability::DepthTest);
+	rhi_device_->SetClearColor(RhiClearColor{ r, g, b, a });
+	rhi_device_->Clear(RhiClearFlags::Color | RhiClearFlags::Depth);
 }
 
 void RenderManager::ClearList()
@@ -435,7 +314,7 @@ void RenderManager::PickingPass()
 		return ModelManager::getInstance().GetModelByName(name);
 	});
 		
-	gl_->glClear(GL_DEPTH_BUFFER_BIT);
+	rhi_device_->Clear(RhiClearFlags::Depth);
 	PassSpecifiedListPicking(PassType::AuxiliaryPass, post_process_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetAuxiModelByName(name);
 	});
@@ -445,9 +324,9 @@ void RenderManager::DepthMapPass()
 {				
 	FBOGuard gaurd(&depth_FBO_.value());	
 
-	gl_->glViewport(0, 0, depth_buffer_resolustion_, depth_buffer_resolustion_);
+	rhi_device_->SetViewport(RhiViewport{ 0, 0, depth_buffer_resolustion_, depth_buffer_resolustion_ });
 	ClearGLScreenBuffer(0.0f, 0.0f, 0.0f, 1.0f);	
-	gl_->glCullFace(GL_FRONT);
+	rhi_device_->SetCullFace(RhiCullFace::Front);
 
 #ifdef _USE_CSM
 	PassSpecifiedListDepth(shadow_cast_list_, [](const std::string& name) {
@@ -458,12 +337,13 @@ void RenderManager::DepthMapPass()
 		return ModelManager::getInstance().GetModelByName(name);
 	});	
 #endif
-	gl_->glCullFace(GL_BACK);	
-	gl_->glViewport(m_render_sharing_msg.viewport.window_pos.x,
-					m_render_sharing_msg.viewport.window_pos.y,
-					m_render_sharing_msg.viewport.window_size.x,
-					m_render_sharing_msg.viewport.window_size.y
-	);		
+	rhi_device_->SetCullFace(RhiCullFace::Back);	
+	rhi_device_->SetViewport(RhiViewport{
+		static_cast<int>(m_render_sharing_msg.viewport.window_pos.x),
+		static_cast<int>(m_render_sharing_msg.viewport.window_pos.y),
+		static_cast<int>(m_render_sharing_msg.viewport.window_size.x),
+		static_cast<int>(m_render_sharing_msg.viewport.window_size.y)
+	});		
 }
 
 void RenderManager::NormalPass()
@@ -477,14 +357,14 @@ void RenderManager::NormalPass()
 	SimplexMeshPass();
 	
 #ifdef _COLLISION_TEST
-	gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	gl_->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	gl_->glEnable(GL_BLEND);
+	rhi_device_->SetPolygonMode(RhiPolygonMode::Line);
+	rhi_device_->SetBlendAlpha();
+	rhi_device_->Enable(RhiCapability::Blend);
 	CollisionPass(render_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetModelByName(name);
 	});
-	gl_->glDisable(GL_BLEND);	
-	gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	rhi_device_->Disable(RhiCapability::Blend);	
+	rhi_device_->SetPolygonMode(RhiPolygonMode::Fill);
 #define _DRAW_DBOUNDING_BOX
 #ifdef _DRAW_DBOUNDING_BOX
 	BoundingBoxPass(render_list_, [](const std::string& name) {
@@ -494,15 +374,15 @@ void RenderManager::NormalPass()
 #endif
 
 	// TODO: not so good try to hide it
-	gl_->glDepthFunc(GL_LEQUAL);
+	rhi_device_->SetDepthFunc(RhiDepthFunc::LessEqual);
 	skybox_.Draw();
-	gl_->glDepthFunc(GL_LESS);
+	rhi_device_->SetDepthFunc(RhiDepthFunc::Less);
 
-	gl_->glEnable(GL_BLEND);	
-	gl_->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	grid_.SetGL(gl_);
+	rhi_device_->Enable(RhiCapability::Blend);	
+	rhi_device_->SetBlendAlpha();
+	grid_.SetRhiDevice(rhi_device_);
 	grid_.Draw();
-	gl_->glDisable(GL_BLEND);
+	rhi_device_->Disable(RhiCapability::Blend);
 	
 }
 
@@ -529,23 +409,23 @@ void RenderManager::PostProcessPass()
 	// 3. ambient occlusion
 	ClearGLScreenBuffer(0.0f, 0.0f, 0.05f, 1.0f);
 	{
-		gl_->glBindTextureUnit(8, render_FBO_->GetTextureID());
+		rhi_device_->BindTextureUnit(8, RhiTextureHandle{ render_FBO_->GetTextureID() });
 		FBOTextureGuard guard(&render_FBO_.value());		
 		screen_quad_.Draw();
 	}
 	
-	gl_->glEnable(GL_BLEND);
-	gl_->glCullFace(GL_FRONT);
-	gl_->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	rhi_device_->Enable(RhiCapability::Blend);
+	rhi_device_->SetCullFace(RhiCullFace::Front);
+	rhi_device_->SetBlendAlpha();
 	PassSpecifiedListNormal(post_process_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetAuxiModelByName(name);
 	});
 
-	gl_->glCullFace(GL_BACK);
+	rhi_device_->SetCullFace(RhiCullFace::Back);
 	PassSpecifiedListNormal(post_process_list_, [](const std::string& name) {
 		return ModelManager::getInstance().GetAuxiModelByName(name);
 	});
-	gl_->glDisable(GL_BLEND);
+	rhi_device_->Disable(RhiCapability::Blend);
 }
 
 void RenderManager::PassSpecifiedListPicking(PassType draw_index_type, RenderList& list, function<Model* (const std::string&)> ObjGetter)
@@ -606,15 +486,15 @@ void RenderManager::CollisionPass(RenderList&list, function<RawptrModel(const st
 		auto& trans = *obj->GetComponent<TransformComponent>();
 		base_shader->setMat4("model", Conversion::fromMat4f(trans.GetModelGlobal()));
 		if (obj->intesection_) {
-			gl_->glDisable(GL_DEPTH_TEST);
-			gl_->glCullFace(GL_FRONT);
-			gl_->glLineWidth(0.5f);
+			rhi_device_->Disable(RhiCapability::DepthTest);
+			rhi_device_->SetCullFace(RhiCullFace::Front);
+			rhi_device_->SetLineWidth(0.5f);
 			mesh->Draw();
-			gl_->glEnable(GL_DEPTH_TEST);
-			gl_->glLineWidth(2.5f);
-			gl_->glCullFace(GL_BACK);
+			rhi_device_->Enable(RhiCapability::DepthTest);
+			rhi_device_->SetLineWidth(2.5f);
+			rhi_device_->SetCullFace(RhiCullFace::Back);
 			mesh->Draw();
-			gl_->glLineWidth(1.0f);
+			rhi_device_->SetLineWidth(1.0f);
 
 		}
 	}
@@ -623,7 +503,7 @@ void RenderManager::CollisionPass(RenderList&list, function<RawptrModel(const st
 void RenderManager::BoundingBoxPass(RenderList& list, function<RawptrModel(const std::string&)> ObjGetter)
 {
 	GLineBox box(vec3(-1.0f), vec3(1.0f));
-	box.SetGL(gl_);
+	box.SetRhiDevice(rhi_device_);
 	BoundingBox large;
 	std::vector<BoundingBox> boundings;
 	for (auto& [obj_name, _] : list) {
@@ -678,12 +558,12 @@ void RenderManager::SimplexMeshPass()
 		planning_aux_lists_.pop_front();
 	}
 	delete_count_ = 0;
-	gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	
+	rhi_device_->SetPolygonMode(RhiPolygonMode::Line);	
 	for (auto& obj : planning_aux_lists_) {
-		obj->SetGL(gl_);
+		obj->SetRhiDevice(rhi_device_);
 		obj->Draw(nullptr);
 	}	
-	gl_->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	rhi_device_->SetPolygonMode(RhiPolygonMode::Fill);
 	
 }
 

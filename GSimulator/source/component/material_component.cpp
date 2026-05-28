@@ -49,27 +49,30 @@ void GComponent::MaterialComponent::SetShader(const std::string& shader_name)
 {
 	shader_ = shader_name;
 	auto& resource = ResourceManager::getInstance();
-	shader_ptr_ = resource.GetShaderByName(shader_name);
-	if (!shader_ptr_) return;
-	properties_ = shader_ptr_->GetProperties();
+	MyShader* shader_ptr = resource.GetShaderByName(shader_name);
+	if (!shader_ptr) {
+		properties_.clear();
+		return;
+	}
+	properties_ = shader_ptr->GetProperties();
 }
 
 void GComponent::MaterialComponent::SetShaderProperties()
 {
-	if (!shader_ptr_) SetShader(shader_);
-	shader_ptr_ = ResourceManager::getInstance().GetShaderByName(shader_);
-	if (!shader_ptr_) {
+	if (properties_.empty()) SetShader(shader_);
+	MyShader* shader_ptr = ResourceManager::getInstance().GetShaderByName(shader_);
+	if (!shader_ptr) {
 		shader_ = "null";
 		properties_.clear();
 		return;
 	}
-	shader_ptr_->use();
+	shader_ptr->use();
 	for (auto&& var : properties_) {
 		if (var.name == "model") {
 			TransformCom* trans = GetParent()->GetTransform();
 			var.val = Conversion::fromMat4f(trans->GetModelGlobal());
 		}
-		setter_map[var.type](shader_ptr_, var);
+		setter_map[var.type](shader_ptr, var);
 	}
 }
 void MaterialComponent::tickImpl(float delta)

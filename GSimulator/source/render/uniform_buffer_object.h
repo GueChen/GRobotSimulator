@@ -8,6 +8,7 @@
 #define __UNIFORM_BUFFER_OBJECT
 
 #include "render/mygl.hpp"
+#include "render/rhi/rhi_device.h"
 
 #include <memory>
 
@@ -16,6 +17,7 @@ namespace GComponent {
 class UniformBufferObject {
 public:
 	UniformBufferObject(int binding, size_t size, const std::shared_ptr<MyGL>& other);
+	UniformBufferObject(int binding, size_t size, const std::shared_ptr<IRhiDevice>& rhi_device);
 	~UniformBufferObject();
 
 	inline void Bind()			{ gl_->glBindBuffer(GL_UNIFORM_BUFFER, ubo_); }

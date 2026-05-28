@@ -445,7 +445,7 @@ border-right: 1px solid rgb(175, 220, 230);
   <customwidget>
    <class>Vector3Edit</class>
    <extends>QWidget</extends>
-   <header>custom/vector3_edit.h</header>
+   <header>Vector3Edit/vector3_edit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

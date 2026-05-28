@@ -1,7 +1,19 @@
 #include "render/framebufferobject.h"
 
+#include "render/rhi/opengl/opengl_rhi_device.h"
+
 #include <QtGui/QOpenGLContext>
+#include <stdexcept>
 namespace GComponent{
+
+static std::shared_ptr<MyGL> GetOpenGL(const std::shared_ptr<IRhiDevice>& rhi_device)
+{
+	auto opengl_device = AsOpenGLRhiDevice(rhi_device);
+	if (!opengl_device) {
+		throw std::runtime_error("FrameBufferObject currently requires an OpenGL RHI device");
+	}
+	return opengl_device->GetGL();
+}
 std::map<FrameBufferObject::AttachType, FrameBufferObject::BufferOption> 
 FrameBufferObject::option_map = {
 	{FrameBufferObject::Color,		{GL_RGB32F,			   GL_RGB,			   GL_LINEAR,				 GL_LINEAR,		GL_REPEAT,			GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0, GL_NONE}},
@@ -24,6 +36,14 @@ FrameBufferObject::FrameBufferObject(int width, int height, int level, AttachTyp
 	texture_type_ = GL_TEXTURE_2D_ARRAY;
 	Initialize(width, height, level, type);	
 }
+
+FrameBufferObject::FrameBufferObject(int width, int height, AttachType type, const std::shared_ptr<IRhiDevice>& rhi_device):
+	FrameBufferObject(width, height, type, GetOpenGL(rhi_device))
+{}
+
+FrameBufferObject::FrameBufferObject(int width, int height, int level, AttachType type, const std::shared_ptr<IRhiDevice>& rhi_device):
+	FrameBufferObject(width, height, level, type, GetOpenGL(rhi_device))
+{}
 
 GComponent::FrameBufferObject::~FrameBufferObject()
 {

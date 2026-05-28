@@ -1,8 +1,11 @@
 #include "manager/resourcemanager.h"
 
+#include "render/rhi/opengl/opengl_rhi_device.h"
+
 #include <QtCore/QMetaType>
 #include <iostream>
 #include <format>
+#include <stdexcept>
 
 namespace GComponent {
 	using std::move;
@@ -182,8 +185,66 @@ namespace GComponent {
 		cubemap_require_gl_.clear();
 	}
 
+	void ResourceManager::SetRhiDevice(const shared_ptr<IRhiDevice>& rhi_device)
+	{
+		rhi_device_ = rhi_device;
+		auto opengl_device = AsOpenGLRhiDevice(rhi_device_);
+		if (!opengl_device) {
+			throw std::runtime_error("ResourceManager currently requires an OpenGL RHI device");
+		}
+		gl_ = opengl_device->GetGL();
+
+		for (auto& mesh_not_set : mesh_require_gl_) {
+			mesh_map_[mesh_not_set]->SetRhiDevice(rhi_device_);
+		}
+		mesh_require_gl_.clear();
+
+		std::list<std::string> failed_link_shader;
+		for (auto& shader_not_set : shader_require_gl_) {
+			shader_map_[shader_not_set]->SetRhiDevice(rhi_device_);
+			if (!shader_map_[shader_not_set]->isLinked()) {
+				std::cout << shader_not_set + " shader link failed\n";
+				failed_link_shader.push_back(shader_not_set);
+			}
+			else {
+				emit ShaderRegistered(shader_not_set);
+			}
+		}
+		for (auto& shader_failed : failed_link_shader) {
+			shader_map_.erase(shader_failed);
+		}
+		shader_require_gl_.clear();
+
+		for (auto& [name, path, type, handle] : texture_require_gl_) {
+			Texture texture;
+			texture.id = gl_->LoadTexture(path.data());
+			texture.type = type;
+			if (handle) *handle = texture.id;
+			if (texture.id) {
+				texture_map_.emplace(name, texture);
+			}
+		}
+		texture_require_gl_.clear();
+
+		for (auto& [name, paths, type, handle] : cubemap_require_gl_) {
+			Texture cubemap_texture;
+			cubemap_texture.id = gl_->LoadCubemap(paths);
+			cubemap_texture.type = type;
+			if (handle) *handle = cubemap_texture.id;
+			if (cubemap_texture.id) {
+				texture_map_.emplace(name, cubemap_texture);
+			}
+		}
+		cubemap_require_gl_.clear();
+	}
+
 	void ResourceManager::tick(const shared_ptr<MyGL>& gl)
 	{
 		SetGL(gl);
+	}
+
+	void ResourceManager::tick(const shared_ptr<IRhiDevice>& rhi_device)
+	{
+		SetRhiDevice(rhi_device);
 	}
 }

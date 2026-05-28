@@ -14,6 +14,7 @@
 #include "render/framebufferobject.h"
 #include "render/uniform_buffer_object.h"
 #include "render/mygl.hpp"
+#include "render/rhi/rhi_device.h"
 #include "function/picking_helper.h"
 #include "model/basegrid.h"
 #include "model/basic/postprocess_quads.h"
@@ -74,6 +75,7 @@ public:
 	void tick();
 	
 	void SetGL(const shared_ptr<MyGL>& gl);
+	void SetRhiDevice(const shared_ptr<IRhiDevice>& rhi_device);
 
 	void SetPickingController(PickingController& controller);
 
@@ -141,6 +143,7 @@ private:
 	list<RenderCommand>				shadow_cast_list_;
 
 	optional<PickingController>		picking_controller_handle_;
+	shared_ptr<IRhiDevice>			rhi_device_;
 	shared_ptr<MyGL>				gl_;
 /*_______________________Bad Practice Modified it In a Better Place___________________________*/
 	BaseGrid						grid_;

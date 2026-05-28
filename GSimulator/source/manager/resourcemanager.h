@@ -13,6 +13,7 @@
 #include "render/myshader.h"
 #include "render/camera.hpp"
 #include "render/mygl.hpp"
+#include "render/rhi/rhi_device.h"
 
 #include <QtOpenGLWidgets/QOpenGLWidget>
 #include <QtCore/QObject>
@@ -86,8 +87,10 @@ public:
 
 
     void            SetGL(const shared_ptr<MyGL>& gl);
+    void            SetRhiDevice(const shared_ptr<IRhiDevice>& rhi_device);
 
     void            tick(const shared_ptr<MyGL>& gl);
+    void            tick(const shared_ptr<IRhiDevice>& rhi_device);
 protected:
     ResourceManager();
     template <class _Map> 
@@ -101,6 +104,7 @@ signals:
 /// Fields 数据域
 private:
     shared_ptr<MyGL>                                        gl_                  = nullptr;
+    shared_ptr<IRhiDevice>                                  rhi_device_          = nullptr;
 
     unordered_map <string, unique_ptr<QTimer>>              ui_update_timer_map_ = {};
     unordered_map <string, QOpenGLWidget*>                  draw_ui_map_         = {};

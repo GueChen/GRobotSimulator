@@ -9,6 +9,7 @@
 
 
 #include "render/mygl.hpp"
+#include "render/rhi/rhi_device.h"
 
 #include <QtGui/QOpenGLContext>
 
@@ -38,6 +39,8 @@ public:
 	// generate 2D Texture Buffer with a texture
 	FrameBufferObject(int width, int height, AttachType type, const std::shared_ptr<MyGL>& other);
 	FrameBufferObject(int width, int height, int level, AttachType type, const std::shared_ptr<MyGL>& other);
+	FrameBufferObject(int width, int height, AttachType type, const std::shared_ptr<IRhiDevice>& rhi_device);
+	FrameBufferObject(int width, int height, int level, AttachType type, const std::shared_ptr<IRhiDevice>& rhi_device);
 	~FrameBufferObject();
 
 /// fbo bind/relase methods
@@ -67,11 +70,11 @@ public:
 
 	void				AdjustRenderBufferStorage(int width, int height);
 
-/// copy methods  ¿½±´º¯Êý
+/// copy methods  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	FrameBufferObject(const FrameBufferObject& other)				= delete;
 	FrameBufferObject& operator=(const FrameBufferObject& other)	= delete;
 
-/// move methods  ÒÆ¶¯º¯Êý
+/// move methods  ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½ï¿½
 	FrameBufferObject(FrameBufferObject&& other)			noexcept;
 	FrameBufferObject& operator=(FrameBufferObject&& other) noexcept;
 private:
@@ -82,7 +85,7 @@ private:
 	void BindTextureOnFrameBuffer(const BufferOption& opt);
 	
 
-/// static methods ¾²Ì¬·½·¨
+/// static methods ï¿½ï¿½Ì¬ï¿½ï¿½ï¿½ï¿½
 	inline static unsigned GetDefaultFBO() { return QOpenGLContext::currentContext()->defaultFramebufferObject(); };
 
 private:	

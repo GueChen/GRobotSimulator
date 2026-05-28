@@ -1,6 +1,19 @@
 #include "uniform_buffer_object.h"
 
+#include "render/rhi/opengl/opengl_rhi_device.h"
+
+#include <stdexcept>
+
 namespace GComponent{
+
+static std::shared_ptr<MyGL> GetOpenGL(const std::shared_ptr<IRhiDevice>& rhi_device)
+{
+	auto opengl_device = AsOpenGLRhiDevice(rhi_device);
+	if (!opengl_device) {
+		throw std::runtime_error("UniformBufferObject currently requires an OpenGL RHI device");
+	}
+	return opengl_device->GetGL();
+}
 
 UniformBufferObject::UniformBufferObject(int binding, size_t size, const std::shared_ptr<MyGL>& other) :
 	binding_pos_(binding),
@@ -13,6 +26,10 @@ UniformBufferObject::UniformBufferObject(int binding, size_t size, const std::sh
 	gl_->glBindBufferBase(GL_UNIFORM_BUFFER, binding_pos_, ubo_);
 	Release();
 }
+
+UniformBufferObject::UniformBufferObject(int binding, size_t size, const std::shared_ptr<IRhiDevice>& rhi_device):
+	UniformBufferObject(binding, size, GetOpenGL(rhi_device))
+{}
 
 UniformBufferObject::~UniformBufferObject()
 {

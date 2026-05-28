@@ -1,7 +1,10 @@
 #include "basegrid.h"
 
 #include "render/mygl.hpp"
+#include "render/rhi/opengl/opengl_rhi_device.h"
 #include "manager/resourcemanager.h"
+
+#include <stdexcept>
 
 using namespace GComponent;
 
@@ -13,7 +16,7 @@ BaseGrid::BaseGrid(int n, float size):
 
 void BaseGrid::GLBufferInitialize()
 {
-    /* ±ÜÃâÖØ¸´³õÊ¼»¯ */
+    /* ï¿½ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ */
     if(isInit)
     {
         return;
@@ -33,6 +36,15 @@ void BaseGrid::SetGL(shared_ptr<MyGL> other)
 {
     gl = other;
     GLBufferInitialize();
+}
+
+void BaseGrid::SetRhiDevice(shared_ptr<IRhiDevice> rhi_device)
+{
+    auto opengl_device = AsOpenGLRhiDevice(rhi_device);
+    if (!opengl_device) {
+        throw std::runtime_error("BaseGrid currently requires an OpenGL RHI device");
+    }
+    SetGL(opengl_device->GetGL());
 }
 
 void BaseGrid::Draw()
@@ -57,7 +69,7 @@ vector<vec3> BaseGrid::GetGridVertexLocation(int num, float size)
     const float counter = corner + edgeLen;
 
     {
-        /* Ìí¼Óºá¶ÔÁÐ */
+        /* ï¿½ï¿½ï¿½Óºï¿½ï¿½ï¿½ï¿½ */
         float locationX = corner;
         for(int i = 0; i < num; ++i)
         {
@@ -65,7 +77,7 @@ vector<vec3> BaseGrid::GetGridVertexLocation(int num, float size)
             (*it++) = vec3(locationX, counter, 0.0);
             locationX += size;
         }
-        /* Ìí¼Ó×Ý¸ñµã */
+        /* ï¿½ï¿½ï¿½ï¿½ï¿½Ý¸ï¿½ï¿½ */
         float locationY = corner +  size;
         for(int i = 1; i < num - 1; ++i)
         {

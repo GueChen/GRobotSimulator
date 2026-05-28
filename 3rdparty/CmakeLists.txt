@@ -1,3 +1,6 @@
 if(NOT TARGET vhacd_lib)
-	add_subdirectory("v-hacd")
+	add_library(vhacd_lib INTERFACE)
+	target_include_directories(vhacd_lib INTERFACE
+		"${CMAKE_CURRENT_SOURCE_DIR}/v-hacd/include"
+	)
 endif()

@@ -63,7 +63,6 @@ private:
 protected:
 	//FIXME: not consider multiple pass situation, later consider how to solve it
 	std::string			shader_;
-	MyShader*			shader_ptr_	   = nullptr;
 	ShaderProperties	properties_;
 	bool				cast_shadow_   = true;
 

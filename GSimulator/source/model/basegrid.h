@@ -2,6 +2,7 @@
 #define BASEGRID_H
 
 #include "render/rendering_datastructure.hpp"
+#include "render/rhi/rhi_device.h"
 
 #include <glm/glm.hpp>
 
@@ -17,39 +18,40 @@ using vec3 = glm::vec3;
 
 
 class MyGL;
-// TODO: Ê¹ÓÃ µ¥ÀýÄ£Ê½ ¶Ô¸Ã¶ÔÏó½øÐÐ¸Ä½ø
-// TODO: ³éÏó³öÒ»¸ö´óÀà·½±ãºóÐø¹ÜÀí
+// TODO: Ê¹ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ä£Ê½ ï¿½Ô¸Ã¶ï¿½ï¿½ï¿½ï¿½ï¿½Ð¸Ä½ï¿½
+// TODO: ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½à·½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 class BaseGrid
 {
 private:
-    /* ¸ñÊ½³ß´çÏî */
+    /* ï¿½ï¿½Ê½ï¿½ß´ï¿½ï¿½ï¿½ */
     int num;
     float gridSize;
 
-    /* ×ÊÔ´¹ÜÀíÏî */
+    /* ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
     unsigned VAO, VBO, EBO;
     shared_ptr<MyGL> gl;
 
-    /* ³õÊ¼»¯±êÖ¾ */
+    /* ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Ö¾ */
     bool isInit = false;
 
 public:
-    /* ¹¹Ôìº¯ÊýºÍÎö¹¹º¯Êý */
+    /* ï¿½ï¿½ï¿½ìº¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
     BaseGrid(int n, float size = 0.05f);
     ~BaseGrid() = default;
 
-    /* GL ÉèÖÃº¯Êý */
+    /* GL ï¿½ï¿½ï¿½Ãºï¿½ï¿½ï¿½ */
     void SetGL(shared_ptr<MyGL> other);
+    void SetRhiDevice(shared_ptr<IRhiDevice> rhi_device);
 
-    /* »æÍ¼½Ó¿Ú */
+    /* ï¿½ï¿½Í¼ï¿½Ó¿ï¿½ */
     void Draw();
 
 private:
-    /* ³õÊ¼»¯º¯Êý */
+    /* ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
     void GLBufferInitialize();
 
-    /* Íø¸ñ¸¨Öú¼ÆËãº¯Êý */
+    /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ãº¯ï¿½ï¿½ */
     static vector<vec3> GetGridVertexLocation(int num , float size);
     static vector<Line> GetGridEdge(int num);
 };

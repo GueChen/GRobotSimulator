@@ -38,7 +38,7 @@ PxFilterFlags CustomFilterShader(
 class SimpleQueryCallBack : public PxSceneQueryFilterCallback {
 public:
 	SimpleQueryCallBack() = default;
-	// Í¨¹ý PxQueryFilterCallback ¼Ì³Ð
+	// Í¨ï¿½ï¿½ PxQueryFilterCallback ï¿½Ì³ï¿½
 	virtual PxQueryHitType::Enum preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags) override
 	{				
 		if (shape->getQueryFilterData() == filterData) {
@@ -48,7 +48,7 @@ public:
 			return PxQueryHitType::eTOUCH;
 		}		
 	}
-	virtual PxQueryHitType::Enum postFilter(const PxFilterData& filterData, const PxQueryHit& hit) override
+	virtual PxQueryHitType::Enum postFilter(const PxFilterData& filterData, const PxQueryHit& hit, const PxShape* shape, const PxRigidActor* actor) override
 	{
 		return PxQueryHitType::Enum();
 	}
@@ -122,7 +122,7 @@ RigidBodyActor* PhysicsScene::CreateRigidBodyActor(const Mat4& global_mat, const
 	physics_impl_->m_scene->addActor(*px_dyn_actor);
 
 	// fill information into the rigidbody actor
-	RigidBodyActor*		rigid_body_actor	= new RigidBodyActor(px_dyn_actor->getInternalIslandNodeIndex());
+	RigidBodyActor*		rigid_body_actor	= new RigidBodyActor(px_dyn_actor->getInternalIslandNodeIndex().index());
 	glb_resource.RegisterActor(rigid_body_actor);
 	rigid_body_actor->AttachShape(shape_res);
 
@@ -139,7 +139,8 @@ void PhysicsScene::RemoveRigidBodyActor(RigidBodyActor* actor)
 	scene.getActors(actor_type_flag, actors.data(), actors.size());
 	// erase the actor
 	std::erase_if(actors, [actor_id = actor->actor_id_](PxActor* actor) {
-		return  dynamic_cast<PxRigidBody*>(actor)->getInternalIslandNodeIndex() == actor_id;
+		PxRigidBody* rigidbody_actor = actor->is<PxRigidBody>();
+		return rigidbody_actor && rigidbody_actor->getInternalIslandNodeIndex().index() == actor_id;
 	});	
 
 	PhysicsManager::getInstance().DeregisterActor(actor->actor_id_);
@@ -155,8 +156,8 @@ void PhysicsScene::UpdateRigidBodyActorTransfrom(RigidBodyActor* actor, const Ma
 	
 	scene.getActors(actor_type_flag, actors.data(), actors.size());
 	std::ranges::for_each(actors, [actor_id = actor->actor_id_, &mat](PxActor* actor){
-		PxRigidBody* rigidbody_actor = dynamic_cast<PxRigidBody*>(actor);
-		if (rigidbody_actor && rigidbody_actor->getInternalIslandNodeIndex() == actor_id) {
+		PxRigidBody* rigidbody_actor = actor->is<PxRigidBody>();
+		if (rigidbody_actor && rigidbody_actor->getInternalIslandNodeIndex().index() == actor_id) {
 			rigidbody_actor->setGlobalPose(PxTransform(PhysXUtils::fromMat4f(mat)));
 		}
 	});
@@ -188,11 +189,12 @@ bool PhysicsScene::Overlap(RigidBodyActor& actor, uint32_t max_hits, vector<Over
 		if (!hit_info.empty()){
 			hit_any = true;
 			for (auto& hit : hit_info) {
-				uint64_t		hitter_id   = dynamic_cast<PxRigidDynamic*>(hit.actor)->getInternalIslandNodeIndex();
-				RigidBodyActor*	hit_actor	= glb_manager.GetModelIdByActorID(hitter_id);						
+				PxRigidDynamic* hitter		= hit.actor->is<PxRigidDynamic>();
+				if (!hitter) continue;
+				uint64_t		hitter_id   = hitter->getInternalIslandNodeIndex().index();
 				PxVec3			dir			= PxVec3(0.0f);
 				float			depth		= 0.0f;
-				PxGeometry&		hitter_geom = hit.shape->getGeometry().any();
+				const PxGeometry& hitter_geom = hit.shape->getGeometry();
 								
 				if (PxGeometryQuery::computePenetration(dir, depth, *checker_geom, checker_loc, hitter_geom, hit.actor->getGlobalPose())) {				
 					out_hits.emplace_back(hitter_id, PhysXUtils::toVec3f(depth * dir));

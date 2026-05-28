@@ -1,6 +1,9 @@
 #include "picking_helper.h"
 
+#include "render/rhi/opengl/opengl_rhi_device.h"
+
 #include <iostream>
+#include <stdexcept>
 
 #include <QtGui/QOpenGLContext>
 
@@ -11,6 +14,16 @@ GComponent::PickingController::~PickingController() = default;
 void GComponent::PickingController::SetGL(const shared_ptr<MyGL>& other)
 {
 	gl_ = other;
+}
+
+void GComponent::PickingController::SetRhiDevice(const shared_ptr<IRhiDevice>& device)
+{
+	rhi_device_ = device;
+	auto opengl_device = AsOpenGLRhiDevice(rhi_device_);
+	if (!opengl_device) {
+		throw std::runtime_error("PickingController currently requires an OpenGL RHI device");
+	}
+	SetGL(opengl_device->GetGL());
 }
 
 bool GComponent::PickingController::Init(unsigned width, unsigned height)

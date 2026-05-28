@@ -2,6 +2,7 @@
 #define MYSHADER_H
 
 #include "render/shader_property.hpp"
+#include "render/rhi/rhi_device.h"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/glm.hpp>
@@ -49,6 +50,7 @@ namespace GComponent {
         void use() noexcept;
 
         void SetGL(std::shared_ptr<MyGL> other);
+        void SetRhiDevice(std::shared_ptr<IRhiDevice> rhi_device);
 
         /// Setters & Getters
         inline void              SetName(const std::string& name)    { name_ = name; }
@@ -83,6 +85,7 @@ namespace GComponent {
 
     private:
         std::string name_;
+        std::shared_ptr<IRhiDevice> rhi_device_;
         ShaderProperties  uniforms_;
         bool        init_ = false;
     };

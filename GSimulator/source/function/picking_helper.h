@@ -8,6 +8,7 @@
 #define _PICKINGHELPER_H
 
 #include "render/mygl.hpp"
+#include "render/rhi/rhi_device.h"
 
 #include <memory>
 
@@ -45,6 +46,7 @@ public:
 	~PickingController();
 
 	void SetGL(const shared_ptr<MyGL>& other);
+	void SetRhiDevice(const shared_ptr<IRhiDevice>& device);
 
 	bool Init(unsigned width, unsigned height);
 	void EnablePickingMode(unsigned default_FBO);
@@ -55,6 +57,7 @@ private:
 
 private:
 	bool			 have_init_;
+	shared_ptr<IRhiDevice> rhi_device_;
 	shared_ptr<MyGL> gl_;
 
 	unsigned default_FBO_			   = 0;
@@ -66,6 +69,5 @@ private:
 }
 
 #endif // !_PICKINGHELPER_H
-
 
 

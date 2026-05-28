@@ -201,6 +201,12 @@ void GComponent::UIState::SetGL(const shared_ptr<MyGL>& gl)
 	
 }
 
+void GComponent::UIState::SetRhiDevice(const shared_ptr<IRhiDevice>& rhi_device)
+{
+	picking_controller.SetRhiDevice(rhi_device);
+	picking_controller.Init(m_width, m_height);
+}
+
 GComponent::PickingPixelInfo GComponent::UIState::GetPickingPixelInfo()
 {
 	return picking_controller.GetPickingPixelInfo(m_mouse_pos_x, m_height - m_mouse_pos_y - 1);

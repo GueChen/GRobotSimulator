@@ -1,8 +1,11 @@
 #include "render/myshader.h"
 
+#include "render/rhi/opengl/opengl_rhi_device.h"
 #include "render/mygl.hpp"
 
 #include <algorithm>
+#include <stdexcept>
+#include <utility>
 #ifdef _DEBUG
 #include <iostream>
 #include <format>
@@ -106,6 +109,7 @@ void MyShader::SetGL(std::shared_ptr<MyGL> other)
                 uniforms_.push_back(variable);
             }
         }
+
         std::sort(uniforms_.begin(), uniforms_.end(), [](auto&& a, auto&& b) { return a.type < b.type; });
 #ifdef _DEBUG
         std::cout << "______________________________________________\n";
@@ -113,6 +117,16 @@ void MyShader::SetGL(std::shared_ptr<MyGL> other)
 #endif // _DEBUG        
         init_ = true;
     }
+}
+
+void MyShader::SetRhiDevice(std::shared_ptr<IRhiDevice> rhi_device)
+{
+    rhi_device_ = std::move(rhi_device);
+    auto opengl_device = AsOpenGLRhiDevice(rhi_device_);
+    if (!opengl_device) {
+        throw std::runtime_error("MyShader currently requires an OpenGL RHI device");
+    }
+    SetGL(opengl_device->GetGL());
 }
 
 void GComponent::MyShader::setUniformValue(int location, int value)

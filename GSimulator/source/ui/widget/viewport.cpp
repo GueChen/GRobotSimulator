@@ -9,9 +9,17 @@
 #include "manager/objectmanager.h"
 #include "system/collisionsystem.h"
 
+#include "render/rhi/rhi_factory.h"
 #include "function/adapter/modelloader_qgladapter.h"
 
 #include "component/material_component.h"
+
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <Windows.h>
+#endif
 
 #include <QtCore/QDir>
 #include <QtCore/QmetaType>
@@ -23,9 +31,9 @@
 #include <QtCore/QThreadPool>
 
 #include <regex>
+#include <iostream>
 
 #ifdef _DEBUG
-#include <iostream>
 #include <format>
 #include <QDebug>
 #endif
@@ -101,7 +109,7 @@ namespace GComponent {
 Viewport::Viewport(QWidget* parent) :
 	QOpenGLWidget(parent),
 	ui_state_(width(), height()),
-	gl_(std::make_shared<GComponent::MyGL>())
+	rhi_device_(CreateOpenGLRhiDevice())
 {
 	qRegisterMetaType<Viewport>("viewport");
 	setFocusPolicy(Qt::StrongFocus);
@@ -116,19 +124,19 @@ Viewport::~Viewport() {}
 
 void Viewport::initializeGL()
 {
-	gl_->initializeOpenGLFunctions();
+	rhi_device_->Initialize();
 	
 	RegisteredShader();
 	if (!camera_handle)
 		camera_handle = GComponent::ModelManager::getInstance().RegisteredCamera();
 	
-	ui_state_.SetGL(gl_);	
-	GComponent::ResourceManager::getInstance().SetGL(gl_);
-	GComponent::RenderManager::getInstance().SetGL(gl_);
+	ui_state_.SetRhiDevice(rhi_device_);	
+	GComponent::ResourceManager::getInstance().SetRhiDevice(rhi_device_);
+	GComponent::RenderManager::getInstance().SetRhiDevice(rhi_device_);
 
 	QOpenGLContext::currentContext()->format().setSwapInterval(0);
 	QOpenGLContext::currentContext()->format().setSamples(4);
-	gl_->glEnable(GL_MULTISAMPLE);
+	rhi_device_->Enable(RhiCapability::Multisample);
 
 // Test USage
 	if (not scene_initialize) {
@@ -179,7 +187,7 @@ void Viewport::paintGL()
 	// Adjust all component
 	ModelManager::getInstance().tickAll(delta_time.count());
 	// Adjust all resources
-	ResourceManager::getInstance().tick(gl_);
+	ResourceManager::getInstance().tick(rhi_device_);
 	// Process all collision Event
 	CollisionSystem::getInstance().tick(delta_time.count());
 	// Adjust all the physics actors
