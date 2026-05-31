@@ -122,7 +122,7 @@ Viewport::Viewport(QWidget* parent) :
 	setAcceptDrops(true);
 
 	render_timer_.setTimerType(Qt::CoarseTimer);
-	render_timer_.setInterval(33);
+	render_timer_.setInterval(8);
 	connect(&render_timer_, &QTimer::timeout, this, [this]() {
 		update();
 	});

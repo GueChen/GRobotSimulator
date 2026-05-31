@@ -11,9 +11,68 @@
 #include <cmath>
 #include <cstdint>
 #include <iostream>
-#include <stdexcept>
 
 namespace GComponent {
+
+namespace {
+
+RhiTextureHandle CreateSolidCubemap(OpenGLRhiDevice& device, float r, float g, float b)
+{
+	const auto& gl = device.GetGL();
+	unsigned texture = 0;
+	const float pixel[] = { r, g, b };
+
+	gl->glGenTextures(1, &texture);
+	gl->glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
+	for (uint32_t i = 0; i < 6; ++i) {
+		gl->glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 1, 1, 0, GL_RGB, GL_FLOAT, pixel);
+	}
+	gl->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	gl->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	gl->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	gl->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	gl->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	gl->glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+	return RhiTextureHandle{ texture };
+}
+
+RhiTextureHandle CreateSolidBrdfLut(OpenGLRhiDevice& device)
+{
+	const auto& gl = device.GetGL();
+	unsigned texture = 0;
+	const float pixel[] = { 1.0f, 1.0f };
+
+	gl->glGenTextures(1, &texture);
+	gl->glBindTexture(GL_TEXTURE_2D, texture);
+	gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 1, 1, 0, GL_RG, GL_FLOAT, pixel);
+	gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	gl->glBindTexture(GL_TEXTURE_2D, 0);
+
+	return RhiTextureHandle{ texture };
+}
+
+} // namespace
+
+void BindOpenGLFallbackIblResources(
+	const std::shared_ptr<IRhiDevice>& rhi_device,
+	std::string_view reason)
+{
+	auto opengl_device = AsOpenGLRhiDevice(rhi_device);
+	if (!opengl_device) {
+		std::cerr << "IBL fallback skipped: OpenGL RHI device is not available. Reason: " << reason << '\n';
+		return;
+	}
+
+	std::cerr << "IBL fallback resources are used. Reason: " << reason << '\n';
+	opengl_device->BindTextureUnit(4, CreateSolidCubemap(*opengl_device, 0.03f, 0.03f, 0.03f));
+	opengl_device->BindTextureUnit(5, CreateSolidCubemap(*opengl_device, 0.03f, 0.03f, 0.03f));
+	opengl_device->BindTextureUnit(6, CreateSolidBrdfLut(*opengl_device));
+	opengl_device->BindTextureUnit(7, CreateSolidCubemap(*opengl_device, 0.0f, 0.0f, 0.0f));
+}
 
 void RunOpenGLIblPrecompute(
 	const std::shared_ptr<IRhiDevice>& rhi_device,
@@ -28,7 +87,8 @@ void RunOpenGLIblPrecompute(
 {
 	auto opengl_device = AsOpenGLRhiDevice(rhi_device);
 	if (!opengl_device) {
-		throw std::runtime_error("IBL precompute currently requires an OpenGL RHI device");
+		std::cerr << "IBL precompute skipped: OpenGL RHI device is not available\n";
+		return;
 	}
 	const auto& gl = opengl_device->GetGL();
 
@@ -43,6 +103,10 @@ void RunOpenGLIblPrecompute(
 	};
 
 	unsigned int hdr_env = gl->LoadTexture(hdr_path, false);
+	if (!hdr_env) {
+		BindOpenGLFallbackIblResources(rhi_device, "HDR environment texture is missing: " + hdr_path);
+		return;
+	}
 	unsigned int environment_cubemap = 0;
 	unsigned int irradiance_cubemap = 0;
 	unsigned int prefilter_cubemap = 0;

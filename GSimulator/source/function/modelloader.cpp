@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iostream>
 #include <filesystem>
+#include <system_error>
 
 
 using namespace GComponent;
@@ -16,6 +17,10 @@ using namespace GComponent;
 std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::ReadFile(const std::string & file_path)
 {
     size_t filter = file_path.find_last_of('.');
+    if (filter == std::string::npos) {
+        std::cerr << "MODELLOADER_FILE_TYPE_ERROR: missing extension for file " << file_path << '\n';
+        return {};
+    }
     auto lenth = file_path.length();
     auto file_type = file_path.substr(filter + 1, lenth - filter - 1);
     auto file_name = file_path.substr(0, filter);
@@ -55,11 +60,12 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::ReadPlyFile(
         ply_file.close();
         content = file_stream.str();
     }
-    catch (std::ifstream::failure e)
+    catch (const std::ifstream::failure&)
     {
         std::cout << "ERROR::MODELLOADER::FILE_NOT_SUCCESS_READ:\n"
             "The file name is:" << file_path << std::endl;
-    }   
+        return {};
+    }
     
     size_t offset = 0, next = 0;
     int VertexLine = 0, FaceLine = 0;
@@ -150,6 +156,14 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::ReadSTLFile(
     static constexpr const size_t BinaryHeaderSize = 84;
     static constexpr const size_t TriangleSize     = 50;
 
+    std::error_code file_error;
+    const size_t file_size = std::filesystem::file_size(filePath, file_error);
+    if (file_error) {
+        std::cerr << "ERROR::MODELLOADER::FILE_NOT_SUCCESS_READ:\n"
+            "The file name is:" << filePath << '\n';
+        return {};
+    }
+
     std::ifstream f;
     f.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     
@@ -157,14 +171,14 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::ReadSTLFile(
     try {
         f.open(filePath, std::ios_base::binary| std::ios_base::in);
     }
-    catch (std::ifstream::failure e){
-        std::cout << "ERROR::MODELLOADER::FILE_NOT_SUCCESS_READ:\n"
-            "The file name is:" << filePath << std::endl;
+    catch (const std::ifstream::failure&){
+        std::cerr << "ERROR::MODELLOADER::FILE_NOT_SUCCESS_READ:\n"
+            "The file name is:" << filePath << '\n';
+        return {};
     }
 
     // File Format Check Acording file size
     Encoding fmt = Encoding::ASCII;
-    size_t file_size = std::filesystem::file_size(filePath);  
     if (file_size > BinaryHeaderSize) {
         f.seekg(BinaryHeaderSize - sizeof(int));                                    // move cursor to header over pos get triangle size
 

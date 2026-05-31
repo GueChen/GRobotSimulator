@@ -132,6 +132,9 @@ public:
             else 
             {
                 std::cerr << std::format("Cubemap texture failed loading at path: {:}\n", faces[i]);
+                glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+                glDeleteTextures(1, &texture_buffer);
+                return 0;
             }
             stbi_image_free(data);
         }
@@ -146,37 +149,35 @@ public:
     unsigned
     LoadTexture(const std::string file_path, bool repeat = true)
     {
+        int width, height, nr_channels;
+        unsigned char* data = stbi_load(file_path.c_str(), &width, &height, &nr_channels, 0);
+        if (!data)
+        {
+            std::cerr << std::format("MyGL LoadTexture Error: {:}\n", file_path);
+            return 0;
+        }
+
         unsigned int texture_buffer_handle = 0;
         glGenTextures(1, &texture_buffer_handle);
 
-        int width, height, nr_channels;
-        unsigned char* data = stbi_load(file_path.c_str(), &width, &height, &nr_channels, 0);
-        if (data)
+        GLenum format       = GL_RGB;
+        GLint  wrap_method  = repeat ? GL_REPEAT : GL_CLAMP_TO_EDGE;
+        switch (nr_channels)
         {
-            GLenum format       = GL_RGB;
-            GLint  wrap_method  = repeat ? GL_REPEAT : GL_CLAMP_TO_EDGE;
-            switch (nr_channels)
-            {
-            case 1:format = GL_RED; break;
-            case 3:format = GL_RGB; break;
-            case 4:format = GL_RGBA; break;
-            default: format = GL_RGB;
-            }
-            glBindTexture(GL_TEXTURE_2D, texture_buffer_handle);
-            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-            glGenerateMipmap(GL_TEXTURE_2D);
-                 
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_method);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_method);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        case 1:format = GL_RED; break;
+        case 3:format = GL_RGB; break;
+        case 4:format = GL_RGBA; break;
+        default: format = GL_RGB;
+        }
+        glBindTexture(GL_TEXTURE_2D, texture_buffer_handle);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_method);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_method);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-            stbi_image_free(data);
-        }
-        else
-        {
-            std::cerr << std::format("MyGL LoadTexture Error: {:}\n", file_path);            
-        }
+        stbi_image_free(data);
         return texture_buffer_handle;
     }
 

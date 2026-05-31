@@ -27,6 +27,7 @@ void GLineBox::Draw(MyShader*)
 {
 	if (!isInit) return;
 	MyShader* shader = ResourceManager::getInstance().GetShaderByName("linecolor");
+	if (!shader) return;
 	shader->use();
 	shader->setMat4("model", glm::mat4(1.0f));
 	rhi_device_->DrawMesh(mesh_, RhiPrimitiveTopology::LineStrip, static_cast<uint32_t>(indices_.size()));

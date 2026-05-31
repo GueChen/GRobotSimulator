@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <string>
+#include <string_view>
 
 namespace GComponent {
 
@@ -22,6 +23,10 @@ void RunOpenGLIblPrecompute(
 	MyShader& prefilter_shader,
 	MyShader& brdf_lut_shader,
 	const std::string& hdr_path);
+
+void BindOpenGLFallbackIblResources(
+	const std::shared_ptr<IRhiDevice>& rhi_device,
+	std::string_view reason);
 
 } // namespace GComponent
 

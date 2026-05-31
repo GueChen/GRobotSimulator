@@ -45,6 +45,7 @@ void GBall::Draw(MyShader *)
 {
     if(!isInit) return;
     MyShader* shader = ResourceManager::getInstance().GetShaderByName("color");
+    if (!shader) return;
     shader->use();
     glm::mat4 model = glm::identity<glm::mat4>();
     model = glm::translate(model, center);

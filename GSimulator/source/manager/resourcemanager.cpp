@@ -26,6 +26,11 @@ namespace GComponent {
 
 	void ResourceManager::RegisteredMesh(const string& name, RenderMesh* raw_ptr_mesh) 
 	{
+		if (!raw_ptr_mesh) {
+			std::cerr << "RegisteredMesh failed: mesh is nullptr, name = " << name << '\n';
+			return;
+		}
+
 		DeregisteredMesh(name);
 		mesh_require_upload_.push_back(name);
 		mesh_map_.emplace(name, unique_ptr<RenderMesh>(raw_ptr_mesh));

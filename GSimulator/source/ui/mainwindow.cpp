@@ -210,8 +210,20 @@ void MainWindow::ResponseComponentCreateRequest(GComponent::Component* component
 /*___________________PRAVITE SLOTS METHODS_____________________________________________________*/
 void MainWindow::ReceiveDeltaTime(float delta_time)
 {
-    ui_->spanTimeData->setText(QString::number(delta_time, 10, 4));
-    ui_->FPSData->setText(QString::number(1.f / delta_time, 10, 2));
+    static float accumulated_time = 0.0f;
+    static int accumulated_frames = 0;
+
+    accumulated_time += delta_time;
+    ++accumulated_frames;
+    if (accumulated_time < 0.1f) {
+        return;
+    }
+
+    const float average_delta = accumulated_time / accumulated_frames;
+    ui_->spanTimeData->setText(QString::number(average_delta, 10, 4));
+    ui_->FPSData->setText(QString::number(accumulated_frames / accumulated_time, 10, 2));
+    accumulated_time = 0.0f;
+    accumulated_frames = 0;
 }
 
 void MainWindow::SetTabifyDockerWidgetQSS(QDockWidget* widget)
@@ -301,5 +313,4 @@ void MainWindow::on_load_action_triggered()
 
     GComponent::ModelManager::getInstance().Load(json_doc);
 }
-
 

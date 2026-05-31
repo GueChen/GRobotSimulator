@@ -185,7 +185,8 @@ void RenderManager::InitializeIBLResource()
 	MyShader* pft_shader = resources.GetShaderByName("pft_conv");
 	MyShader* brdf_shader = resources.GetShaderByName("brdf_lut");
 	if (!sky_box_mesh || !quad_mesh || !e2c_shader || !irr_shader || !pft_shader || !brdf_shader) {
-		throw std::runtime_error("IBL precompute resources are not initialized");
+		BindOpenGLFallbackIblResources(rhi_device_, "IBL precompute mesh or shader resources are not initialized");
+		return;
 	}
 	RunOpenGLIblPrecompute(
 		rhi_device_,
@@ -422,7 +423,16 @@ void RenderManager::PassSpecifiedListPicking(PassType draw_index_type, RenderLis
 	ModelManager&	 model_manager	= ModelManager::getInstance();
 
 	// Universal Shader Uniform Attribute Settings
-	MyShader*		 picking_shader = scene_manager.GetShaderByName("picking"); picking_shader->use();
+	MyShader*		 picking_shader = scene_manager.GetShaderByName("picking");
+	if (!picking_shader) {
+		static bool logged_missing_picking_shader = false;
+		if (!logged_missing_picking_shader) {
+			std::cerr << "Picking pass skipped: picking shader is not available\n";
+			logged_missing_picking_shader = true;
+		}
+		return;
+	}
+	picking_shader->use();
 
 	picking_shader->setUint("gDrawIndex", static_cast<unsigned>(draw_index_type));
 	
@@ -445,10 +455,19 @@ void RenderManager::PassSpecifiedListDepth(RenderList& list, function<Model* (co
 	ModelManager&	 model_manager = ModelManager::getInstance();
 
 #ifdef _USE_CSM
-	MyShader* depth_shader = scene_manager.GetShaderByName("csm_depth_map"); depth_shader->use();
+	MyShader* depth_shader = scene_manager.GetShaderByName("csm_depth_map");
 #else 
-	MyShader* depth_shader = scene_manager.GetShaderByName("depth_map"); depth_shader->use();
+	MyShader* depth_shader = scene_manager.GetShaderByName("depth_map");
 #endif
+	if (!depth_shader) {
+		static bool logged_missing_depth_shader = false;
+		if (!logged_missing_depth_shader) {
+			std::cerr << "Depth pass skipped: depth shader is not available\n";
+			logged_missing_depth_shader = true;
+		}
+		return;
+	}
+	depth_shader->use();
 
 	for (auto& [obj_name, mesh_name] : list) 
 	{		
@@ -465,7 +484,16 @@ void RenderManager::PassSpecifiedListDepth(RenderList& list, function<Model* (co
 void RenderManager::CollisionPass(RenderList&list, function<RawptrModel(const std::string&)> ObjGetter)
 {
 	ResourceManager& scene_manager = ResourceManager::getInstance();
-	MyShader*		 base_shader   = scene_manager.GetShaderByName("base"); base_shader->use();
+	MyShader*		 base_shader   = scene_manager.GetShaderByName("base");
+	if (!base_shader) {
+		static bool logged_missing_base_shader = false;
+		if (!logged_missing_base_shader) {
+			std::cerr << "Collision pass skipped: base shader is not available\n";
+			logged_missing_base_shader = true;
+		}
+		return;
+	}
+	base_shader->use();
 	
 	for (auto& [obj_name, mesh_name] : list) {
 		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);

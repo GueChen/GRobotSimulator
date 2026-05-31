@@ -22,6 +22,7 @@ void GLine::Draw(MyShader *)
     // TODO: 考虑抛出异常提示初始化？
     if(!isInit) return;
     MyShader* shader = ResourceManager::getInstance().GetShaderByName("linecolor");
+    if (!shader) return;
     shader->use();
     shader->setMat4("model", glm::mat4(1.0f));
     rhi_device_->DrawMesh(mesh_, RhiPrimitiveTopology::Lines, 2);
