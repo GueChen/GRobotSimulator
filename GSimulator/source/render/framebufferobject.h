@@ -8,13 +8,9 @@
 #define __GFRAME_BUFFER_OBJECT_H
 
 
-#include "render/mygl.hpp"
 #include "render/rhi/rhi_device.h"
 
-#include <QtGui/QOpenGLContext>
-
 #include <memory>
-#include <map>
 
 namespace GComponent {
 
@@ -37,31 +33,21 @@ public:
 	};
 public:
 	// generate 2D Texture Buffer with a texture
-	FrameBufferObject(int width, int height, AttachType type, const std::shared_ptr<MyGL>& other);
-	FrameBufferObject(int width, int height, int level, AttachType type, const std::shared_ptr<MyGL>& other);
 	FrameBufferObject(int width, int height, AttachType type, const std::shared_ptr<IRhiDevice>& rhi_device);
 	FrameBufferObject(int width, int height, int level, AttachType type, const std::shared_ptr<IRhiDevice>& rhi_device);
 	~FrameBufferObject();
 
 /// fbo bind/relase methods
-	inline void Bind()				{ gl_->glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_); }
-	inline void Release()			{ gl_->glBindFramebuffer(GL_FRAMEBUFFER, GetDefaultFBO()); }
+	void Bind();
+	void Release();
 
 /// texture bind/release methods
-	inline void BindTexture(int texture_pos)		
-									{ 
-										texture_pos_ = texture_pos;								
-										gl_->glActiveTexture(texture_pos_);
-										gl_->glBindTexture(texture_type_, texture_buffer_); 
-									}
-	inline void ReleaseTexture()	{ 
-										gl_->glActiveTexture(texture_pos_);
-										gl_->glBindTexture(texture_type_, 0);
-									}
+	void BindTexture(uint32_t texture_pos);
+	void ReleaseTexture();
 
 /// setter & getter
-	inline unsigned int GetTextureID() const { return texture_buffer_; }
-	inline void			SetTextureID(unsigned int id) { texture_buffer_ = id; }
+	inline unsigned int GetTextureID() const { return static_cast<unsigned int>(texture_buffer_.value); }
+	inline void			SetTextureID(unsigned int id) { texture_buffer_ = RhiTextureHandle{ id }; }
 	
 	[[nodiscard("return texture ID may leak GPU memory")]]
 	unsigned int		TakeTexture();
@@ -80,25 +66,13 @@ public:
 private:
 	void Clear();
 	void Initialize(int width, int height, int levels, AttachType type);
-	void GenTexture(int width, int height, int levels, const BufferOption& opt);
-	void GenRenderBuffer(int width, int height);
-	void BindTextureOnFrameBuffer(const BufferOption& opt);
-	
-
-/// static methods
-	inline static unsigned GetDefaultFBO() { return QOpenGLContext::currentContext()->defaultFramebufferObject(); };
+	static RhiFramebufferAttachment ToRhiAttachment(AttachType type);
 
 private:	
-	unsigned						frame_buffer_	= 0;
-	unsigned						texture_buffer_ = 0;
-	unsigned						render_buffer_	= 0;
-	unsigned						texture_pos_    = GL_TEXTURE0;
-	unsigned						texture_type_   = GL_TEXTURE_2D;
-	std::shared_ptr<MyGL>			gl_				= nullptr;
-
-/// static fileds
-private:
-	static std::map<AttachType, BufferOption> option_map;	
+	RhiFramebufferHandle			frame_buffer_;
+	RhiTextureHandle				texture_buffer_;
+	uint32_t						texture_pos_    = 0;
+	std::shared_ptr<IRhiDevice>		rhi_device_		= nullptr;
 };
 
 class FBOGuard {
@@ -115,7 +89,7 @@ private:
 
 class FBOTextureGuard {
 public:
-	FBOTextureGuard(FrameBufferObject* fbo, int texture_pos = GL_TEXTURE0) :fbo_ptr(fbo) {
+	FBOTextureGuard(FrameBufferObject* fbo, uint32_t texture_pos = 0) :fbo_ptr(fbo) {
 		if (fbo_ptr) fbo_ptr->BindTexture(texture_pos);
 	}
 	~FBOTextureGuard() {

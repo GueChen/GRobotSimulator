@@ -7,7 +7,6 @@
 #ifndef __UNIFORM_BUFFER_OBJECT
 #define __UNIFORM_BUFFER_OBJECT
 
-#include "render/mygl.hpp"
 #include "render/rhi/rhi_device.h"
 
 #include <memory>
@@ -16,12 +15,11 @@ namespace GComponent {
 
 class UniformBufferObject {
 public:
-	UniformBufferObject(int binding, size_t size, const std::shared_ptr<MyGL>& other);
 	UniformBufferObject(int binding, size_t size, const std::shared_ptr<IRhiDevice>& rhi_device);
 	~UniformBufferObject();
 
-	inline void Bind()			{ gl_->glBindBuffer(GL_UNIFORM_BUFFER, ubo_); }
-	inline void Release()		{ gl_->glBindBuffer(GL_UNIFORM_BUFFER, 0); }
+	inline void Bind()			{ rhi_device_->BindBuffer(RhiBufferUsage::Uniform, ubo_); }
+	inline void Release()		{ rhi_device_->BindBuffer(RhiBufferUsage::Uniform, {}); }
 
 	void SetData   (const void* data, size_t size);
 	void SetSubData(const void* data, size_t offset, size_t size);
@@ -36,10 +34,10 @@ private:
 	void Clear();
 
 private:
-	unsigned int		  ubo_		   = 0;
+	RhiBufferHandle		  ubo_;
 	int					  binding_pos_ = -1;
 	size_t				  size_	       = 0;
-	std::shared_ptr<MyGL> gl_		   = nullptr;
+	std::shared_ptr<IRhiDevice> rhi_device_ = nullptr;
 
 };
 

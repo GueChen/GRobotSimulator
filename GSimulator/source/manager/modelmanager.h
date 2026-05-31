@@ -9,7 +9,6 @@
 
 #include "base/singleton.h"
 #include "render/camera.hpp"
-#include "render/mygl.hpp"
 #include "model/model.h"
 
 #include <Eigen/Dense>

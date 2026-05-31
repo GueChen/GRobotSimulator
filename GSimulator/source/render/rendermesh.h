@@ -9,7 +9,6 @@
 
 namespace GComponent {
 
-class MyGL;
 enum DrawMode {
 Points                          = 0x0000,
 Lines                           = 0x0001,
@@ -30,14 +29,11 @@ class RenderMesh
     protected:
         RawMesh mesh_datas_;
 
-        unsigned VAO_               = 0;
-        unsigned VBO_               = 0;
-        unsigned EBO_               = 0;
+        RhiMeshHandle mesh_;
         bool     is_setup_          = false;
 
         DrawMode draw_mode_         = DrawMode::Triangles;
         std::shared_ptr<IRhiDevice> rhi_device_ = nullptr;
-        std::shared_ptr<MyGL> gl_   = nullptr;
 
     /// 成员函数 Methods
     public:
@@ -54,7 +50,6 @@ class RenderMesh
                           const std::vector<Texture>&  textures);
         void SetupRawMesh(RawMesh&& raw_mesh_datas);
 
-        void SetGL(const std::shared_ptr<MyGL> & other);
         void SetRhiDevice(const std::shared_ptr<IRhiDevice>& rhi_device);
         
         inline RawMesh GetRawData()    const { return mesh_datas_; }
@@ -80,7 +75,7 @@ class RenderMesh
         inline std::vector<Vertex>& GetVertexData() { return mesh_datas_.vertices; }
         
     private:
-        void CheckClearGL();
+        void CheckClearRhi();
         void SetupMesh();
        
 };

@@ -28,6 +28,7 @@
 #include <QtGui/QMouseEvent>
 #include <QtGui/QDropEvent>
 #include <QtGui/QKeyEvent>
+#include <QtGui/QOpenGLContext>
 #include <QtCore/QThreadPool>
 
 #include <regex>
@@ -149,7 +150,6 @@ void Viewport::initializeGL()
 
 void Viewport::resizeGL(int w, int h)
 {
-	//gl_->glViewport(0.0f, 0.0f, w, h);
 #ifdef WIN32
 	UINT dpi = GetDpiForWindow(reinterpret_cast<HWND>(winId()));
 	ui_state_.OnResize(MulDiv(w, dpi, 96), MulDiv(h, dpi, 96));

@@ -13,7 +13,6 @@
 #include "render/rendermesh.h"
 #include "render/framebufferobject.h"
 #include "render/uniform_buffer_object.h"
-#include "render/mygl.hpp"
 #include "render/rhi/rhi_device.h"
 #include "function/picking_helper.h"
 #include "model/basegrid.h"
@@ -74,7 +73,6 @@ public:
 	
 	void tick();
 	
-	void SetGL(const shared_ptr<MyGL>& gl);
 	void SetRhiDevice(const shared_ptr<IRhiDevice>& rhi_device);
 
 	void SetPickingController(PickingController& controller);
@@ -144,7 +142,6 @@ private:
 
 	optional<PickingController>		picking_controller_handle_;
 	shared_ptr<IRhiDevice>			rhi_device_;
-	shared_ptr<MyGL>				gl_;
 /*_______________________Bad Practice Modified it In a Better Place___________________________*/
 	BaseGrid						grid_;
 	SkyBox							skybox_;
@@ -163,18 +160,6 @@ private:
 									planning_aux_lists_			= {};
 	int								delete_count_				= 0;
 	std::mutex						planning_lock_;	
-/*________________________PROXY CLASS_______________________________________________________*/
-private:
-class DisableGuard {
-	public:
-		DisableGuard(MyGL * gl, unsigned short command): gl_(gl), command_(command) 
-		{ gl_->glDisable(command_); }
-		~DisableGuard()
-		{ gl_->glEnable(command_);  }
-	private:
-		MyGL* gl_					= nullptr;
-		unsigned short command_		= 0;
-};
 };
 }
 

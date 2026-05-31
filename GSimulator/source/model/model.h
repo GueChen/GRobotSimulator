@@ -23,7 +23,6 @@
 
 namespace GComponent {
 
-class MyGL;
 class MyShader;
 class TransformComponent;
 

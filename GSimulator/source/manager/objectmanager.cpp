@@ -10,6 +10,8 @@
 #include "simplexmesh/gball.h"
 //
 
+#include <iostream>
+
 static void SetPBRRandomProperties(GComponent::MaterialComponent* material) {
 	using namespace GComponent;
 	auto get_random = []()->float {

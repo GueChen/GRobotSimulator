@@ -11,6 +11,7 @@
 
 #include "render/rendering_datastructure.hpp"
 
+#include <cstdint>
 #include <vector>
 
 namespace GComponent {
@@ -30,6 +31,7 @@ private:
 	Vertex vert_max;
 
 	std::vector<ColorVertex> verts;
+	std::vector<uint32_t> indices_;
 };
 
 }

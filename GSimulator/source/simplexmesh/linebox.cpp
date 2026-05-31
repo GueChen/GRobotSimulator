@@ -1,10 +1,9 @@
 #include "simplexmesh/linebox.h"
 
 #include "manager/resourcemanager.h"
-#include "render/mygl.hpp"
 
 static int color_idx = 0;
-static std::vector<glm::vec3> color_lists = {	
+static std::vector<glm::vec3> color_lists = {
 	{1.0, 0.0, 0.0},
 	{1.0, 1.0, 0.0},
 	{0.0, 1.0, 0.0},
@@ -14,7 +13,9 @@ static std::vector<glm::vec3> color_lists = {
 	{1.0, 1.0, 1.0},
 	{1.0, 1.0, 0.0}
 };
+
 namespace GComponent {
+
 GLineBox::GLineBox(const vec3& min_pos, const vec3& max_pos)
 {
 	color_idx = 0;
@@ -28,8 +29,7 @@ void GLineBox::Draw(MyShader*)
 	MyShader* shader = ResourceManager::getInstance().GetShaderByName("linecolor");
 	shader->use();
 	shader->setMat4("model", glm::mat4(1.0f));
-	gl->glBindVertexArray(VAO);
-	gl->glDrawElements(GL_LINE_STRIP, 17, GL_UNSIGNED_INT, 0);
+	rhi_device_->DrawMesh(mesh_, RhiPrimitiveTopology::LineStrip, static_cast<uint32_t>(indices_.size()));
 }
 
 void GLineBox::Update(const vec3& min_pos, const vec3& max_pos)
@@ -48,10 +48,8 @@ void GLineBox::Update(const vec3& min_pos, const vec3& max_pos)
 	}
 	color_idx = (++color_idx % color_lists.size());
 
-	if (isInit) {		
-		gl->glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		gl->glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(ColorVertex) * verts.size(), verts.data());
-		gl->glBindBuffer(GL_ARRAY_BUFFER, 0);		
+	if (isInit) {
+		rhi_device_->UpdateMeshVertexData(mesh_, 0, sizeof(ColorVertex) * verts.size(), verts.data());
 	}
 }
 
@@ -59,15 +57,23 @@ void GLineBox::GLBufferInitialize()
 {
 	if (isInit) return;
 
-	std::tie(VAO, VBO) = gl->genVABO(verts.data(), sizeof(ColorVertex) * verts.size());
-
-	EBO = gl->genEBO(vector{
-		0, 1, 3, 2,	0, 
-		4, 5, 1, 5, 
-		4, 6, 7, 5, 7, 
+	indices_ = {
+		0, 1, 3, 2, 0,
+		4, 5, 1, 5,
+		4, 6, 7, 5, 7,
 		3, 2, 6
-		});
+	};
 
-	gl->EnableVertexAttribArrays(3, 3, 2, 3);
+	mesh_ = rhi_device_->CreateMesh(RhiMeshDesc{
+		.vertex_data = verts.data(),
+		.vertex_data_size = sizeof(ColorVertex) * verts.size(),
+		.vertex_count = verts.size(),
+		.vertex_stride = sizeof(ColorVertex),
+		.index_data = indices_.data(),
+		.index_data_size = sizeof(uint32_t) * indices_.size(),
+		.index_count = indices_.size(),
+		.vertex_layout = RhiVertexLayout::PositionNormalTexcoordColor
+	});
 }
-}
+
+} // namespace GComponent

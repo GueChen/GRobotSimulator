@@ -16,8 +16,6 @@ using std::vector;
 using std::shared_ptr;
 using vec3 = glm::vec3;
 
-
-class MyGL;
 // TODO: Improve this object with a better construction pattern.
 // TODO: Extract common behavior into a base type.
 
@@ -29,8 +27,9 @@ private:
     float gridSize;
 
     /* resource handles */
-    unsigned VAO, VBO, EBO;
-    shared_ptr<MyGL> gl;
+    RhiMeshHandle mesh_;
+    shared_ptr<IRhiDevice> rhi_device_;
+    uint32_t index_count_ = 0;
 
     /* initialization flag */
     bool isInit = false;
@@ -38,10 +37,9 @@ private:
 public:
     /* construction and destruction */
     BaseGrid(int n, float size = 0.05f);
-    ~BaseGrid() = default;
+    ~BaseGrid();
 
-    /* GL setup */
-    void SetGL(shared_ptr<MyGL> other);
+    /* RHI setup */
     void SetRhiDevice(shared_ptr<IRhiDevice> rhi_device);
 
     /* draw interface */
@@ -49,7 +47,7 @@ public:
 
 private:
     /* initialization */
-    void GLBufferInitialize();
+    void RhiBufferInitialize();
 
     /* grid generation helpers */
     static vector<vec3> GetGridVertexLocation(int num , float size);

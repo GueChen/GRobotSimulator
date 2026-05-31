@@ -8,9 +8,7 @@
 
 #include "manager/resourcemanager.h"
 #include "manager/modelmanager.h"
-
 #include "render/rhi/opengl/opengl_ibl_precompute.h"
-#include "render/rhi/opengl/opengl_rhi_device.h"
 
 #include "model/model.h"
 #include "component/material_component.h"
@@ -87,19 +85,9 @@ void RenderManager::SetPickingController(PickingController& controller)
 	picking_controller_handle_ = controller;
 }
 
-void RenderManager::SetGL(const shared_ptr<MyGL>& gl)
-{
-	SetRhiDevice(std::make_shared<OpenGLRhiDevice>(gl));
-}
-
 void RenderManager::SetRhiDevice(const shared_ptr<IRhiDevice>& rhi_device)
 {
 	rhi_device_ = rhi_device;
-	auto opengl_device = AsOpenGLRhiDevice(rhi_device_);
-	if (!opengl_device) {
-		throw std::runtime_error("RenderManager currently requires an OpenGL RHI device");
-	}
-	gl_ = opengl_device->GetGL();
 
 	InitFrameBuffer();
 #ifdef _USE_CSM

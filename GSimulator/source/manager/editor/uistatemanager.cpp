@@ -194,13 +194,6 @@ void GComponent::UIState::tick()
 
 }
 
-void GComponent::UIState::SetGL(const shared_ptr<MyGL>& gl)
-{
-	picking_controller.SetGL(gl);
-	picking_controller.Init(m_width, m_height);	
-	
-}
-
 void GComponent::UIState::SetRhiDevice(const shared_ptr<IRhiDevice>& rhi_device)
 {
 	picking_controller.SetRhiDevice(rhi_device);

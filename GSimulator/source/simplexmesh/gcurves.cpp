@@ -33,23 +33,20 @@ void GCurves::Draw(MyShader *)
     MyShader* shader = ResourceManager::getInstance().GetShaderByName("linecolor");
     shader->use();
     shader->setMat4("model", glm::mat4(1.0f));
-    gl->glBindVertexArray(VAO);    
-    gl->glDrawArrays(GL_LINE_STRIP, 0, verteces.size());
-  
+    rhi_device_->DrawMesh(mesh_, RhiPrimitiveTopology::LineStrip, static_cast<uint32_t>(verteces.size()));
 }
 
 void GCurves::GLBufferInitialize()
 {
     if(isInit) return;
 
-    const size_t VertNum        = verteces.size();
-    const size_t ColorVert_SIZE = GCONST::VEC3_SIZE * 3 + GCONST::VEC2_SIZE;
-
-    /* 申请 GPU 内存区, 并填充内存 */
-    std::tie(VAO, VBO) = gl->genVABO(&verteces[0], ColorVert_SIZE * VertNum);
-
-    /* 激活顶点数据 */
-    gl->EnableVertexAttribArrays(3, 3, 2, 3);
+    mesh_ = rhi_device_->CreateMesh(RhiMeshDesc{
+        .vertex_data = verteces.data(),
+        .vertex_data_size = sizeof(ColorVertex) * verteces.size(),
+        .vertex_count = verteces.size(),
+        .vertex_stride = sizeof(ColorVertex),
+        .vertex_layout = RhiVertexLayout::PositionNormalTexcoordColor
+    });
 
 }
 

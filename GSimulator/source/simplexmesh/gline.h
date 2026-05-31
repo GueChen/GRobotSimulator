@@ -7,7 +7,6 @@
 
 namespace GComponent {
 
-class MyGL;
 class MyShader;
 
 class GLine : public GComponent::SimplexModel
@@ -27,7 +26,7 @@ public:
     void Draw(MyShader* shader = nullptr);
 
 private:
-    /* GL 资源初始化函数 */
+    /* GPU resource initialization */
     void GLBufferInitialize() override;
 
 };

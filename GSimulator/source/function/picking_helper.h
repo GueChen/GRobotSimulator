@@ -7,7 +7,6 @@
 #ifndef _PICKINGHELPER_H
 #define _PICKINGHELPER_H
 
-#include "render/mygl.hpp"
 #include "render/rhi/rhi_device.h"
 
 #include <memory>
@@ -43,31 +42,27 @@ class PickingController
 {
 public:
 	PickingController();
+	PickingController(const PickingController& other);
+	PickingController& operator=(const PickingController& other);
 	~PickingController();
 
-	void SetGL(const shared_ptr<MyGL>& other);
 	void SetRhiDevice(const shared_ptr<IRhiDevice>& device);
 
 	bool Init(unsigned width, unsigned height);
-	void EnablePickingMode(unsigned default_FBO);
+	void EnablePickingMode();
 	void DisablePickintMode();
 	PickingPixelInfo GetPickingPixelInfo(unsigned u, unsigned v);
 private:
 	void CheckHaveInit();
 
 private:
-	bool			 have_init_;
+	bool			 have_init_ = false;
+	bool			 owns_framebuffer_ = true;
 	shared_ptr<IRhiDevice> rhi_device_;
-	shared_ptr<MyGL> gl_;
 
-	unsigned default_FBO_			   = 0;
-	unsigned render_FBO_					   = 0;
-	unsigned picking_texture_obeject_  = 0;
-	unsigned depth_texture_object_	   = 0;
+	RhiFramebufferHandle render_FBO_;
 };
 
 }
 
 #endif // !_PICKINGHELPER_H
-
-

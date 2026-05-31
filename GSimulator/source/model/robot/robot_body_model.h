@@ -6,7 +6,6 @@
 
 namespace GComponent {
 
-class MyGL;
 class RenderMesh;
 class MyShader;
 

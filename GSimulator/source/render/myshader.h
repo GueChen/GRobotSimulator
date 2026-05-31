@@ -27,8 +27,7 @@ std::make_unique<MyShader>(                 \
 
 
 namespace GComponent {
-    class MyGL;
-    
+
     class MyShader:public QOpenGLShaderProgram
     {
     public:
@@ -42,14 +41,11 @@ namespace GComponent {
          * */
         MyShader(QObject * parent,const std::string& vertexPath, const std::string& fragmentPath, const std::string & geometryPath = "");
 
-        std::shared_ptr<MyGL> gl;
-
         virtual ~MyShader();
 
         /// 调用 bind 直接使用 继承的 QOpenGLShaderProgram::bind() 效果相同
         void use() noexcept;
 
-        void SetGL(std::shared_ptr<MyGL> other);
         void SetRhiDevice(std::shared_ptr<IRhiDevice> rhi_device);
 
         /// Setters & Getters

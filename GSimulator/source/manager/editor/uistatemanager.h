@@ -7,7 +7,6 @@
 #ifndef _UISTATE_H
 #define _UISTATE_H
 
-#include "render/mygl.hpp"
 #include "render/rhi/rhi_device.h"
 #include "model/axis/qtaxis.h"
 #include "function/picking_helper.h"
@@ -56,7 +55,6 @@ public:
 	~UIState();
 		
 	void tick();
-	void SetGL(const shared_ptr<MyGL>& gl);
 	void SetRhiDevice(const shared_ptr<IRhiDevice>& rhi_device);
 	PickingPixelInfo GetPickingPixelInfo();
 	Model* GetSelectedObject() const;
@@ -122,5 +120,4 @@ private:
 };
 }
 #endif // !_UISTATE_H
-
 

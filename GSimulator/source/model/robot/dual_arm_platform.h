@@ -9,7 +9,6 @@
 
 namespace GComponent {
 
-class MyGL;
 class KUKA_IIWA_MODEL;
 class ROBOT_BODY_MODEL;
 

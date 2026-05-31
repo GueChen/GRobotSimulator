@@ -31,9 +31,16 @@ enum class RhiPolygonMode {
 	Line
 };
 
+enum class RhiFramebufferBindTarget {
+	Framebuffer,
+	Draw,
+	Read
+};
+
 enum class RhiPrimitiveTopology {
 	Points,
 	Lines,
+	LineStrip,
 	Triangles
 };
 

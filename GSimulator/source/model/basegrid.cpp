@@ -1,10 +1,6 @@
 #include "basegrid.h"
 
-#include "render/mygl.hpp"
-#include "render/rhi/opengl/opengl_rhi_device.h"
 #include "manager/resourcemanager.h"
-
-#include <stdexcept>
 
 using namespace GComponent;
 
@@ -14,7 +10,14 @@ BaseGrid::BaseGrid(int n, float size):
 
 }
 
-void BaseGrid::GLBufferInitialize()
+BaseGrid::~BaseGrid()
+{
+    if (isInit && rhi_device_) {
+        rhi_device_->DestroyMesh(mesh_);
+    }
+}
+
+void BaseGrid::RhiBufferInitialize()
 {
     /* avoid repeated initialization */
     if(isInit)
@@ -26,25 +29,23 @@ void BaseGrid::GLBufferInitialize()
     vector<vec3> verts = GetGridVertexLocation(num, gridSize);
     vector<Line> edges = GetGridEdge(num);
 
-    std::tie(VAO, VBO) = gl->genVABO(&verts[0], GCONST::VEC3_SIZE * verts.size());
-    EBO = gl->genEBO(edges);
-    gl->EnableVertexAttribArrays_continus(verts);
-
-}
-
-void BaseGrid::SetGL(shared_ptr<MyGL> other)
-{
-    gl = other;
-    GLBufferInitialize();
+    index_count_ = static_cast<uint32_t>(edges.size() * 2);
+    mesh_ = rhi_device_->CreateMesh(RhiMeshDesc{
+        .vertex_data = verts.data(),
+        .vertex_data_size = sizeof(vec3) * verts.size(),
+        .vertex_count = verts.size(),
+        .vertex_stride = sizeof(vec3),
+        .index_data = edges.data(),
+        .index_data_size = sizeof(Line) * edges.size(),
+        .index_count = index_count_,
+        .vertex_layout = RhiVertexLayout::Position3
+    });
 }
 
 void BaseGrid::SetRhiDevice(shared_ptr<IRhiDevice> rhi_device)
 {
-    auto opengl_device = AsOpenGLRhiDevice(rhi_device);
-    if (!opengl_device) {
-        throw std::runtime_error("BaseGrid currently requires an OpenGL RHI device");
-    }
-    SetGL(opengl_device->GetGL());
+    rhi_device_ = rhi_device;
+    RhiBufferInitialize();
 }
 
 void BaseGrid::Draw()
@@ -54,9 +55,7 @@ void BaseGrid::Draw()
         shader->setMat4("model", mat4(1.0f));
         shader->setBool("normReverse", false);
     }
-    gl->glBindVertexArray(VAO);
-    gl->glDrawElements(GL_LINES, num * 4, GL_UNSIGNED_INT, 0);
-    gl->glBindVertexArray(0);
+    rhi_device_->DrawMesh(mesh_, RhiPrimitiveTopology::Lines, index_count_);
 }
 
 vector<vec3> BaseGrid::GetGridVertexLocation(int num, float size)

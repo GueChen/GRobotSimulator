@@ -29,6 +29,19 @@ enum class RhiTextureFormat {
 	Depth24Stencil8
 };
 
+enum class RhiVertexLayout {
+	Position3,
+	PositionNormalTexcoord,
+	PositionNormalTexcoordColor
+};
+
+enum class RhiFramebufferAttachment {
+	Color,
+	Depth,
+	Cube,
+	CubeMipmap
+};
+
 struct RhiBufferDesc {
 	RhiBufferUsage usage = RhiBufferUsage::Vertex;
 	size_t size = 0;
@@ -59,6 +72,24 @@ struct RhiFramebufferDesc {
 	RhiTextureHandle depth;
 	int width = 0;
 	int height = 0;
+};
+
+struct RhiFramebufferCreateDesc {
+	int width = 0;
+	int height = 0;
+	int layers = 0;
+	RhiFramebufferAttachment attachment = RhiFramebufferAttachment::Color;
+};
+
+struct RhiMeshDesc {
+	const void* vertex_data = nullptr;
+	size_t vertex_data_size = 0;
+	size_t vertex_count = 0;
+	size_t vertex_stride = 0;
+	const void* index_data = nullptr;
+	size_t index_data_size = 0;
+	size_t index_count = 0;
+	RhiVertexLayout vertex_layout = RhiVertexLayout::Position3;
 };
 
 } // namespace GComponent

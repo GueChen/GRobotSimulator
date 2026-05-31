@@ -1,7 +1,9 @@
 #include "gline.h"
 
 #include "manager/resourcemanager.h"
-#include "render/mygl.hpp"
+
+#include <cstdint>
+#include <vector>
 
 namespace GComponent {
 
@@ -22,30 +24,25 @@ void GLine::Draw(MyShader *)
     MyShader* shader = ResourceManager::getInstance().GetShaderByName("linecolor");
     shader->use();
     shader->setMat4("model", glm::mat4(1.0f));
-    gl->glBindVertexArray(VAO);
-    gl->glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, 0);
+    rhi_device_->DrawMesh(mesh_, RhiPrimitiveTopology::Lines, 2);
 }
 
 void GLine::GLBufferInitialize()
 {
     if(isInit) return;
 
-    const size_t VertNum        = 2;
-    const size_t ColorVert_SIZE = GCONST::VEC3_SIZE * 3 + GCONST::VEC2_SIZE;
-
-    /* 申请 GPU 内存区 */
-    std::tie(VAO, VBO) = gl->genVABO(nullptr, ColorVert_SIZE * VertNum);
-    
-    /* 填充数据 */
-    gl->glBindVertexArray(VAO);
-    gl->glBufferSubData(GL_ARRAY_BUFFER,              0, ColorVert_SIZE, &vert_end);
-    gl->glBufferSubData(GL_ARRAY_BUFFER, ColorVert_SIZE, ColorVert_SIZE, &vert_begin);
-
-    /* 生成元素映射 */
-    EBO = gl->genEBO(vector{line});
-    
-    /* 激活顶点数据 */
-    gl->EnableVertexAttribArrays(3, 3, 2, 3);
+    const std::vector<ColorVertex> vertices{ vert_end, vert_begin };
+    const std::vector<uint32_t> indices{ 0, 1 };
+    mesh_ = rhi_device_->CreateMesh(RhiMeshDesc{
+        .vertex_data = vertices.data(),
+        .vertex_data_size = sizeof(ColorVertex) * vertices.size(),
+        .vertex_count = vertices.size(),
+        .vertex_stride = sizeof(ColorVertex),
+        .index_data = indices.data(),
+        .index_data_size = sizeof(uint32_t) * indices.size(),
+        .index_count = indices.size(),
+        .vertex_layout = RhiVertexLayout::PositionNormalTexcoordColor
+    });
 }
 
 } // namespace GComponent

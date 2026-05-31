@@ -12,7 +12,6 @@
 #include "render/rendermesh.h"
 #include "render/myshader.h"
 #include "render/camera.hpp"
-#include "render/mygl.hpp"
 #include "render/rhi/rhi_device.h"
 
 #include <QtOpenGLWidgets/QOpenGLWidget>
@@ -26,9 +25,6 @@
 #include <list>
 
 namespace GComponent {
-
-/// 前置声明 Forward Declaration
-class MyGL;
 
 using std::list;
 using std::string;
@@ -85,11 +81,8 @@ public:
     void            RegisteredTexture(const std::string& name, unsigned int tex);
     Texture         GetTextureByName(const string& name);
 
-
-    void            SetGL(const shared_ptr<MyGL>& gl);
     void            SetRhiDevice(const shared_ptr<IRhiDevice>& rhi_device);
 
-    void            tick(const shared_ptr<MyGL>& gl);
     void            tick(const shared_ptr<IRhiDevice>& rhi_device);
 protected:
     ResourceManager();
@@ -103,7 +96,6 @@ signals:
 
 /// Fields 数据域
 private:
-    shared_ptr<MyGL>                                        gl_                  = nullptr;
     shared_ptr<IRhiDevice>                                  rhi_device_          = nullptr;
 
     unordered_map <string, unique_ptr<QTimer>>              ui_update_timer_map_ = {};
@@ -112,10 +104,10 @@ private:
     unordered_map <string, unique_ptr<MyShader>>            shader_map_          = {};
     unordered_map <string, Texture>                         texture_map_         = {};
 
-    list<TextureMsg>                                        texture_require_gl_  = {};
-    list<CubemapMsg>                                        cubemap_require_gl_  = {};
-    list<string>                                            mesh_require_gl_     = {};
-    list<string>                                            shader_require_gl_   = {};
+    list<TextureMsg>                                        texture_require_upload_  = {};
+    list<CubemapMsg>                                        cubemap_require_upload_  = {};
+    list<string>                                            mesh_require_upload_     = {};
+    list<string>                                            shader_require_upload_   = {};
 };
 
 template <class _Map> 

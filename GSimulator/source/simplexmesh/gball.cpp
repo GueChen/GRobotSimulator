@@ -4,6 +4,7 @@
 #include "manager/resourcemanager.h"
 
 #include <iostream>
+#include <utility>
 
 namespace GComponent {
 
@@ -14,14 +15,9 @@ GBall::GBall(vec3 o, float r, vec3 color, int resolution):
 }
 
 GBall::GBall(GBall && other):
+    SimplexModel(std::move(other)),
     mesh({},{},{})
 {
-    VAO = other.VAO;
-    VBO = other.VBO;
-    EBO = other.EBO;
-    gl = other.gl;
-    isInit = other.isInit;
-
     std::swap(mesh, other.mesh);
     center = other.center;
     radius = other.radius;
@@ -29,11 +25,7 @@ GBall::GBall(GBall && other):
 
 GBall & GBall::operator=(GBall && other)
 {
-    VAO = other.VAO;
-    VBO = other.VBO;
-    EBO = other.EBO;
-    gl  = other.gl;
-    isInit = other.isInit;
+    SimplexModel::operator=(std::move(other));
 
     std::swap(mesh, other.mesh);
     center = other.center;
@@ -46,7 +38,7 @@ GBall & GBall::operator=(GBall && other)
 
 void GBall::GLBufferInitialize()
 {
-    mesh.SetGL(gl);
+    mesh.SetRhiDevice(rhi_device_);
 }
 
 void GBall::Draw(MyShader *)

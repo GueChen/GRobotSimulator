@@ -1,11 +1,5 @@
 #include "render/rendermesh.h"
 
-#include "render/rhi/opengl/opengl_rhi_device.h"
-#include "render/mygl.hpp"
-
-#include <QtGUI/QOpenGLExtraFunctions>
-#include <stdexcept>
-
 using namespace GComponent;
 
 RenderMesh::RenderMesh(const std::vector<Vertex>&   vertices, 
@@ -15,13 +9,12 @@ RenderMesh::RenderMesh(const std::vector<Vertex>&   vertices,
     mesh_datas_.vertices = vertices;
     mesh_datas_.indices  = indices;
     mesh_datas_.textures = textures;
-    VAO_ = 0;
 }
 
 // TODO: 需要添加一个引用计数
 RenderMesh::~RenderMesh()
 {
-    CheckClearGL();
+    CheckClearRhi();
 }
 
 void RenderMesh::SetupMesh()
@@ -33,60 +26,41 @@ void RenderMesh::SetupMesh()
     /* 检查 Vertex 数据是否有误/为空 */
     if(Vertices.empty()) return;
 
-    /* 绑定 VAO、VBO 与 EBO */
-    const size_t BufferSize = Vertices.size() * sizeof (Vertex);
-    std::tie(VAO_, VBO_) = gl_->genVABO(&Vertices[0], BufferSize);
-    gl_->glBindVertexArray(VAO_);
-    EBO_ = gl_->genEBO(Indices);
-
-    /* 激活顶点数据 */
-    gl_->EnableVertexAttribArrays(3, 3, 2);
-    gl_->glBindVertexArray(0);
+    mesh_ = rhi_device_->CreateMesh(RhiMeshDesc{
+        .vertex_data = Vertices.data(),
+        .vertex_data_size = Vertices.size() * sizeof(Vertex),
+        .vertex_count = Vertices.size(),
+        .vertex_stride = sizeof(Vertex),
+        .index_data = Indices.data(),
+        .index_data_size = Indices.size() * sizeof(Triangle),
+        .index_count = Indices.size() * 3,
+        .vertex_layout = RhiVertexLayout::PositionNormalTexcoord
+    });
 
     /* 标志位置true */
     is_setup_ = true;
     }
 }
 
-void RenderMesh::SetGL(const std::shared_ptr<MyGL> & other)
-{
-    /* 为 GL 指针传递 Context */
-    gl_ = other;
-
-    /* 申请资源前检查是否需要清理 */
-    CheckClearGL();
-
-    /* 申请传递 Vertex 资源 */
-    SetupMesh();
-}
-
 void RenderMesh::SetRhiDevice(const std::shared_ptr<IRhiDevice>& rhi_device)
 {
     rhi_device_ = rhi_device;
-    auto opengl_device = AsOpenGLRhiDevice(rhi_device_);
-    if (!opengl_device) {
-        throw std::runtime_error("RenderMesh currently requires an OpenGL RHI device");
-    }
-    SetGL(opengl_device->GetGL());
+    CheckClearRhi();
+    SetupMesh();
 }
 
-void RenderMesh::CheckClearGL()
+void RenderMesh::CheckClearRhi()
 {
     if(is_setup_)  {
-    gl_->glDeleteBuffers(1, &VBO_);
-    gl_->glDeleteBuffers(1, &EBO_);
-    gl_->glDeleteVertexArrays(1, &VAO_);
-
-    VAO_ = VBO_ = EBO_ = 0;
+    rhi_device_->DestroyMesh(mesh_);
+    mesh_ = {};
     is_setup_ = false;
     }
 }
 
 void RenderMesh::Draw()
 {
-    gl_->glBindVertexArray(VAO_);
-    gl_->glDrawElements(Triangles, 3 * mesh_datas_.indices.size(), GL_UNSIGNED_INT, 0);
-    gl_->glBindVertexArray(0);
+    rhi_device_->DrawMesh(mesh_, RhiPrimitiveTopology::Triangles, static_cast<uint32_t>(3 * mesh_datas_.indices.size()));
 }
 
 void GComponent::RenderMesh::SetupRawMesh(const std::vector<Vertex>& vertices, const std::vector<Triangle>& indices, const std::vector<Texture>& textures)
@@ -94,7 +68,7 @@ void GComponent::RenderMesh::SetupRawMesh(const std::vector<Vertex>& vertices, c
     mesh_datas_.vertices = vertices;
     mesh_datas_.indices  = indices;
     mesh_datas_.textures = textures;
-    if (gl_) {
+    if (rhi_device_) {
         SetupMesh();
     }
 
@@ -103,7 +77,7 @@ void GComponent::RenderMesh::SetupRawMesh(const std::vector<Vertex>& vertices, c
 void GComponent::RenderMesh::SetupRawMesh(RawMesh&& raw_mesh_datas)
 {
     mesh_datas_ = std::move(raw_mesh_datas);
-    if (gl_) {
+    if (rhi_device_) {
         SetupMesh();
     }
 }
