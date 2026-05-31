@@ -183,10 +183,10 @@ void GComponent::UIState::tick()
 			m_axis_selected = AxisSelected::None;
 	}
 	
+	RenderManager::getInstance().m_selected_id = selected_id;
 	if (Model* selected_obj = ModelManager::getInstance().GetModelByHandle(selected_id);
 		selected_obj)
 	{
-		RenderManager::getInstance().m_selected_id = selected_id;
 		TransformCom& trans = *selected_obj->GetTransform();
 		Camera* camera   = ModelManager::getInstance().GetCameraByHandle(1);
 		Mat4 view		 = Conversion::toMat4f(camera->GetViewMatrix());

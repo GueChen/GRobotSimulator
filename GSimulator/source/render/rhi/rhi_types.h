@@ -13,7 +13,8 @@ enum class RhiBackendType {
 enum class RhiCapability {
 	DepthTest,
 	Blend,
-	Multisample
+	Multisample,
+	CullFace
 };
 
 enum class RhiDepthFunc {

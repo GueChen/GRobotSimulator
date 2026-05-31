@@ -403,6 +403,7 @@ void Viewport::RegisteredShader()
 {
 	ResourceManager::getInstance().RegisteredShader("skybox",				new MyShader(nullptr,	PathVert(skybox),				PathFrag(skybox)));
 	ResourceManager::getInstance().RegisteredShader("postprocess",			new MyShader(nullptr,	PathVert(postprocess),			PathFrag(postprocess)));
+	ResourceManager::getInstance().RegisteredShader("outline",				new MyShader(nullptr,	PathVert(outline),				PathFrag(outline)));
 	ResourceManager::getInstance().RegisteredShader("no_shadow_color",		new MyShader(nullptr,	PathVert(Color),				PathFrag(Color)));
     ResourceManager::getInstance().RegisteredShader("axis",					new MyShader(nullptr,	PathVert(axis),					PathFrag(axis)));
     ResourceManager::getInstance().RegisteredShader("picking",				new MyShader(nullptr,	PathVert(picking),				PathFrag(picking)));

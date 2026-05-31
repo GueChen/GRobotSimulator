@@ -562,6 +562,8 @@ unsigned OpenGLRhiDevice::ToGLCapability(RhiCapability capability)
 		return GL_BLEND;
 	case RhiCapability::Multisample:
 		return GL_MULTISAMPLE;
+	case RhiCapability::CullFace:
+		return GL_CULL_FACE;
 	}
 	return GL_DEPTH_TEST;
 }

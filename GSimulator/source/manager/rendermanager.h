@@ -111,6 +111,7 @@ private:
 	void NormalPass();
 	void PostProcessPass();
 	void RenderingPass();
+	void SelectedOutlinePass();
 		
 	void PassSpecifiedListPicking	(PassType draw_index_type, 
 									 RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);
@@ -147,6 +148,7 @@ private:
 	SkyBox							skybox_;
 	PostprocessQuads				screen_quad_;	
 	optional<FrameBufferObject>		render_FBO_					= std::nullopt;
+	optional<FrameBufferObject>		selected_outline_FBO_		= std::nullopt;
 
 	optional<FrameBufferObject>     depth_FBO_					= std::nullopt;
 	const int                       depth_buffer_resolustion_   = 4096;

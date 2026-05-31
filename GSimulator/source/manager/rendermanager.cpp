@@ -34,6 +34,9 @@ void RenderManager::InitFrameBuffer()
 	render_FBO_ = FrameBufferObject(m_render_sharing_msg.viewport.window_size.x,// window width
 							 m_render_sharing_msg.viewport.window_size.y,		// window height
 							 FrameBufferObject::Color, rhi_device_);	
+	selected_outline_FBO_ = FrameBufferObject(m_render_sharing_msg.viewport.window_size.x,
+							 m_render_sharing_msg.viewport.window_size.y,
+							 FrameBufferObject::Color, rhi_device_);
 }
 
 void RenderManager::EmplaceRenderCommand(std::string obj_name, std::string mesh_name, QueueType type)
@@ -390,17 +393,51 @@ void RenderManager::RenderingPass()
 #endif
 }
 
+void RenderManager::SelectedOutlinePass()
+{
+	if (!selected_outline_FBO_) return;
+
+	FBOGuard outline_guard(&selected_outline_FBO_.value());
+	ClearGLScreenBuffer(0.0f, 0.0f, 0.0f, 1.0f);
+
+	if (m_selected_id == 0) return;
+
+	Model* selected_obj = ModelManager::getInstance().GetModelByHandle(m_selected_id);
+	if (!selected_obj) return;
+
+	RenderMesh* mesh = ResourceManager::getInstance().GetMeshByName(selected_obj->getMesh());
+	MyShader* outline_shader = ResourceManager::getInstance().GetShaderByName("outline");
+	if (!mesh || !outline_shader) return;
+
+	auto* transform = selected_obj->GetComponent<TransformComponent>();
+	if (!transform) return;
+
+	const glm::mat4 model = Conversion::fromMat4f(transform->GetModelGlobal());
+
+	outline_shader->use();
+	outline_shader->setMat4("model", model);
+	rhi_device_->Disable(RhiCapability::CullFace);
+	mesh->Draw();
+}
+
 void RenderManager::PostProcessPass()
 {
 	//TODO: add some postprocess effect
 	// 1. draw selected object
 	// 2. tone mapping & color grading
 	// 3. ambient occlusion
+	SelectedOutlinePass();
+
 	ClearGLScreenBuffer(0.0f, 0.0f, 0.05f, 1.0f);
 	{
-		rhi_device_->BindTextureUnit(8, RhiTextureHandle{ render_FBO_->GetTextureID() });
-		FBOTextureGuard guard(&render_FBO_.value());		
-		screen_quad_.Draw();
+		FBOTextureGuard color_guard(&render_FBO_.value(), 8);
+		if (selected_outline_FBO_) {
+			FBOTextureGuard outline_guard(&selected_outline_FBO_.value(), 9);
+			screen_quad_.Draw();
+		}
+		else {
+			screen_quad_.Draw();
+		}
 	}
 	
 	rhi_device_->Enable(RhiCapability::Blend);
