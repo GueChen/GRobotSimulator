@@ -70,11 +70,11 @@ public:
 
 	void				AdjustRenderBufferStorage(int width, int height);
 
-/// copy methods  ��������
+/// copy methods
 	FrameBufferObject(const FrameBufferObject& other)				= delete;
 	FrameBufferObject& operator=(const FrameBufferObject& other)	= delete;
 
-/// move methods  �ƶ�����
+/// move methods
 	FrameBufferObject(FrameBufferObject&& other)			noexcept;
 	FrameBufferObject& operator=(FrameBufferObject&& other) noexcept;
 private:
@@ -85,7 +85,7 @@ private:
 	void BindTextureOnFrameBuffer(const BufferOption& opt);
 	
 
-/// static methods ��̬����
+/// static methods
 	inline static unsigned GetDefaultFBO() { return QOpenGLContext::currentContext()->defaultFramebufferObject(); };
 
 private:	

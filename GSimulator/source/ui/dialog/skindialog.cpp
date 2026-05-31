@@ -166,7 +166,7 @@ void SkinDialog::InitChart()
     m_chart->setDropShadowEnabled(true);
     m_chart->setTheme(QChart::ChartThemeLight);
     m_chart->setTitleBrush(QBrush(QColor(0, 0, 255)));
-    //m_chart->setTitleFont(QFont(" Î¢ÈíÑÅºÚ "));
+    //m_chart->setTitleFont(QFont(" å¾®è½¯é›…é»‘ "));
     m_chart->setTitle(" Skin sensor signal ");
 
     chartView->setChart(m_chart);

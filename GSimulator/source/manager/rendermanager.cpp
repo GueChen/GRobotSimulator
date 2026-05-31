@@ -125,7 +125,7 @@ void RenderManager::SetRhiDevice(const shared_ptr<IRhiDevice>& rhi_device)
 	InitializeIBLResource();
 }
 
-// ��Ⱦ�Ӹô���ʼ�����е� Draw call �ɸò������
+// Rendering starts here; all draw calls are submitted from this stage.
 /*__________________________tick Methods____________________________________________________*/
 void RenderManager::tick()
 {		

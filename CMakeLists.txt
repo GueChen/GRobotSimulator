@@ -35,7 +35,11 @@ endif()
 
 project ("GSimulator")
 
-# °üº¬×ÓÏîÄ¿¡£
+if(MSVC)
+	add_compile_options(/utf-8)
+endif()
+
+# åŒ…å«å­é¡¹ç›®ã€‚
 add_subdirectory ("3rdparty")
 add_subdirectory ("GSimulator")
 add_subdirectory ("GComponentBaseLib")

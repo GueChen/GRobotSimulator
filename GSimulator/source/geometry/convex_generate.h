@@ -15,15 +15,15 @@ namespace GComponent {
 /// <summary>
 /// using VHACD library to help make convex hulls decomposition from a triangle mesh
 /// <para>
-/// Ê¹ÓÃ VHACD ¿âÊµÏÖÈı½ÇĞÎÍø¸ñµÄÍ¹°ü·Ö½â
+/// ä½¿ç”¨ VHACD åº“å®ç°ä¸‰è§’å½¢ç½‘æ ¼çš„å‡¸åŒ…åˆ†è§£
 /// </para>
 /// </summary>
-/// <param name="vertices">				cref	{vector{vertex}}		¶¥µã¼¯ºÏ				</param>
-/// <param name="triangles">			cref	{vector{triangle}}		Èı½ÇÍø¸ñË÷Òı¼¯ºÏ		</param>
-/// <param name="max_convex_hulls">		val		{uint32_t}				×î´ó·Ö½âÍ¹°üÊı			</param>
-/// <param name="max_vertices_per_ch">	val		{uint32_t}				µ¥¸öÍ¹°ü×î´ó°üº¬¶¥µãÊı	</param>
-/// <param name="use_update_callback">	val		{bool}					ÊÇ·ñÊ¹ÓÃ¸üĞÂ»Øµ÷		</param>
-/// <returns>							val		{vector{RawConvex}}		Í¹°üÊı×é¼¯ºÏ			</returns>
+/// <param name="vertices">				cref	{vector{vertex}}		é¡¶ç‚¹é›†åˆ				</param>
+/// <param name="triangles">			cref	{vector{triangle}}		ä¸‰è§’ç½‘æ ¼ç´¢å¼•é›†åˆ		</param>
+/// <param name="max_convex_hulls">		val		{uint32_t}				æœ€å¤§åˆ†è§£å‡¸åŒ…æ•°			</param>
+/// <param name="max_vertices_per_ch">	val		{uint32_t}				å•ä¸ªå‡¸åŒ…æœ€å¤§åŒ…å«é¡¶ç‚¹æ•°	</param>
+/// <param name="use_update_callback">	val		{bool}					æ˜¯å¦ä½¿ç”¨æ›´æ–°å›è°ƒ		</param>
+/// <returns>							val		{vector{RawConvex}}		å‡¸åŒ…æ•°ç»„é›†åˆ			</returns>
 std::vector<RawConvex> GenerateConvexHull(const		std::vector<Vertex>  & vertices, 
 										  const		std::vector<Triangle>& triangles,
 										  uint32_t	max_convex_hulls, 

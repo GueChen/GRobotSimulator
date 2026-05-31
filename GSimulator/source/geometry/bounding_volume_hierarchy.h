@@ -26,7 +26,7 @@ struct BVHNode {
 /// Methods
 	void InsertChildren(int axis, BVHNode* child0, BVHNode* child1);
 
-/// Fields Êı¾İÓò
+/// Fields æ•°æ®åŸŸ
 	BoundingBox bound_;
 	BVHNode*	children_[2] = {nullptr};
 	int			axis_;

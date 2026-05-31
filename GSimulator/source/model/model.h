@@ -54,7 +54,7 @@ public:
    /// <summary>
    /// no parameter ctor for some special type derived
    /// <para>
-   /// ÎŞ²Î¹¹Ôì°æ±¾Õë¶ÔÒ»Ğ©ÌØÊâÀàĞÍ×ÓÀà
+   /// æ— å‚æ„é€ ç‰ˆæœ¬é’ˆå¯¹ä¸€äº›ç‰¹æ®Šç±»å‹å­ç±»
    /// </para>
    /// </summary>
    /// <param name="parent"></param>
@@ -66,8 +66,8 @@ public:
                     /// NOTICE: the {model_mat} is relative transform from parent, 
                     /// if no parent exist that means the absolute transform from world coordinates                    
                     /// <para>
-                    /// ´´½¨Ò»¸öĞÂµÄÒÔ name ÃüÃûµÄ Model ¶ÔÏó£¬²¢½«Ãû³ÆÎª mesh µÄÍø¸ñ°ó¶¨¸øËü¡£                   
-                    /// ×¢Òâ£ºÄ£ĞÍ¾ØÕóÊÇÏà¶ÔÓÚ¸¸¶ÔÏóµÄÏà¶Ô±ä»»£¬ÈôÎŞ¸¸¶ÔÏóÔòÊÇÏà¶ÔÓÚÊÀ½ç×ø±êµÄ¾ø¶Ô±ä»»
+                    /// åˆ›å»ºä¸€ä¸ªæ–°çš„ä»¥ name å‘½åçš„ Model å¯¹è±¡ï¼Œå¹¶å°†åç§°ä¸º mesh çš„ç½‘æ ¼ç»‘å®šç»™å®ƒã€‚
+                    /// æ³¨æ„ï¼šæ¨¡å‹çŸ©é˜µæ˜¯ç›¸å¯¹äºçˆ¶å¯¹è±¡çš„ç›¸å¯¹å˜æ¢ï¼Œè‹¥æ— çˆ¶å¯¹è±¡åˆ™æ˜¯ç›¸å¯¹äºä¸–ç•Œåæ ‡çš„ç»å¯¹å˜æ¢
                     /// </para>
                     /// </summary>
                     /// <param name="name"></param>
@@ -123,21 +123,21 @@ protected:
 private:
     void            Initialize(Model* parent);
 
-/// Fields Êı¾İÓò
+/// Fields æ•°æ®åŸŸ
 protected:    
-    /// Structure ½á¹¹Ïà¹Ø
+    /// Structure ç»“æ„ç›¸å…³
     int                     model_id_           = -1;
     string                  name_               = "";
     string                  mesh_               = "";
    
-    // Components ×é¼şÌåÏµ
+    // Components ç»„ä»¶ä½“ç³»
     vector<_PtrComponent>   components_ptrs_    = {};
 
-    // Relationships ¸¸×Ó¹ØÏµ
+    // Relationships çˆ¶å­å…³ç³»
     _RawPtr                 parent_             = nullptr;
     vector<_RawPtr>         children_           = {};
     
-    /// Transform ±ä»»Ïà¹Ø
+    /// Transform å˜æ¢ç›¸å…³
     TransformComponent*     transform_          = nullptr;
         
 #ifdef _COLLISION_TEST

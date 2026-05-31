@@ -12,7 +12,7 @@ public:
 	~KeeperMotion() = default;
 
 protected:
-	// Í¨¹ý CMotionBase ¼Ì³Ð
+	// é€šè¿‡ CMotionBase ç»§æ‰¿
 	virtual PathFunc PathFuncImpl(const SE3f& mat_ini, const SE3f& mat_end)		override;
 	virtual float ExecutionTimeImpl(const SE3f& mat_ini, const SE3f& mat_end)	override;
 

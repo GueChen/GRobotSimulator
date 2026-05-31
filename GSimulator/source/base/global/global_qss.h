@@ -47,7 +47,7 @@ constexpr std::string_view menu_qss =
 "	color: white;\n"
 "}\n"
 "QMenu::item{\n"
-"font: 9pt \"Î¢ÈíÑÅºÚ\";\n"
+"font: 9pt \"å¾®è½¯é›…é»‘\";\n"
 "}\n"
 "QMenu::indicator:exclusive:checked:selected{\n"
 "	border-color: darkblue;\n"
@@ -94,7 +94,7 @@ constexpr std::string_view red_button_qss =
 
 /*_________________________________Component Inspector UI Style Sheet________________________________*/
 /// <summary>
-/// ÓÃÓÚÔÚ Component µÄ UI ÖĞÕ¹Ê¾ property µÄÃû³ÆÊ±
+/// ç”¨äºåœ¨ Component çš„ UI ä¸­å±•ç¤º property çš„åç§°æ—¶
 /// </summary>
 constexpr std::string_view component_inspector_text =
 "QLabel{"
@@ -103,7 +103,7 @@ constexpr std::string_view component_inspector_text =
 "}";
 
 /// <summary>
-/// ÓÃÓÚ LineEditor µÄ UI Õ¹Ê¾Ãû³ÆÊ¹ÓÃ
+/// ç”¨äº LineEditor çš„ UI å±•ç¤ºåç§°ä½¿ç”¨
 /// </summary>
 constexpr std::string_view component_inspector_editor =
 "QLineEdit{"
@@ -117,7 +117,7 @@ constexpr std::string_view component_inspector_editor =
 "}";
 
 /// <summary>
-/// ÓÃÓÚ ComboBox µÄ UI Õ¹Ê¾
+/// ç”¨äº ComboBox çš„ UI å±•ç¤º
 /// </summary>
 constexpr std::string_view combo_editor_qss =
 "QComboBox {"
@@ -183,7 +183,7 @@ constexpr std::string_view combo_editor_qss =
 "}";
 
 /// <summary>
-/// ÓÃÓÚÈıÎ¬ÏòÁ¿ÖĞ x µÄÃû³ÆÕ¹Ê¾
+/// ç”¨äºä¸‰ç»´å‘é‡ä¸­ x çš„åç§°å±•ç¤º
 /// </summary>
 constexpr std::string_view x_label_qss =
 "QLabel{"
@@ -196,7 +196,7 @@ constexpr std::string_view x_label_qss =
 "}";
 
 /// <summary>
-/// ÓÃÓÚÈıÎ¬ÏòÁ¿ÖĞ y µÄÃû³ÆÕ¹Ê¾
+/// ç”¨äºä¸‰ç»´å‘é‡ä¸­ y çš„åç§°å±•ç¤º
 /// </summary>
 constexpr std::string_view y_label_qss =
 "QLabel{\n"
@@ -209,7 +209,7 @@ constexpr std::string_view y_label_qss =
 "}\n";
 
 /// <summary>
-/// ÓÃÓÚÈıÎ¬ÏòÁ¿ÖĞ z µÄÃû³ÆÕ¹Ê¾
+/// ç”¨äºä¸‰ç»´å‘é‡ä¸­ z çš„åç§°å±•ç¤º
 /// </summary>
 constexpr std::string_view z_label_qss =
 "QLabel{\n"
@@ -222,7 +222,7 @@ constexpr std::string_view z_label_qss =
 "}\n";
 
 /// <summary>
-/// ÓÃÓÚÉèÖÃ DoubleSpinBox µÄ·ç¸ñ
+/// ç”¨äºè®¾ç½® DoubleSpinBox çš„é£æ ¼
 /// </summary>
 constexpr std::string_view double_spin_box_qss =
 "QDoubleSpinBox{"

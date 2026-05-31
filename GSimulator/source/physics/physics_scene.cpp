@@ -38,7 +38,7 @@ PxFilterFlags CustomFilterShader(
 class SimpleQueryCallBack : public PxSceneQueryFilterCallback {
 public:
 	SimpleQueryCallBack() = default;
-	// ͨ�� PxQueryFilterCallback �̳�
+	// PxQueryFilterCallback override
 	virtual PxQueryHitType::Enum preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags) override
 	{				
 		if (shape->getQueryFilterData() == filterData) {

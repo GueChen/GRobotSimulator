@@ -254,7 +254,7 @@ void GComponent::EngineApp::CreateConvexDecomposition(uint32_t conv_count,
 		for (int  mesh_count = 1; auto& convex_hull : convex_hulls) {
 			if (show_mesh) {
 				// find a proper name with regex for model then create
-				// Ê¹ÓÃÕıÔò±í´ïÊ½Ìæ»»²¢ÉèÖÃºÏÊÊµÄÄ£ĞÍÃû²¢ÓÃ´ËÄ£ĞÍÃû´´½¨
+				// ä½¿ç”¨æ­£åˆ™è¡¨è¾¾å¼æ›¿æ¢å¹¶è®¾ç½®åˆé€‚çš„æ¨¡å‹åå¹¶ç”¨æ­¤æ¨¡å‹ååˆ›å»º
 				std::string ch_name = convex_name_pre;
 				std::string mesh_ch_name = mesh_name + "convex_" + std::to_string(mesh_count);
 				int number = 0;
@@ -271,7 +271,7 @@ void GComponent::EngineApp::CreateConvexDecomposition(uint32_t conv_count,
 				Model* convex_model = new Model(ch_name, mesh_ch_name, Mat4::Identity(), obj_ptr);
 
 				// register mesh component
-				// ×¢²áÄ£ĞÍµÄÍø¸ñ×ÊÔ´Óë²ÄÖÊ×é¼ş
+				// æ³¨å†Œæ¨¡å‹çš„ç½‘æ ¼èµ„æºä¸æè´¨ç»„ä»¶
 				ResourceManager::getInstance().RegisteredMesh(mesh_ch_name, new RenderMesh(convex_hull.m_vertices, convex_hull.m_triangles, {}));
 				MaterialComponent* material = new MaterialComponent(nullptr, "pbr", true);
 				for (auto& pro : material->GetProperties()) {
@@ -283,7 +283,7 @@ void GComponent::EngineApp::CreateConvexDecomposition(uint32_t conv_count,
 				convex_model->RegisterComponent(std::unique_ptr<MaterialComponent>(material));
 
 				// register model in model manager
-				// ÔÚÄ£ĞÍ¹ÜÀíÕßÖĞ×¢²áÄ£ĞÍ
+				// åœ¨æ¨¡å‹ç®¡ç†è€…ä¸­æ³¨å†Œæ¨¡å‹
 				ModelManager::getInstance().RegisteredModel(ch_name, convex_model);
 			}
 			// 
@@ -529,7 +529,7 @@ void GComponent::EngineApp::InitializeMembers(int argc, char* argv[])
 
 	// ui initialize
 	window_ptr_ = _PtrWithDel<MainWindow>(new MainWindow, deleter);
-	window_ptr_->setWindowIconText("»úĞµ±Û¹æ»®·ÂÕæÈí¼ş");
+	window_ptr_->setWindowIconText("æœºæ¢°è‡‚è§„åˆ’ä»¿çœŸè½¯ä»¶");
 	//window_ptr_->setWindowFlag(Qt::FramelessWindowHint);
 
 	// create dialog ptr and register them to table

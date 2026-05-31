@@ -23,16 +23,16 @@ using std::shared_ptr;
 
 class KUKA_IIWA_MODEL:public Model
 {
-/// ³ÉÔ±º¯Êı Member Functions
+/// æˆå‘˜å‡½æ•° Member Functions
 public:
-/// ¹¹Ôìº¯Êı Constructors
+/// æ„é€ å‡½æ•° Constructors
     explicit KUKA_IIWA_MODEL(Mat4 transform = Mat4::Identity());
     ~KUKA_IIWA_MODEL() = default;
 
 /// Tick Functions
     void tickImpl(float delta_time) override;
 
-/// »æÍ¼º¯Êı Drawing Functions
+/// ç»˜å›¾å‡½æ•° Drawing Functions
     void setColor(const Vec3 & color);
 
    
@@ -40,9 +40,9 @@ private:
     void InitializeModelResource();
     void InitializeMeshResource();
 
-/// Êı¾İÓò Fields
+/// æ•°æ®åŸŸ Fields
 private:
-// µ±Ç°µ¥Ò»ÑÕÉ«×ÅÉ«Æ÷ÏÂµÄÏÔÊ¾ÑÕÉ«
+// å½“å‰å•ä¸€é¢œè‰²ç€è‰²å™¨ä¸‹çš„æ˜¾ç¤ºé¢œè‰²
     Vec3            _color     = Vec3::Ones();
     static bool is_init_;
     

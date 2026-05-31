@@ -38,41 +38,41 @@ public:
     /// <summary>
     /// Load model from file acording to file format
     /// <para>
-    /// ¸ù¾İÎÄ¼şÀàĞÍ´ÓÎÄ¼şÖĞ»ñÈ¡Ä£ĞÍ
+    /// æ ¹æ®æ–‡ä»¶ç±»å‹ä»æ–‡ä»¶ä¸­è·å–æ¨¡å‹
     /// </para>
     /// </summary>
-    /// <param name="file_path">    cref {string}               [in]  file_path                                     ÎÄ¼şÂ·¾¶    </param>
-    /// <returns>                        {Vertexs, Triangles}   [out] arrays tuple of vertex and triangle index     ¶¥µãÊı×é    </returns>
+    /// <param name="file_path">    cref {string}               [in]  file_path                                     æ–‡ä»¶è·¯å¾„    </param>
+    /// <returns>                        {Vertexs, Triangles}   [out] arrays tuple of vertex and triangle index     é¡¶ç‚¹æ•°ç»„    </returns>
     static _ModelInfo ReadFile(const string& file_path);
 
     /// <summary>
     /// Load model from ply-file
     /// <para>
-    /// ´Ó ply ÎÄ¼şÖĞ¶ÁÈ¡Ä£ĞÍ
+    /// ä» ply æ–‡ä»¶ä¸­è¯»å–æ¨¡å‹
     /// </para>
     /// </summary>
-    /// <param name="file_path">    cref {string}               [in]  file_path                                     ÎÄ¼şÂ·¾¶    </param>
-    /// <returns>                        {Vertexs, Triangles}   [out] arrays tuple of vertex and triangle index     ¶¥µãÊı×é    </returns>
+    /// <param name="file_path">    cref {string}               [in]  file_path                                     æ–‡ä»¶è·¯å¾„    </param>
+    /// <returns>                        {Vertexs, Triangles}   [out] arrays tuple of vertex and triangle index     é¡¶ç‚¹æ•°ç»„    </returns>
     static _ModelInfo ReadPlyFile(const string& file_path);
 
     /// <summary>
     /// Load model from stl-file
     /// <para>
-    /// ´Ó STL ÎÄ¼şÖĞ¶ÁÈ¡Ä£ĞÍ
+    /// ä» STL æ–‡ä»¶ä¸­è¯»å–æ¨¡å‹
     /// </para>
     /// </summary>
-    /// <param name="file_path">    cref {string}               [in]  file_path                                     ÎÄ¼şÂ·¾¶    </param>
-    /// <returns>                        {Vertexs, Triangles}   [out] arrays tuple of vertex and triangle index     ¶¥µãÊı×é    </returns>
+    /// <param name="file_path">    cref {string}               [in]  file_path                                     æ–‡ä»¶è·¯å¾„    </param>
+    /// <returns>                        {Vertexs, Triangles}   [out] arrays tuple of vertex and triangle index     é¡¶ç‚¹æ•°ç»„    </returns>
     static _ModelInfo ReadSTLFile(const string& file_path);
 
     /// <summary>
     /// Load model from obj-file
     /// <para>
-    /// ´Ó obj ÎÄ¼şÖĞ¶ÁÈ¡Ä£ĞÍ
+    /// ä» obj æ–‡ä»¶ä¸­è¯»å–æ¨¡å‹
     /// </para>
     /// </summary>
-    /// <param name="file_path">    cref {string}               [in]  file_path                                     ÎÄ¼şÂ·¾¶    </param>
-    /// <returns>                        {Vertexs, Triangles}   [out] arrays tuple of vertex and triangle index     ¶¥µãÊı×é    </returns>
+    /// <param name="file_path">    cref {string}               [in]  file_path                                     æ–‡ä»¶è·¯å¾„    </param>
+    /// <returns>                        {Vertexs, Triangles}   [out] arrays tuple of vertex and triangle index     é¡¶ç‚¹æ•°ç»„    </returns>
     static _ModelInfo ReadOBJFile(const string& file_path);
 
 protected:

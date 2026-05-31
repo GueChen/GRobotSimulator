@@ -16,7 +16,7 @@ BaseGrid::BaseGrid(int n, float size):
 
 void BaseGrid::GLBufferInitialize()
 {
-    /* �����ظ���ʼ�� */
+    /* avoid repeated initialization */
     if(isInit)
     {
         return;
@@ -69,7 +69,7 @@ vector<vec3> BaseGrid::GetGridVertexLocation(int num, float size)
     const float counter = corner + edgeLen;
 
     {
-        /* ���Ӻ���� */
+        /* vertical lines */
         float locationX = corner;
         for(int i = 0; i < num; ++i)
         {
@@ -77,7 +77,7 @@ vector<vec3> BaseGrid::GetGridVertexLocation(int num, float size)
             (*it++) = vec3(locationX, counter, 0.0);
             locationX += size;
         }
-        /* �����ݸ�� */
+        /* horizontal lines */
         float locationY = corner +  size;
         for(int i = 1; i < num - 1; ++i)
         {

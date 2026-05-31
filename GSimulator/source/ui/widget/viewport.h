@@ -35,7 +35,7 @@ namespace GComponent {
 	private:
 		void RegisteredShader();
 
-		/// Event Definitions �¼�����
+		/// Event definitions
 	protected:
 		void keyPressEvent(QKeyEvent* event)		override;
 		void keyReleaseEvent(QKeyEvent* event)		override;

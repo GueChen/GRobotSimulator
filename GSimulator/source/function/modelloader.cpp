@@ -44,11 +44,11 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::ReadPlyFile(
 {
     
     std::string     content;
-    std::ifstream   ply_file;                           // ÎÄ¼şÂ·¾¶³õÊ¼»¯
-    ply_file.exceptions(                                // È·±£Òì³£¿ÉÅ×³ö
+    std::ifstream   ply_file;                           // æ–‡ä»¶è·¯å¾„åˆå§‹åŒ–
+    ply_file.exceptions(                                // ç¡®ä¿å¼‚å¸¸å¯æŠ›å‡º
         std::ifstream::failbit | std::ifstream::badbit);
 
-    try {                                               // ´ò¿ªÎÄ¼ş
+    try {                                               // æ‰“å¼€æ–‡ä»¶
         ply_file.open(file_path);
         std::stringstream file_stream;
         file_stream << ply_file.rdbuf();
@@ -114,7 +114,7 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::ReadPlyFile(
         ++line;
     }
     
-    // Ìî³ä¶¥µã
+    // å¡«å……é¡¶ç‚¹
     std::vector<Vertex> vertices(Positions.size());
     auto it = vertices.begin();
     for (auto& p : Positions)
@@ -122,7 +122,7 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::ReadPlyFile(
         (*it++) = Vertex{p, vec3(0.0f), vec2(0.0f)};
     }
 
-    // Ìî³ä·¨ÏòÁ¿
+    // å¡«å……æ³•å‘é‡
     for (int i = 0; i < Indices.size(); i += 3)
     {
         vec3 _edge1 = vertices[Indices[i].third].position  - vertices[Indices[i].first].position;
@@ -135,7 +135,7 @@ std::tuple<std::vector<Vertex>, std::vector<Triangle>> ModelLoader::ReadPlyFile(
         vertices[Indices[i].third].normal  += norm;
     }
 
-    // ·¨ÏòÁ¿ÕıÔò»¯ 
+    // æ³•å‘é‡æ­£åˆ™åŒ–
     for (auto& vert : vertices)
     {
         vert.normal = glm::normalize(vert.normal);
@@ -313,12 +313,12 @@ ModelLoader::_ModelInfo ModelLoader::ReadSTLAscii(std::ifstream& file_stream)
                 auto vals = StringProcessor::Split(lineContent);
                 vec3 norm = vec3(std::stod(vals[2]), std::stod(vals[3]), std::stod(vals[4]));
                 
-                // Îª Vertex ·¨Ïß¸³Öµ
+                // ä¸º Vertex æ³•çº¿èµ‹å€¼
                 normal.push_back(norm);
                 normal.push_back(norm);
                 normal.push_back(norm);
 
-                // Îª Vertex Î»ÖÃ¸³Öµ
+                // ä¸º Vertex ä½ç½®èµ‹å€¼
                 do{
                     std::getline(file_stream, lineContent);
                     if (lineContent.find("vertex") != -1)
@@ -330,7 +330,7 @@ ModelLoader::_ModelInfo ModelLoader::ReadSTLAscii(std::ifstream& file_stream)
                     }
                 } while (lineContent.find("endfacet") == -1);
             }
-            // ÎªÃæË÷Òı¸³Öµ
+            // ä¸ºé¢ç´¢å¼•èµ‹å€¼
             ind.emplace_back(count, count + 1, count + 2);           
 
             count += 3;
@@ -338,7 +338,7 @@ ModelLoader::_ModelInfo ModelLoader::ReadSTLAscii(std::ifstream& file_stream)
         file_stream.close();
     }
 
-    // Ìî³ä¶¥µã
+    // å¡«å……é¡¶ç‚¹
     std::vector<Vertex> vertices(pos.size());
     std::transform(std::execution::par_unseq,
         pos.begin(), pos.end(), normal.begin(), vertices.begin(), [](auto& p, auto& norm) {

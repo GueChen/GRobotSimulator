@@ -18,40 +18,40 @@ using vec3 = glm::vec3;
 
 
 class MyGL;
-// TODO: ʹ�� ����ģʽ �Ըö�����иĽ�
-// TODO: �����һ�����෽���������
+// TODO: Improve this object with a better construction pattern.
+// TODO: Extract common behavior into a base type.
 
 class BaseGrid
 {
 private:
-    /* ��ʽ�ߴ��� */
+    /* grid size */
     int num;
     float gridSize;
 
-    /* ��Դ������ */
+    /* resource handles */
     unsigned VAO, VBO, EBO;
     shared_ptr<MyGL> gl;
 
-    /* ��ʼ����־ */
+    /* initialization flag */
     bool isInit = false;
 
 public:
-    /* ���캯������������ */
+    /* construction and destruction */
     BaseGrid(int n, float size = 0.05f);
     ~BaseGrid() = default;
 
-    /* GL ���ú��� */
+    /* GL setup */
     void SetGL(shared_ptr<MyGL> other);
     void SetRhiDevice(shared_ptr<IRhiDevice> rhi_device);
 
-    /* ��ͼ�ӿ� */
+    /* draw interface */
     void Draw();
 
 private:
-    /* ��ʼ������ */
+    /* initialization */
     void GLBufferInitialize();
 
-    /* ���������㺯�� */
+    /* grid generation helpers */
     static vector<vec3> GetGridVertexLocation(int num , float size);
     static vector<Line> GetGridEdge(int num);
 };

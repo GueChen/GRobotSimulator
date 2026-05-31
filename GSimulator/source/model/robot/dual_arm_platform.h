@@ -19,7 +19,7 @@ using Ptr_KUKA_IIWA_MODEL = KUKA_IIWA_MODEL*;
 
 class DUAL_ARM_PLATFORM: public Model
 {
-/// ³ÉÔ±º¯Êı Member Function
+/// æˆå‘˜å‡½æ•° Member Function
 public:
     explicit DUAL_ARM_PLATFORM(Mat4 transform = Mat4::Identity());
     ~DUAL_ARM_PLATFORM() = default;
@@ -32,7 +32,7 @@ public:
 private:
     void InitializeModel();
 
-/// Êı¾İÓò Fields
+/// æ•°æ®åŸŸ Fields
 private:
     KUKA_IIWA_MODEL*  _left = nullptr, *_right = nullptr;
     ROBOT_BODY_MODEL* _body = nullptr;

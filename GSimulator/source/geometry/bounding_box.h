@@ -42,11 +42,11 @@ struct BoundingBox {
 	/// <summary>
 	/// return the relative value scaled by box extent using {m_min} as original point
 	/// <para>
-	/// ·µ»ØÒ»¸öÏà¶ÔÓÚºĞ×Ó×îĞ¡µãµÄËõ·ÅÖµ£¬Ëõ·Å±ÈÀıÒÔºĞ×ÓÀ©³äÖáÎª»ù×¼
+	/// è¿”å›ä¸€ä¸ªç›¸å¯¹äºç›’å­æœ€å°ç‚¹çš„ç¼©æ”¾å€¼ï¼Œç¼©æ”¾æ¯”ä¾‹ä»¥ç›’å­æ‰©å……è½´ä¸ºåŸºå‡†
 	/// </para>
 	/// </summary>
-	/// <param name="p"> cref {Vec3f} ÊäÈëµã </param>
-	/// <returns> cref {Vec3f} Êä³ö±ÈÖµµã£¬ÈôµãÔÚºĞ×ÓÄÚ£¬ÔòÈ¡Öµ·¶Î§Îª [0, 1], ºĞ×ÓÍâÔò³¬³ö¸Ã·¶Î§ </returns>
+	/// <param name="p"> cref {Vec3f} è¾“å…¥ç‚¹ </param>
+	/// <returns> cref {Vec3f} è¾“å‡ºæ¯”å€¼ç‚¹ï¼Œè‹¥ç‚¹åœ¨ç›’å­å†…ï¼Œåˆ™å–å€¼èŒƒå›´ä¸º [0, 1], ç›’å­å¤–åˆ™è¶…å‡ºè¯¥èŒƒå›´ </returns>
 	Vec3f	RelativeScale(const Vec3f& p) const;
 
 	BoundingBox& Merge(const BoundingBox& other);
