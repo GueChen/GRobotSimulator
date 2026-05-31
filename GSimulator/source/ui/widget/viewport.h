@@ -57,6 +57,7 @@ namespace GComponent {
 
 	private:		
 		std::shared_ptr<IRhiDevice>						rhi_device_;
+		QTimer											render_timer_;
 
 		QPoint											mouse_pressed_last_pos_;
 		size_t										    camera_handle = 0;

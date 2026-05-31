@@ -116,8 +116,17 @@ Viewport::Viewport(QWidget* parent) :
 	setFocusPolicy(Qt::StrongFocus);
 	QSurfaceFormat set_format;
 	set_format.setVersion(4, 5);
+	set_format.setSwapInterval(1);
+	set_format.setSamples(4);
 	setFormat(set_format);
 	setAcceptDrops(true);
+
+	render_timer_.setTimerType(Qt::PreciseTimer);
+	render_timer_.setInterval(16);
+	connect(&render_timer_, &QTimer::timeout, this, [this]() {
+		update();
+	});
+	render_timer_.start();
 }
 
 Viewport::~Viewport() {}
@@ -135,8 +144,6 @@ void Viewport::initializeGL()
 	GComponent::ResourceManager::getInstance().SetRhiDevice(rhi_device_);
 	GComponent::RenderManager::getInstance().SetRhiDevice(rhi_device_);
 
-	QOpenGLContext::currentContext()->format().setSwapInterval(0);
-	QOpenGLContext::currentContext()->format().setSamples(4);
 	rhi_device_->Enable(RhiCapability::Multisample);
 
 // Test USage
@@ -201,7 +208,6 @@ void Viewport::paintGL()
 	delta_time = std::chrono::duration_cast<std::chrono::duration<float>>(now - last_point);
 	last_point = now;
 	emit EmitDeltaTime(delta_time.count());
-	update();
 }
 
 void Viewport::CustomUpdateImpl()
