@@ -75,6 +75,8 @@ public:
 private:
 	void Init(int segments = 15, float radius = 0.045f);
 	void ProcessDelete();
+	void RequestPicking();
+	void ApplyPickingSelection();
 
 signals:
 	void DeleteRequest(const string& msg);
@@ -91,12 +93,17 @@ protected:
 	int			  m_last_mouse_pos_y    = -1;
 	int			  m_mouse_delta_x		= 0;
 	int			  m_mouse_delta_y       = 0;
+	int			  picking_readback_x_	= -1;
+	int			  picking_readback_y_	= -1;
 	int			  selected_id			= ModelSelectedEnum::NoneSelected;
 	int			  selected_id_buffer	= ModelSelectedEnum::BufferNoValue;
 
 	bool		  is_draged				= false;
 	bool		  is_enter_area			= false;
 	bool		  is_init				= false;
+	bool		  picking_render_requested_ = false;
+	bool		  picking_readback_pending_ = false;
+	bool		  picking_selection_pending_ = false;
 
 	float		  m_aspect				= 0.0f;
 	unsigned	  m_width				= 0;
@@ -120,4 +127,3 @@ private:
 };
 }
 #endif // !_UISTATE_H
-

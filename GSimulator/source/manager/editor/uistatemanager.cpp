@@ -43,15 +43,28 @@ void GComponent::UIState::tick()
 
 	if (is_enter_area) 
 	{
-		// picking process
-		picking_msg_ = GetPickingPixelInfo();
-		RenderManager::getInstance().SetPickingController(picking_controller);
+		if (picking_readback_pending_) {
+			picking_msg_ = picking_controller.GetPickingPixelInfo(
+				picking_readback_x_,
+				m_height - picking_readback_y_ - 1);
+			picking_readback_pending_ = false;
+			if (picking_selection_pending_) {
+				ApplyPickingSelection();
+				picking_selection_pending_ = false;
+			}
+		}
 
 		// mouse pos process
 		m_mouse_delta_x		= m_mouse_pos_x - m_last_mouse_pos_x;
 		m_mouse_delta_y		= m_mouse_pos_y - m_last_mouse_pos_y;
 		m_last_mouse_pos_x	= m_mouse_pos_x;
 		m_last_mouse_pos_y	= m_mouse_pos_y;
+
+		if (picking_render_requested_) {
+			RenderManager::getInstance().SetPickingController(picking_controller);
+			picking_render_requested_ = false;
+			picking_readback_pending_ = true;
+		}
 	}
 	else 
 	{
@@ -62,6 +75,10 @@ void GComponent::UIState::tick()
 			selected_id_buffer = BufferNoValue;
 		}
 		picking_msg_ = std::nullopt;
+		picking_render_requested_ = false;
+		picking_readback_pending_ = false;
+		picking_selection_pending_ = false;
+		picking_readback_x_ = picking_readback_y_ = -1;
 
 		// mouse pos process
 		m_mouse_pos_x	= m_last_mouse_pos_x = -1;
@@ -233,6 +250,37 @@ void GComponent::UIState::ProcessDelete()
 	}
 }
 
+void GComponent::UIState::RequestPicking()
+{
+	if (is_enter_area
+		&& m_mouse_pos_x >= 0
+		&& m_mouse_pos_y >= 0
+		&& m_mouse_pos_x < static_cast<int>(m_width)
+		&& m_mouse_pos_y < static_cast<int>(m_height)) {
+		picking_readback_x_ = m_mouse_pos_x;
+		picking_readback_y_ = m_mouse_pos_y;
+		picking_render_requested_ = true;
+	}
+}
+
+void GComponent::UIState::ApplyPickingSelection()
+{
+	if (!picking_msg_) {
+		return;
+	}
+
+	if (picking_msg_->drawID == static_cast<float>(PassType::DirLightPass)) {
+		selected_id = picking_msg_->modelID;
+	}
+	else if (picking_msg_->drawID == static_cast<float>(PassType::AuxiliaryPass)) {
+		is_draged = true;
+	}
+	else {
+		selected_id = 0;
+	}
+	emit SelectRequest(ModelManager::getInstance().GetNameByID(selected_id));
+}
+
 void GComponent::UIState::Init(int segments, float radius)
 {
 	if (!is_init) {
@@ -248,6 +296,9 @@ void GComponent::UIState::OnCursorMove(int mouse_pos_x, int mouse_pos_y)
 {
 	m_mouse_pos_x = mouse_pos_x;
 	m_mouse_pos_y = mouse_pos_y;
+	if (selected_id != NoneSelected && !picking_selection_pending_) {
+		RequestPicking();
+	}
 }
 
 void GComponent::UIState::OnMousePress(unsigned button_flag)
@@ -255,22 +306,9 @@ void GComponent::UIState::OnMousePress(unsigned button_flag)
 	button_state = button_flag;
 	if (button_state & MouseButton::LeftButton) 
 	{
-		if (picking_msg_) 
-		{
-			if (picking_msg_->drawID == static_cast<float>(PassType::DirLightPass)) 
-			{
-				selected_id = picking_msg_->modelID;			
-			}
-			else if (picking_msg_->drawID == static_cast<float>(PassType::AuxiliaryPass)) 
-			{
-				is_draged	= true;				
-			}
-			else
-			{
-				selected_id = 0;
-			}
-			emit SelectRequest(ModelManager::getInstance().GetNameByID(selected_id));
-		}			
+		picking_readback_pending_ = false;
+		picking_selection_pending_ = true;
+		RequestPicking();
 	}
 	if (button_state & MouseButton::RightButton) 
 	{
@@ -296,11 +334,19 @@ void GComponent::UIState::OnMouseEnter(int mouse_pos_x, int mouse_pos_y)
 	is_enter_area = true;
 	m_mouse_pos_x = m_last_mouse_pos_x = mouse_pos_x;
 	m_mouse_pos_y = m_last_mouse_pos_y = mouse_pos_y;
+	if (selected_id != NoneSelected) {
+		RequestPicking();
+	}
 }
 
 void GComponent::UIState::OnMouseLeave()
 {
 	is_enter_area = false;
+	picking_msg_ = std::nullopt;
+	picking_render_requested_ = false;
+	picking_readback_pending_ = false;
+	picking_selection_pending_ = false;
+	picking_readback_x_ = picking_readback_y_ = -1;
 }
 
 void GComponent::UIState::OnKeyPress(size_t key_state)

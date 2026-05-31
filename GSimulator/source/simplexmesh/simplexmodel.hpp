@@ -85,8 +85,11 @@ public:
     void
     SetRhiDevice(const shared_ptr<IRhiDevice>& rhi_device)
     {
-        rhi_device_ = rhi_device;
+        if (isInit && rhi_device_ == rhi_device) {
+            return;
+        }
         ClearGLScreenBuffer();
+        rhi_device_ = rhi_device;
         GLBufferInitialize();
         isInit = true;
     }
@@ -96,9 +99,9 @@ public:
     {
         if(isInit)
         {
-        rhi_device_->DestroyMesh(mesh_);
-        mesh_ = {};
-        isInit = false;
+            rhi_device_->DestroyMesh(mesh_);
+            mesh_ = {};
+            isInit = false;
         }
     }
 

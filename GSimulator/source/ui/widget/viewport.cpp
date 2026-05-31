@@ -116,13 +116,13 @@ Viewport::Viewport(QWidget* parent) :
 	setFocusPolicy(Qt::StrongFocus);
 	QSurfaceFormat set_format;
 	set_format.setVersion(4, 5);
-	set_format.setSwapInterval(1);
+	set_format.setSwapInterval(0);
 	set_format.setSamples(4);
 	setFormat(set_format);
 	setAcceptDrops(true);
 
-	render_timer_.setTimerType(Qt::PreciseTimer);
-	render_timer_.setInterval(16);
+	render_timer_.setTimerType(Qt::CoarseTimer);
+	render_timer_.setInterval(33);
 	connect(&render_timer_, &QTimer::timeout, this, [this]() {
 		update();
 	});
@@ -299,6 +299,13 @@ void Viewport::mouseMoveEvent(QMouseEvent* event)
 
 void Viewport::mousePressEvent(QMouseEvent* event)
 {
+#ifdef WIN32
+	int dpi = GetDpiForWindow(reinterpret_cast<HWND>(winId()));
+	ui_state_.OnCursorMove(MulDiv(event->x(), dpi, 96), MulDiv(event->y(), dpi, 96));
+#else
+	ui_state_.OnCursorMove(event->x(), event->y());
+#endif // WIN32
+
 	ui_state_.OnMousePress(event->buttons());
 	
 	if (!ui_state_.GetIsDraged()) {
@@ -316,7 +323,13 @@ void Viewport::mouseReleaseEvent(QMouseEvent* event)
 
 void Viewport::enterEvent(QEnterEvent* event)
 {
+#ifdef WIN32
+	int dpi = GetDpiForWindow(reinterpret_cast<HWND>(winId()));
+	ui_state_.OnMouseEnter(MulDiv(static_cast<int>(event->position().x()), dpi, 96),
+						   MulDiv(static_cast<int>(event->position().y()), dpi, 96));
+#else
 	ui_state_.OnMouseEnter(event->x(), event->y());
+#endif // WIN32
 	setMouseTracking(true);
 }
 
