@@ -7,12 +7,11 @@
 #include <glm/glm.hpp>
 
 #include <memory>
-#include <vector>
+#include <array>
 
 namespace GComponent {
 
 
-using std::vector;
 using std::shared_ptr;
 using vec3 = glm::vec3;
 
@@ -22,14 +21,12 @@ using vec3 = glm::vec3;
 class BaseGrid
 {
 private:
-    /* grid size */
-    int num;
     float gridSize;
 
     /* resource handles */
     RhiMeshHandle mesh_;
     shared_ptr<IRhiDevice> rhi_device_;
-    uint32_t index_count_ = 0;
+    uint32_t vertex_count_ = 0;
 
     /* initialization flag */
     bool isInit = false;
@@ -49,9 +46,7 @@ private:
     /* initialization */
     void RhiBufferInitialize();
 
-    /* grid generation helpers */
-    static vector<vec3> GetGridVertexLocation(int num , float size);
-    static vector<Line> GetGridEdge(int num);
+    static std::array<vec3, 6> GetFullscreenQuadVertexLocation();
 };
 
 

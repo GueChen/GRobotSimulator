@@ -404,6 +404,7 @@ void Viewport::RegisteredShader()
 	ResourceManager::getInstance().RegisteredShader("skybox",				new MyShader(nullptr,	PathVert(skybox),				PathFrag(skybox)));
 	ResourceManager::getInstance().RegisteredShader("postprocess",			new MyShader(nullptr,	PathVert(postprocess),			PathFrag(postprocess)));
 	ResourceManager::getInstance().RegisteredShader("outline",				new MyShader(nullptr,	PathVert(outline),				PathFrag(outline)));
+	ResourceManager::getInstance().RegisteredShader("infinite_grid",		new MyShader(nullptr,	PathVert(infinite_grid),		PathFrag(infinite_grid)));
 	ResourceManager::getInstance().RegisteredShader("deferred_geometry",	new MyShader(nullptr,	PathVert(deferred_geometry),	PathFrag(deferred_geometry)));
 	ResourceManager::getInstance().RegisteredShader("deferred_lighting",	new MyShader(nullptr,	PathVert(deferred_lighting),	PathFrag(deferred_lighting)));
 	ResourceManager::getInstance().RegisteredShader("deferred_depth",		new MyShader(nullptr,	PathVert(deferred_depth),		PathFrag(deferred_depth)));

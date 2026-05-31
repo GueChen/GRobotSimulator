@@ -4,8 +4,8 @@
 
 using namespace GComponent;
 
-BaseGrid::BaseGrid(int n, float size):
-    num(n), gridSize(size)
+BaseGrid::BaseGrid(int, float size):
+    gridSize(size)
 {
 
 }
@@ -26,18 +26,14 @@ void BaseGrid::RhiBufferInitialize()
     }
     isInit = true;
 
-    vector<vec3> verts = GetGridVertexLocation(num, gridSize);
-    vector<Line> edges = GetGridEdge(num);
+    const auto verts = GetFullscreenQuadVertexLocation();
 
-    index_count_ = static_cast<uint32_t>(edges.size() * 2);
+    vertex_count_ = static_cast<uint32_t>(verts.size());
     mesh_ = rhi_device_->CreateMesh(RhiMeshDesc{
         .vertex_data = verts.data(),
         .vertex_data_size = sizeof(vec3) * verts.size(),
         .vertex_count = verts.size(),
         .vertex_stride = sizeof(vec3),
-        .index_data = edges.data(),
-        .index_data_size = sizeof(Line) * edges.size(),
-        .index_count = index_count_,
         .vertex_layout = RhiVertexLayout::Position3
     });
 }
@@ -50,58 +46,30 @@ void BaseGrid::SetRhiDevice(shared_ptr<IRhiDevice> rhi_device)
 
 void BaseGrid::Draw()
 {
-    if (MyShader* shader = ResourceManager::getInstance().GetShaderByName("base"); shader) {
+    if (!rhi_device_ || !mesh_) return;
+
+    if (MyShader* shader = ResourceManager::getInstance().GetShaderByName("infinite_grid"); shader) {
         shader->use();
-        shader->setMat4("model", mat4(1.0f));
-        shader->setBool("normReverse", false);
+        shader->setFloat("gridSize", gridSize);
+        shader->setFloat("majorGridSize", gridSize * 5.0f);
+        shader->setFloat("fadeDistance", 120.0f);
+        shader->setFloat("depthBias", 0.00001f);
+        shader->setVec3("minorLineColor", glm::vec3(0.55f, 0.55f, 0.55f));
+        shader->setVec3("majorLineColor", glm::vec3(0.85f, 0.85f, 0.85f));
+        shader->setVec3("xAxisColor", glm::vec3(0.80f, 0.16f, 0.16f));
+        shader->setVec3("yAxisColor", glm::vec3(0.16f, 0.65f, 0.16f));
+        rhi_device_->DrawMesh(mesh_, RhiPrimitiveTopology::Triangles, vertex_count_);
     }
-    rhi_device_->DrawMesh(mesh_, RhiPrimitiveTopology::Lines, index_count_);
 }
 
-vector<vec3> BaseGrid::GetGridVertexLocation(int num, float size)
+std::array<vec3, 6> BaseGrid::GetFullscreenQuadVertexLocation()
 {
-    vector<vec3> locations((num - 1) * 4);
-
-    auto it = locations.begin();
-    const float edgeLen = size * (num - 1);
-    const float corner  = -edgeLen * 0.5f;
-    const float counter = corner + edgeLen;
-
-    {
-        /* vertical lines */
-        float locationX = corner;
-        for(int i = 0; i < num; ++i)
-        {
-            (*it++) = vec3(locationX, corner, 0.0);
-            (*it++) = vec3(locationX, counter, 0.0);
-            locationX += size;
-        }
-        /* horizontal lines */
-        float locationY = corner +  size;
-        for(int i = 1; i < num - 1; ++i)
-        {
-            (*it++) = vec3(corner,  locationY, 0.0f);
-            (*it++) = vec3(counter, locationY, 0.0f);
-            locationY += size;
-        }
-    }
-
-    return locations;
-}
-
-vector<Line> BaseGrid::GetGridEdge(int num)
-{
-    vector<Line> edges((num - 1) * 2);
-
-    {
-        int idx = 0;
-        for(auto it = edges.begin(); it != edges.end(); ++it, idx+=2)
-        {
-            *it = {idx, idx + 1};
-        }
-        edges.push_back({0,  num * 2 - 2});
-        edges.push_back({1,  num * 2 - 1});
-    }
-
-    return edges;
+    return {
+        vec3(-1.0f, -1.0f, 0.0f),
+        vec3( 1.0f, -1.0f, 0.0f),
+        vec3( 1.0f,  1.0f, 0.0f),
+        vec3( 1.0f,  1.0f, 0.0f),
+        vec3(-1.0f,  1.0f, 0.0f),
+        vec3(-1.0f, -1.0f, 0.0f)
+    };
 }
