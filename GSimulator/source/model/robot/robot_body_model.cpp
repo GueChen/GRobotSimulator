@@ -2,9 +2,9 @@
 
 #include "function/adapter/modelloader_qgladapter.h"
 #include "manager/resourcemanager.h"
-#include "manager/rendermanager.h"
 #include "manager/modelmanager.h"
-#include "render/rendermesh.h"
+#include "model/robot/robot_asset.h"
+#include "model/robot/robot_model_builder.h"
 
 #include "component/material_component.h"
 #include "component/transform_component.h"
@@ -31,7 +31,10 @@ ROBOT_BODY_MODEL::ROBOT_BODY_MODEL(Mat4 transform)
 void ROBOT_BODY_MODEL::InitializeModelResource()
 {
     if(is_init_) return;
-    ResourceManager::getInstance().RegisteredMesh(mesh_, new RenderMesh(QGL::ModelLoader::getMesh(sPathModel(string("binary/platform_binary.STL")))));    
+    const auto& platform_asset = GetDualArmPlatformAsset();
+    ResourceManager::getInstance().RegisteredMesh(
+        platform_asset.body_mesh.mesh_name,
+        QGL::ModelLoader::getMeshPtr(platform_asset.body_mesh.mesh_path));
     is_init_ = true;
 }
 
@@ -39,27 +42,10 @@ void GComponent::ROBOT_BODY_MODEL::tickImpl(float delta_time)
 {
     if (!pbr_init_) {
         // Setting PBR Material Properties
-        auto material = GetComponent<MaterialComponent>();
-        auto& props = material->GetProperties();
-        if (props.empty()) return;
-        for (auto& [_, name, __, val] : props) {
-            if (name == "accept shadow") {
-                val = true;
-            }
-            else if (name == "ao") {
-                val = 0.05f;
-            }
-            else if (name == "metallic") {
-                val = 1.00f;
-            }
-            else if (name == "roughness") {
-                val = 0.25f;
-            }
-        }
+        RobotModelBuilder::ApplyMaterialPreset(*this, GetDualArmPlatformAsset().body_material);
         pbr_init_ = true;
     }
 }
-
 
 
 

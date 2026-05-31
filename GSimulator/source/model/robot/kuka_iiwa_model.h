@@ -3,7 +3,7 @@
 
 #include "GComponent/gtransform.hpp"
 
-#include "model/model.h"
+#include "model/robot/robot_model.h"
 
 #include <eigen3/Eigen/Dense>
 
@@ -21,7 +21,7 @@ using std::vector;
 using std::unique_ptr;
 using std::shared_ptr;
 
-class KUKA_IIWA_MODEL:public Model
+class KUKA_IIWA_MODEL:public RobotModel
 {
 /// 成员函数 Member Functions
 public:

@@ -3,13 +3,13 @@
 
 #include "GComponent/gtransform.hpp"
 
-#include "model/model.h"
+#include "model/robot/robot_model.h"
 
 #include <Eigen/Dense>
 
 namespace GComponent {
 
-class AUBO_I3_MODEL : public Model {
+class AUBO_I3_MODEL : public RobotModel {
 public:
 	explicit AUBO_I3_MODEL(Model* parent_ptr, Mat4 transform = Mat4::Identity());
 	~AUBO_I3_MODEL() = default;
