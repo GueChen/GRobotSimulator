@@ -30,11 +30,13 @@
 #include <thread>
 #include <memory>
 #include <string>
+#include <array>
 
 namespace GComponent {
 
 class Model;
 class PickingController;
+class MyShader;
 
 using std::list;
 using std::string;
@@ -67,6 +69,11 @@ public:
 		Normal, PostProcess, Depth
 	};
 
+	enum class RenderPipelineType {
+		Forward,
+		Deferred
+	};
+
 /*_________Public Inteface Methods___________________________________________________________*/
 public:
 	virtual ~RenderManager();
@@ -76,6 +83,9 @@ public:
 	void SetRhiDevice(const shared_ptr<IRhiDevice>& rhi_device);
 
 	void SetPickingController(PickingController& controller);
+
+	void SetRenderPipelineType(RenderPipelineType type);
+	[[nodiscard]] RenderPipelineType GetRenderPipelineType() const;
 
 	void InitFrameBuffer();
 
@@ -109,14 +119,21 @@ private:
 	void PickingPass();
 	void DepthMapPass();
 	void NormalPass();
+	void DeferredPass();
 	void PostProcessPass();
 	void RenderingPass();
+	void DrawSceneOverlays();
 	void SelectedOutlinePass();
+	bool DeferredGeometryPass();
+	bool DeferredLightingPass();
+	void DeferredDepthPrepass();
 		
 	void PassSpecifiedListPicking	(PassType draw_index_type, 
 									 RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);
 	void PassSpecifiedListNormal	(RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);
 	void PassSpecifiedListDepth		(RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);			
+	void PassSpecifiedListDeferredGeometry(RenderList&, function<RawptrModel(const std::string&)>ObjGetter, MyShader& shader);
+	void PassSpecifiedListDeferredDepth(RenderList&, function<RawptrModel(const std::string&)>ObjGetter, MyShader& shader);
 
 #ifdef _COLLISION_TEST
 	void CollisionPass  (RenderList&, function<RawptrModel(const std::string&)>ObjGetter);
@@ -137,12 +154,26 @@ public:
 	unsigned						m_csm_levels				= 5;
 
 private:
+	struct GBuffer {
+		RhiFramebufferHandle framebuffer;
+		std::array<RhiTextureHandle, 4> textures = {};
+		int width = 0;
+		int height = 0;
+
+		[[nodiscard]] bool IsValid() const { return framebuffer.IsValid() && textures[0].IsValid(); }
+	};
+
+	void InitGBuffer();
+	void DestroyGBuffer();
+
 	list<RenderCommand>				render_list_;
 	list<RenderCommand>				post_process_list_;
 	list<RenderCommand>				shadow_cast_list_;
 
 	optional<PickingController>		picking_controller_handle_;
 	shared_ptr<IRhiDevice>			rhi_device_;
+	RenderPipelineType				render_pipeline_type_		= RenderPipelineType::Forward;
+	GBuffer							gbuffer_;
 /*_______________________Bad Practice Modified it In a Better Place___________________________*/
 	BaseGrid						grid_;
 	SkyBox							skybox_;

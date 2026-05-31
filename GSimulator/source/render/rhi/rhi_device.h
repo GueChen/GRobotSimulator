@@ -47,6 +47,7 @@ public:
 	virtual RhiFramebufferHandle CreateFramebuffer(const RhiFramebufferCreateDesc& desc) = 0;
 	virtual void DestroyFramebuffer(RhiFramebufferHandle framebuffer) = 0;
 	virtual RhiTextureHandle GetFramebufferTexture(RhiFramebufferHandle framebuffer) const = 0;
+	virtual RhiTextureHandle GetFramebufferColorTexture(RhiFramebufferHandle framebuffer, uint32_t index) const = 0;
 	virtual RhiTextureHandle TakeFramebufferTexture(RhiFramebufferHandle framebuffer) = 0;
 	virtual RhiTextureHandle ReallocateFramebufferTexture(RhiFramebufferHandle framebuffer, const RhiFramebufferCreateDesc& desc) = 0;
 	virtual void ResizeFramebufferRenderbuffer(RhiFramebufferHandle framebuffer, int width, int height) = 0;

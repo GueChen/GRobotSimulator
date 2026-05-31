@@ -24,6 +24,7 @@ enum class RhiTextureDimension {
 enum class RhiTextureFormat {
 	Rgb32Float,
 	Rgb16Float,
+	Rgba16Float,
 	Rg16Float,
 	Depth32Float,
 	Depth24Stencil8
@@ -79,6 +80,7 @@ struct RhiFramebufferCreateDesc {
 	int height = 0;
 	int layers = 0;
 	RhiFramebufferAttachment attachment = RhiFramebufferAttachment::Color;
+	std::vector<RhiTextureFormat> color_attachments;
 };
 
 struct RhiMeshDesc {

@@ -23,8 +23,56 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <variant>
 
 namespace GComponent {
+
+namespace {
+
+glm::vec3 GetMaterialVec3(MaterialComponent* material, std::initializer_list<std::string_view> names, const glm::vec3& fallback)
+{
+	if (!material) return fallback;
+	for (auto& prop : material->GetProperties()) {
+		for (auto name : names) {
+			if (prop.name != name) continue;
+			if (auto value = std::get_if<glm::vec3>(&prop.val)) {
+				return *value;
+			}
+			if (auto value = std::get_if<Color>(&prop.val)) {
+				return value->val;
+			}
+		}
+	}
+	return fallback;
+}
+
+float GetMaterialFloat(MaterialComponent* material, std::string_view name, float fallback)
+{
+	if (!material) return fallback;
+	for (auto& prop : material->GetProperties()) {
+		if (prop.name == name) {
+			if (auto value = std::get_if<float>(&prop.val)) {
+				return *value;
+			}
+		}
+	}
+	return fallback;
+}
+
+bool GetMaterialBool(MaterialComponent* material, std::string_view name, bool fallback)
+{
+	if (!material) return fallback;
+	for (auto& prop : material->GetProperties()) {
+		if (prop.name == name) {
+			if (auto value = std::get_if<bool>(&prop.val)) {
+				return *value;
+			}
+		}
+	}
+	return fallback;
+}
+
+} // namespace
 	
 /*__________________________PUBLIC METHODS____________________________________*/
 RenderManager::~RenderManager() = default;
@@ -37,6 +85,7 @@ void RenderManager::InitFrameBuffer()
 	selected_outline_FBO_ = FrameBufferObject(m_render_sharing_msg.viewport.window_size.x,
 							 m_render_sharing_msg.viewport.window_size.y,
 							 FrameBufferObject::Color, rhi_device_);
+	InitGBuffer();
 }
 
 void RenderManager::EmplaceRenderCommand(std::string obj_name, std::string mesh_name, QueueType type)
@@ -86,6 +135,16 @@ void RenderManager::ClearAuxiliaryObj()
 void RenderManager::SetPickingController(PickingController& controller)
 {
 	picking_controller_handle_ = controller;
+}
+
+void RenderManager::SetRenderPipelineType(RenderPipelineType type)
+{
+	render_pipeline_type_ = type;
+}
+
+RenderManager::RenderPipelineType RenderManager::GetRenderPipelineType() const
+{
+	return render_pipeline_type_;
 }
 
 void RenderManager::SetRhiDevice(const shared_ptr<IRhiDevice>& rhi_device)
@@ -143,7 +202,12 @@ void RenderManager::tick()
 	
 	DepthMapPass();
 
-	NormalPass();
+	if (render_pipeline_type_ == RenderPipelineType::Deferred) {
+		DeferredPass();
+	}
+	else {
+		NormalPass();
+	}
 	
 	
 	PostProcessPass();
@@ -156,6 +220,40 @@ RenderManager::RenderManager() :grid_(50, 0.20f)
 {}
 
 /*_____________________________PRIVATE METHODS____________________________________________*/
+void RenderManager::InitGBuffer()
+{
+	if (!rhi_device_) return;
+
+	DestroyGBuffer();
+	const int width = static_cast<int>(m_render_sharing_msg.viewport.window_size.x);
+	const int height = static_cast<int>(m_render_sharing_msg.viewport.window_size.y);
+	if (width <= 0 || height <= 0) return;
+
+	gbuffer_.framebuffer = rhi_device_->CreateFramebuffer(RhiFramebufferCreateDesc{
+		.width = width,
+		.height = height,
+		.color_attachments = {
+			RhiTextureFormat::Rgba16Float,
+			RhiTextureFormat::Rgba16Float,
+			RhiTextureFormat::Rgba16Float,
+			RhiTextureFormat::Rgba16Float
+		}
+	});
+	for (uint32_t i = 0; i < gbuffer_.textures.size(); ++i) {
+		gbuffer_.textures[i] = rhi_device_->GetFramebufferColorTexture(gbuffer_.framebuffer, i);
+	}
+	gbuffer_.width = width;
+	gbuffer_.height = height;
+}
+
+void RenderManager::DestroyGBuffer()
+{
+	if (gbuffer_.framebuffer && rhi_device_) {
+		rhi_device_->DestroyFramebuffer(gbuffer_.framebuffer);
+	}
+	gbuffer_ = {};
+}
+
 //_____________________________Datas Setting______________________________________________________//
 void RenderManager::SetProjectViewMatrices()
 {
@@ -345,7 +443,46 @@ void RenderManager::NormalPass()
 	ClearGLScreenBuffer(0.0f, 0.0f, 0.05f, 1.0f);
 	
 	RenderingPass();
-	
+
+	DrawSceneOverlays();
+}
+
+void RenderManager::DeferredPass()
+{
+	static bool logged_deferred_fallback = false;
+	if (!gbuffer_.IsValid() || !DeferredGeometryPass()) {
+		if (!logged_deferred_fallback) {
+			std::cerr << "Deferred pipeline fallback: GBuffer or geometry pass is not available\n";
+			logged_deferred_fallback = true;
+		}
+		NormalPass();
+		return;
+	}
+
+	bool lighting_pass_ok = false;
+	{
+		FBOGuard fbo_guard(&render_FBO_.value());
+		ClearGLScreenBuffer(0.0f, 0.0f, 0.05f, 1.0f);
+		lighting_pass_ok = DeferredLightingPass();
+		if (lighting_pass_ok) {
+			rhi_device_->Clear(RhiClearFlags::Depth);
+			DeferredDepthPrepass();
+			DrawSceneOverlays();
+		}
+	}
+
+	if (!lighting_pass_ok) {
+		if (!logged_deferred_fallback) {
+			std::cerr << "Deferred pipeline fallback: lighting pass is not available\n";
+			logged_deferred_fallback = true;
+		}
+		NormalPass();
+		return;
+	}
+}
+
+void RenderManager::DrawSceneOverlays()
+{
 	SimplexMeshPass();
 	
 #ifdef _COLLISION_TEST
@@ -391,6 +528,61 @@ void RenderManager::RenderingPass()
 		return ModelManager::getInstance().GetModelByName(name);
 	});
 #endif
+}
+
+bool RenderManager::DeferredGeometryPass()
+{
+	MyShader* geometry_shader = ResourceManager::getInstance().GetShaderByName("deferred_geometry");
+	if (!geometry_shader || !gbuffer_.IsValid()) {
+		return false;
+	}
+
+	rhi_device_->BindFramebuffer(RhiFramebufferBindTarget::Framebuffer, gbuffer_.framebuffer);
+	ClearGLScreenBuffer(0.0f, 0.0f, 0.0f, 1.0f);
+	rhi_device_->Disable(RhiCapability::Blend);
+	rhi_device_->Disable(RhiCapability::CullFace);
+	geometry_shader->use();
+	PassSpecifiedListDeferredGeometry(render_list_, [](const std::string& name) {
+		return ModelManager::getInstance().GetModelByName(name);
+	}, *geometry_shader);
+	rhi_device_->BindDefaultFramebuffer(RhiFramebufferBindTarget::Framebuffer);
+	return true;
+}
+
+bool RenderManager::DeferredLightingPass()
+{
+	MyShader* lighting_shader = ResourceManager::getInstance().GetShaderByName("deferred_lighting");
+	RenderMesh* quad_mesh = ResourceManager::getInstance().GetMeshByName("quads");
+	if (!lighting_shader || !quad_mesh || !gbuffer_.IsValid()) {
+		return false;
+	}
+
+	for (uint32_t i = 0; i < gbuffer_.textures.size(); ++i) {
+		rhi_device_->BindTextureUnit(10 + i, gbuffer_.textures[i]);
+	}
+
+	rhi_device_->Disable(RhiCapability::Blend);
+	rhi_device_->Disable(RhiCapability::CullFace);
+	rhi_device_->SetDepthFunc(RhiDepthFunc::LessEqual);
+	lighting_shader->use();
+	quad_mesh->Draw();
+	rhi_device_->SetDepthFunc(RhiDepthFunc::Less);
+	for (uint32_t i = 0; i < gbuffer_.textures.size(); ++i) {
+		rhi_device_->BindTextureUnit(10 + i, {});
+	}
+	return true;
+}
+
+void RenderManager::DeferredDepthPrepass()
+{
+	MyShader* depth_shader = ResourceManager::getInstance().GetShaderByName("deferred_depth");
+	if (!depth_shader) return;
+
+	rhi_device_->Disable(RhiCapability::Blend);
+	depth_shader->use();
+	PassSpecifiedListDeferredDepth(render_list_, [](const std::string& name) {
+		return ModelManager::getInstance().GetModelByName(name);
+	}, *depth_shader);
 }
 
 void RenderManager::SelectedOutlinePass()
@@ -599,6 +791,56 @@ void RenderManager::PassSpecifiedListNormal(RenderList& list, std::function<Mode
 			continue;
 		}
 		material->SetShaderProperties();
+		mesh->Draw();
+	}
+}
+
+void RenderManager::PassSpecifiedListDeferredGeometry(RenderList& list, function<RawptrModel(const std::string&)> ObjGetter, MyShader& shader)
+{
+	ResourceManager& scene_manager = ResourceManager::getInstance();
+
+	for (auto& [obj_name, mesh_name] : list)
+	{
+		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
+		Model* obj = ObjGetter(obj_name);
+		if (!obj || !mesh) continue;
+
+		auto* transform = obj->GetComponent<TransformComponent>();
+		auto* material = obj->GetComponent<MaterialComponent>();
+		if (!transform || !material || material->GetShader() == "axis" || material->GetShader() == "postprocess") {
+			continue;
+		}
+
+		const glm::vec3 albedo = GetMaterialVec3(material, { "albedo color", "color" }, glm::vec3(1.0f));
+		const float metallic = GetMaterialFloat(material, "metallic", 0.0f);
+		const float roughness = GetMaterialFloat(material, "roughness", 0.5f);
+		const float ao = GetMaterialFloat(material, "ao", 1.0f);
+		const bool accept_shadow = GetMaterialBool(material, "accept shadow", material->GetIsCastShadow());
+
+		shader.setMat4("model", Conversion::fromMat4f(transform->GetModelGlobal()));
+		shader.setVec3("albedo_color", albedo);
+		shader.setFloat("metallic", metallic);
+		shader.setFloat("roughness", roughness);
+		shader.setFloat("ao", ao);
+		shader.setBool("accept_shadow", accept_shadow);
+		mesh->Draw();
+	}
+}
+
+void RenderManager::PassSpecifiedListDeferredDepth(RenderList& list, function<RawptrModel(const std::string&)> ObjGetter, MyShader& shader)
+{
+	ResourceManager& scene_manager = ResourceManager::getInstance();
+
+	for (auto& [obj_name, mesh_name] : list)
+	{
+		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
+		Model* obj = ObjGetter(obj_name);
+		if (!obj || !mesh) continue;
+
+		auto* transform = obj->GetComponent<TransformComponent>();
+		if (!transform) continue;
+
+		shader.setMat4("model", Conversion::fromMat4f(transform->GetModelGlobal()));
 		mesh->Draw();
 	}
 }

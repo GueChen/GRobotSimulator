@@ -268,7 +268,7 @@ RhiFramebufferHandle OpenGLRhiDevice::CreatePickingFramebuffer(int width, int he
 	BindDefaultFramebuffer();
 
 	framebuffer_resources_.emplace(framebuffer, FramebufferResources{
-		.color_texture = picking_texture,
+		.color_textures = { picking_texture },
 		.depth_texture = depth_texture
 	});
 	return RhiFramebufferHandle{ framebuffer };
@@ -276,6 +276,66 @@ RhiFramebufferHandle OpenGLRhiDevice::CreatePickingFramebuffer(int width, int he
 
 RhiFramebufferHandle OpenGLRhiDevice::CreateFramebuffer(const RhiFramebufferCreateDesc& desc)
 {
+	if (!desc.color_attachments.empty()) {
+		unsigned framebuffer = 0;
+		unsigned render_buffer = 0;
+		std::vector<unsigned> textures(desc.color_attachments.size(), 0);
+		std::vector<unsigned> draw_buffers(desc.color_attachments.size(), GL_COLOR_ATTACHMENT0);
+
+		gl_->glGenFramebuffers(1, &framebuffer);
+		gl_->glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+		gl_->glGenTextures(static_cast<int>(textures.size()), textures.data());
+		for (size_t i = 0; i < textures.size(); ++i) {
+			const auto format = desc.color_attachments[i];
+			gl_->glBindTexture(GL_TEXTURE_2D, textures[i]);
+			gl_->glTexImage2D(
+				GL_TEXTURE_2D,
+				0,
+				ToGLInternalFormat(format),
+				desc.width,
+				desc.height,
+				0,
+				ToGLFormat(format),
+				ToGLType(format),
+				nullptr);
+			gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			gl_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			gl_->glFramebufferTexture2D(
+				GL_FRAMEBUFFER,
+				GL_COLOR_ATTACHMENT0 + static_cast<unsigned>(i),
+				GL_TEXTURE_2D,
+				textures[i],
+				0);
+			draw_buffers[i] = GL_COLOR_ATTACHMENT0 + static_cast<unsigned>(i);
+		}
+		gl_->glBindTexture(GL_TEXTURE_2D, 0);
+
+		gl_->glGenRenderbuffers(1, &render_buffer);
+		gl_->glBindRenderbuffer(GL_RENDERBUFFER, render_buffer);
+		gl_->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, desc.width, desc.height);
+		gl_->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, render_buffer);
+		gl_->glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+		gl_->glDrawBuffers(static_cast<int>(draw_buffers.size()), draw_buffers.data());
+		gl_->glReadBuffer(GL_NONE);
+
+		if (gl_->glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+			std::printf("MRT FRAME BUFFER INIT ERROR, STATUS: 0x%x\n", gl_->glCheckFramebufferStatus(GL_FRAMEBUFFER));
+		}
+		BindDefaultFramebuffer();
+
+		framebuffer_resources_.emplace(framebuffer, FramebufferResources{
+			.color_textures = std::move(textures),
+			.render_buffer = render_buffer,
+			.texture_type = GL_TEXTURE_2D,
+			.attachment = RhiFramebufferAttachment::Color
+		});
+		return RhiFramebufferHandle{ framebuffer };
+	}
+
 	const OpenGLFramebufferOption opt = GetFramebufferOption(desc.attachment);
 	const unsigned texture_type = GetFramebufferTextureType(desc);
 	unsigned framebuffer = 0;
@@ -334,7 +394,7 @@ RhiFramebufferHandle OpenGLRhiDevice::CreateFramebuffer(const RhiFramebufferCrea
 	BindDefaultFramebuffer();
 
 	framebuffer_resources_.emplace(framebuffer, FramebufferResources{
-		.color_texture = texture,
+		.color_textures = { texture },
 		.render_buffer = render_buffer,
 		.texture_type = texture_type,
 		.attachment = desc.attachment
@@ -352,8 +412,10 @@ void OpenGLRhiDevice::DestroyFramebuffer(RhiFramebufferHandle framebuffer)
 	const auto iter = framebuffer_resources_.find(framebuffer.value);
 	if (iter != framebuffer_resources_.end()) {
 		auto resources = iter->second;
-		if (resources.color_texture) {
-			gl_->glDeleteTextures(1, &resources.color_texture);
+		for (auto& color_texture : resources.color_textures) {
+			if (color_texture) {
+				gl_->glDeleteTextures(1, &color_texture);
+			}
 		}
 		if (resources.depth_texture) {
 			gl_->glDeleteTextures(1, &resources.depth_texture);
@@ -369,10 +431,16 @@ void OpenGLRhiDevice::DestroyFramebuffer(RhiFramebufferHandle framebuffer)
 
 RhiTextureHandle OpenGLRhiDevice::GetFramebufferTexture(RhiFramebufferHandle framebuffer) const
 {
+	return GetFramebufferColorTexture(framebuffer, 0);
+}
+
+RhiTextureHandle OpenGLRhiDevice::GetFramebufferColorTexture(RhiFramebufferHandle framebuffer, uint32_t index) const
+{
 	const auto iter = framebuffer_resources_.find(framebuffer.value);
-	return iter == framebuffer_resources_.end()
-		? RhiTextureHandle{}
-		: RhiTextureHandle{ iter->second.color_texture };
+	if (iter == framebuffer_resources_.end() || index >= iter->second.color_textures.size()) {
+		return {};
+	}
+	return RhiTextureHandle{ iter->second.color_textures[index] };
 }
 
 RhiTextureHandle OpenGLRhiDevice::TakeFramebufferTexture(RhiFramebufferHandle framebuffer)
@@ -381,8 +449,11 @@ RhiTextureHandle OpenGLRhiDevice::TakeFramebufferTexture(RhiFramebufferHandle fr
 	if (iter == framebuffer_resources_.end()) {
 		return {};
 	}
-	RhiTextureHandle texture{ iter->second.color_texture };
-	iter->second.color_texture = 0;
+	if (iter->second.color_textures.empty()) {
+		return {};
+	}
+	RhiTextureHandle texture{ iter->second.color_textures.front() };
+	iter->second.color_textures.front() = 0;
 	return texture;
 }
 
@@ -393,24 +464,28 @@ RhiTextureHandle OpenGLRhiDevice::ReallocateFramebufferTexture(RhiFramebufferHan
 		return {};
 	}
 
-	RhiTextureHandle old_texture{ iter->second.color_texture };
+	if (iter->second.color_textures.empty()) {
+		return {};
+	}
+
+	RhiTextureHandle old_texture{ iter->second.color_textures.front() };
 	const auto replacement_framebuffer = CreateFramebuffer(desc);
 	const auto replacement_iter = framebuffer_resources_.find(replacement_framebuffer.value);
-	if (replacement_iter == framebuffer_resources_.end()) {
+	if (replacement_iter == framebuffer_resources_.end() || replacement_iter->second.color_textures.empty()) {
 		return old_texture;
 	}
 
 	auto replacement_resources = replacement_iter->second;
-	replacement_iter->second.color_texture = 0;
+	replacement_iter->second.color_textures.front() = 0;
 	DestroyFramebuffer(replacement_framebuffer);
-	iter->second.color_texture = replacement_resources.color_texture;
+	iter->second.color_textures.front() = replacement_resources.color_textures.front();
 	iter->second.texture_type = replacement_resources.texture_type;
 	iter->second.attachment = replacement_resources.attachment;
 
 	const OpenGLFramebufferOption opt = GetFramebufferOption(desc.attachment);
 	gl_->glBindFramebuffer(GL_FRAMEBUFFER, static_cast<unsigned>(framebuffer.value));
 	if (replacement_resources.texture_type != GL_TEXTURE_CUBE_MAP) {
-		gl_->glFramebufferTexture(GL_FRAMEBUFFER, opt.attachment, replacement_resources.color_texture, 0);
+		gl_->glFramebufferTexture(GL_FRAMEBUFFER, opt.attachment, replacement_resources.color_textures.front(), 0);
 	}
 	BindDefaultFramebuffer();
 	return old_texture;
@@ -646,6 +721,8 @@ unsigned OpenGLRhiDevice::ToGLInternalFormat(RhiTextureFormat format)
 		return GL_RGB32F;
 	case RhiTextureFormat::Rgb16Float:
 		return GL_RGB16F;
+	case RhiTextureFormat::Rgba16Float:
+		return GL_RGBA16F;
 	case RhiTextureFormat::Rg16Float:
 		return GL_RG16F;
 	case RhiTextureFormat::Depth32Float:
@@ -662,6 +739,8 @@ unsigned OpenGLRhiDevice::ToGLFormat(RhiTextureFormat format)
 	case RhiTextureFormat::Rgb32Float:
 	case RhiTextureFormat::Rgb16Float:
 		return GL_RGB;
+	case RhiTextureFormat::Rgba16Float:
+		return GL_RGBA;
 	case RhiTextureFormat::Rg16Float:
 		return GL_RG;
 	case RhiTextureFormat::Depth32Float:

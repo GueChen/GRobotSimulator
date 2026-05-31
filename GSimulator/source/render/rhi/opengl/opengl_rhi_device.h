@@ -48,6 +48,7 @@ public:
 	RhiFramebufferHandle CreateFramebuffer(const RhiFramebufferCreateDesc& desc) override;
 	void DestroyFramebuffer(RhiFramebufferHandle framebuffer) override;
 	RhiTextureHandle GetFramebufferTexture(RhiFramebufferHandle framebuffer) const override;
+	RhiTextureHandle GetFramebufferColorTexture(RhiFramebufferHandle framebuffer, uint32_t index) const override;
 	RhiTextureHandle TakeFramebufferTexture(RhiFramebufferHandle framebuffer) override;
 	RhiTextureHandle ReallocateFramebufferTexture(RhiFramebufferHandle framebuffer, const RhiFramebufferCreateDesc& desc) override;
 	void ResizeFramebufferRenderbuffer(RhiFramebufferHandle framebuffer, int width, int height) override;
@@ -77,7 +78,7 @@ private:
 
 private:
 	struct FramebufferResources {
-		unsigned color_texture = 0;
+		std::vector<unsigned> color_textures;
 		unsigned depth_texture = 0;
 		unsigned render_buffer = 0;
 		unsigned texture_type = 0;

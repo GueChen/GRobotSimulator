@@ -5,6 +5,7 @@
 #include "base/global/global_qss.h"
 #include "ui/menu/componentmenu.h"
 #include "manager/modelmanager.h"
+#include "manager/rendermanager.h"
 #include "manager/editor/uistatemanager.h"
 #include "function/adapter/component_ui_factory.h"
 
@@ -12,6 +13,8 @@
 
 #include <QtWidgets/QCombobox>
 #include <QtWidgets/QfileDialog>
+#include <QtGui/QActionGroup>
+#include <QtWidgets/QMenu>
 #include <QtWidgets/QScrollArea>
 
 #ifdef _DEBUG
@@ -193,6 +196,22 @@ void MainWindow::ConnectionInit()
     connect(ui_->quit_action,                             &QAction::triggered,
             this,                                         &MainWindow::close);
 
+    QMenu* render_menu = menuBar()->addMenu("Render");
+    QActionGroup* pipeline_group = new QActionGroup(render_menu);
+    QAction* forward_action = render_menu->addAction("Forward Pipeline");
+    QAction* deferred_action = render_menu->addAction("Deferred Pipeline");
+    forward_action->setCheckable(true);
+    deferred_action->setCheckable(true);
+    pipeline_group->addAction(forward_action);
+    pipeline_group->addAction(deferred_action);
+    forward_action->setChecked(RenderManager::getInstance().GetRenderPipelineType() == RenderManager::RenderPipelineType::Forward);
+    deferred_action->setChecked(RenderManager::getInstance().GetRenderPipelineType() == RenderManager::RenderPipelineType::Deferred);
+    connect(forward_action, &QAction::triggered, []() {
+        RenderManager::getInstance().SetRenderPipelineType(RenderManager::RenderPipelineType::Forward);
+    });
+    connect(deferred_action, &QAction::triggered, []() {
+        RenderManager::getInstance().SetRenderPipelineType(RenderManager::RenderPipelineType::Deferred);
+    });
 
 }
 
@@ -313,4 +332,3 @@ void MainWindow::on_load_action_triggered()
 
     GComponent::ModelManager::getInstance().Load(json_doc);
 }
-
