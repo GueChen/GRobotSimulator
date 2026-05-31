@@ -26,6 +26,8 @@ public:
 	virtual void SetViewport(const RhiViewport& viewport) = 0;
 	virtual void SetClearColor(const RhiClearColor& color) = 0;
 	virtual void Clear(RhiClearFlags flags) = 0;
+	virtual void PushDebugGroup(std::string_view name) = 0;
+	virtual void PopDebugGroup() = 0;
 	virtual void BindTextureUnit(uint32_t unit, RhiTextureHandle texture) = 0;
 	virtual void BindDefaultFramebuffer() = 0;
 	virtual void BindDefaultFramebuffer(RhiFramebufferBindTarget target) = 0;

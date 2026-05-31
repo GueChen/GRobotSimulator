@@ -114,6 +114,17 @@ void OpenGLRhiDevice::Clear(RhiClearFlags flags)
 	gl_->glClear(ToGLClearFlags(flags));
 }
 
+void OpenGLRhiDevice::PushDebugGroup(std::string_view name)
+{
+	std::string label(name);
+	gl_->glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, static_cast<int>(label.size()), label.c_str());
+}
+
+void OpenGLRhiDevice::PopDebugGroup()
+{
+	gl_->glPopDebugGroup();
+}
+
 void OpenGLRhiDevice::BindTextureUnit(uint32_t unit, RhiTextureHandle texture)
 {
 	gl_->glBindTextureUnit(unit, static_cast<unsigned>(texture.value));

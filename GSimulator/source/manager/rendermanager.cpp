@@ -29,6 +29,27 @@ namespace GComponent {
 
 namespace {
 
+class RhiDebugGroupGuard {
+public:
+	RhiDebugGroupGuard(const shared_ptr<IRhiDevice>& rhi_device, std::string_view name)
+		: rhi_device_(rhi_device)
+	{
+		if (rhi_device_) {
+			rhi_device_->PushDebugGroup(name);
+		}
+	}
+
+	~RhiDebugGroupGuard()
+	{
+		if (rhi_device_) {
+			rhi_device_->PopDebugGroup();
+		}
+	}
+
+private:
+	shared_ptr<IRhiDevice> rhi_device_;
+};
+
 glm::vec3 GetMaterialVec3(MaterialComponent* material, std::initializer_list<std::string_view> names, const glm::vec3& fallback)
 {
 	if (!material) return fallback;
@@ -179,6 +200,7 @@ void RenderManager::SetRhiDevice(const shared_ptr<IRhiDevice>& rhi_device)
 /*__________________________tick Methods____________________________________________________*/
 void RenderManager::tick()
 {		
+	RhiDebugGroupGuard frame_group(rhi_device_, render_pipeline_type_ == RenderPipelineType::Deferred ? "Frame - Deferred Pipeline" : "Frame - Forward Pipeline");
 	SetProjectViewMatrices ();
 	SetDirLightViewPosition();
 	// setting light matrices UBO
@@ -397,21 +419,29 @@ void RenderManager::PickingPass()
 	// none picking handle no need to picking
 	if (!picking_controller_handle_) return;
 
+	RhiDebugGroupGuard debug_group(rhi_device_, "Picking Pass");
 	PickingGuard picking_guard(picking_controller_handle_.value());
 	ClearGLScreenBuffer(0.0f, 0.0f, 0.0f, 1.0f);
 
-	PassSpecifiedListPicking(PassType::DirLightPass, render_list_, [](const std::string& name) {
-		return ModelManager::getInstance().GetModelByName(name);
-	});
+	{
+		RhiDebugGroupGuard scene_group(rhi_device_, "Picking Pass - Scene Objects");
+		PassSpecifiedListPicking(PassType::DirLightPass, render_list_, [](const std::string& name) {
+			return ModelManager::getInstance().GetModelByName(name);
+		});
+	}
 		
 	rhi_device_->Clear(RhiClearFlags::Depth);
-	PassSpecifiedListPicking(PassType::AuxiliaryPass, post_process_list_, [](const std::string& name) {
-		return ModelManager::getInstance().GetAuxiModelByName(name);
-	});
+	{
+		RhiDebugGroupGuard auxiliary_group(rhi_device_, "Picking Pass - Auxiliary Objects");
+		PassSpecifiedListPicking(PassType::AuxiliaryPass, post_process_list_, [](const std::string& name) {
+			return ModelManager::getInstance().GetAuxiModelByName(name);
+		});
+	}
 }
 
 void RenderManager::DepthMapPass()
 {				
+	RhiDebugGroupGuard debug_group(rhi_device_, "Shadow Depth Pass");
 	FBOGuard gaurd(&depth_FBO_.value());	
 
 	rhi_device_->SetViewport(RhiViewport{ 0, 0, depth_buffer_resolustion_, depth_buffer_resolustion_ });
@@ -438,6 +468,7 @@ void RenderManager::DepthMapPass()
 
 void RenderManager::NormalPass()
 {
+	RhiDebugGroupGuard debug_group(rhi_device_, "Forward Render Pass");
 	FBOGuard fbo_guard(&render_FBO_.value());
 
 	ClearGLScreenBuffer(0.0f, 0.0f, 0.05f, 1.0f);
@@ -449,6 +480,7 @@ void RenderManager::NormalPass()
 
 void RenderManager::DeferredPass()
 {
+	RhiDebugGroupGuard debug_group(rhi_device_, "Deferred Render Pass");
 	static bool logged_deferred_fallback = false;
 	if (!gbuffer_.IsValid() || !DeferredGeometryPass()) {
 		if (!logged_deferred_fallback) {
@@ -465,6 +497,7 @@ void RenderManager::DeferredPass()
 		ClearGLScreenBuffer(0.0f, 0.0f, 0.05f, 1.0f);
 		lighting_pass_ok = DeferredLightingPass();
 		if (lighting_pass_ok) {
+			RhiDebugGroupGuard depth_group(rhi_device_, "Deferred Render Pass - Depth Restore");
 			rhi_device_->Clear(RhiClearFlags::Depth);
 			DeferredDepthPrepass();
 			DrawSceneOverlays();
@@ -483,40 +516,58 @@ void RenderManager::DeferredPass()
 
 void RenderManager::DrawSceneOverlays()
 {
-	SimplexMeshPass();
+	RhiDebugGroupGuard debug_group(rhi_device_, "Scene Overlay Pass");
+
+	{
+		RhiDebugGroupGuard simplex_group(rhi_device_, "Scene Overlay Pass - Simplex Meshes");
+		SimplexMeshPass();
+	}
 	
 #ifdef _COLLISION_TEST
-	rhi_device_->SetPolygonMode(RhiPolygonMode::Line);
-	rhi_device_->SetBlendAlpha();
-	rhi_device_->Enable(RhiCapability::Blend);
-	CollisionPass(render_list_, [](const std::string& name) {
-		return ModelManager::getInstance().GetModelByName(name);
-	});
-	rhi_device_->Disable(RhiCapability::Blend);	
-	rhi_device_->SetPolygonMode(RhiPolygonMode::Fill);
+	{
+		RhiDebugGroupGuard collision_group(rhi_device_, "Scene Overlay Pass - Collision Debug");
+		rhi_device_->SetPolygonMode(RhiPolygonMode::Line);
+		rhi_device_->SetBlendAlpha();
+		rhi_device_->Enable(RhiCapability::Blend);
+		CollisionPass(render_list_, [](const std::string& name) {
+			return ModelManager::getInstance().GetModelByName(name);
+		});
+		rhi_device_->Disable(RhiCapability::Blend);
+		rhi_device_->SetPolygonMode(RhiPolygonMode::Fill);
+	}
 #define _DRAW_DBOUNDING_BOX
 #ifdef _DRAW_DBOUNDING_BOX
-	BoundingBoxPass(render_list_, [](const std::string& name) {
-		return ModelManager::getInstance().GetModelByName(name);
-	});
+	{
+		RhiDebugGroupGuard bounds_group(rhi_device_, "Scene Overlay Pass - Bounding Boxes");
+		BoundingBoxPass(render_list_, [](const std::string& name) {
+			return ModelManager::getInstance().GetModelByName(name);
+		});
+	}
 #endif
 #endif
 
 	// TODO: not so good try to hide it
-	rhi_device_->SetDepthFunc(RhiDepthFunc::LessEqual);
-	skybox_.Draw();
-	rhi_device_->SetDepthFunc(RhiDepthFunc::Less);
+	{
+		RhiDebugGroupGuard skybox_group(rhi_device_, "Scene Overlay Pass - Skybox");
+		rhi_device_->SetDepthFunc(RhiDepthFunc::LessEqual);
+		skybox_.Draw();
+		rhi_device_->SetDepthFunc(RhiDepthFunc::Less);
+	}
 
-	rhi_device_->Enable(RhiCapability::Blend);	
-	rhi_device_->SetBlendAlpha();
-	grid_.SetRhiDevice(rhi_device_);
-	grid_.Draw();
-	rhi_device_->Disable(RhiCapability::Blend);
+	{
+		RhiDebugGroupGuard grid_group(rhi_device_, "Scene Overlay Pass - Grid");
+		rhi_device_->Enable(RhiCapability::Blend);
+		rhi_device_->SetBlendAlpha();
+		grid_.SetRhiDevice(rhi_device_);
+		grid_.Draw();
+		rhi_device_->Disable(RhiCapability::Blend);
+	}
 	
 }
 
 void RenderManager::RenderingPass()
 {
+	RhiDebugGroupGuard debug_group(rhi_device_, "Forward Opaque Pass");
 	// with cascade shadow
 #ifdef _USE_CSM
 	PassSpecifiedListNormal(render_list_, [](const std::string& name) {
@@ -532,6 +583,7 @@ void RenderManager::RenderingPass()
 
 bool RenderManager::DeferredGeometryPass()
 {
+	RhiDebugGroupGuard debug_group(rhi_device_, "Deferred Geometry Pass - GBuffer");
 	MyShader* geometry_shader = ResourceManager::getInstance().GetShaderByName("deferred_geometry");
 	if (!geometry_shader || !gbuffer_.IsValid()) {
 		return false;
@@ -551,6 +603,7 @@ bool RenderManager::DeferredGeometryPass()
 
 bool RenderManager::DeferredLightingPass()
 {
+	RhiDebugGroupGuard debug_group(rhi_device_, "Deferred Lighting Pass");
 	MyShader* lighting_shader = ResourceManager::getInstance().GetShaderByName("deferred_lighting");
 	RenderMesh* quad_mesh = ResourceManager::getInstance().GetMeshByName("quads");
 	if (!lighting_shader || !quad_mesh || !gbuffer_.IsValid()) {
@@ -575,6 +628,7 @@ bool RenderManager::DeferredLightingPass()
 
 void RenderManager::DeferredDepthPrepass()
 {
+	RhiDebugGroupGuard debug_group(rhi_device_, "Deferred Depth Prepass");
 	MyShader* depth_shader = ResourceManager::getInstance().GetShaderByName("deferred_depth");
 	if (!depth_shader) return;
 
@@ -589,6 +643,7 @@ void RenderManager::SelectedOutlinePass()
 {
 	if (!selected_outline_FBO_) return;
 
+	RhiDebugGroupGuard debug_group(rhi_device_, "Selected Outline Mask Pass");
 	FBOGuard outline_guard(&selected_outline_FBO_.value());
 	ClearGLScreenBuffer(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -614,6 +669,7 @@ void RenderManager::SelectedOutlinePass()
 
 void RenderManager::PostProcessPass()
 {
+	RhiDebugGroupGuard debug_group(rhi_device_, "Post Process Pass");
 	//TODO: add some postprocess effect
 	// 1. draw selected object
 	// 2. tone mapping & color grading
@@ -632,17 +688,23 @@ void RenderManager::PostProcessPass()
 		}
 	}
 	
-	rhi_device_->Enable(RhiCapability::Blend);
-	rhi_device_->SetCullFace(RhiCullFace::Front);
-	rhi_device_->SetBlendAlpha();
-	PassSpecifiedListNormal(post_process_list_, [](const std::string& name) {
-		return ModelManager::getInstance().GetAuxiModelByName(name);
-	});
+	{
+		RhiDebugGroupGuard auxiliary_front_group(rhi_device_, "Post Process Pass - Auxiliary Front Faces");
+		rhi_device_->Enable(RhiCapability::Blend);
+		rhi_device_->SetCullFace(RhiCullFace::Front);
+		rhi_device_->SetBlendAlpha();
+		PassSpecifiedListNormal(post_process_list_, [](const std::string& name) {
+			return ModelManager::getInstance().GetAuxiModelByName(name);
+		});
+	}
 
-	rhi_device_->SetCullFace(RhiCullFace::Back);
-	PassSpecifiedListNormal(post_process_list_, [](const std::string& name) {
-		return ModelManager::getInstance().GetAuxiModelByName(name);
-	});
+	{
+		RhiDebugGroupGuard auxiliary_back_group(rhi_device_, "Post Process Pass - Auxiliary Back Faces");
+		rhi_device_->SetCullFace(RhiCullFace::Back);
+		PassSpecifiedListNormal(post_process_list_, [](const std::string& name) {
+			return ModelManager::getInstance().GetAuxiModelByName(name);
+		});
+	}
 	rhi_device_->Disable(RhiCapability::Blend);
 }
 

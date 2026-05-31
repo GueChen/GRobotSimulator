@@ -27,6 +27,8 @@ public:
 	void SetViewport(const RhiViewport& viewport) override;
 	void SetClearColor(const RhiClearColor& color) override;
 	void Clear(RhiClearFlags flags) override;
+	void PushDebugGroup(std::string_view name) override;
+	void PopDebugGroup() override;
 	void BindTextureUnit(uint32_t unit, RhiTextureHandle texture) override;
 	void BindDefaultFramebuffer() override;
 	void BindDefaultFramebuffer(RhiFramebufferBindTarget target) override;
