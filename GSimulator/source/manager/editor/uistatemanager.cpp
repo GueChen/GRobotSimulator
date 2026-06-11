@@ -61,9 +61,16 @@ void GComponent::UIState::tick()
 		m_last_mouse_pos_y	= m_mouse_pos_y;
 
 		if (picking_render_requested_) {
-			RenderManager::getInstance().SetPickingController(picking_controller);
 			picking_render_requested_ = false;
-			picking_readback_pending_ = true;
+			if (picking_controller.IsAvailable()) {
+				RenderManager::getInstance().SetPickingController(picking_controller);
+				picking_readback_pending_ = true;
+			}
+			else {
+				picking_msg_ = std::nullopt;
+				picking_readback_pending_ = false;
+				picking_selection_pending_ = false;
+			}
 		}
 	}
 	else 
@@ -214,7 +221,12 @@ void GComponent::UIState::tick()
 void GComponent::UIState::SetRhiDevice(const shared_ptr<IRhiDevice>& rhi_device)
 {
 	picking_controller.SetRhiDevice(rhi_device);
-	picking_controller.Init(m_width, m_height);
+	if (!picking_controller.Init(m_width, m_height)) {
+		picking_msg_ = std::nullopt;
+		picking_render_requested_ = false;
+		picking_readback_pending_ = false;
+		picking_selection_pending_ = false;
+	}
 }
 
 GComponent::PickingPixelInfo GComponent::UIState::GetPickingPixelInfo()
@@ -363,7 +375,12 @@ void GComponent::UIState::OnResize(int w, int h)
 {
 	m_width  = w, m_height = h;
 	m_aspect = static_cast<float>(w) / h;
-	picking_controller.Init(m_width, m_height);
+	if (!picking_controller.Init(m_width, m_height)) {
+		picking_msg_ = std::nullopt;
+		picking_render_requested_ = false;
+		picking_readback_pending_ = false;
+		picking_selection_pending_ = false;
+	}
 
 	RenderManager& render_manager = RenderManager::getInstance();
 	render_manager.m_render_sharing_msg.SetViewportSize(w, h);

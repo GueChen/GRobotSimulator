@@ -38,6 +38,18 @@ file(GLOB_RECURSE UI_FILES "UI/*.ui")
 file(GLOB_RECURSE QRC_FILES "resource/*.qrc")
 file(GLOB_RECURSE SHADER_FILES "Shader/*.frag" "Shader/*.vert" "Shader/*.geom")
 
+list(APPEND HEADER_FILES
+	"source/render/rhi/ibl_resource_setup.h"
+)
+list(APPEND SOURCE_FILES
+	"source/render/rhi/ibl_resource_setup.cpp"
+)
+
+if(NOT GSIM_RENDER_BACKEND_DX12)
+	list(FILTER HEADER_FILES EXCLUDE REGEX "source/render/rhi/dx12/.*")
+	list(FILTER SOURCE_FILES EXCLUDE REGEX "source/render/rhi/dx12/.*")
+endif()
+
 #____________________ Keep File Path Structrue ________________________________________
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${HEADER_FILES} ${SOURCE_FILES} ${UI_FILES} ${QRC_FILES} ${SHADER_FILES})
 
@@ -147,3 +159,12 @@ target_link_libraries(${TARGET_NAME} PUBLIC
 	${PHYSX_STATIC_EXT}
 	${PHYSX_STATIC_PVD}
 )
+
+if(GSIM_RENDER_BACKEND_DX12)
+	target_link_libraries(${TARGET_NAME} PUBLIC
+		d3d12
+		d3dcompiler
+		dxgi
+		dxguid
+	)
+endif()

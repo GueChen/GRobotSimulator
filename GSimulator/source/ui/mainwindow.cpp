@@ -68,7 +68,7 @@ MainWindow::~MainWindow()
 
 GComponent::UIState* MainWindow::getUIState() const
 {
-    return &ui_->m_viewport->ui_state_;
+    return ui_->m_viewport->GetUIState();
 }
 
 GComponent::GLModelTreeView* MainWindow::getModelTreeView() const
@@ -90,29 +90,33 @@ void MainWindow::ConnectionInit()
 {
     using namespace GComponent;
     connect(this, &QMainWindow::tabifiedDockWidgetActivated, this, &MainWindow::SetTabifyDockerWidgetQSS);
-    connect(ui_->m_viewport, &Viewport::EmitDeltaTime, this, &MainWindow::ReceiveDeltaTime);           
-    /* UI_STATE << TREEVIEW */
-    connect(ui_->treeView,               &GComponent::GLModelTreeView::SelectRequest,
-            &ui_->m_viewport->ui_state_, &GComponent::UIState::ResponseSelectRequest); 
-    connect(ui_->treeView,               &GComponent::GLModelTreeView::SelectRequest,
-            this,                       &MainWindow::CheckSelected);
+    connect(ui_->m_viewport, &ViewportHost::EmitDeltaTime, this, &MainWindow::ReceiveDeltaTime);
 
-    /* UI_STATE >> QComboBox */
-    connect(&ui_->m_viewport->ui_state_, &UIState::SelectRequest,
-		    [obj_display = ui_->selected_combo](const std::string& name) {		
-			    if (int index = obj_display->findText(QString::fromStdString(name));
-				    index != -1) {
-				    obj_display->setCurrentIndex(index);
-			    }
-            });	   
-    connect(&ui_->m_viewport->ui_state_, &UIState::SelectRequest,
-            this,                       &MainWindow::CheckSelected);
+    UIState* ui_state = ui_->m_viewport->GetUIState();
+    if (ui_state) {
+        /* UI_STATE << TREEVIEW */
+        connect(ui_->treeView,               &GComponent::GLModelTreeView::SelectRequest,
+                ui_state,                    &GComponent::UIState::ResponseSelectRequest);
+        connect(ui_->treeView,               &GComponent::GLModelTreeView::SelectRequest,
+                this,                       &MainWindow::CheckSelected);
 
-    /* UI_STATE << QComboBox */
-    connect(ui_->selected_combo,         &QComboBox::textActivated,
-            [&ui_state = ui_->m_viewport->ui_state_](const QString& name){
-                ui_state.ResponseSelectRequest(name.toStdString());
-            });
+        /* UI_STATE >> QComboBox */
+        connect(ui_state,                    &UIState::SelectRequest,
+		        [obj_display = ui_->selected_combo](const std::string& name) {		
+			        if (int index = obj_display->findText(QString::fromStdString(name));
+				        index != -1) {
+				        obj_display->setCurrentIndex(index);
+			        }
+                });	   
+        connect(ui_state,                    &UIState::SelectRequest,
+                this,                       &MainWindow::CheckSelected);
+
+        /* UI_STATE << QComboBox */
+        connect(ui_->selected_combo,         &QComboBox::textActivated,
+                [ui_state](const QString& name){
+                    ui_state->ResponseSelectRequest(name.toStdString());
+                });
+    }
 
     /* QComboBox <<  TREEVIEW */    
     connect(ui_->treeView,               &GComponent::GLModelTreeView::SelectRequest,
@@ -258,7 +262,8 @@ void MainWindow::CheckSelected()
 {
     using namespace GComponent;
     static Model* last_ptr = nullptr;
-    Model* selected_obj_ptr = ui_->m_viewport->ui_state_.GetSelectedObject();
+    UIState* ui_state = ui_->m_viewport->GetUIState();
+    Model* selected_obj_ptr = ui_state ? ui_state->GetSelectedObject() : nullptr;
     
     
     if (last_ptr == selected_obj_ptr) return;
@@ -295,22 +300,30 @@ void MainWindow::CheckSelected()
 
 void MainWindow::on_check_button_clicked()
 {
-    ui_->m_viewport->ui_state_.ResponseAxisModeChange(AxisMode::None);
+    if (GComponent::UIState* ui_state = ui_->m_viewport->GetUIState()) {
+        ui_state->ResponseAxisModeChange(AxisMode::None);
+    }
 }
 
 void MainWindow::on_trans_button_clicked()
 {
-    ui_->m_viewport->ui_state_.ResponseAxisModeChange(AxisMode::Translation);
+    if (GComponent::UIState* ui_state = ui_->m_viewport->GetUIState()) {
+        ui_state->ResponseAxisModeChange(AxisMode::Translation);
+    }
 }
 
 void MainWindow::on_rot_button_clicked()
 {
-    ui_->m_viewport->ui_state_.ResponseAxisModeChange(AxisMode::Rotation);
+    if (GComponent::UIState* ui_state = ui_->m_viewport->GetUIState()) {
+        ui_state->ResponseAxisModeChange(AxisMode::Rotation);
+    }
 }
 
 void MainWindow::on_scale_button_clicked()
 {
-    ui_->m_viewport->ui_state_.ResponseAxisModeChange(AxisMode::Scale);
+    if (GComponent::UIState* ui_state = ui_->m_viewport->GetUIState()) {
+        ui_state->ResponseAxisModeChange(AxisMode::Scale);
+    }
 }
 
 void MainWindow::on_save_action_triggered()

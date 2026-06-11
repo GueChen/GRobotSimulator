@@ -64,11 +64,19 @@ public:
     inline void     DeregisteredMesh(const string& name)    { DeregisteredSpecificMapElement(mesh_map_, name); }
     RenderMesh*     GetMeshByName(const string& name);
 
+    void            RegisteredShader(const RhiShaderDesc& shader_desc, QObject* parent = nullptr);
     void            RegisteredShader(const string& name, MyShader* raw_ptr_shader);
-    inline void     DeregisteredShader(const string& name)  { DeregisteredSpecificMapElement(shader_map_, name); }
+    void            DeregisteredShader(const string& name);
     MyShader*       GetShaderByName(const string& name);
+    const RhiShaderDesc*
+                    GetShaderDescByName(const string& name) const;
+    const RhiMaterialDesc*
+                    GetMaterialDescByShaderName(const string& name) const;
     std::vector<std::string>
                     GetShadersName() const;
+    void            BindShader(const string& name);
+    [[nodiscard]] RhiBackendType
+                    GetActiveBackendType() const;
 
     void            RegisteredUIHandle(const string& name, QOpenGLWidget* ui_handle);
     void            DeregisteredUIHandle(const string& name);
@@ -101,6 +109,8 @@ private:
     unordered_map <string, unique_ptr<QTimer>>              ui_update_timer_map_ = {};
     unordered_map <string, QOpenGLWidget*>                  draw_ui_map_         = {};
     unordered_map <string, unique_ptr<RenderMesh>>          mesh_map_            = {};
+    unordered_map <string, RhiShaderDesc>                   shader_desc_map_      = {};
+    unordered_map <string, RhiMaterialDesc>                 material_desc_map_    = {};
     unordered_map <string, unique_ptr<MyShader>>            shader_map_          = {};
     unordered_map <string, Texture>                         texture_map_         = {};
 

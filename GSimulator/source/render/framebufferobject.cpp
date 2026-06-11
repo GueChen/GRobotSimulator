@@ -1,8 +1,29 @@
 #include "render/framebufferobject.h"
 
 #include <cstring>
+#include <iostream>
 
 namespace GComponent {
+
+namespace {
+
+bool UsesUnsupportedFramebufferAttachment(FrameBufferObject::AttachType type, const std::shared_ptr<IRhiDevice>& rhi_device)
+{
+	return rhi_device
+		&& rhi_device->GetBackendType() == RhiBackendType::DirectX12
+		&& (type == FrameBufferObject::Cube || type == FrameBufferObject::CubeMipmap);
+}
+
+void LogFramebufferObjectSkipOnce(FrameBufferObject::AttachType type)
+{
+	static bool logged_cube = false;
+	if ((type == FrameBufferObject::Cube || type == FrameBufferObject::CubeMipmap) && !logged_cube) {
+		std::cerr << "FrameBufferObject disabled: DirectX12 cubemap framebuffer attachments are not implemented yet\n";
+		logged_cube = true;
+	}
+}
+
+} // namespace
 
 FrameBufferObject::FrameBufferObject(int width, int height, AttachType type, const std::shared_ptr<IRhiDevice>& rhi_device):
 	rhi_device_(rhi_device)
@@ -23,11 +44,13 @@ FrameBufferObject::~FrameBufferObject()
 
 void FrameBufferObject::Bind()
 {
+	if (!IsAvailable() || !rhi_device_) return;
 	rhi_device_->BindFramebuffer(RhiFramebufferBindTarget::Framebuffer, frame_buffer_);
 }
 
 void FrameBufferObject::Release()
 {
+	if (!IsAvailable() || !rhi_device_) return;
 	rhi_device_->BindDefaultFramebuffer(RhiFramebufferBindTarget::Framebuffer);
 }
 
@@ -44,6 +67,7 @@ void FrameBufferObject::ReleaseTexture()
 
 unsigned int FrameBufferObject::TakeTexture()
 {
+	if (!IsAvailable() || !rhi_device_) return 0;
 	const auto ret = rhi_device_->TakeFramebufferTexture(frame_buffer_);
 	texture_buffer_ = {};
 	return static_cast<unsigned int>(ret.value);
@@ -51,6 +75,7 @@ unsigned int FrameBufferObject::TakeTexture()
 
 unsigned int FrameBufferObject::ReAllocateTexture(int width, int height, AttachType type)
 {
+	if (!IsAvailable() || !rhi_device_) return 0;
 	const auto ret = rhi_device_->ReallocateFramebufferTexture(frame_buffer_, RhiFramebufferCreateDesc{
 		.width = width,
 		.height = height,
@@ -62,6 +87,14 @@ unsigned int FrameBufferObject::ReAllocateTexture(int width, int height, AttachT
 
 void FrameBufferObject::Initialize(int width, int height, int levels, AttachType type)
 {
+	if (!rhi_device_) {
+		return;
+	}
+	if (UsesUnsupportedFramebufferAttachment(type, rhi_device_)) {
+		LogFramebufferObjectSkipOnce(type);
+		return;
+	}
+
 	frame_buffer_ = rhi_device_->CreateFramebuffer(RhiFramebufferCreateDesc{
 		.width = width,
 		.height = height,
@@ -101,6 +134,7 @@ void FrameBufferObject::Clear()
 
 void FrameBufferObject::AdjustRenderBufferStorage(int width, int height)
 {
+	if (!IsAvailable() || !rhi_device_) return;
 	rhi_device_->ResizeFramebufferRenderbuffer(frame_buffer_, width, height);
 }
 

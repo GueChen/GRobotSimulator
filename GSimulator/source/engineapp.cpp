@@ -200,7 +200,8 @@ void GComponent::EngineApp::CreateShader(const QString& name, const QString& ver
 		QMessageBox::warning(nullptr, "same name find", "already exist same name Shader", QMessageBox::Ok);
 		return;
 	}
-	ResourceManager::getInstance().RegisteredShader(name.toStdString(), new MyShader(nullptr, vert.toStdString(), frag.toStdString(), geom.toStdString()));
+	ResourceManager::getInstance().RegisteredShader(
+		MakeOpenGlShaderDesc(name.toStdString(), vert.toStdString(), frag.toStdString(), geom.toStdString()));
 }
 
 void GComponent::EngineApp::CreateConvexDecomposition(uint32_t conv_count, 
@@ -590,4 +591,3 @@ void GComponent::EngineApp::MoveSomeToThread()
 		t_thread->start();
 	}
 }
-

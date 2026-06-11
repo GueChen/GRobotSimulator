@@ -57,38 +57,30 @@ RhiTextureHandle CreateSolidBrdfLut(OpenGLRhiDevice& device)
 
 } // namespace
 
-void BindOpenGLFallbackIblResources(
-	const std::shared_ptr<IRhiDevice>& rhi_device,
+IblSetupResult BindOpenGLFallbackIblResources(
+	const IblSetupContext& context,
 	std::string_view reason)
 {
-	auto opengl_device = AsOpenGLRhiDevice(rhi_device);
+	auto opengl_device = AsOpenGLRhiDevice(context.rhi_device);
 	if (!opengl_device) {
 		std::cerr << "IBL fallback skipped: OpenGL RHI device is not available. Reason: " << reason << '\n';
-		return;
+		return { IblSetupStatus::Unavailable, false, std::string(reason) };
 	}
 
 	std::cerr << "IBL fallback resources are used. Reason: " << reason << '\n';
-	opengl_device->BindTextureUnit(4, CreateSolidCubemap(*opengl_device, 0.03f, 0.03f, 0.03f));
-	opengl_device->BindTextureUnit(5, CreateSolidCubemap(*opengl_device, 0.03f, 0.03f, 0.03f));
-	opengl_device->BindTextureUnit(6, CreateSolidBrdfLut(*opengl_device));
-	opengl_device->BindTextureUnit(7, CreateSolidCubemap(*opengl_device, 0.0f, 0.0f, 0.0f));
+	opengl_device->BindTextureUnit(kIblIrradianceBinding, CreateSolidCubemap(*opengl_device, 0.03f, 0.03f, 0.03f));
+	opengl_device->BindTextureUnit(kIblPrefilterBinding, CreateSolidCubemap(*opengl_device, 0.03f, 0.03f, 0.03f));
+	opengl_device->BindTextureUnit(kIblBrdfLutBinding, CreateSolidBrdfLut(*opengl_device));
+	opengl_device->BindTextureUnit(kIblEnvironmentBinding, CreateSolidCubemap(*opengl_device, 0.0f, 0.0f, 0.0f));
+	return { IblSetupStatus::FallbackReady, true, std::string(reason) };
 }
 
-void RunOpenGLIblPrecompute(
-	const std::shared_ptr<IRhiDevice>& rhi_device,
-	UniformBufferObject& matrices_ubo,
-	RenderMesh& sky_box_mesh,
-	RenderMesh& quad_mesh,
-	MyShader& equirectangular_to_cube_shader,
-	MyShader& irradiance_shader,
-	MyShader& prefilter_shader,
-	MyShader& brdf_lut_shader,
-	const std::string& hdr_path)
+IblSetupResult RunOpenGLIblPrecompute(const IblSetupContext& context)
 {
-	auto opengl_device = AsOpenGLRhiDevice(rhi_device);
+	auto opengl_device = AsOpenGLRhiDevice(context.rhi_device);
 	if (!opengl_device) {
 		std::cerr << "IBL precompute skipped: OpenGL RHI device is not available\n";
-		return;
+		return { IblSetupStatus::Unavailable, false, "OpenGL RHI device is not available" };
 	}
 	const auto& gl = opengl_device->GetGL();
 
@@ -102,10 +94,9 @@ void RunOpenGLIblPrecompute(
 		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
 	};
 
-	unsigned int hdr_env = gl->LoadTexture(hdr_path, false);
+	unsigned int hdr_env = gl->LoadTexture(context.hdr_path, false);
 	if (!hdr_env) {
-		BindOpenGLFallbackIblResources(rhi_device, "HDR environment texture is missing: " + hdr_path);
-		return;
+		return BindOpenGLFallbackIblResources(context, "HDR environment texture is missing: " + context.hdr_path);
 	}
 	unsigned int environment_cubemap = 0;
 	unsigned int irradiance_cubemap = 0;
@@ -126,8 +117,8 @@ void RunOpenGLIblPrecompute(
 	opengl_device->SetClearColor(RhiClearColor{ 0.0f, 0.0f, 0.0f, 1.0f });
 
 	{
-		UBOGaurd ubo_gaurd(&matrices_ubo);
-		matrices_ubo.SetSubData(&capture_proj, 0, sizeof glm::mat4);
+		UBOGaurd ubo_gaurd(context.matrices_ubo);
+		context.matrices_ubo->SetSubData(&capture_proj, 0, sizeof glm::mat4);
 		int max_texture_size = 0;
 		gl->glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_texture_size);
 		std::cout << max_texture_size << std::endl;
@@ -148,12 +139,12 @@ void RunOpenGLIblPrecompute(
 
 		opengl_device->BindTextureUnit(3, RhiTextureHandle{ hdr_env });
 		opengl_device->SetViewport(RhiViewport{ 0, 0, static_cast<int>(ibl_width), static_cast<int>(ibl_height) });
-		equirectangular_to_cube_shader.use();
+		context.equirectangular_to_cube_shader->use();
 		for (uint32_t i = 0; i < 6; ++i) {
-			matrices_ubo.SetSubData(&capture_views[i], sizeof glm::mat4, sizeof glm::mat4);
+			context.matrices_ubo->SetSubData(&capture_views[i], sizeof glm::mat4, sizeof glm::mat4);
 			gl->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, environment_cubemap, 0);
 			opengl_device->Clear(RhiClearFlags::Color | RhiClearFlags::Depth);
-			sky_box_mesh.Draw();
+			context.sky_box_mesh->Draw();
 		}
 
 		uint32_t irr_width = 128;
@@ -173,12 +164,12 @@ void RunOpenGLIblPrecompute(
 
 		opengl_device->BindTextureUnit(3, RhiTextureHandle{ environment_cubemap });
 		opengl_device->SetViewport(RhiViewport{ 0, 0, static_cast<int>(irr_width), static_cast<int>(irr_height) });
-		irradiance_shader.use();
+		context.irradiance_shader->use();
 		for (uint32_t i = 0; i < 6; ++i) {
-			matrices_ubo.SetSubData(&capture_views[i], sizeof glm::mat4, sizeof glm::mat4);
+			context.matrices_ubo->SetSubData(&capture_views[i], sizeof glm::mat4, sizeof glm::mat4);
 			gl->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradiance_cubemap, 0);
 			opengl_device->Clear(RhiClearFlags::Color | RhiClearFlags::Depth);
-			sky_box_mesh.Draw();
+			context.sky_box_mesh->Draw();
 		}
 
 		uint32_t pft_width = 128;
@@ -195,7 +186,7 @@ void RunOpenGLIblPrecompute(
 		gl->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		gl->glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
-		prefilter_shader.use();
+		context.prefilter_shader->use();
 		uint32_t max_mipmap_levels = 5;
 		for (uint32_t level = 0; level < max_mipmap_levels; ++level) {
 			uint32_t mip_width = static_cast<uint32_t>(pft_width * std::pow(0.5, level));
@@ -204,12 +195,12 @@ void RunOpenGLIblPrecompute(
 			opengl_device->SetViewport(RhiViewport{ 0, 0, static_cast<int>(mip_width), static_cast<int>(mip_height) });
 
 			float roughness = static_cast<float>(level) / static_cast<float>(max_mipmap_levels - 1);
-			prefilter_shader.setFloat("roughness", roughness);
+			context.prefilter_shader->setFloat("roughness", roughness);
 			for (uint32_t i = 0; i < 6; ++i) {
-				matrices_ubo.SetSubData(&capture_views[i], sizeof glm::mat4, sizeof glm::mat4);
+				context.matrices_ubo->SetSubData(&capture_views[i], sizeof glm::mat4, sizeof glm::mat4);
 				gl->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilter_cubemap, level);
 				opengl_device->Clear(RhiClearFlags::Color | RhiClearFlags::Depth);
-				sky_box_mesh.Draw();
+				context.sky_box_mesh->Draw();
 			}
 		}
 
@@ -228,18 +219,19 @@ void RunOpenGLIblPrecompute(
 		gl->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, brdf_width, brdf_height);
 		gl->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdf_lut, 0);
 
-		brdf_lut_shader.use();
+		context.brdf_lut_shader->use();
 		opengl_device->Clear(RhiClearFlags::Color | RhiClearFlags::Depth);
-		quad_mesh.Draw();
+		context.quad_mesh->Draw();
 	}
 
-	opengl_device->BindTextureUnit(4, RhiTextureHandle{ irradiance_cubemap });
-	opengl_device->BindTextureUnit(5, RhiTextureHandle{ prefilter_cubemap });
-	opengl_device->BindTextureUnit(6, RhiTextureHandle{ brdf_lut });
-	opengl_device->BindTextureUnit(7, RhiTextureHandle{ environment_cubemap });
+	opengl_device->BindTextureUnit(kIblIrradianceBinding, RhiTextureHandle{ irradiance_cubemap });
+	opengl_device->BindTextureUnit(kIblPrefilterBinding, RhiTextureHandle{ prefilter_cubemap });
+	opengl_device->BindTextureUnit(kIblBrdfLutBinding, RhiTextureHandle{ brdf_lut });
+	opengl_device->BindTextureUnit(kIblEnvironmentBinding, RhiTextureHandle{ environment_cubemap });
 	gl->glDeleteFramebuffers(1, &fbo);
 	gl->glDeleteRenderbuffers(1, &rbo);
 	opengl_device->SetDepthFunc(RhiDepthFunc::Less);
+	return { IblSetupStatus::Ready, true, {} };
 }
 
 } // namespace GComponent

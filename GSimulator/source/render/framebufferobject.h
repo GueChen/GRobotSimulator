@@ -44,6 +44,7 @@ public:
 /// texture bind/release methods
 	void BindTexture(uint32_t texture_pos);
 	void ReleaseTexture();
+	[[nodiscard]] bool IsAvailable() const { return frame_buffer_.IsValid(); }
 
 /// setter & getter
 	inline unsigned int GetTextureID() const { return static_cast<unsigned int>(texture_buffer_.value); }

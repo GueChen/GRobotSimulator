@@ -49,19 +49,28 @@ void GComponent::MaterialComponent::SetShader(const std::string& shader_name)
 {
 	shader_ = shader_name;
 	auto& resource = ResourceManager::getInstance();
-	MyShader* shader_ptr = resource.GetShaderByName(shader_name);
-	if (!shader_ptr) {
+	const RhiMaterialDesc* material_desc = resource.GetMaterialDescByShaderName(shader_name);
+	if (!material_desc) {
 		properties_.clear();
 		return;
 	}
-	properties_ = shader_ptr->GetProperties();
+	properties_.clear();
+	properties_.reserve(material_desc->parameters.size());
+	for (const auto& parameter_desc : material_desc->parameters) {
+		properties_.push_back(ShaderProperty::FromParameterDesc(parameter_desc));
+	}
 }
 
 void GComponent::MaterialComponent::SetShaderProperties()
 {
 	if (properties_.empty()) SetShader(shader_);
-	MyShader* shader_ptr = ResourceManager::getInstance().GetShaderByName(shader_);
+	auto& resource = ResourceManager::getInstance();
+	resource.BindShader(shader_);
+	MyShader* shader_ptr = resource.GetShaderByName(shader_);
 	if (!shader_ptr) {
+		if (resource.GetActiveBackendType() != RhiBackendType::OpenGL && resource.GetShaderDescByName(shader_)) {
+			return;
+		}
 		shader_ = "null";
 		properties_.clear();
 		return;

@@ -1,4 +1,9 @@
 #include "render/rhi/opengl/opengl_rhi_device.h"
+#include "render/rhi/rhi_factory.h"
+
+#ifdef GSIM_RENDER_BACKEND_DX12
+#include "render/rhi/dx12/directx12_rhi_device.h"
+#endif
 
 #include <QtGui/QOpenGLContext>
 
@@ -47,12 +52,27 @@ unsigned GetFramebufferTextureType(const RhiFramebufferCreateDesc& desc)
 } // namespace
 
 OpenGLRhiDevice::OpenGLRhiDevice():
-	gl_(std::make_shared<MyGL>())
-{}
+	OpenGLRhiDevice(std::make_shared<MyGL>())
+{
+}
+
+OpenGLRhiDevice::OpenGLRhiDevice(const RhiDeviceInitConfig& init_config):
+	OpenGLRhiDevice(std::make_shared<MyGL>(), init_config)
+{
+}
 
 OpenGLRhiDevice::OpenGLRhiDevice(std::shared_ptr<MyGL> gl):
-	gl_(std::move(gl))
-{}
+	OpenGLRhiDevice(std::move(gl), {})
+{
+}
+
+OpenGLRhiDevice::OpenGLRhiDevice(std::shared_ptr<MyGL> gl, const RhiDeviceInitConfig& init_config):
+	gl_(std::move(gl)),
+	init_config_(init_config)
+{
+	init_config_.backend = RhiBackendType::OpenGL;
+	capabilities_.backend = RhiBackendType::OpenGL;
+}
 
 RhiBackendType OpenGLRhiDevice::GetBackendType() const
 {
@@ -62,6 +82,33 @@ RhiBackendType OpenGLRhiDevice::GetBackendType() const
 void OpenGLRhiDevice::Initialize()
 {
 	gl_->initializeOpenGLFunctions();
+	RefreshCapabilities();
+}
+
+void OpenGLRhiDevice::Initialize(const RhiDeviceInitConfig& config)
+{
+	init_config_ = config;
+	init_config_.backend = RhiBackendType::OpenGL;
+	init_config_.present_surface.default_render_target_ownership = RhiDefaultRenderTargetOwnership::External;
+	Initialize();
+}
+
+void OpenGLRhiDevice::InitializeForSurface(const RhiDeviceInitConfig& config, const RhiPresentSurfaceDesc& surface)
+{
+	RhiDeviceInitConfig surface_config = config;
+	surface_config.present_surface = surface;
+	surface_config.present_surface.default_render_target_ownership = RhiDefaultRenderTargetOwnership::External;
+	Initialize(surface_config);
+}
+
+const RhiDeviceInitConfig& OpenGLRhiDevice::GetInitConfig() const
+{
+	return init_config_;
+}
+
+RhiDeviceCapabilities OpenGLRhiDevice::GetCapabilities() const
+{
+	return capabilities_;
 }
 
 void OpenGLRhiDevice::Enable(RhiCapability capability)
@@ -148,6 +195,16 @@ void OpenGLRhiDevice::BindFramebuffer(RhiFramebufferBindTarget target, RhiFrameb
 uint32_t OpenGLRhiDevice::GetDefaultFramebuffer() const
 {
 	return QOpenGLContext::currentContext()->defaultFramebufferObject();
+}
+
+void OpenGLRhiDevice::ResizePresentSurface(uint32_t width, uint32_t height)
+{
+	init_config_.present_surface.width = width;
+	init_config_.present_surface.height = height;
+}
+
+void OpenGLRhiDevice::Present()
+{
 }
 
 RhiBufferHandle OpenGLRhiDevice::CreateBuffer(const RhiBufferDesc& desc, const void* initial_data)
@@ -736,6 +793,8 @@ unsigned OpenGLRhiDevice::ToGLInternalFormat(RhiTextureFormat format)
 		return GL_RGBA16F;
 	case RhiTextureFormat::Rg16Float:
 		return GL_RG16F;
+	case RhiTextureFormat::Rgba8Unorm:
+		return GL_RGBA8;
 	case RhiTextureFormat::Depth32Float:
 		return GL_DEPTH_COMPONENT32F;
 	case RhiTextureFormat::Depth24Stencil8:
@@ -751,6 +810,7 @@ unsigned OpenGLRhiDevice::ToGLFormat(RhiTextureFormat format)
 	case RhiTextureFormat::Rgb16Float:
 		return GL_RGB;
 	case RhiTextureFormat::Rgba16Float:
+	case RhiTextureFormat::Rgba8Unorm:
 		return GL_RGBA;
 	case RhiTextureFormat::Rg16Float:
 		return GL_RG;
@@ -767,6 +827,8 @@ unsigned OpenGLRhiDevice::ToGLType(RhiTextureFormat format)
 	switch (format) {
 	case RhiTextureFormat::Depth24Stencil8:
 		return GL_UNSIGNED_INT_24_8;
+	case RhiTextureFormat::Rgba8Unorm:
+		return GL_UNSIGNED_BYTE;
 	default:
 		return GL_FLOAT;
 	}
@@ -800,14 +862,98 @@ unsigned OpenGLRhiDevice::ToGLPrimitiveTopology(RhiPrimitiveTopology topology)
 	return GL_TRIANGLES;
 }
 
+void OpenGLRhiDevice::RefreshCapabilities()
+{
+	capabilities_.backend = RhiBackendType::OpenGL;
+	capabilities_.supports_debug_groups = true;
+	capabilities_.supports_texture_2d_array = true;
+	capabilities_.supports_texture_cubemap = true;
+	capabilities_.supports_multiple_color_attachments = true;
+	capabilities_.supports_framebuffer_readback = true;
+
+	int max_color_attachments = 1;
+	int max_texture_array_layers = 1;
+	gl_->glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &max_color_attachments);
+	gl_->glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max_texture_array_layers);
+	capabilities_.max_color_attachments = max_color_attachments > 0
+		? static_cast<uint32_t>(max_color_attachments)
+		: 1u;
+	capabilities_.max_texture_array_layers = max_texture_array_layers > 0
+		? static_cast<uint32_t>(max_texture_array_layers)
+		: 1u;
+}
+
 std::shared_ptr<OpenGLRhiDevice> AsOpenGLRhiDevice(const std::shared_ptr<IRhiDevice>& device)
 {
 	return std::dynamic_pointer_cast<OpenGLRhiDevice>(device);
 }
 
+bool IsRhiBackendSupported(RhiBackendType backend)
+{
+	switch (backend) {
+	case RhiBackendType::OpenGL:
+#ifdef GSIM_RENDER_BACKEND_OPENGL
+		return true;
+#else
+		return false;
+#endif
+	case RhiBackendType::DirectX12:
+#ifdef GSIM_RENDER_BACKEND_DX12
+		return true;
+#else
+		return false;
+#endif
+	}
+	return false;
+}
+
+std::vector<RhiBackendType> GetSupportedRhiBackends()
+{
+	std::vector<RhiBackendType> backends;
+	if (IsRhiBackendSupported(RhiBackendType::OpenGL)) {
+		backends.push_back(RhiBackendType::OpenGL);
+	}
+	if (IsRhiBackendSupported(RhiBackendType::DirectX12)) {
+		backends.push_back(RhiBackendType::DirectX12);
+	}
+	return backends;
+}
+
+std::shared_ptr<IRhiDevice> CreateRhiDevice(const RhiDeviceInitConfig& config)
+{
+	switch (config.backend) {
+	case RhiBackendType::OpenGL:
+		return CreateOpenGLRhiDevice(config);
+	case RhiBackendType::DirectX12:
+		return CreateDirectX12RhiDevice(config);
+	}
+	return nullptr;
+}
+
 std::shared_ptr<IRhiDevice> CreateOpenGLRhiDevice()
 {
-	return std::make_shared<OpenGLRhiDevice>();
+	return CreateOpenGLRhiDevice({});
 }
+
+std::shared_ptr<IRhiDevice> CreateOpenGLRhiDevice(const RhiDeviceInitConfig& config)
+{
+	if (!IsRhiBackendSupported(RhiBackendType::OpenGL)) {
+		return nullptr;
+	}
+	return std::make_shared<OpenGLRhiDevice>(config);
+}
+
+#ifndef GSIM_RENDER_BACKEND_DX12
+std::shared_ptr<IRhiDevice> CreateDirectX12RhiDevice()
+{
+	return nullptr;
+}
+
+std::shared_ptr<IRhiDevice> CreateDirectX12RhiDevice(const RhiDeviceInitConfig& config)
+{
+	(void)config;
+	return nullptr;
+}
+#endif
 
 } // namespace GComponent

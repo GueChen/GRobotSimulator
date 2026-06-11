@@ -504,7 +504,7 @@ QTreeView::item:selected:active{
            <item>
             <layout class="QVBoxLayout" name="verticalLayout">
              <item>
-              <widget class="GComponent::Viewport" name="m_viewport">
+              <widget class="GComponent::ViewportHost" name="m_viewport">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                  <horstretch>0</horstretch>
@@ -1698,9 +1698,10 @@ QMenu::separator{
    <header>./source/ui/treeview/glmodeltreeview.h</header>
   </customwidget>
   <customwidget>
-   <class>GComponent::Viewport</class>
-   <extends>QOpenGLWidget</extends>
+   <class>GComponent::ViewportHost</class>
+   <extends>QWidget</extends>
    <header>./source/ui/widget/viewport.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>GComponent::FileBrowser</class>

@@ -30,9 +30,12 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QOpenGLContext>
 #include <QtCore/QThreadPool>
+#include <QtWidgets/QVBoxLayout>
 
+#include <cstdlib>
 #include <regex>
 #include <iostream>
+#include <string_view>
 
 #ifdef _DEBUG
 #include <format>
@@ -107,18 +110,77 @@ static bool scene_initialize = false;
 
 namespace GComponent {
 
+namespace {
+
+QSurfaceFormat CreateViewportSurfaceFormat()
+{
+	QSurfaceFormat format;
+	format.setVersion(4, 5);
+	format.setSwapInterval(0);
+	format.setSamples(4);
+	return format;
+}
+
+RhiPresentSurfaceDesc CreateViewportPresentSurfaceDesc(const QWidget& viewport, RhiBackendType backend)
+{
+	RhiPresentSurfaceDesc surface_desc;
+#ifdef _WIN32
+	surface_desc.native_surface.type = RhiNativeSurfaceType::Win32Hwnd;
+	surface_desc.native_surface.handle = reinterpret_cast<void*>(viewport.winId());
+	const UINT dpi = GetDpiForWindow(reinterpret_cast<HWND>(viewport.winId()));
+	surface_desc.width = static_cast<uint32_t>(MulDiv(viewport.width(), dpi, 96));
+	surface_desc.height = static_cast<uint32_t>(MulDiv(viewport.height(), dpi, 96));
+#else
+	surface_desc.width = static_cast<uint32_t>(viewport.width());
+	surface_desc.height = static_cast<uint32_t>(viewport.height());
+#endif
+	surface_desc.default_render_target_ownership = backend == RhiBackendType::DirectX12
+		? RhiDefaultRenderTargetOwnership::Backend
+		: RhiDefaultRenderTargetOwnership::External;
+	return surface_desc;
+}
+
+RhiBackendType ParseRequestedViewportBackend()
+{
+	const char* raw_backend = std::getenv("GSIM_RHI_BACKEND");
+	if (!raw_backend) {
+		return RhiBackendType::OpenGL;
+	}
+
+	const std::string_view backend(raw_backend);
+	if (backend == "dx12" || backend == "DX12" || backend == "d3d12" || backend == "D3D12") {
+		return RhiBackendType::DirectX12;
+	}
+
+	return RhiBackendType::OpenGL;
+}
+
+const char* ToString(RhiBackendType backend)
+{
+	switch (backend) {
+	case RhiBackendType::DirectX12:
+		return "DirectX12";
+	case RhiBackendType::OpenGL:
+	default:
+		return "OpenGL";
+	}
+}
+
+}
+
+RhiBackendType Viewport::GetDefaultRequestedBackend()
+{
+	return ParseRequestedViewportBackend();
+}
+
 Viewport::Viewport(QWidget* parent) :
 	QOpenGLWidget(parent),
 	ui_state_(width(), height()),
-	rhi_device_(CreateOpenGLRhiDevice())
+	requested_backend_(GetDefaultRequestedBackend())
 {
 	qRegisterMetaType<Viewport>("viewport");
 	setFocusPolicy(Qt::StrongFocus);
-	QSurfaceFormat set_format;
-	set_format.setVersion(4, 5);
-	set_format.setSwapInterval(0);
-	set_format.setSamples(4);
-	setFormat(set_format);
+	ConfigureRenderSurface();
 	setAcceptDrops(true);
 
 	render_timer_.setTimerType(Qt::CoarseTimer);
@@ -131,10 +193,169 @@ Viewport::Viewport(QWidget* parent) :
 
 Viewport::~Viewport() {}
 
+NativeViewport::NativeViewport(QWidget* parent) :
+	QWidget(parent),
+	ui_state_(width(), height()),
+	requested_backend_(Viewport::GetDefaultRequestedBackend())
+{
+	setFocusPolicy(Qt::StrongFocus);
+	setMouseTracking(true);
+	setAcceptDrops(true);
+
+	render_timer_.setTimerType(Qt::CoarseTimer);
+	render_timer_.setInterval(8);
+	connect(&render_timer_, &QTimer::timeout, this, [this]() {
+		update();
+		});
+	render_timer_.start();
+}
+
+NativeViewport::~NativeViewport() = default;
+
+void NativeViewport::showEvent(QShowEvent* event)
+{
+	QWidget::showEvent(event);
+	if (surface_initialized_) {
+		return;
+	}
+
+	InitializeRenderSurface();
+	surface_initialized_ = true;
+}
+
+void NativeViewport::resizeEvent(QResizeEvent* event)
+{
+	QWidget::resizeEvent(event);
+	ResizeRenderSurface(event->size().width(), event->size().height());
+}
+
+void NativeViewport::paintEvent(QPaintEvent* event)
+{
+	QWidget::paintEvent(event);
+	if (!surface_initialized_) {
+		return;
+	}
+
+	RenderFrame();
+}
+
+ViewportHost::ViewportHost(QWidget* parent) :
+	QWidget(parent),
+	requested_backend_(Viewport::GetDefaultRequestedBackend())
+{
+	auto* host_layout = new QVBoxLayout(this);
+	host_layout->setContentsMargins(0, 0, 0, 0);
+	host_layout->setSpacing(0);
+
+	auto* surface_container = new QWidget(this);
+	surface_container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	host_layout->addWidget(surface_container);
+
+	auto* surface_layout = new QVBoxLayout(surface_container);
+	surface_layout->setContentsMargins(0, 0, 0, 0);
+	surface_layout->setSpacing(0);
+
+	if (requested_backend_ == RhiBackendType::OpenGL) {
+		viewport_widget_ = new Viewport(surface_container);
+		render_surface_host_ = viewport_widget_;
+		surface_layout->addWidget(viewport_widget_);
+		connect(viewport_widget_, &Viewport::EmitDeltaTime, this, &ViewportHost::EmitDeltaTime);
+		return;
+	}
+
+	native_viewport_widget_ = new NativeViewport(surface_container);
+	render_surface_host_ = native_viewport_widget_;
+	render_surface_host_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	surface_layout->addWidget(render_surface_host_);
+	connect(native_viewport_widget_, &NativeViewport::EmitDeltaTime, this, &ViewportHost::EmitDeltaTime);
+	std::cout << "Viewport host reserved native surface for backend: " << ToString(requested_backend_) << '\n';
+}
+
+ViewportHost::~ViewportHost() = default;
+
+UIState* ViewportHost::GetUIState() const
+{
+	if (viewport_widget_) {
+		return &viewport_widget_->ui_state_;
+	}
+	return native_viewport_widget_ ? native_viewport_widget_->GetUIState() : nullptr;
+}
+
 
 void Viewport::initializeGL()
 {
-	rhi_device_->Initialize();
+	InitializeRenderSurface();
+}
+
+void Viewport::resizeGL(int w, int h)
+{
+	ResizeRenderSurface(w, h);
+}
+
+void Viewport::paintGL()
+{
+	RenderFrame();
+}
+
+void Viewport::ConfigureRenderSurface()
+{
+	if (requested_backend_ == RhiBackendType::OpenGL) {
+		setFormat(CreateViewportSurfaceFormat());
+	}
+}
+
+void Viewport::EnsureRhiDevice()
+{
+	if (!rhi_device_) {
+		RhiDeviceInitConfig init_config;
+		init_config.backend = requested_backend_;
+#ifdef _DEBUG
+		init_config.enable_debug_layer = init_config.backend == RhiBackendType::DirectX12;
+		init_config.enable_validation = init_config.backend == RhiBackendType::DirectX12;
+#endif
+
+		rhi_device_ = CreateRhiDevice(init_config);
+		if (!rhi_device_) {
+			std::cerr << "CreateRhiDevice failed for requested backend "
+				<< ToString(init_config.backend)
+				<< ", falling back to OpenGL.\n";
+			rhi_device_ = CreateOpenGLRhiDevice();
+		}
+
+		if (rhi_device_) {
+			std::cout << "Viewport RHI backend: " << ToString(rhi_device_->GetBackendType()) << '\n';
+		}
+	}
+}
+
+void NativeViewport::EnsureRhiDevice()
+{
+	if (!rhi_device_) {
+		RhiDeviceInitConfig init_config;
+		init_config.backend = requested_backend_;
+#ifdef _DEBUG
+		init_config.enable_debug_layer = init_config.backend == RhiBackendType::DirectX12;
+		init_config.enable_validation = init_config.backend == RhiBackendType::DirectX12;
+#endif
+
+		rhi_device_ = CreateRhiDevice(init_config);
+		if (!rhi_device_) {
+			std::cerr << "CreateRhiDevice failed for requested backend "
+				<< ToString(init_config.backend)
+				<< ", falling back to OpenGL.\n";
+			rhi_device_ = CreateOpenGLRhiDevice();
+		}
+
+		if (rhi_device_) {
+			std::cout << "Viewport RHI backend: " << ToString(rhi_device_->GetBackendType()) << '\n';
+		}
+	}
+}
+
+void Viewport::InitializeRenderSurface()
+{
+	EnsureRhiDevice();
+	rhi_device_->InitializeForSurface(rhi_device_->GetInitConfig(), CreateViewportPresentSurfaceDesc(*this, rhi_device_->GetBackendType()));
 	
 	RegisteredShader();
 	if (!camera_handle)
@@ -155,17 +376,64 @@ void Viewport::initializeGL()
 // Test Usage
 }
 
-void Viewport::resizeGL(int w, int h)
+void NativeViewport::InitializeRenderSurface()
+{
+	EnsureRhiDevice();
+	rhi_device_->InitializeForSurface(rhi_device_->GetInitConfig(), CreateViewportPresentSurfaceDesc(*this, rhi_device_->GetBackendType()));
+
+	RegisteredShader();
+	if (!camera_handle)
+		camera_handle = GComponent::ModelManager::getInstance().RegisteredCamera();
+
+	ui_state_.SetRhiDevice(rhi_device_);
+	GComponent::ResourceManager::getInstance().SetRhiDevice(rhi_device_);
+	GComponent::RenderManager::getInstance().SetRhiDevice(rhi_device_);
+
+	rhi_device_->Enable(RhiCapability::Multisample);
+
+	if (not scene_initialize) {
+		SceneInitialize();
+		scene_initialize = true;
+	}
+}
+
+void Viewport::ResizeRenderSurface(int w, int h)
 {
 #ifdef WIN32
 	UINT dpi = GetDpiForWindow(reinterpret_cast<HWND>(winId()));
-	ui_state_.OnResize(MulDiv(w, dpi, 96), MulDiv(h, dpi, 96));
+	const int pixel_width = MulDiv(w, dpi, 96);
+	const int pixel_height = MulDiv(h, dpi, 96);
+	ui_state_.OnResize(pixel_width, pixel_height);
+	if (rhi_device_) {
+		rhi_device_->ResizePresentSurface(static_cast<uint32_t>(pixel_width), static_cast<uint32_t>(pixel_height));
+	}
 #else
 	ui_state_.OnResize(w, h);
+	if (rhi_device_) {
+		rhi_device_->ResizePresentSurface(static_cast<uint32_t>(w), static_cast<uint32_t>(h));
+	}
 #endif
 }
 
-void Viewport::paintGL()
+void NativeViewport::ResizeRenderSurface(int w, int h)
+{
+#ifdef WIN32
+	UINT dpi = GetDpiForWindow(reinterpret_cast<HWND>(winId()));
+	const int pixel_width = MulDiv(w, dpi, 96);
+	const int pixel_height = MulDiv(h, dpi, 96);
+	ui_state_.OnResize(pixel_width, pixel_height);
+	if (rhi_device_) {
+		rhi_device_->ResizePresentSurface(static_cast<uint32_t>(pixel_width), static_cast<uint32_t>(pixel_height));
+	}
+#else
+	ui_state_.OnResize(w, h);
+	if (rhi_device_) {
+		rhi_device_->ResizePresentSurface(static_cast<uint32_t>(w), static_cast<uint32_t>(h));
+	}
+#endif
+}
+
+void Viewport::RenderFrame()
 {
 	using namespace glm;
 	using namespace GComponent;
@@ -207,6 +475,37 @@ void Viewport::paintGL()
 	std::chrono::time_point now = std::chrono::steady_clock::now();
 	delta_time = std::chrono::duration_cast<std::chrono::duration<float>>(now - last_point);
 	last_point = now;
+	rhi_device_->Present();
+	emit EmitDeltaTime(delta_time.count());
+}
+
+void NativeViewport::RenderFrame()
+{
+	using namespace glm;
+	using namespace GComponent;
+	static std::chrono::time_point last_point = std::chrono::steady_clock::now();
+	static float delta = 0.0f;
+
+	Camera* camera_ptr = ModelManager::getInstance().GetCameraByHandle(camera_handle);
+	RenderGlobalInfo& render_info = RenderManager::getInstance().m_render_sharing_msg;
+	render_info.SetSimpleDirLight(vec3(0.5f, 1.0f, 1.0f), vec3(1.0f));
+	render_info.SetCameraInfo(*camera_ptr);
+	render_info.SetProjectionPlane(0.001f, 1000.0f);
+	render_info.UpdateProjectionMatrix();
+
+	ui_state_.tick();
+	PlanningManager::getInstance().tick(delta_time.count());
+	TcpSocketManager::getInstance().tick();
+	ModelManager::getInstance().tickAll(delta_time.count());
+	ResourceManager::getInstance().tick(rhi_device_);
+	CollisionSystem::getInstance().tick(delta_time.count());
+	PhysicsManager::getInstance().tick(delta_time.count());
+	RenderManager::getInstance().tick();
+
+	std::chrono::time_point now = std::chrono::steady_clock::now();
+	delta_time = std::chrono::duration_cast<std::chrono::duration<float>>(now - last_point);
+	last_point = now;
+	rhi_device_->Present();
 	emit EmitDeltaTime(delta_time.count());
 }
 
@@ -401,28 +700,61 @@ void Viewport::dragEnterEvent(QDragEnterEvent* event)
 
 void Viewport::RegisteredShader()
 {
-	ResourceManager::getInstance().RegisteredShader("skybox",				new MyShader(nullptr,	PathVert(skybox),				PathFrag(skybox)));
-	ResourceManager::getInstance().RegisteredShader("postprocess",			new MyShader(nullptr,	PathVert(postprocess),			PathFrag(postprocess)));
-	ResourceManager::getInstance().RegisteredShader("outline",				new MyShader(nullptr,	PathVert(outline),				PathFrag(outline)));
-	ResourceManager::getInstance().RegisteredShader("infinite_grid",		new MyShader(nullptr,	PathVert(infinite_grid),		PathFrag(infinite_grid)));
-	ResourceManager::getInstance().RegisteredShader("deferred_geometry",	new MyShader(nullptr,	PathVert(deferred_geometry),	PathFrag(deferred_geometry)));
-	ResourceManager::getInstance().RegisteredShader("deferred_lighting",	new MyShader(nullptr,	PathVert(deferred_lighting),	PathFrag(deferred_lighting)));
-	ResourceManager::getInstance().RegisteredShader("deferred_depth",		new MyShader(nullptr,	PathVert(deferred_depth),		PathFrag(deferred_depth)));
-	ResourceManager::getInstance().RegisteredShader("no_shadow_color",		new MyShader(nullptr,	PathVert(Color),				PathFrag(Color)));
-    ResourceManager::getInstance().RegisteredShader("axis",					new MyShader(nullptr,	PathVert(axis),					PathFrag(axis)));
-    ResourceManager::getInstance().RegisteredShader("picking",				new MyShader(nullptr,	PathVert(picking),				PathFrag(picking)));
-    ResourceManager::getInstance().RegisteredShader("base",					new MyShader(nullptr,	PathVert(Base),					PathFrag(Base)));
-    ResourceManager::getInstance().RegisteredShader("linecolor",			new MyShader(nullptr,	PathVert(LineColor),			PathFrag(LineColor)));
-	ResourceManager::getInstance().RegisteredShader("depth_map",			new MyShader(nullptr,	PathVert(depthOrtho),			PathFrag(depthOrtho)));
-	ResourceManager::getInstance().RegisteredShader("shadow_color",			new MyShader(nullptr,	PathVert(shadowOrtho),			PathFrag(shadowOrtho)));
-	ResourceManager::getInstance().RegisteredShader("csm_depth_map",		new MyShader(nullptr,	PathVert(csm_depth_ortho),		PathFrag(csm_depth_ortho),		PathGeom(csm_depth_ortho)));
-	ResourceManager::getInstance().RegisteredShader("color",				new MyShader(nullptr,	PathVert(cascade_shadow_ortho),	PathFrag(cascade_shadow_ortho)));
+	auto register_shader = [](const char* name, const char* vert, const char* frag, const char* geom = "") {
+		ResourceManager::getInstance().RegisteredShader(MakeOpenGlShaderDesc(name, vert, frag, geom));
+	};
+
+	register_shader("skybox",				PathVert(skybox),				PathFrag(skybox));
+	register_shader("postprocess",			PathVert(postprocess),			PathFrag(postprocess));
+	register_shader("outline",				PathVert(outline),				PathFrag(outline));
+	register_shader("infinite_grid",		PathVert(infinite_grid),		PathFrag(infinite_grid));
+	register_shader("deferred_geometry",	PathVert(deferred_geometry),	PathFrag(deferred_geometry));
+	register_shader("deferred_lighting",	PathVert(deferred_lighting),	PathFrag(deferred_lighting));
+	register_shader("deferred_depth",		PathVert(deferred_depth),		PathFrag(deferred_depth));
+	register_shader("no_shadow_color",		PathVert(Color),				PathFrag(Color));
+	register_shader("axis",					PathVert(axis),					PathFrag(axis));
+	register_shader("picking",				PathVert(picking),				PathFrag(picking));
+	register_shader("base",					PathVert(Base),					PathFrag(Base));
+	register_shader("linecolor",			PathVert(LineColor),			PathFrag(LineColor));
+	register_shader("depth_map",			PathVert(depthOrtho),			PathFrag(depthOrtho));
+	register_shader("shadow_color",			PathVert(shadowOrtho),			PathFrag(shadowOrtho));
+	register_shader("csm_depth_map",		PathVert(csm_depth_ortho),		PathFrag(csm_depth_ortho),		PathGeom(csm_depth_ortho));
+	register_shader("color",				PathVert(cascade_shadow_ortho),	PathFrag(cascade_shadow_ortho));
 	// pbr relative
-	ResourceManager::getInstance().RegisteredShader("pbr",					new MyShader(nullptr,   PathVert(pbr),					PathFrag(pbr)));		
-	ResourceManager::getInstance().RegisteredShader("equirectangular2cube", new MyShader(nullptr,   PathVert(cube),					PathFrag(equirectangular2cubemap)));
-	ResourceManager::getInstance().RegisteredShader("irr_conv",				new MyShader(nullptr,   PathVert(skybox),				PathFrag(irradiance_conv)));
-	ResourceManager::getInstance().RegisteredShader("pft_conv",				new MyShader(nullptr,   PathVert(skybox),				PathFrag(prefilter_conv)));
-	ResourceManager::getInstance().RegisteredShader("brdf_lut",				new MyShader(nullptr,   PathVert(brdf_lut),				PathFrag(brdf_lut)));
+	register_shader("pbr",					PathVert(pbr),					PathFrag(pbr));
+	register_shader("equirectangular2cube", PathVert(cube),					PathFrag(equirectangular2cubemap));
+	register_shader("irr_conv",				PathVert(skybox),				PathFrag(irradiance_conv));
+	register_shader("pft_conv",				PathVert(skybox),				PathFrag(prefilter_conv));
+	register_shader("brdf_lut",				PathVert(brdf_lut),				PathFrag(brdf_lut));
+}
+
+void NativeViewport::RegisteredShader()
+{
+	auto register_shader = [](const char* name, const char* vert, const char* frag, const char* geom = "") {
+		ResourceManager::getInstance().RegisteredShader(MakeOpenGlShaderDesc(name, vert, frag, geom));
+	};
+
+	register_shader("skybox",				PathVert(skybox),				PathFrag(skybox));
+	register_shader("postprocess",			PathVert(postprocess),			PathFrag(postprocess));
+	register_shader("outline",				PathVert(outline),				PathFrag(outline));
+	register_shader("infinite_grid",		PathVert(infinite_grid),		PathFrag(infinite_grid));
+	register_shader("deferred_geometry",	PathVert(deferred_geometry),	PathFrag(deferred_geometry));
+	register_shader("deferred_lighting",	PathVert(deferred_lighting),	PathFrag(deferred_lighting));
+	register_shader("deferred_depth",		PathVert(deferred_depth),		PathFrag(deferred_depth));
+	register_shader("no_shadow_color",		PathVert(Color),				PathFrag(Color));
+	register_shader("axis",					PathVert(axis),					PathFrag(axis));
+	register_shader("picking",				PathVert(picking),				PathFrag(picking));
+	register_shader("base",					PathVert(Base),					PathFrag(Base));
+	register_shader("linecolor",			PathVert(LineColor),			PathFrag(LineColor));
+	register_shader("depth_map",			PathVert(depthOrtho),			PathFrag(depthOrtho));
+	register_shader("shadow_color",			PathVert(shadowOrtho),			PathFrag(shadowOrtho));
+	register_shader("csm_depth_map",		PathVert(csm_depth_ortho),		PathFrag(csm_depth_ortho),		PathGeom(csm_depth_ortho));
+	register_shader("color",				PathVert(cascade_shadow_ortho),	PathFrag(cascade_shadow_ortho));
+	register_shader("pbr",					PathVert(pbr),					PathFrag(pbr));
+	register_shader("equirectangular2cube", PathVert(cube),					PathFrag(equirectangular2cubemap));
+	register_shader("irr_conv",				PathVert(skybox),				PathFrag(irradiance_conv));
+	register_shader("pft_conv",				PathVert(skybox),				PathFrag(prefilter_conv));
+	register_shader("brdf_lut",				PathVert(brdf_lut),				PathFrag(brdf_lut));
 }
 
 }

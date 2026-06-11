@@ -21,7 +21,7 @@ namespace GComponent {
 
 	void ResourceManager::EnablePickingMode()
 	{
-		shader_map_.emplace("picking", std::make_unique<MyShader>(nullptr, PathVert(picking), PathFrag(picking)));
+		RegisteredShader(MakeOpenGlShaderDesc("picking", PathVert(picking), PathFrag(picking)));
 	}
 
 	void ResourceManager::RegisteredMesh(const string& name, RenderMesh* raw_ptr_mesh) 
@@ -44,12 +44,44 @@ namespace GComponent {
 		return nullptr;
 	}
 
+	void ResourceManager::RegisteredShader(const RhiShaderDesc& shader_desc, QObject* parent)
+	{
+		(void)parent;
+		if (shader_desc.name.empty()) {
+			std::cerr << "RegisteredShader failed: shader name is empty\n";
+			return;
+		}
+		if (!shader_desc.vertex.IsValid() || !shader_desc.fragment.IsValid()) {
+			std::cerr << "RegisteredShader failed: vertex or fragment stage missing, name = " << shader_desc.name << '\n';
+			return;
+		}
+
+		DeregisteredShader(shader_desc.name);
+		shader_require_upload_.push_back(shader_desc.name);
+		shader_desc_map_.emplace(shader_desc.name, shader_desc);
+		material_desc_map_.emplace(shader_desc.name, RhiMaterialDesc{
+			.shader_name = shader_desc.name,
+			.backend = shader_desc.backend
+		});
+	}
+
 	void ResourceManager::RegisteredShader(const string& name, MyShader* raw_ptr_shader)
 	{
-		DeregisteredShader(name);
+		if (!raw_ptr_shader) {
+			std::cerr << "RegisteredShader failed: shader is nullptr, name = " << name << '\n';
+			return;
+		}
+		DeregisteredSpecificMapElement(shader_map_, name);
 		shader_require_upload_.push_back(name);
 		raw_ptr_shader->SetName(name);
 		shader_map_.emplace(name, move(unique_ptr<MyShader>(raw_ptr_shader)));
+	}
+
+	void ResourceManager::DeregisteredShader(const string& name)
+	{
+		DeregisteredSpecificMapElement(shader_map_, name);
+		DeregisteredSpecificMapElement(shader_desc_map_, name);
+		DeregisteredSpecificMapElement(material_desc_map_, name);
 	}
 
 	MyShader* ResourceManager::GetShaderByName(const string& name)
@@ -61,14 +93,45 @@ namespace GComponent {
 		return nullptr;
 	}
 
+	const RhiShaderDesc* ResourceManager::GetShaderDescByName(const string& name) const
+	{
+		auto iter = shader_desc_map_.find(name);
+		if (iter != shader_desc_map_.end()) {
+			return &iter->second;
+		}
+		return nullptr;
+	}
+
+	const RhiMaterialDesc* ResourceManager::GetMaterialDescByShaderName(const string& name) const
+	{
+		auto iter = material_desc_map_.find(name);
+		if (iter != material_desc_map_.end()) {
+			return &iter->second;
+		}
+		return nullptr;
+	}
+
 	std::vector<std::string> ResourceManager::GetShadersName() const
 	{
 		std::vector<std::string> shaders_names;
-		shaders_names.reserve(shader_map_.size());
-		for (auto& [name, _] : shader_map_) {
+		shaders_names.reserve(shader_desc_map_.size());
+		for (auto& [name, _] : shader_desc_map_) {
 			shaders_names.push_back(name);
 		}
 		return shaders_names;
+	}
+
+	void ResourceManager::BindShader(const string& name)
+	{
+		if (!rhi_device_) {
+			return;
+		}
+		rhi_device_->BindShader(GetShaderDescByName(name));
+	}
+
+	RhiBackendType ResourceManager::GetActiveBackendType() const
+	{
+		return rhi_device_ ? rhi_device_->GetBackendType() : RhiBackendType::OpenGL;
 	}
 
 	void ResourceManager::RegisteredUIHandle(const string& name, QOpenGLWidget* ui_handle)
@@ -149,10 +212,24 @@ namespace GComponent {
 
 		std::list<std::string> failed_link_shader;
 		for (auto& shader_not_set : shader_require_upload_) {
-			shader_map_[shader_not_set]->SetRhiDevice(rhi_device_);
-			if (!shader_map_[shader_not_set]->isLinked()) {
-				std::cout << shader_not_set + " shader link failed\n";
-				failed_link_shader.push_back(shader_not_set);
+			const auto shader_desc_iter = shader_desc_map_.find(shader_not_set);
+			if (shader_desc_iter == shader_desc_map_.end()) {
+				continue;
+			}
+
+			if (rhi_device_ && rhi_device_->GetBackendType() == RhiBackendType::OpenGL) {
+				DeregisteredSpecificMapElement(shader_map_, shader_not_set);
+				shader_map_.emplace(shader_not_set, std::make_unique<MyShader>(nullptr, shader_desc_iter->second));
+				shader_map_[shader_not_set]->SetName(shader_not_set);
+				shader_map_[shader_not_set]->SetRhiDevice(rhi_device_);
+				if (!shader_map_[shader_not_set]->isLinked()) {
+					std::cout << shader_not_set + " shader link failed\n";
+					failed_link_shader.push_back(shader_not_set);
+				}
+				else {
+					material_desc_map_[shader_not_set] = shader_map_[shader_not_set]->GetMaterialDesc();
+					emit ShaderRegistered(shader_not_set);
+				}
 			}
 			else {
 				emit ShaderRegistered(shader_not_set);

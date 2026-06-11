@@ -12,10 +12,16 @@ namespace GComponent {
 class OpenGLRhiDevice final : public IRhiDevice {
 public:
 	OpenGLRhiDevice();
+	explicit OpenGLRhiDevice(const RhiDeviceInitConfig& init_config);
 	explicit OpenGLRhiDevice(std::shared_ptr<MyGL> gl);
+	OpenGLRhiDevice(std::shared_ptr<MyGL> gl, const RhiDeviceInitConfig& init_config);
 
 	[[nodiscard]] RhiBackendType GetBackendType() const override;
 	void Initialize() override;
+	void Initialize(const RhiDeviceInitConfig& config) override;
+	void InitializeForSurface(const RhiDeviceInitConfig& config, const RhiPresentSurfaceDesc& surface) override;
+	[[nodiscard]] const RhiDeviceInitConfig& GetInitConfig() const override;
+	[[nodiscard]] RhiDeviceCapabilities GetCapabilities() const override;
 
 	void Enable(RhiCapability capability) override;
 	void Disable(RhiCapability capability) override;
@@ -34,6 +40,8 @@ public:
 	void BindDefaultFramebuffer(RhiFramebufferBindTarget target) override;
 	void BindFramebuffer(RhiFramebufferBindTarget target, RhiFramebufferHandle framebuffer) override;
 	uint32_t GetDefaultFramebuffer() const override;
+	void ResizePresentSurface(uint32_t width, uint32_t height) override;
+	void Present() override;
 
 	RhiBufferHandle CreateBuffer(const RhiBufferDesc& desc, const void* initial_data = nullptr) override;
 	void BindBuffer(RhiBufferUsage usage, RhiBufferHandle buffer) override;
@@ -77,6 +85,7 @@ private:
 	static unsigned ToGLType(RhiTextureFormat format);
 	static unsigned ToGLFramebufferTarget(RhiFramebufferBindTarget target);
 	static unsigned ToGLPrimitiveTopology(RhiPrimitiveTopology topology);
+	void RefreshCapabilities();
 
 private:
 	struct FramebufferResources {
@@ -95,6 +104,8 @@ private:
 	};
 
 	std::shared_ptr<MyGL> gl_;
+	RhiDeviceInitConfig init_config_{};
+	RhiDeviceCapabilities capabilities_{};
 	std::unordered_map<uint64_t, RhiBufferUsage> buffer_usages_;
 	std::unordered_map<uint64_t, FramebufferResources> framebuffer_resources_;
 	std::unordered_map<uint64_t, MeshResources> mesh_resources_;

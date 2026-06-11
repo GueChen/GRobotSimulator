@@ -8,7 +8,6 @@
 
 #include "manager/resourcemanager.h"
 #include "manager/modelmanager.h"
-#include "render/rhi/opengl/opengl_ibl_precompute.h"
 
 #include "model/model.h"
 #include "component/material_component.h"
@@ -93,6 +92,16 @@ bool GetMaterialBool(MaterialComponent* material, std::string_view name, bool fa
 	return fallback;
 }
 
+bool SupportsDeferredFramebufferPasses(const shared_ptr<IRhiDevice>& rhi_device)
+{
+	return rhi_device && rhi_device->SupportsFeature(RhiDeviceFeature::MultipleColorAttachments);
+}
+
+bool HasRegisteredShader(ResourceManager& resource_manager, const std::string& shader_name)
+{
+	return resource_manager.GetShaderDescByName(shader_name) != nullptr;
+}
+
 } // namespace
 	
 /*__________________________PUBLIC METHODS____________________________________*/
@@ -100,12 +109,39 @@ RenderManager::~RenderManager() = default;
 
 void RenderManager::InitFrameBuffer()
 {	
-	render_FBO_ = FrameBufferObject(m_render_sharing_msg.viewport.window_size.x,// window width
-							 m_render_sharing_msg.viewport.window_size.y,		// window height
-							 FrameBufferObject::Color, rhi_device_);	
-	selected_outline_FBO_ = FrameBufferObject(m_render_sharing_msg.viewport.window_size.x,
-							 m_render_sharing_msg.viewport.window_size.y,
-							 FrameBufferObject::Color, rhi_device_);
+	if (!rhi_device_) return;
+
+	DestroyGBuffer();
+	render_FBO_ = std::nullopt;
+	selected_outline_FBO_ = std::nullopt;
+	FrameBufferObject render_fbo(m_render_sharing_msg.viewport.window_size.x,
+								 m_render_sharing_msg.viewport.window_size.y,
+								 FrameBufferObject::Color,
+								 rhi_device_);
+	if (!render_fbo.IsAvailable()) {
+		static bool logged_offscreen_skip = false;
+		if (!logged_offscreen_skip) {
+			std::cerr << "RenderManager offscreen passes skipped: primary render-target framebuffer creation failed\n";
+			logged_offscreen_skip = true;
+		}
+		return;
+	}
+	render_FBO_ = std::move(render_fbo);
+
+	FrameBufferObject outline_fbo(m_render_sharing_msg.viewport.window_size.x,
+								  m_render_sharing_msg.viewport.window_size.y,
+								  FrameBufferObject::Color,
+								  rhi_device_);
+	if (outline_fbo.IsAvailable()) {
+		selected_outline_FBO_ = std::move(outline_fbo);
+	}
+	else {
+		static bool logged_outline_skip = false;
+		if (!logged_outline_skip) {
+			std::cerr << "RenderManager outline mask pass skipped: secondary offscreen framebuffer creation failed\n";
+			logged_outline_skip = true;
+		}
+	}
 	InitGBuffer();
 }
 
@@ -173,18 +209,30 @@ void RenderManager::SetRhiDevice(const shared_ptr<IRhiDevice>& rhi_device)
 	rhi_device_ = rhi_device;
 
 	InitFrameBuffer();
+	depth_FBO_ = std::nullopt;
+	FrameBufferObject depth_fbo =
 #ifdef _USE_CSM
-	depth_FBO_ = FrameBufferObject(depth_buffer_resolustion_,
-								   depth_buffer_resolustion_,
-								   m_csm_levels,
-								   FrameBufferObject::Depth,
-								   rhi_device_);
+		FrameBufferObject(depth_buffer_resolustion_,
+						  depth_buffer_resolustion_,
+						  m_csm_levels,
+						  FrameBufferObject::Depth,
+						  rhi_device_);
 #else	
-	depth_FBO_ = FrameBufferObject(depth_buffer_resolustion_, 
-								   depth_buffer_resolustion_, 
-								   FrameBufferObject::Depth,
-								   rhi_device_);
+		FrameBufferObject(depth_buffer_resolustion_, 
+						  depth_buffer_resolustion_, 
+						  FrameBufferObject::Depth,
+						  rhi_device_);
 #endif
+	if (depth_fbo.IsAvailable()) {
+		depth_FBO_ = std::move(depth_fbo);
+	}
+	else {
+		static bool logged_depth_skip = false;
+		if (!logged_depth_skip) {
+			std::cerr << "RenderManager shadow depth pass skipped: shadow-map framebuffer creation failed\n";
+			logged_depth_skip = true;
+		}
+	}
 
 	matrices_UBO_		  = UniformBufferObject(0, sizeof glm::mat4x4 * 2,  rhi_device_);
 	ambient_observer_UBO_ = UniformBufferObject(1, 
@@ -218,7 +266,12 @@ void RenderManager::tick()
 		}		
 		light_matrices_UBO_->SetSubData(&m_csm_levels, sizeof glm::mat4 * 16 + sizeof glm::vec4 * 16, sizeof(unsigned int));		
 	}			
-	rhi_device_->BindTextureUnit(3, RhiTextureHandle{ depth_FBO_->GetTextureID() });
+	if (depth_FBO_ && depth_FBO_->IsAvailable()) {
+		rhi_device_->BindTextureUnit(3, RhiTextureHandle{ depth_FBO_->GetTextureID() });
+	}
+	else {
+		rhi_device_->BindTextureUnit(3, {});
+	}
 
 	PickingPass();
 	
@@ -247,6 +300,14 @@ void RenderManager::InitGBuffer()
 	if (!rhi_device_) return;
 
 	DestroyGBuffer();
+	if (!SupportsDeferredFramebufferPasses(rhi_device_)) {
+		static bool logged_gbuffer_skip = false;
+		if (!logged_gbuffer_skip) {
+			std::cerr << "Deferred GBuffer skipped: multiple color attachments are not supported by the active RHI backend\n";
+			logged_gbuffer_skip = true;
+		}
+		return;
+	}
 	const int width = static_cast<int>(m_render_sharing_msg.viewport.window_size.x);
 	const int height = static_cast<int>(m_render_sharing_msg.viewport.window_size.y);
 	if (width <= 0 || height <= 0) return;
@@ -263,6 +324,15 @@ void RenderManager::InitGBuffer()
 	});
 	for (uint32_t i = 0; i < gbuffer_.textures.size(); ++i) {
 		gbuffer_.textures[i] = rhi_device_->GetFramebufferColorTexture(gbuffer_.framebuffer, i);
+	}
+	if (!gbuffer_.IsValid()) {
+		static bool logged_gbuffer_creation_failure = false;
+		if (!logged_gbuffer_creation_failure) {
+			std::cerr << "Deferred GBuffer skipped: framebuffer attachments could not be created\n";
+			logged_gbuffer_creation_failure = true;
+		}
+		DestroyGBuffer();
+		return;
 	}
 	gbuffer_.width = width;
 	gbuffer_.height = height;
@@ -301,26 +371,17 @@ void RenderManager::SetDirLightViewPosition()
 void RenderManager::InitializeIBLResource()
 {
 	auto& resources = ResourceManager::getInstance();
-	RenderMesh* sky_box_mesh = resources.GetMeshByName(skybox_.getMesh()),
-			  * quad_mesh	 = resources.GetMeshByName(screen_quad_.getMesh());
-	MyShader* e2c_shader = resources.GetShaderByName("equirectangular2cube");
-	MyShader* irr_shader = resources.GetShaderByName("irr_conv");
-	MyShader* pft_shader = resources.GetShaderByName("pft_conv");
-	MyShader* brdf_shader = resources.GetShaderByName("brdf_lut");
-	if (!sky_box_mesh || !quad_mesh || !e2c_shader || !irr_shader || !pft_shader || !brdf_shader) {
-		BindOpenGLFallbackIblResources(rhi_device_, "IBL precompute mesh or shader resources are not initialized");
-		return;
-	}
-	RunOpenGLIblPrecompute(
-		rhi_device_,
-		matrices_UBO_.value(),
-		*sky_box_mesh,
-		*quad_mesh,
-		*e2c_shader,
-		*irr_shader,
-		*pft_shader,
-		*brdf_shader,
-		"./asset/textures/loft_newport/Newport_Loft_Ref.hdr");
+	IblSetupContext context;
+	context.rhi_device = rhi_device_;
+	context.matrices_ubo = matrices_UBO_ ? &matrices_UBO_.value() : nullptr;
+	context.sky_box_mesh = resources.GetMeshByName(skybox_.getMesh());
+	context.quad_mesh = resources.GetMeshByName(screen_quad_.getMesh());
+	context.equirectangular_to_cube_shader = resources.GetShaderByName("equirectangular2cube");
+	context.irradiance_shader = resources.GetShaderByName("irr_conv");
+	context.prefilter_shader = resources.GetShaderByName("pft_conv");
+	context.brdf_lut_shader = resources.GetShaderByName("brdf_lut");
+	context.hdr_path = "./asset/textures/loft_newport/Newport_Loft_Ref.hdr";
+	ibl_setup_result_ = SetupImageBasedLightingResources(context);
 }
 
 std::vector<glm::vec4> RenderManager::GetFrustumCornersWorldSpace(const glm::mat4& projection, const glm::mat4& view)
@@ -417,7 +478,7 @@ void RenderManager::ClearList()
 void RenderManager::PickingPass()
 {
 	// none picking handle no need to picking
-	if (!picking_controller_handle_) return;
+	if (!picking_controller_handle_ || !picking_controller_handle_->IsAvailable()) return;
 
 	RhiDebugGroupGuard debug_group(rhi_device_, "Picking Pass");
 	PickingGuard picking_guard(picking_controller_handle_.value());
@@ -441,6 +502,10 @@ void RenderManager::PickingPass()
 
 void RenderManager::DepthMapPass()
 {				
+	if (!depth_FBO_ || !depth_FBO_->IsAvailable()) {
+		return;
+	}
+
 	RhiDebugGroupGuard debug_group(rhi_device_, "Shadow Depth Pass");
 	FBOGuard gaurd(&depth_FBO_.value());	
 
@@ -468,6 +533,10 @@ void RenderManager::DepthMapPass()
 
 void RenderManager::NormalPass()
 {
+	if (!render_FBO_ || !render_FBO_->IsAvailable()) {
+		return;
+	}
+
 	RhiDebugGroupGuard debug_group(rhi_device_, "Forward Render Pass");
 	FBOGuard fbo_guard(&render_FBO_.value());
 
@@ -482,6 +551,13 @@ void RenderManager::DeferredPass()
 {
 	RhiDebugGroupGuard debug_group(rhi_device_, "Deferred Render Pass");
 	static bool logged_deferred_fallback = false;
+	if (!render_FBO_ || !render_FBO_->IsAvailable()) {
+		if (!logged_deferred_fallback) {
+			std::cerr << "Deferred pipeline fallback: primary offscreen framebuffer is not available\n";
+			logged_deferred_fallback = true;
+		}
+		return;
+	}
 	if (!gbuffer_.IsValid() || !DeferredGeometryPass()) {
 		if (!logged_deferred_fallback) {
 			std::cerr << "Deferred pipeline fallback: GBuffer or geometry pass is not available\n";
@@ -547,11 +623,22 @@ void RenderManager::DrawSceneOverlays()
 #endif
 
 	// TODO: not so good try to hide it
-	{
+	if (ibl_setup_result_.IsUsable()) {
 		RhiDebugGroupGuard skybox_group(rhi_device_, "Scene Overlay Pass - Skybox");
 		rhi_device_->SetDepthFunc(RhiDepthFunc::LessEqual);
 		skybox_.Draw();
 		rhi_device_->SetDepthFunc(RhiDepthFunc::Less);
+	}
+	else {
+		static bool logged_skybox_skip = false;
+		if (!logged_skybox_skip) {
+			std::cerr << "Skybox pass skipped: IBL resources are " << ToString(ibl_setup_result_.status);
+			if (!ibl_setup_result_.reason.empty()) {
+				std::cerr << " (" << ibl_setup_result_.reason << ")";
+			}
+			std::cerr << '\n';
+			logged_skybox_skip = true;
+		}
 	}
 
 	{
@@ -584,8 +671,10 @@ void RenderManager::RenderingPass()
 bool RenderManager::DeferredGeometryPass()
 {
 	RhiDebugGroupGuard debug_group(rhi_device_, "Deferred Geometry Pass - GBuffer");
+	ResourceManager::getInstance().BindShader("deferred_geometry");
 	MyShader* geometry_shader = ResourceManager::getInstance().GetShaderByName("deferred_geometry");
-	if (!geometry_shader || !gbuffer_.IsValid()) {
+	if ((!geometry_shader && (ResourceManager::getInstance().GetActiveBackendType() == RhiBackendType::OpenGL
+		|| !HasRegisteredShader(ResourceManager::getInstance(), "deferred_geometry"))) || !gbuffer_.IsValid()) {
 		return false;
 	}
 
@@ -593,10 +682,17 @@ bool RenderManager::DeferredGeometryPass()
 	ClearGLScreenBuffer(0.0f, 0.0f, 0.0f, 1.0f);
 	rhi_device_->Disable(RhiCapability::Blend);
 	rhi_device_->Disable(RhiCapability::CullFace);
-	geometry_shader->use();
-	PassSpecifiedListDeferredGeometry(render_list_, [](const std::string& name) {
-		return ModelManager::getInstance().GetModelByName(name);
-	}, *geometry_shader);
+	if (geometry_shader) {
+		geometry_shader->use();
+		PassSpecifiedListDeferredGeometry(render_list_, [](const std::string& name) {
+			return ModelManager::getInstance().GetModelByName(name);
+		}, *geometry_shader);
+	}
+	else {
+		PassSpecifiedListNormal(render_list_, [](const std::string& name) {
+			return ModelManager::getInstance().GetModelByName(name);
+		});
+	}
 	rhi_device_->BindDefaultFramebuffer(RhiFramebufferBindTarget::Framebuffer);
 	return true;
 }
@@ -604,9 +700,11 @@ bool RenderManager::DeferredGeometryPass()
 bool RenderManager::DeferredLightingPass()
 {
 	RhiDebugGroupGuard debug_group(rhi_device_, "Deferred Lighting Pass");
+	ResourceManager::getInstance().BindShader("deferred_lighting");
 	MyShader* lighting_shader = ResourceManager::getInstance().GetShaderByName("deferred_lighting");
 	RenderMesh* quad_mesh = ResourceManager::getInstance().GetMeshByName("quads");
-	if (!lighting_shader || !quad_mesh || !gbuffer_.IsValid()) {
+	if ((!lighting_shader && (ResourceManager::getInstance().GetActiveBackendType() == RhiBackendType::OpenGL
+		|| !HasRegisteredShader(ResourceManager::getInstance(), "deferred_lighting"))) || !quad_mesh || !gbuffer_.IsValid()) {
 		return false;
 	}
 
@@ -617,7 +715,9 @@ bool RenderManager::DeferredLightingPass()
 	rhi_device_->Disable(RhiCapability::Blend);
 	rhi_device_->Disable(RhiCapability::CullFace);
 	rhi_device_->SetDepthFunc(RhiDepthFunc::LessEqual);
-	lighting_shader->use();
+	if (lighting_shader) {
+		lighting_shader->use();
+	}
 	quad_mesh->Draw();
 	rhi_device_->SetDepthFunc(RhiDepthFunc::Less);
 	for (uint32_t i = 0; i < gbuffer_.textures.size(); ++i) {
@@ -629,19 +729,28 @@ bool RenderManager::DeferredLightingPass()
 void RenderManager::DeferredDepthPrepass()
 {
 	RhiDebugGroupGuard debug_group(rhi_device_, "Deferred Depth Prepass");
+	ResourceManager::getInstance().BindShader("deferred_depth");
 	MyShader* depth_shader = ResourceManager::getInstance().GetShaderByName("deferred_depth");
-	if (!depth_shader) return;
+	if (!depth_shader && (ResourceManager::getInstance().GetActiveBackendType() == RhiBackendType::OpenGL
+		|| !HasRegisteredShader(ResourceManager::getInstance(), "deferred_depth"))) return;
 
 	rhi_device_->Disable(RhiCapability::Blend);
-	depth_shader->use();
-	PassSpecifiedListDeferredDepth(render_list_, [](const std::string& name) {
-		return ModelManager::getInstance().GetModelByName(name);
-	}, *depth_shader);
+	if (depth_shader) {
+		depth_shader->use();
+		PassSpecifiedListDeferredDepth(render_list_, [](const std::string& name) {
+			return ModelManager::getInstance().GetModelByName(name);
+		}, *depth_shader);
+	}
+	else {
+		PassSpecifiedListNormal(render_list_, [](const std::string& name) {
+			return ModelManager::getInstance().GetModelByName(name);
+		});
+	}
 }
 
 void RenderManager::SelectedOutlinePass()
 {
-	if (!selected_outline_FBO_) return;
+	if (!selected_outline_FBO_ || !selected_outline_FBO_->IsAvailable()) return;
 
 	RhiDebugGroupGuard debug_group(rhi_device_, "Selected Outline Mask Pass");
 	FBOGuard outline_guard(&selected_outline_FBO_.value());
@@ -653,22 +762,30 @@ void RenderManager::SelectedOutlinePass()
 	if (!selected_obj) return;
 
 	RenderMesh* mesh = ResourceManager::getInstance().GetMeshByName(selected_obj->getMesh());
+	ResourceManager::getInstance().BindShader("outline");
 	MyShader* outline_shader = ResourceManager::getInstance().GetShaderByName("outline");
-	if (!mesh || !outline_shader) return;
+	if (!mesh || (!outline_shader && (ResourceManager::getInstance().GetActiveBackendType() == RhiBackendType::OpenGL
+		|| !HasRegisteredShader(ResourceManager::getInstance(), "outline")))) return;
 
 	auto* transform = selected_obj->GetComponent<TransformComponent>();
 	if (!transform) return;
 
 	const glm::mat4 model = Conversion::fromMat4f(transform->GetModelGlobal());
 
-	outline_shader->use();
-	outline_shader->setMat4("model", model);
+	if (outline_shader) {
+		outline_shader->use();
+		outline_shader->setMat4("model", model);
+	}
 	rhi_device_->Disable(RhiCapability::CullFace);
 	mesh->Draw();
 }
 
 void RenderManager::PostProcessPass()
 {
+	if (!render_FBO_ || !render_FBO_->IsAvailable()) {
+		return;
+	}
+
 	RhiDebugGroupGuard debug_group(rhi_device_, "Post Process Pass");
 	//TODO: add some postprocess effect
 	// 1. draw selected object
@@ -714,8 +831,9 @@ void RenderManager::PassSpecifiedListPicking(PassType draw_index_type, RenderLis
 	ModelManager&	 model_manager	= ModelManager::getInstance();
 
 	// Universal Shader Uniform Attribute Settings
+	scene_manager.BindShader("picking");
 	MyShader*		 picking_shader = scene_manager.GetShaderByName("picking");
-	if (!picking_shader) {
+	if (!picking_shader && (scene_manager.GetActiveBackendType() == RhiBackendType::OpenGL || !HasRegisteredShader(scene_manager, "picking"))) {
 		static bool logged_missing_picking_shader = false;
 		if (!logged_missing_picking_shader) {
 			std::cerr << "Picking pass skipped: picking shader is not available\n";
@@ -723,9 +841,13 @@ void RenderManager::PassSpecifiedListPicking(PassType draw_index_type, RenderLis
 		}
 		return;
 	}
-	picking_shader->use();
+	if (picking_shader) {
+		picking_shader->use();
+	}
 
-	picking_shader->setUint("gDrawIndex", static_cast<unsigned>(draw_index_type));
+	if (picking_shader) {
+		picking_shader->setUint("gDrawIndex", static_cast<unsigned>(draw_index_type));
+	}
 	
 	//  Pass Normally
 	for (auto& [obj_name, mesh_name] : list) 
@@ -733,8 +855,10 @@ void RenderManager::PassSpecifiedListPicking(PassType draw_index_type, RenderLis
 		RenderMesh*	mesh  = scene_manager.GetMeshByName(mesh_name);
 		Model*		obj	  = ObjGetter(obj_name);
 		auto&		trans = *obj->GetComponent<TransformComponent>();
-		picking_shader->setUint("gModelIndex", obj->model_id_);
-		picking_shader->setMat4("model",	   Conversion::fromMat4f(trans.GetModelGlobal()));
+		if (picking_shader) {
+			picking_shader->setUint("gModelIndex", obj->model_id_);
+			picking_shader->setMat4("model",	   Conversion::fromMat4f(trans.GetModelGlobal()));
+		}
 		
 		if (mesh) mesh->Draw();
 	}
@@ -746,11 +870,13 @@ void RenderManager::PassSpecifiedListDepth(RenderList& list, function<Model* (co
 	ModelManager&	 model_manager = ModelManager::getInstance();
 
 #ifdef _USE_CSM
-	MyShader* depth_shader = scene_manager.GetShaderByName("csm_depth_map");
+	const char* depth_shader_name = "csm_depth_map";
 #else 
-	MyShader* depth_shader = scene_manager.GetShaderByName("depth_map");
+	const char* depth_shader_name = "depth_map";
 #endif
-	if (!depth_shader) {
+	scene_manager.BindShader(depth_shader_name);
+	MyShader* depth_shader = scene_manager.GetShaderByName(depth_shader_name);
+	if (!depth_shader && (scene_manager.GetActiveBackendType() == RhiBackendType::OpenGL || !HasRegisteredShader(scene_manager, depth_shader_name))) {
 		static bool logged_missing_depth_shader = false;
 		if (!logged_missing_depth_shader) {
 			std::cerr << "Depth pass skipped: depth shader is not available\n";
@@ -758,14 +884,18 @@ void RenderManager::PassSpecifiedListDepth(RenderList& list, function<Model* (co
 		}
 		return;
 	}
-	depth_shader->use();
+	if (depth_shader) {
+		depth_shader->use();
+	}
 
 	for (auto& [obj_name, mesh_name] : list) 
 	{		
 		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
 		Model* obj = ObjGetter(obj_name);
 		auto& trans = *obj->GetComponent<TransformComponent>();
-		depth_shader->setMat4("model", Conversion::fromMat4f(trans.GetModelGlobal()));		
+		if (depth_shader) {
+			depth_shader->setMat4("model", Conversion::fromMat4f(trans.GetModelGlobal()));
+		}
 
 		if (mesh) mesh->Draw();
 	}
@@ -776,7 +906,8 @@ void RenderManager::CollisionPass(RenderList&list, function<RawptrModel(const st
 {
 	ResourceManager& scene_manager = ResourceManager::getInstance();
 	MyShader*		 base_shader   = scene_manager.GetShaderByName("base");
-	if (!base_shader) {
+	scene_manager.BindShader("base");
+	if (!base_shader && (scene_manager.GetActiveBackendType() == RhiBackendType::OpenGL || !HasRegisteredShader(scene_manager, "base"))) {
 		static bool logged_missing_base_shader = false;
 		if (!logged_missing_base_shader) {
 			std::cerr << "Collision pass skipped: base shader is not available\n";
@@ -784,14 +915,18 @@ void RenderManager::CollisionPass(RenderList&list, function<RawptrModel(const st
 		}
 		return;
 	}
-	base_shader->use();
+	if (base_shader) {
+		base_shader->use();
+	}
 	
 	for (auto& [obj_name, mesh_name] : list) {
 		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
 		Model*      obj  = ObjGetter(obj_name);
 		if (!obj || !mesh) continue;
 		auto& trans = *obj->GetComponent<TransformComponent>();
-		base_shader->setMat4("model", Conversion::fromMat4f(trans.GetModelGlobal()));
+		if (base_shader) {
+			base_shader->setMat4("model", Conversion::fromMat4f(trans.GetModelGlobal()));
+		}
 		if (obj->intesection_) {
 			rhi_device_->Disable(RhiCapability::DepthTest);
 			rhi_device_->SetCullFace(RhiCullFace::Front);

@@ -15,6 +15,36 @@ public:
 
 	[[nodiscard]] virtual RhiBackendType GetBackendType() const = 0;
 	virtual void Initialize() = 0;
+	virtual void Initialize(const RhiDeviceInitConfig& config)
+	{
+		(void)config;
+		Initialize();
+	}
+	virtual void InitializeForSurface(const RhiDeviceInitConfig& config, const RhiPresentSurfaceDesc& surface)
+	{
+		RhiDeviceInitConfig surface_config = config;
+		surface_config.present_surface = surface;
+		Initialize(surface_config);
+	}
+	[[nodiscard]] virtual const RhiDeviceInitConfig& GetInitConfig() const = 0;
+	[[nodiscard]] virtual RhiDeviceCapabilities GetCapabilities() const = 0;
+	[[nodiscard]] virtual bool SupportsFeature(RhiDeviceFeature feature) const
+	{
+		const auto capabilities = GetCapabilities();
+		switch (feature) {
+		case RhiDeviceFeature::DebugGroups:
+			return capabilities.supports_debug_groups;
+		case RhiDeviceFeature::Texture2DArray:
+			return capabilities.supports_texture_2d_array;
+		case RhiDeviceFeature::TextureCubemap:
+			return capabilities.supports_texture_cubemap;
+		case RhiDeviceFeature::MultipleColorAttachments:
+			return capabilities.supports_multiple_color_attachments;
+		case RhiDeviceFeature::FramebufferReadback:
+			return capabilities.supports_framebuffer_readback;
+		}
+		return false;
+	}
 
 	virtual void Enable(RhiCapability capability) = 0;
 	virtual void Disable(RhiCapability capability) = 0;
@@ -28,11 +58,21 @@ public:
 	virtual void Clear(RhiClearFlags flags) = 0;
 	virtual void PushDebugGroup(std::string_view name) = 0;
 	virtual void PopDebugGroup() = 0;
+	virtual void BindShader(const RhiShaderDesc* shader_desc)
+	{
+		(void)shader_desc;
+	}
 	virtual void BindTextureUnit(uint32_t unit, RhiTextureHandle texture) = 0;
 	virtual void BindDefaultFramebuffer() = 0;
 	virtual void BindDefaultFramebuffer(RhiFramebufferBindTarget target) = 0;
 	virtual void BindFramebuffer(RhiFramebufferBindTarget target, RhiFramebufferHandle framebuffer) = 0;
 	virtual uint32_t GetDefaultFramebuffer() const = 0;
+	virtual void ResizePresentSurface(uint32_t width, uint32_t height)
+	{
+		(void)width;
+		(void)height;
+	}
+	virtual void Present() {}
 
 	virtual RhiBufferHandle CreateBuffer(const RhiBufferDesc& desc, const void* initial_data = nullptr) = 0;
 	virtual void BindBuffer(RhiBufferUsage usage, RhiBufferHandle buffer) = 0;

@@ -52,17 +52,26 @@ static void PropertyInit(GLenum type, ShaderProperty& pro) {
 }
 
 MyShader::MyShader(QObject * parent,
+                   const RhiShaderDesc& shader_desc):
+    QOpenGLShaderProgram(parent),
+    name_(shader_desc.name),
+    shader_desc_(shader_desc)
+{
+    material_desc_.shader_name = shader_desc_.name;
+    material_desc_.backend = shader_desc_.backend;
+    addShaderFromSourceFile(QOpenGLShader::Vertex, shader_desc_.vertex.path.c_str());
+    addShaderFromSourceFile(QOpenGLShader::Fragment, shader_desc_.fragment.path.c_str());
+    if (shader_desc_.HasGeometryStage()) {
+        addShaderFromSourceFile(QOpenGLShader::Geometry, shader_desc_.geometry.path.c_str());
+    }
+}
+
+MyShader::MyShader(QObject * parent,
                    const std::string & vertexPath,
                    const std::string & fragmentPath,
                    const std::string & geometryPath):
-    QOpenGLShaderProgram(parent)
+    MyShader(parent, MakeOpenGlShaderDesc(std::string{}, vertexPath, fragmentPath, geometryPath))
 {
-    addShaderFromSourceFile(QOpenGLShader::Vertex,   vertexPath.c_str());
-    addShaderFromSourceFile(QOpenGLShader::Fragment, fragmentPath.c_str());
-    if(geometryPath != "")
-    {
-        addShaderFromSourceFile(QOpenGLShader::Geometry, geometryPath.c_str());
-    }  
 }
 
 MyShader::~MyShader() = default;
@@ -78,6 +87,8 @@ void MyShader::SetRhiDevice(std::shared_ptr<IRhiDevice> rhi_device)
     link();
     if (!init_) {
         GLint num_uniforms = 0;
+        uniforms_.clear();
+        material_desc_.parameters.clear();
         GL()->glGetProgramInterfaceiv(programId(), GL_UNIFORM, GL_ACTIVE_RESOURCES, &num_uniforms);
 #ifdef _DEBUG
         std::cout << std::format("{:<30} uniform num: {:<2}\n", name_, num_uniforms);
@@ -115,6 +126,10 @@ void MyShader::SetRhiDevice(std::shared_ptr<IRhiDevice> rhi_device)
         }
 
         std::sort(uniforms_.begin(), uniforms_.end(), [](auto&& a, auto&& b) { return a.type < b.type; });
+        material_desc_.parameters.reserve(uniforms_.size());
+        for (const auto& uniform : uniforms_) {
+            material_desc_.parameters.push_back(uniform.ToParameterDesc());
+        }
 #ifdef _DEBUG
         std::cout << "______________________________________________\n";
         std::cout << "______________________________________________\n";

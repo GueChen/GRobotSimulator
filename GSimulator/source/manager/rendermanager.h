@@ -13,6 +13,7 @@
 #include "render/rendermesh.h"
 #include "render/framebufferobject.h"
 #include "render/uniform_buffer_object.h"
+#include "render/rhi/ibl_resource_setup.h"
 #include "render/rhi/rhi_device.h"
 #include "function/picking_helper.h"
 #include "model/basegrid.h"
@@ -187,6 +188,7 @@ private:
 	optional<UniformBufferObject>   matrices_UBO_				= std::nullopt;
 	optional<UniformBufferObject>   light_matrices_UBO_			= std::nullopt;
 	optional<UniformBufferObject>	ambient_observer_UBO_		= std::nullopt;	
+	IblSetupResult					ibl_setup_result_{};
 	
 /*________________________Planning Display Related_____________________________________________*/
 	list<std::shared_ptr<SimplexModel>> 

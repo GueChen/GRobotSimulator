@@ -3,6 +3,18 @@
 #include <iostream>
 #include <stdexcept>
 
+namespace {
+void LogPickingUnavailableOnce(const char* reason)
+{
+	static bool logged = false;
+	if (!logged) {
+		std::cerr << "Picking disabled: " << reason << '\n';
+		logged = true;
+	}
+}
+
+} // namespace
+
 GComponent::PickingController::PickingController()  = default;
 
 GComponent::PickingController::PickingController(const PickingController& other):
@@ -40,27 +52,43 @@ bool GComponent::PickingController::Init(unsigned width, unsigned height)
 {
 	CheckHaveInit();
 	if (!rhi_device_) {
-		throw std::runtime_error("PickingController requires an RHI device before initialization");
+		return false;
+	}
+	if (!rhi_device_->SupportsFeature(RhiDeviceFeature::FramebufferReadback)) {
+		LogPickingUnavailableOnce("framebuffer readback is not supported by the active RHI backend");
+		return false;
 	}
 
 	render_FBO_ = rhi_device_->CreatePickingFramebuffer(static_cast<int>(width), static_cast<int>(height));
-	have_init_ = true;
-	return render_FBO_.IsValid();
+	have_init_ = render_FBO_.IsValid();
+	if (!have_init_) {
+		LogPickingUnavailableOnce("picking framebuffer creation failed");
+	}
+	return have_init_;
+}
+
+bool GComponent::PickingController::IsAvailable() const
+{
+	return have_init_ && render_FBO_.IsValid();
 }
 
 void GComponent::PickingController::EnablePickingMode()
 {
+	if (!IsAvailable()) return;
 	rhi_device_->BindFramebuffer(RhiFramebufferBindTarget::Draw, render_FBO_);
 }
 
 void GComponent::PickingController::DisablePickintMode()
 {
+	if (!IsAvailable()) return;
 	rhi_device_->BindDefaultFramebuffer(RhiFramebufferBindTarget::Draw);
 }
 
 GComponent::PickingPixelInfo GComponent::PickingController::GetPickingPixelInfo(unsigned u, unsigned v)
 {
 	PickingPixelInfo info;
+	if (!IsAvailable()) return info;
+
 	float rgb[3] = {};
 	rhi_device_->ReadFramebufferColorPixel(render_FBO_, u, v, rgb);
 	info.drawID = rgb[0];

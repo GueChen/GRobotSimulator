@@ -49,6 +49,7 @@ public:
 	void SetRhiDevice(const shared_ptr<IRhiDevice>& device);
 
 	bool Init(unsigned width, unsigned height);
+	[[nodiscard]] bool IsAvailable() const;
 	void EnablePickingMode();
 	void DisablePickintMode();
 	PickingPixelInfo GetPickingPixelInfo(unsigned u, unsigned v);

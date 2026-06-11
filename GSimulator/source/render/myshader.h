@@ -39,6 +39,7 @@ namespace GComponent {
          * @param fragmentPath 片段着色器路径
          * @param geometryPath 几何着色器路径
          * */
+        MyShader(QObject* parent, const RhiShaderDesc& shader_desc);
         MyShader(QObject * parent,const std::string& vertexPath, const std::string& fragmentPath, const std::string & geometryPath = "");
 
         virtual ~MyShader();
@@ -49,9 +50,16 @@ namespace GComponent {
         void SetRhiDevice(std::shared_ptr<IRhiDevice> rhi_device);
 
         /// Setters & Getters
-        inline void              SetName(const std::string& name)    { name_ = name; }
+        inline void              SetName(const std::string& name)
+        {
+            name_ = name;
+            shader_desc_.name = name;
+            material_desc_.shader_name = name;
+        }
 
         inline const ShaderProperties& GetProperties() const               { return uniforms_; }
+        inline const RhiShaderDesc& GetShaderDesc() const                  { return shader_desc_; }
+        inline const RhiMaterialDesc& GetMaterialDesc() const              { return material_desc_; }
 
 
         /// Set 系列函数，使用前请先使用 MyShader::use
@@ -82,6 +90,8 @@ namespace GComponent {
     private:
         std::string name_;
         std::shared_ptr<IRhiDevice> rhi_device_;
+        RhiShaderDesc    shader_desc_;
+        RhiMaterialDesc  material_desc_;
         ShaderProperties  uniforms_;
         bool        init_ = false;
     };
