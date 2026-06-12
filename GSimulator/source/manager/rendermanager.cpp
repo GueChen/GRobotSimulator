@@ -99,7 +99,7 @@ bool SupportsDeferredFramebufferPasses(const shared_ptr<IRhiDevice>& rhi_device)
 
 bool HasRegisteredShader(ResourceManager& resource_manager, const std::string& shader_name)
 {
-	return resource_manager.GetShaderDescByName(shader_name) != nullptr;
+	return resource_manager.HasShader(shader_name);
 }
 
 } // namespace
@@ -671,10 +671,10 @@ void RenderManager::RenderingPass()
 bool RenderManager::DeferredGeometryPass()
 {
 	RhiDebugGroupGuard debug_group(rhi_device_, "Deferred Geometry Pass - GBuffer");
-	ResourceManager::getInstance().BindShader("deferred_geometry");
-	MyShader* geometry_shader = ResourceManager::getInstance().GetShaderByName("deferred_geometry");
-	if ((!geometry_shader && (ResourceManager::getInstance().GetActiveBackendType() == RhiBackendType::OpenGL
-		|| !HasRegisteredShader(ResourceManager::getInstance(), "deferred_geometry"))) || !gbuffer_.IsValid()) {
+	auto& resources = ResourceManager::getInstance();
+	if ((!resources.UseShader("deferred_geometry")
+		&& (resources.GetActiveBackendType() == RhiBackendType::OpenGL
+			|| !HasRegisteredShader(resources, "deferred_geometry"))) || !gbuffer_.IsValid()) {
 		return false;
 	}
 
@@ -682,11 +682,10 @@ bool RenderManager::DeferredGeometryPass()
 	ClearGLScreenBuffer(0.0f, 0.0f, 0.0f, 1.0f);
 	rhi_device_->Disable(RhiCapability::Blend);
 	rhi_device_->Disable(RhiCapability::CullFace);
-	if (geometry_shader) {
-		geometry_shader->use();
+	if (resources.GetActiveBackendType() == RhiBackendType::OpenGL) {
 		PassSpecifiedListDeferredGeometry(render_list_, [](const std::string& name) {
 			return ModelManager::getInstance().GetModelByName(name);
-		}, *geometry_shader);
+		});
 	}
 	else {
 		PassSpecifiedListNormal(render_list_, [](const std::string& name) {
@@ -700,11 +699,10 @@ bool RenderManager::DeferredGeometryPass()
 bool RenderManager::DeferredLightingPass()
 {
 	RhiDebugGroupGuard debug_group(rhi_device_, "Deferred Lighting Pass");
-	ResourceManager::getInstance().BindShader("deferred_lighting");
-	MyShader* lighting_shader = ResourceManager::getInstance().GetShaderByName("deferred_lighting");
+	auto& resources = ResourceManager::getInstance();
 	RenderMesh* quad_mesh = ResourceManager::getInstance().GetMeshByName("quads");
-	if ((!lighting_shader && (ResourceManager::getInstance().GetActiveBackendType() == RhiBackendType::OpenGL
-		|| !HasRegisteredShader(ResourceManager::getInstance(), "deferred_lighting"))) || !quad_mesh || !gbuffer_.IsValid()) {
+	if ((!resources.UseShader("deferred_lighting") && (resources.GetActiveBackendType() == RhiBackendType::OpenGL
+		|| !HasRegisteredShader(resources, "deferred_lighting"))) || !quad_mesh || !gbuffer_.IsValid()) {
 		return false;
 	}
 
@@ -715,9 +713,6 @@ bool RenderManager::DeferredLightingPass()
 	rhi_device_->Disable(RhiCapability::Blend);
 	rhi_device_->Disable(RhiCapability::CullFace);
 	rhi_device_->SetDepthFunc(RhiDepthFunc::LessEqual);
-	if (lighting_shader) {
-		lighting_shader->use();
-	}
 	quad_mesh->Draw();
 	rhi_device_->SetDepthFunc(RhiDepthFunc::Less);
 	for (uint32_t i = 0; i < gbuffer_.textures.size(); ++i) {
@@ -729,17 +724,15 @@ bool RenderManager::DeferredLightingPass()
 void RenderManager::DeferredDepthPrepass()
 {
 	RhiDebugGroupGuard debug_group(rhi_device_, "Deferred Depth Prepass");
-	ResourceManager::getInstance().BindShader("deferred_depth");
-	MyShader* depth_shader = ResourceManager::getInstance().GetShaderByName("deferred_depth");
-	if (!depth_shader && (ResourceManager::getInstance().GetActiveBackendType() == RhiBackendType::OpenGL
-		|| !HasRegisteredShader(ResourceManager::getInstance(), "deferred_depth"))) return;
+	auto& resources = ResourceManager::getInstance();
+	if (!resources.UseShader("deferred_depth") && (resources.GetActiveBackendType() == RhiBackendType::OpenGL
+		|| !HasRegisteredShader(resources, "deferred_depth"))) return;
 
 	rhi_device_->Disable(RhiCapability::Blend);
-	if (depth_shader) {
-		depth_shader->use();
+	if (resources.GetActiveBackendType() == RhiBackendType::OpenGL) {
 		PassSpecifiedListDeferredDepth(render_list_, [](const std::string& name) {
 			return ModelManager::getInstance().GetModelByName(name);
-		}, *depth_shader);
+		});
 	}
 	else {
 		PassSpecifiedListNormal(render_list_, [](const std::string& name) {
@@ -762,20 +755,15 @@ void RenderManager::SelectedOutlinePass()
 	if (!selected_obj) return;
 
 	RenderMesh* mesh = ResourceManager::getInstance().GetMeshByName(selected_obj->getMesh());
-	ResourceManager::getInstance().BindShader("outline");
-	MyShader* outline_shader = ResourceManager::getInstance().GetShaderByName("outline");
-	if (!mesh || (!outline_shader && (ResourceManager::getInstance().GetActiveBackendType() == RhiBackendType::OpenGL
-		|| !HasRegisteredShader(ResourceManager::getInstance(), "outline")))) return;
+	auto& resources = ResourceManager::getInstance();
+	if (!mesh || (!resources.UseShader("outline") && (resources.GetActiveBackendType() == RhiBackendType::OpenGL
+		|| !HasRegisteredShader(resources, "outline")))) return;
 
 	auto* transform = selected_obj->GetComponent<TransformComponent>();
 	if (!transform) return;
 
 	const glm::mat4 model = Conversion::fromMat4f(transform->GetModelGlobal());
-
-	if (outline_shader) {
-		outline_shader->use();
-		outline_shader->setMat4("model", model);
-	}
+	resources.SetShaderProperty("outline", "model", model);
 	rhi_device_->Disable(RhiCapability::CullFace);
 	mesh->Draw();
 }
@@ -831,9 +819,7 @@ void RenderManager::PassSpecifiedListPicking(PassType draw_index_type, RenderLis
 	ModelManager&	 model_manager	= ModelManager::getInstance();
 
 	// Universal Shader Uniform Attribute Settings
-	scene_manager.BindShader("picking");
-	MyShader*		 picking_shader = scene_manager.GetShaderByName("picking");
-	if (!picking_shader && (scene_manager.GetActiveBackendType() == RhiBackendType::OpenGL || !HasRegisteredShader(scene_manager, "picking"))) {
+	if (!scene_manager.UseShader("picking") && (scene_manager.GetActiveBackendType() == RhiBackendType::OpenGL || !HasRegisteredShader(scene_manager, "picking"))) {
 		static bool logged_missing_picking_shader = false;
 		if (!logged_missing_picking_shader) {
 			std::cerr << "Picking pass skipped: picking shader is not available\n";
@@ -841,13 +827,7 @@ void RenderManager::PassSpecifiedListPicking(PassType draw_index_type, RenderLis
 		}
 		return;
 	}
-	if (picking_shader) {
-		picking_shader->use();
-	}
-
-	if (picking_shader) {
-		picking_shader->setUint("gDrawIndex", static_cast<unsigned>(draw_index_type));
-	}
+	scene_manager.SetShaderProperty("picking", "gDrawIndex", static_cast<unsigned>(draw_index_type));
 	
 	//  Pass Normally
 	for (auto& [obj_name, mesh_name] : list) 
@@ -855,10 +835,8 @@ void RenderManager::PassSpecifiedListPicking(PassType draw_index_type, RenderLis
 		RenderMesh*	mesh  = scene_manager.GetMeshByName(mesh_name);
 		Model*		obj	  = ObjGetter(obj_name);
 		auto&		trans = *obj->GetComponent<TransformComponent>();
-		if (picking_shader) {
-			picking_shader->setUint("gModelIndex", obj->model_id_);
-			picking_shader->setMat4("model",	   Conversion::fromMat4f(trans.GetModelGlobal()));
-		}
+		scene_manager.SetShaderProperty("picking", "gModelIndex", obj->model_id_);
+		scene_manager.SetShaderProperty("picking", "model", Conversion::fromMat4f(trans.GetModelGlobal()));
 		
 		if (mesh) mesh->Draw();
 	}
@@ -874,9 +852,7 @@ void RenderManager::PassSpecifiedListDepth(RenderList& list, function<Model* (co
 #else 
 	const char* depth_shader_name = "depth_map";
 #endif
-	scene_manager.BindShader(depth_shader_name);
-	MyShader* depth_shader = scene_manager.GetShaderByName(depth_shader_name);
-	if (!depth_shader && (scene_manager.GetActiveBackendType() == RhiBackendType::OpenGL || !HasRegisteredShader(scene_manager, depth_shader_name))) {
+	if (!scene_manager.UseShader(depth_shader_name) && (scene_manager.GetActiveBackendType() == RhiBackendType::OpenGL || !HasRegisteredShader(scene_manager, depth_shader_name))) {
 		static bool logged_missing_depth_shader = false;
 		if (!logged_missing_depth_shader) {
 			std::cerr << "Depth pass skipped: depth shader is not available\n";
@@ -884,18 +860,12 @@ void RenderManager::PassSpecifiedListDepth(RenderList& list, function<Model* (co
 		}
 		return;
 	}
-	if (depth_shader) {
-		depth_shader->use();
-	}
-
 	for (auto& [obj_name, mesh_name] : list) 
 	{		
 		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
 		Model* obj = ObjGetter(obj_name);
 		auto& trans = *obj->GetComponent<TransformComponent>();
-		if (depth_shader) {
-			depth_shader->setMat4("model", Conversion::fromMat4f(trans.GetModelGlobal()));
-		}
+		scene_manager.SetShaderProperty(depth_shader_name, "model", Conversion::fromMat4f(trans.GetModelGlobal()));
 
 		if (mesh) mesh->Draw();
 	}
@@ -905,9 +875,7 @@ void RenderManager::PassSpecifiedListDepth(RenderList& list, function<Model* (co
 void RenderManager::CollisionPass(RenderList&list, function<RawptrModel(const std::string&)> ObjGetter)
 {
 	ResourceManager& scene_manager = ResourceManager::getInstance();
-	MyShader*		 base_shader   = scene_manager.GetShaderByName("base");
-	scene_manager.BindShader("base");
-	if (!base_shader && (scene_manager.GetActiveBackendType() == RhiBackendType::OpenGL || !HasRegisteredShader(scene_manager, "base"))) {
+	if (!scene_manager.UseShader("base") && (scene_manager.GetActiveBackendType() == RhiBackendType::OpenGL || !HasRegisteredShader(scene_manager, "base"))) {
 		static bool logged_missing_base_shader = false;
 		if (!logged_missing_base_shader) {
 			std::cerr << "Collision pass skipped: base shader is not available\n";
@@ -915,18 +883,12 @@ void RenderManager::CollisionPass(RenderList&list, function<RawptrModel(const st
 		}
 		return;
 	}
-	if (base_shader) {
-		base_shader->use();
-	}
-	
 	for (auto& [obj_name, mesh_name] : list) {
 		RenderMesh* mesh = scene_manager.GetMeshByName(mesh_name);
 		Model*      obj  = ObjGetter(obj_name);
 		if (!obj || !mesh) continue;
 		auto& trans = *obj->GetComponent<TransformComponent>();
-		if (base_shader) {
-			base_shader->setMat4("model", Conversion::fromMat4f(trans.GetModelGlobal()));
-		}
+		scene_manager.SetShaderProperty("base", "model", Conversion::fromMat4f(trans.GetModelGlobal()));
 		if (obj->intesection_) {
 			rhi_device_->Disable(RhiCapability::DepthTest);
 			rhi_device_->SetCullFace(RhiCullFace::Front);
@@ -992,7 +954,7 @@ void RenderManager::PassSpecifiedListNormal(RenderList& list, std::function<Mode
 	}
 }
 
-void RenderManager::PassSpecifiedListDeferredGeometry(RenderList& list, function<RawptrModel(const std::string&)> ObjGetter, MyShader& shader)
+void RenderManager::PassSpecifiedListDeferredGeometry(RenderList& list, function<RawptrModel(const std::string&)> ObjGetter)
 {
 	ResourceManager& scene_manager = ResourceManager::getInstance();
 
@@ -1014,17 +976,17 @@ void RenderManager::PassSpecifiedListDeferredGeometry(RenderList& list, function
 		const float ao = GetMaterialFloat(material, "ao", 1.0f);
 		const bool accept_shadow = GetMaterialBool(material, "accept shadow", material->GetIsCastShadow());
 
-		shader.setMat4("model", Conversion::fromMat4f(transform->GetModelGlobal()));
-		shader.setVec3("albedo_color", albedo);
-		shader.setFloat("metallic", metallic);
-		shader.setFloat("roughness", roughness);
-		shader.setFloat("ao", ao);
-		shader.setBool("accept_shadow", accept_shadow);
+		scene_manager.SetShaderProperty("deferred_geometry", "model", Conversion::fromMat4f(transform->GetModelGlobal()));
+		scene_manager.SetShaderProperty("deferred_geometry", "albedo_color", albedo);
+		scene_manager.SetShaderProperty("deferred_geometry", "metallic", metallic);
+		scene_manager.SetShaderProperty("deferred_geometry", "roughness", roughness);
+		scene_manager.SetShaderProperty("deferred_geometry", "ao", ao);
+		scene_manager.SetShaderProperty("deferred_geometry", "accept_shadow", accept_shadow);
 		mesh->Draw();
 	}
 }
 
-void RenderManager::PassSpecifiedListDeferredDepth(RenderList& list, function<RawptrModel(const std::string&)> ObjGetter, MyShader& shader)
+void RenderManager::PassSpecifiedListDeferredDepth(RenderList& list, function<RawptrModel(const std::string&)> ObjGetter)
 {
 	ResourceManager& scene_manager = ResourceManager::getInstance();
 
@@ -1037,7 +999,7 @@ void RenderManager::PassSpecifiedListDeferredDepth(RenderList& list, function<Ra
 		auto* transform = obj->GetComponent<TransformComponent>();
 		if (!transform) continue;
 
-		shader.setMat4("model", Conversion::fromMat4f(transform->GetModelGlobal()));
+		scene_manager.SetShaderProperty("deferred_depth", "model", Conversion::fromMat4f(transform->GetModelGlobal()));
 		mesh->Draw();
 	}
 }

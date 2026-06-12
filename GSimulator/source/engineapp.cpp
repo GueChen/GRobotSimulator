@@ -196,7 +196,7 @@ void GComponent::EngineApp::CreateRobotWithParams(const vector<vector<float>>& p
 
 void GComponent::EngineApp::CreateShader(const QString& name, const QString& vert, const QString& frag, const QString& geom)
 {
-	if (ResourceManager::getInstance().GetShaderByName(name.toStdString())) {
+	if (ResourceManager::getInstance().HasShader(name.toStdString())) {
 		QMessageBox::warning(nullptr, "same name find", "already exist same name Shader", QMessageBox::Ok);
 		return;
 	}

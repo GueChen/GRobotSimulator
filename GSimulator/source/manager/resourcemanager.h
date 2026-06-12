@@ -67,6 +67,8 @@ public:
     void            RegisteredShader(const RhiShaderDesc& shader_desc, QObject* parent = nullptr);
     void            RegisteredShader(const string& name, MyShader* raw_ptr_shader);
     void            DeregisteredShader(const string& name);
+    [[nodiscard]] bool
+                    HasShader(const string& name) const;
     MyShader*       GetShaderByName(const string& name);
     const RhiShaderDesc*
                     GetShaderDescByName(const string& name) const;
@@ -75,6 +77,14 @@ public:
     std::vector<std::string>
                     GetShadersName() const;
     void            BindShader(const string& name);
+    [[nodiscard]] bool
+                    UseShader(const string& name);
+    [[nodiscard]] bool
+                    ApplyShaderProperties(const string& name, const ShaderProperties& properties);
+    [[nodiscard]] bool
+                    SetShaderProperty(const string& shader_name, const ShaderProperty& property);
+    [[nodiscard]] bool
+                    SetShaderProperty(const string& shader_name, std::string_view property_name, const ShaderProperty::Var& value);
     [[nodiscard]] RhiBackendType
                     GetActiveBackendType() const;
 
@@ -104,14 +114,19 @@ signals:
 
 /// Fields 数据域
 private:
+    struct ShaderRegistryEntry {
+        RhiShaderDesc                                        shader_desc{};
+        RhiMaterialDesc                                      material_desc{};
+        unique_ptr<MyShader>                                 opengl_shader = nullptr;
+        unordered_map<string, ShaderProperty>                parameter_cache = {};
+    };
+
     shared_ptr<IRhiDevice>                                  rhi_device_          = nullptr;
 
     unordered_map <string, unique_ptr<QTimer>>              ui_update_timer_map_ = {};
     unordered_map <string, QOpenGLWidget*>                  draw_ui_map_         = {};
     unordered_map <string, unique_ptr<RenderMesh>>          mesh_map_            = {};
-    unordered_map <string, RhiShaderDesc>                   shader_desc_map_      = {};
-    unordered_map <string, RhiMaterialDesc>                 material_desc_map_    = {};
-    unordered_map <string, unique_ptr<MyShader>>            shader_map_          = {};
+    unordered_map <string, ShaderRegistryEntry>             shader_registry_     = {};
     unordered_map <string, Texture>                         texture_map_         = {};
 
     list<TextureMsg>                                        texture_require_upload_  = {};

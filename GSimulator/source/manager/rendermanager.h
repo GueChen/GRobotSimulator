@@ -133,8 +133,8 @@ private:
 									 RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);
 	void PassSpecifiedListNormal	(RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);
 	void PassSpecifiedListDepth		(RenderList&,	 function<RawptrModel(const std::string&)>ObjGetter);			
-	void PassSpecifiedListDeferredGeometry(RenderList&, function<RawptrModel(const std::string&)>ObjGetter, MyShader& shader);
-	void PassSpecifiedListDeferredDepth(RenderList&, function<RawptrModel(const std::string&)>ObjGetter, MyShader& shader);
+	void PassSpecifiedListDeferredGeometry(RenderList&, function<RawptrModel(const std::string&)>ObjGetter);
+	void PassSpecifiedListDeferredDepth(RenderList&, function<RawptrModel(const std::string&)>ObjGetter);
 
 #ifdef _COLLISION_TEST
 	void CollisionPass  (RenderList&, function<RawptrModel(const std::string&)>ObjGetter);
